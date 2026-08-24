@@ -1,0 +1,19 @@
+:root { font-family: Georgia, "Apple SD Gothic Neo", serif; color: #17211b; background: #e9eee6; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.shell { min-height: 100vh; max-width: 980px; margin: 0 auto; padding: 8rem 2rem; }
+.eyebrow { color: #66816b; letter-spacing: .18em; font: 700 .72rem/1.2 sans-serif; }
+h1 { margin: 1rem 0; font-size: clamp(3rem, 8vw, 6.6rem); line-height: .95; letter-spacing: -.06em; font-weight: 500; }
+h1 span { color: #bb5c36; }
+.intro { max-width: 32rem; color: #5f6e62; font: 1rem/1.7 sans-serif; }
+.panel { margin-top: 4rem; padding: 1.2rem; border: 1px solid #b9c8b8; background: rgba(250, 252, 247, .72); box-shadow: 14px 14px 0 #cbd9c8; }
+form { display: flex; gap: .75rem; align-items: end; }
+textarea { width: 100%; min-height: 8rem; padding: 1rem; resize: vertical; border: 1px solid #b9c8b8; background: #f8faf4; color: inherit; font: 1rem/1.5 sans-serif; }
+button { padding: .9rem 1.2rem; border: 0; background: #263d2b; color: white; cursor: pointer; font: 700 .85rem sans-serif; }
+button:disabled { opacity: .55; cursor: wait; }
+.answer { margin-top: 1rem; padding: 1.2rem; border-left: 4px solid #bb5c36; background: #fffdf7; }
+.badge { display: inline-block; margin-bottom: .7rem; color: #bb5c36; font: 700 .7rem sans-serif; letter-spacing: .1em; }
+.answer p { margin: 0 0 .8rem; font: 1.1rem/1.6 sans-serif; }
+.answer small { color: #7b857b; font: .75rem/1.5 sans-serif; }
+@media (max-width: 640px) { .shell { padding: 4rem 1rem; } form { display: block; } button { width: 100%; margin-top: .75rem; } }
+
