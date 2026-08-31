@@ -136,13 +136,12 @@ class ReadOnlyQueryExecutor:
             raise RuntimeError("psycopg is required for PostgreSQL access.") from exc
 
         query, effective_limit = self.with_limit(sql, limit)
-        with psycopg.connect(self.dsn, row_factory=dict_row) as conn:
-            with conn.cursor() as cur:
-                cur.execute("SET TRANSACTION READ ONLY")
-                cur.execute(f"SET LOCAL statement_timeout = {int(self.timeout_seconds * 1000)}")
-                cur.execute(query)
-                rows = list(cur.fetchall())
-                columns = [desc.name for desc in cur.description or []]
+        with psycopg.connect(self.dsn, row_factory=dict_row) as conn, conn.cursor() as cur:
+            cur.execute("SET TRANSACTION READ ONLY")
+            cur.execute(f"SET LOCAL statement_timeout = {int(self.timeout_seconds * 1000)}")
+            cur.execute(query)
+            rows = list(cur.fetchall())
+            columns = [desc.name for desc in cur.description or []]
 
         return ReadOnlyQueryResult(
             columns=columns,

@@ -4,8 +4,12 @@ from app.db.read_only import ReadOnlyQueryExecutor
 from app.sub_agent.sql_templates import (
     fab_status_summary,
     lot_status,
+    master_route_steps,
+    master_toolgroups,
     process_group_status,
     product_status,
+    release_plan_lookup,
+    route_table_for_product,
     station_status,
 )
 
@@ -43,3 +47,21 @@ def test_sc001_templates_escape_string_slots(executor: ReadOnlyQueryExecutor) ->
     template = station_status("fab10", "DE_BE_11'; DROP TABLE fab10.toolgroups; SELECT '")
     assert "DROP TABLE" in template.sql
     assert executor.validate(template.sql)
+
+
+def test_general_data_templates_are_read_only_valid(executor: ReadOnlyQueryExecutor) -> None:
+    templates = [
+        master_toolgroups("fab10", area="Dry_Etch"),
+        master_route_steps("fab11", product="Product_10"),
+        release_plan_lookup("fab13", product="Product_1"),
+    ]
+
+    for template in templates:
+        assert executor.validate(template.sql)
+
+
+def test_route_table_mapping_is_fab_specific() -> None:
+    assert route_table_for_product("Product_3", "fab10") == "route_product_3"
+
+    with pytest.raises(ValueError, match="not available"):
+        route_table_for_product("Product_1", "fab10")

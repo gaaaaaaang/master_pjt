@@ -19,11 +19,11 @@ def test_health() -> None:
 
 
 def test_status_chat_works_in_mock_mode() -> None:
-    response = client.post("/api/chat", json={"message": "지금 M2라인 WIP 몇 개야?"})
+    response = client.post("/api/chat", json={"message": "지금 fab10 WIP 몇 개야?"})
     assert response.status_code == 200
     body = response.json()
-    assert body["query_type"] == "shell"
-    assert "agent" in " ".join(body["limitations"])
+    assert body["query_type"] == "status"
+    assert "AutoSched" in " ".join(body["limitations"])
 
 
 def test_meta_reflects_shell_stack() -> None:
@@ -32,5 +32,5 @@ def test_meta_reflects_shell_stack() -> None:
     assert response.json() == {
         "frontend": "streamlit",
         "backend": "fastapi",
-        "agent": "disabled",
+        "agent": "text2sql-initial",
     }

@@ -1,22 +1,42 @@
 from uuid import uuid4
 
-from app.schemas.chat import ChatRequest, ChatResponse
+from app.schemas.chat import ChatRequest, ChatResponse, Evidence
+from app.sub_agent.text2sql import answer_question
 
 
 class ChatService:
     def ask(self, request: ChatRequest) -> ChatResponse:
         conversation_id = request.conversation_id or str(uuid4())
-        answer = (
-            "백엔드 골격이 준비된 상태입니다. "
-            "현재는 agent, DB, RAG 연결 없이 요청/응답 형태만 확인할 수 있습니다."
-        )
+        result = answer_question(request.message, fab=request.fab)
+        evidence = []
+        if result.plan:
+            evidence.append(
+                Evidence(
+                    source_type="text2sql_plan",
+                    title="Text2SQL plan",
+                    content=result.plan.template_id or result.status,
+                    metadata={
+                        "status": result.status,
+                        "fab_id": result.plan.fab_id,
+                        "data_source_type": result.plan.data_source_type,
+                        "slots": {
+                            key: {
+                                "value": slot.value,
+                                "source": slot.source,
+                                "confidence": slot.confidence,
+                            }
+                            for key, slot in result.plan.slots.items()
+                        },
+                    },
+                )
+            )
+
         return ChatResponse(
             conversation_id=conversation_id,
-            query_type="shell",
-            answer=answer,
-            confidence=0.0,
-            limitations=[
-                "agent 로직은 아직 연결하지 않았습니다.",
-                "실제 FAB 데이터 조회와 문서 검색은 이후 단계에서 붙입니다.",
-            ],
+            query_type=result.query_type,
+            answer=result.answer,
+            evidence=evidence,
+            sql=result.sql,
+            confidence=result.confidence,
+            limitations=result.limitations,
         )
