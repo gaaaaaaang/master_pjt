@@ -12,8 +12,18 @@ def chat(request: ChatRequest) -> ChatResponse:
     return service.ask(request)
 
 
+@router.get("/meta")
+def meta() -> dict[str, str]:
+    return {
+        "frontend": "streamlit",
+        "backend": "fastapi",
+        "agent": "disabled",
+    }
+
+
 @router.post("/feedback")
 def feedback(payload: dict) -> dict[str, str]:
-    # 저장소와 Few-shot 반영 규칙은 데이터 정책 확정 후 연결합니다.
-    return {"status": "accepted", "message": "feedback persistence is a placeholder"}
-
+    return {
+        "status": "accepted",
+        "message": "feedback persistence is a placeholder",
+    }

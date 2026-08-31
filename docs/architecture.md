@@ -26,3 +26,8 @@
 - DB 계정은 read-only로 제한합니다.
 - 설비 제어와 생산 조치 자동 실행은 제공하지 않습니다.
 - 모든 답변은 SQL, 문서, 계산 결과 중 사용한 근거와 한계를 반환합니다.
+
+## 상세 설계
+
+- Text2SQL sub-agent의 LangGraph state, node, prompt, validation, fallback 설계는
+  `docs/text2sql_agent_design.md`를 기준으로 합니다.

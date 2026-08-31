@@ -9,6 +9,10 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
     mysql_dsn: str | None = None
+    postgres_dsn: str | None = None
+    db_query_timeout_seconds: int = 5
+    db_max_rows: int = 200
+    db_allowed_schemas: str = "fab10,fab11,fab12,fab13"
     vector_db_url: str | None = None
     langsmith_tracing: bool = False
     langsmith_api_key: str | None = None
@@ -20,4 +24,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

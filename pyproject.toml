@@ -7,6 +7,8 @@ dependencies = [
   "fastapi>=0.115,<1.0",
   "uvicorn[standard]>=0.30,<1.0",
   "pydantic-settings>=2.6,<3.0",
+  "psycopg[binary]>=3.2,<4.0",
+  "streamlit>=1.37,<2.0",
   "langgraph>=0.2,<1.0",
   "langchain-core>=0.3,<1.0",
   "httpx>=0.27,<1.0",
@@ -36,4 +38,3 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-

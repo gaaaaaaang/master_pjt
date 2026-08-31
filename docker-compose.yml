@@ -1,15 +1,14 @@
 services:
-  mysql:
-    image: mysql:8.4
+  postgres:
+    image: postgres:16
     environment:
-      MYSQL_DATABASE: fab
-      MYSQL_USER: fab_user
-      MYSQL_PASSWORD: fab_password
-      MYSQL_ROOT_PASSWORD: root_password
+      POSTGRES_DB: fab
+      POSTGRES_USER: fab_user
+      POSTGRES_PASSWORD: fab_password
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
 
   chroma:
     image: chromadb/chroma:0.5.23
@@ -19,6 +18,5 @@ services:
       - chroma_data:/chroma/chroma
 
 volumes:
-  mysql_data:
+  postgres_data:
   chroma_data:
-
