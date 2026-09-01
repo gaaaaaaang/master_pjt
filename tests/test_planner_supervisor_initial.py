@@ -1,6 +1,7 @@
 from app.agents.planner import create_plan
 from app.agents.supervisor import Supervisor
 from app.schemas.chat import ChatRequest
+from app.sub_agent.text2sql import plan_text2sql
 
 
 def test_planner_routes_master_lookup_to_text2sql() -> None:
@@ -38,7 +39,12 @@ def test_planner_missing_fab_returns_clarification_plan() -> None:
     assert plan.clarification_question is not None
 
 
-def test_supervisor_status_stops_on_data_unavailable() -> None:
+def test_supervisor_status_stops_on_data_unavailable(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.agents.supervisor.answer_question",
+        lambda message, fab=None: plan_text2sql(message, fab=fab),
+    )
+
     result = Supervisor().run(ChatRequest(message="지금 fab10 WIP 몇 개야?"))
 
     assert result.status == "data_unavailable"

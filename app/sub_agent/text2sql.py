@@ -11,9 +11,14 @@ from app.db.read_only import ReadOnlyQueryExecutor, SqlValidationError
 from app.sub_agent.sql_templates import (
     ALLOWED_FABS,
     SqlTemplate,
+    fab_status_summary,
+    lot_status,
     master_route_steps,
     master_toolgroups,
+    process_group_status,
+    product_status,
     release_plan_lookup,
+    station_status,
 )
 
 QueryType = Literal[
@@ -156,17 +161,29 @@ def answer_question(
     execute: bool | None = None,
 ) -> Text2SQLResult:
     result = plan_text2sql(question, fab=fab)
-    if result.status != "succeeded" or not result.sql:
-        return result
 
     settings = get_settings()
     should_execute = execute if execute is not None else bool(settings.postgres_dsn)
+    if result.status == "data_unavailable" and result.query_type == "status" and should_execute:
+        if result.plan is None or result.plan.fab_id is None:
+            return result
+        result = _status_template_result(
+            _select_status_template(result.plan.slots, result.plan.fab_id),
+            result.plan.slots,
+            result.plan.fab_id,
+        )
+
+    if result.status != "succeeded" or not result.sql:
+        return result
+
     if not should_execute:
         return result
 
     try:
         execution = ReadOnlyQueryExecutor().execute(result.sql)
     except (RuntimeError, SqlValidationError, PsycopgError) as exc:
+        if result.query_type == "status" and _is_missing_autosched_table_error(exc):
+            return _operational_data_unavailable(result.plan.fab_id, result.plan.slots) if result.plan else result
         return Text2SQLResult(
             status="failed",
             query_type=result.query_type,
@@ -295,6 +312,18 @@ def _select_master_template(
     return None
 
 
+def _select_status_template(slots: dict[str, QuerySlot], fab_id: str) -> SqlTemplate:
+    if lot := _slot_value(slots, "lot_id"):
+        return lot_status(fab_id, lot)
+    if station := _slot_value(slots, "toolgroup"):
+        return station_status(fab_id, station)
+    if product := _slot_value(slots, "product"):
+        return product_status(fab_id, product.replace("Product_", "part_"))
+    if area := _slot_value(slots, "area"):
+        return process_group_status(fab_id, area)
+    return fab_status_summary(fab_id)
+
+
 def _template_result(
     template: SqlTemplate,
     query_type: QueryType,
@@ -320,6 +349,34 @@ def _template_result(
         answer=f"{template.description} SQL을 생성했습니다.",
         sql=template.sql,
         confidence=0.75,
+        limitations=limitations,
+        plan=plan,
+    )
+
+
+def _status_template_result(
+    template: SqlTemplate,
+    slots: dict[str, QuerySlot],
+    fab_id: str,
+) -> Text2SQLResult:
+    limitations = [
+        "현재 상태 조회는 PostgreSQL에 적재된 AutoSched report 기준입니다.",
+        "report_time은 시뮬레이션 report timestamp이며 실제 공장 실시간 clock이 아닐 수 있습니다.",
+    ]
+    plan = QueryPlan(
+        query_type="status",
+        template_id=template.name,
+        fab_id=fab_id,
+        data_source_type="operational_report",
+        slots=slots,
+        limitations=limitations,
+    )
+    return Text2SQLResult(
+        status="succeeded",
+        query_type="status",
+        answer=f"{template.description} SQL을 생성했습니다.",
+        sql=template.sql,
+        confidence=0.82,
         limitations=limitations,
         plan=plan,
     )
@@ -472,7 +529,14 @@ def _summarize_execution(planned: Text2SQLResult, rows: list[dict[str, Any]]) ->
             f"{route or '선택한 route'}의 lotrelease를 start_date 기준으로 집계했습니다. "
             f"총 {total}건이며 날짜 포인트는 {len(rows)}개입니다."
         )
+    if planned.query_type == "status":
+        return f"AutoSched report 기준으로 {len(rows)}개 상태 행을 조회했습니다."
     return f"{len(rows)}개 행을 조회했습니다."
+
+
+def _is_missing_autosched_table_error(exc: Exception) -> bool:
+    message = str(exc).lower()
+    return "autosched_" in message and ("does not exist" in message or "undefinedtable" in message)
 
 
 def _extract_slots(

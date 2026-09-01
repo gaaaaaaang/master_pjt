@@ -1,4 +1,5 @@
-from app.sub_agent.text2sql import generate_sql, plan_text2sql
+from app.db.read_only import ReadOnlyQueryResult
+from app.sub_agent.text2sql import answer_question, generate_sql, plan_text2sql
 
 
 def test_status_query_returns_data_unavailable_until_autosched_loaded() -> None:
@@ -16,6 +17,44 @@ def test_status_query_parses_fab_before_korean_particle() -> None:
     assert result.status == "data_unavailable"
     assert result.plan is not None
     assert result.plan.fab_id == "fab10"
+
+
+def test_status_query_executes_autosched_template_when_executor_is_enabled(monkeypatch) -> None:
+    class FakeExecutor:
+        def execute(self, sql: str) -> ReadOnlyQueryResult:
+            assert "FROM fab10.autosched_stngrp" in sql
+            return ReadOnlyQueryResult(
+                columns=["fab_id", "stngrp", "wiplotavg"],
+                rows=[{"fab_id": "fab10", "stngrp": "Dry_Etch", "wiplotavg": 2256.05}],
+                row_count=1,
+                sql=sql,
+                limit=100,
+            )
+
+    monkeypatch.setattr("app.sub_agent.text2sql.ReadOnlyQueryExecutor", FakeExecutor)
+
+    result = answer_question("지금 fab10 Dry_Etch WIP 몇 개야?", execute=True)
+
+    assert result.status == "succeeded"
+    assert result.query_type == "status"
+    assert result.plan is not None
+    assert result.plan.template_id == "sc001_process_group_status"
+    assert result.sql is not None
+    assert "AutoSched report 기준으로 1개 상태 행" in result.answer
+
+
+def test_status_query_stays_data_unavailable_when_autosched_table_is_missing(monkeypatch) -> None:
+    class FakeExecutor:
+        def execute(self, sql: str) -> ReadOnlyQueryResult:
+            raise RuntimeError('relation "fab10.autosched_perf" does not exist')
+
+    monkeypatch.setattr("app.sub_agent.text2sql.ReadOnlyQueryExecutor", FakeExecutor)
+
+    result = answer_question("지금 fab10 WIP 몇 개야?", execute=True)
+
+    assert result.status == "data_unavailable"
+    assert result.sql is None
+    assert "autosched_*" in " ".join(result.limitations)
 
 
 def test_lotrelease_route_count_line_chart_builds_semantic_query_plan() -> None:

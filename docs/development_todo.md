@@ -132,12 +132,12 @@
 4. [x] SC-001 현재 상태 조회용 SQL 3~5개 작성
 5. [x] SQL을 FastAPI endpoint로 감싸기
 6. [x] General Data 기반 master/release lookup SQL template 작성
-7. [ ] AutoSched `.rep` PostgreSQL loader 작성
+7. [x] AutoSched `.rep` PostgreSQL loader 작성
 8. [x] Planner 실행 계획 계약 정의 및 deterministic planner 구현
 9. [x] Supervisor sub-agent 실행 제어 구현
 10. [x] Self-reflection 검증 기준 및 sub-agent 구현
 11. [x] LangGraph node/state 연결
-12. [ ] SC-001 end-to-end 테스트 확장
+12. [x] SC-001 end-to-end 테스트 확장
 13. [x] fab10 lotrelease 날짜별 route 건수 Text2SQL + line chart E2E 연결
 
 현재 LangGraph stream 경로:
@@ -149,6 +149,10 @@
 - `lotrelease` 날짜별 건수는 named SQL template가 아니라 allowlisted semantic query
   plan(`source_tables`, `select_items`, `filters`, `group_by`, `order_by`, `aggregation`)에서
   SQL을 렌더링한다.
+- `scripts/load_autosched_postgres_reports.py`는 UTF-16 tab-delimited AutoSched `.rep`를
+  `{fab}.autosched_*` staging table로 적재한다.
+- SC-001 status 질의는 planning/mock 경로에서는 기존처럼 `data_unavailable`을 유지하고,
+  execute 경로에서 AutoSched table이 있으면 `sc001_*` template SQL을 실행한다.
 
 남은 고도화:
 
