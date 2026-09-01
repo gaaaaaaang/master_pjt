@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     mock_mode: bool = True
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
+    openai_endpoint: str = "https://skax.ai-talentlab.com"
+    openai_api_version: str = "2024-12-01-preview"
     mysql_dsn: str | None = None
     postgres_dsn: str | None = None
     db_query_timeout_seconds: int = 5

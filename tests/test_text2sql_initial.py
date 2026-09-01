@@ -1,5 +1,10 @@
 from app.db.read_only import ReadOnlyQueryResult
-from app.sub_agent.text2sql import answer_question, generate_sql, plan_text2sql
+from app.sub_agent.text2sql import (
+    OpenAIText2SQLClient,
+    answer_question,
+    generate_sql,
+    plan_text2sql,
+)
 
 
 class FakeLLM:
@@ -48,6 +53,68 @@ def test_status_query_reports_llm_call_failure(monkeypatch) -> None:
     assert result.query_type == "status"
     assert result.sql is None
     assert "OPENAI_API_KEY" in " ".join(result.limitations)
+
+
+def test_openai_client_uses_azure_chat_completions_endpoint(monkeypatch) -> None:
+    captured = {}
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict:
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "content": '{"supported":false,"sql":"","source_tables":[],"select_items":[],"filters":[],"group_by":[],"order_by":[],"aggregation":null,"expected_result_shape":null,"chart_intent":null,"answer":"unsupported","limitations":[],"confidence":0.1}'
+                        }
+                    }
+                ]
+            }
+
+    class FakeHttpClient:
+        def __init__(self, *args, **kwargs) -> None:
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args) -> None:
+            return None
+
+        def post(self, url, *, headers, json):
+            captured["url"] = url
+            captured["headers"] = headers
+            captured["json"] = json
+            return FakeResponse()
+
+    monkeypatch.setattr("app.sub_agent.text2sql.httpx.Client", FakeHttpClient)
+
+    client = OpenAIText2SQLClient(
+        api_key="test-key",
+        model="gpt-4.1",
+        endpoint="https://skax.ai-talentlab.com",
+        api_version="2024-12-01-preview",
+    )
+    output = client.create_sql(
+        question="hello",
+        query_type="master_data_lookup",
+        fab_id="fab10",
+        slots={},
+        schema_context={"allowed_table_refs": ["fab10.toolgroups"]},
+    )
+
+    assert output["supported"] is False
+    assert (
+        captured["url"]
+        == "https://skax.ai-talentlab.com/openai/deployments/gpt-4.1/chat/completions?api-version=2024-12-01-preview"
+    )
+    assert captured["headers"]["api-key"] == "test-key"
+    assert "Authorization" not in captured["headers"]
+    assert captured["json"]["model"] == "gpt-4.1"
+    assert captured["json"]["messages"][0]["role"] == "system"
+    assert captured["json"]["response_format"]["type"] == "json_schema"
 
 
 def test_status_query_parses_fab_before_korean_particle() -> None:

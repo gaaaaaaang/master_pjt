@@ -377,11 +377,15 @@ class OpenAIText2SQLClient:
         *,
         api_key: str | None = None,
         model: str | None = None,
+        endpoint: str | None = None,
+        api_version: str | None = None,
         timeout_seconds: float = 30.0,
     ) -> None:
         settings = get_settings()
         self.api_key = api_key or settings.openai_api_key
         self.model = model or settings.openai_model
+        self.endpoint = (endpoint or settings.openai_endpoint).rstrip("/")
+        self.api_version = api_version or settings.openai_api_version
         self.timeout_seconds = timeout_seconds
 
     def create_sql(
@@ -398,52 +402,47 @@ class OpenAIText2SQLClient:
 
         payload = {
             "model": self.model,
-            "input": [
+            "messages": [
                 {
                     "role": "system",
-                    "content": [
-                        {
-                            "type": "input_text",
-                            "text": _system_prompt(),
-                        }
-                    ],
+                    "content": _system_prompt(),
                 },
                 {
                     "role": "user",
-                    "content": [
+                    "content": json.dumps(
                         {
-                            "type": "input_text",
-                            "text": json.dumps(
-                                {
-                                    "question": question,
-                                    "query_type": query_type,
-                                    "fab_id": fab_id,
-                                    "slots": _serialize_slots(slots),
-                                    "schema_context": schema_context,
-                                },
-                                ensure_ascii=False,
-                            ),
-                        }
-                    ],
+                            "question": question,
+                            "query_type": query_type,
+                            "fab_id": fab_id,
+                            "slots": _serialize_slots(slots),
+                            "schema_context": schema_context,
+                        },
+                        ensure_ascii=False,
+                    ),
                 },
             ],
-            "text": {
-                "format": {
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
                     "type": "json_schema",
                     "name": "fab_text2sql_direct_sql",
                     "strict": True,
                     "schema": TEXT2SQL_OUTPUT_SCHEMA,
-                }
+                },
             },
         }
         headers = {
-            "Authorization": f"Bearer {self.api_key}",
+            "api-key": self.api_key,
             "Content-Type": "application/json",
         }
+        url = (
+            f"{self.endpoint}/openai/deployments/{self.model}/chat/completions"
+            f"?api-version={self.api_version}"
+        )
         with httpx.Client(timeout=self.timeout_seconds) as client:
-            response = client.post("https://api.openai.com/v1/responses", headers=headers, json=payload)
+            response = client.post(url, headers=headers, json=payload)
             response.raise_for_status()
-        output_text = _extract_output_text(response.json())
+        output_text = _extract_chat_completion_content(response.json())
         return json.loads(output_text)
 
 
@@ -1004,7 +1003,22 @@ def _serialize_slots(slots: dict[str, QuerySlot]) -> dict[str, dict[str, Any]]:
     }
 
 
-def _extract_output_text(response_json: dict[str, Any]) -> str:
+def _extract_chat_completion_content(response_json: dict[str, Any]) -> str:
+    choices = response_json.get("choices")
+    if isinstance(choices, list) and choices:
+        message = choices[0].get("message", {})
+        content = message.get("content")
+        if isinstance(content, str):
+            return content
+        if isinstance(content, list):
+            texts = [
+                item.get("text")
+                for item in content
+                if isinstance(item, dict) and isinstance(item.get("text"), str)
+            ]
+            if texts:
+                return "".join(texts)
+
     if isinstance(response_json.get("output_text"), str):
         return response_json["output_text"]
     texts: list[str] = []
