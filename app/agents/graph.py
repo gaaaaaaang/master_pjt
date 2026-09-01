@@ -19,4 +19,3 @@ def build_agent_graph():
     Keep this empty until detailed agent behavior is finalized.
     Target flow: router -> planner -> supervisor/sub_agent -> verifier -> composer.
     """
-    return None

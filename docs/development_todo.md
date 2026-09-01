@@ -70,12 +70,43 @@
 - `ContextNode`를 구현해 이전 대화 맥락을 조회한다.
 - `RouterNode`를 구현해 query type을 분류한다.
 - `SlotExtractionNode`를 구현한다.
-- `PlannerNode`를 구현해 실행 계획을 생성한다.
-- `SupervisorNode`를 구현해 sub-agent 실행 순서와 재시도를 제어한다.
+- `PlannerNode`를 구현해 `query_type`, `missing_slots`, `selected_sub_agents`,
+  `execution_steps`를 포함한 실행 계획을 생성한다.
+- `SupervisorNode`를 구현해 Planner 결과에 따라 sub-agent 실행 순서, 재시도,
+  clarification, data unavailable, unsupported 분기를 제어한다.
 - `Text2SQLNode`, `RAGNode`, `ImpactNode`, `CaseSearchNode`, `VisualizationNode`를 조건부 실행한다.
-- `ReflectionNode`에서 근거성, 일관성, 안전 경계를 검증한다.
-- `ComposerNode`에서 최종 답변을 생성한다.
+- `ReflectionNode`에서 근거성, 질문 의도 일치, limitation 노출, 안전 경계 위반
+  여부를 검증한다.
+- `ComposerNode`에서 Reflection 결과를 반영해 최종 답변을 생성한다.
 - `FeedbackNode`에서 사용자 평가를 저장한다.
+
+### Planner 구현 기준
+
+- 입력 질문과 slot 추출 결과를 기반으로 `status`, `master_data_lookup`,
+  `release_plan_lookup`, `diagnosis`, `impact`, `trend`, `unsupported`를 구분한다.
+- 실행 가능한 sub-agent 목록을 `selected_sub_agents`로 반환한다.
+- 필수 slot이 부족하면 SQL 생성 전 `missing_slots`와 clarification 질문을 반환한다.
+- AutoSched table이 필요한 live/current status는 loader 완료 전 `data_unavailable`
+  경로로 계획한다.
+
+### Supervisor 구현 기준
+
+- Planner의 `selected_sub_agents` 순서대로 Text2SQL, RAG, Impact, CaseSearch,
+  Visualization을 조건부 실행한다.
+- sub-agent 결과가 `needs_clarification`, `data_unavailable`, `unsupported`,
+  `failed`, `succeeded` 중 무엇인지에 따라 다음 실행 여부를 결정한다.
+- SC-002는 Text2SQL 근거와 RAG 근거를 모두 시도하되, 한쪽 근거가 없으면 최종 답변에
+  limitation을 포함한다.
+- 자동 생산 조치나 설비 제어 요청은 실행하지 않고 안전 경계 응답으로 종료한다.
+
+### Self-reflection 구현 기준
+
+- SQL 결과 없이 실제 수치나 현재 상태를 단정하지 않는다.
+- General Data 기반 조회를 live/current factory state처럼 표현하지 않는다.
+- RAG 근거만으로 실제 원인을 확정하지 않는다.
+- 영향도 계산 답변에는 입력 데이터, 계산식, 한계를 포함한다.
+- 위험하거나 권한 밖인 요청은 거절 또는 사람 검토 권고 응답으로 처리한다.
+- 최종 답변에 근거와 limitation이 누락되면 Composer로 보정 요청을 반환한다.
 
 ## Phase 7. 프론트엔드 연결
 
@@ -100,8 +131,13 @@
 3. [x] 주요 컬럼 샘플 확인
 4. [x] SC-001 현재 상태 조회용 SQL 3~5개 작성
 5. [x] SQL을 FastAPI endpoint로 감싸기
-6. [ ] General Data 기반 master/release lookup SQL template 작성
+6. [x] General Data 기반 master/release lookup SQL template 작성
 7. [ ] AutoSched `.rep` PostgreSQL loader 작성
+8. [ ] Planner 실행 계획 계약 정의 및 deterministic planner 구현
+9. [ ] Supervisor sub-agent 실행 제어 구현
+10. [ ] Self-reflection 검증 기준 및 sub-agent 구현
+11. [ ] LangGraph node/state 연결
+12. [ ] SC-001 end-to-end 테스트 확장
 
 비고:
 
@@ -109,3 +145,5 @@
 - SC-001 endpoint는 AutoSched `.rep` 적재와 Text2SQL template selection 이후 연결한다.
 - 현재 DB에는 `autosched_*` 테이블이 없으므로, 기존 SC-001 status template은 실행 전
   table availability check가 필요하다.
+- Planner, Supervisor, Self-reflection은 다음 개발 단계에서 LangGraph 연결 전에
+  deterministic module로 먼저 구현한다.

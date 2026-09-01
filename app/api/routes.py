@@ -17,7 +17,7 @@ def meta() -> dict[str, str]:
     return {
         "frontend": "streamlit",
         "backend": "fastapi",
-        "agent": "disabled",
+        "agent": "text2sql-initial",
     }
 
 
