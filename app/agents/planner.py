@@ -95,9 +95,9 @@ def create_plan(message: str, *, fab: str | None = None) -> PlannerDecision:
         execution_steps=[
             ExecutionStep(
                 agent="text2sql",
-                action="generate and optionally execute template-based read-only SQL",
+                action="call LLM Text2SQL and optionally execute validated read-only SQL",
                 required=True,
-                reason="question can be answered from an allowlisted SQL template",
+                reason="question can be answered from the allowlisted schema catalog",
             )
         ],
         slots=slots,

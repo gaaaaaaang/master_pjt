@@ -1,10 +1,9 @@
 import json
-from dataclasses import replace
 
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.sub_agent.text2sql import plan_text2sql
+from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
 
 client = TestClient(app)
 
@@ -22,12 +21,23 @@ def test_health() -> None:
     assert response.json() == {"status": "ok"}
 
 
-def test_status_chat_works_in_mock_mode() -> None:
+def test_status_chat_works_in_mock_mode(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.agents.supervisor.answer_question",
+        lambda *args, **kwargs: Text2SQLResult(
+            status="failed",
+            query_type="status",
+            answer="LLM Text2SQL 호출을 완료하지 못했습니다.",
+            limitations=["OPENAI_API_KEY is not configured."],
+            plan=QueryPlan(query_type="status", template_id=None, fab_id="fab10"),
+        ),
+    )
+
     response = client.post("/api/chat", json={"message": "지금 fab10 WIP 몇 개야?"})
     assert response.status_code == 200
     body = response.json()
     assert body["query_type"] == "status"
-    assert "AutoSched" in " ".join(body["limitations"])
+    assert "OPENAI_API_KEY" in " ".join(body["limitations"])
 
 
 def test_meta_reflects_shell_stack() -> None:
@@ -64,16 +74,40 @@ def test_chat_stream_exposes_real_node_order_sql_and_chart(monkeypatch) -> None:
     question = (
         "fab10의 lotrelease 테이블에서 route_product_3 건수를 날짜 기준으로 라인차트로 그려줘."
     )
-    planned = plan_text2sql(question)
-    executed = replace(
-        planned,
+    executed = Text2SQLResult(
+        status="succeeded",
+        query_type="trend",
         answer=(
             "Route_Product_3의 lotrelease를 start_date 기준으로 집계했습니다. "
             "총 3건이며 날짜 포인트는 1개입니다."
         ),
+        sql="""
+SELECT start_date::date AS release_date,
+       COUNT(*)::bigint AS lot_count
+FROM fab10.lotrelease
+WHERE route_name = 'Route_Product_3'
+GROUP BY start_date::date
+ORDER BY release_date ASC
+""".strip(),
         rows=[{"release_date": "2018-01-01", "lot_count": 3}],
         columns=["release_date", "lot_count"],
         row_count=1,
+        confidence=0.9,
+        limitations=[],
+        plan=QueryPlan(
+            query_type="trend",
+            template_id=None,
+            fab_id="fab10",
+            data_source_type="release_plan",
+            chart_intent={
+                "type": "line",
+                "x": "release_date",
+                "y": "lot_count",
+                "x_title": "Release date",
+                "y_title": "Lot release count",
+                "series": "Route_Product_3",
+            },
+        ),
     )
     monkeypatch.setattr("app.agents.graph.answer_question", lambda *args, **kwargs: executed)
 

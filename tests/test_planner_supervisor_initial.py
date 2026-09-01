@@ -1,7 +1,7 @@
 from app.agents.planner import create_plan
 from app.agents.supervisor import Supervisor
 from app.schemas.chat import ChatRequest
-from app.sub_agent.text2sql import plan_text2sql
+from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
 
 
 def test_planner_routes_master_lookup_to_text2sql() -> None:
@@ -42,7 +42,18 @@ def test_planner_missing_fab_returns_clarification_plan() -> None:
 def test_supervisor_status_stops_on_data_unavailable(monkeypatch) -> None:
     monkeypatch.setattr(
         "app.agents.supervisor.answer_question",
-        lambda message, fab=None: plan_text2sql(message, fab=fab),
+        lambda *args, **kwargs: Text2SQLResult(
+            status="data_unavailable",
+            query_type="status",
+            answer="AutoSched report 적재 후 활성화해야 합니다.",
+            limitations=["현재 PostgreSQL에는 AutoSched report table(autosched_*)이 적재되어 있지 않습니다."],
+            plan=QueryPlan(
+                query_type="status",
+                template_id=None,
+                fab_id="fab10",
+                data_source_type="operational_report",
+            ),
+        ),
     )
 
     result = Supervisor().run(ChatRequest(message="지금 fab10 WIP 몇 개야?"))
@@ -54,7 +65,26 @@ def test_supervisor_status_stops_on_data_unavailable(monkeypatch) -> None:
     assert "AutoSched" in " ".join(result.limitations)
 
 
-def test_supervisor_master_lookup_returns_planner_and_text2sql_evidence() -> None:
+def test_supervisor_master_lookup_returns_planner_and_text2sql_evidence(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.agents.supervisor.answer_question",
+        lambda *args, **kwargs: Text2SQLResult(
+            status="succeeded",
+            query_type="master_data_lookup",
+            answer="LLM이 read-only SQL을 생성했습니다.",
+            sql="SELECT area, toolgroup FROM fab10.toolgroups ORDER BY area, toolgroup LIMIT 50",
+            confidence=0.82,
+            limitations=["현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다."],
+            plan=QueryPlan(
+                query_type="master_data_lookup",
+                template_id=None,
+                fab_id="fab10",
+                data_source_type="model_master",
+                source_tables=["fab10.toolgroups"],
+            ),
+        ),
+    )
+
     result = Supervisor().run(ChatRequest(message="fab10 Dry_Etch toolgroup 목록 보여줘"))
 
     assert result.status == "succeeded"
