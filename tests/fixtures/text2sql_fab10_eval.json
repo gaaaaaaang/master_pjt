@@ -1,0 +1,285 @@
+[
+  {
+    "id": "fab10_status_wip",
+    "question": "지금 fab10 WIP 몇 개야?",
+    "expected_status": "data_unavailable",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["AutoSched report"]
+  },
+  {
+    "id": "fab10_status_tool_current",
+    "question": "fab10 DE_BE_11 설비 현재 상태 알려줘",
+    "expected_status": "data_unavailable",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["operational status"]
+  },
+  {
+    "id": "fab10_status_utilization",
+    "question": "fab10 Dry_Etch utilization 어때?",
+    "expected_status": "data_unavailable",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["AutoSched report"]
+  },
+  {
+    "id": "fab10_status_cycle_time",
+    "question": "fab10 cycle time 현재 얼마야?",
+    "expected_status": "data_unavailable",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["AutoSched report"]
+  },
+  {
+    "id": "fab10_status_queue",
+    "question": "fab10 큐 상태 보여줘",
+    "expected_status": "data_unavailable",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["AutoSched report"]
+  },
+  {
+    "id": "fab10_toolgroups_dry_etch",
+    "question": "fab10 Dry_Etch toolgroup 목록 보여줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_toolgroups",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.toolgroups", "area ILIKE", "Dry_Etch"],
+    "expected_answer_contains": ["General Data 기준"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_toolgroups_wet_etch",
+    "question": "fab10 Wet_Etch toolgroup list",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_toolgroups",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.toolgroups", "Wet_Etch"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_toolgroups_diffusion",
+    "question": "fab10 Diffusion 설비군 구성 조회",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_toolgroups",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.toolgroups", "Diffusion"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_toolgroups_implant",
+    "question": "fab10 Implant toolgroup 목록",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_toolgroups",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.toolgroups", "Implant"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_toolgroups_def_met",
+    "question": "fab10 Def_Met area toolgroup 보여줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_toolgroups",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.toolgroups", "Def_Met"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_toolgroup_specific_de_be_11",
+    "question": "fab10 DE_BE_11 toolgroup 조회",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_toolgroups",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.toolgroups", "toolgroup ILIKE", "DE_BE_11"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_toolgroup_specific_diffusion_fe",
+    "question": "fab10 Diffusion_FE_120 toolgroup 정보",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_toolgroups",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.toolgroups", "Diffusion_FE_120"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_toolgroups_tf_met",
+    "question": "fab10 TF_Met toolgroup 목록",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_toolgroups",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.toolgroups", "TF_Met"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_route_product3",
+    "question": "fab10 Product_3 route step 보여줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_route_steps",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.route_product_3", "ORDER BY source_row_id"],
+    "expected_answer_contains": ["General Data 기준"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_route_product4",
+    "question": "fab10 Product_4 route step 보여줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_route_steps",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.route_product_4"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_route_product3_diffusion",
+    "question": "fab10 Product_3 Diffusion route step 목록",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_route_steps",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.route_product_3", "area ILIKE", "Diffusion"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_route_product3_wet_etch",
+    "question": "fab10 Product_3 Wet_Etch 공정 단계 보여줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_route_steps",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.route_product_3", "area ILIKE", "Wet_Etch"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_route_part3_korean",
+    "question": "fab10 part 3 공정 단계 목록",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_route_steps",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.route_product_3"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_route_route_product4",
+    "question": "fab10 route_product_4 step list",
+    "expected_status": "succeeded",
+    "expected_query_type": "master_data_lookup",
+    "expected_template_id": "master_route_steps",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.route_product_4"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_release_product3",
+    "question": "fab10 Product_3 release plan 보여줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "release_plan_lookup",
+    "expected_template_id": "release_plan_lookup",
+    "expect_sql": true,
+    "expected_sql_contains": ["fab10.lotrelease", "Product_3", "Route_Product_3"],
+    "expected_answer_contains": ["Release plan 기준"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_release_product4",
+    "question": "fab10 Product_4 release plan 조회",
+    "expected_status": "succeeded",
+    "expected_query_type": "release_plan_lookup",
+    "expected_template_id": "release_plan_lookup",
+    "expect_sql": true,
+    "expected_sql_contains": ["fab10.lotrelease", "Product_4", "Route_Product_4"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_release_part3_due",
+    "question": "fab10 part 3 due date 알려줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "release_plan_lookup",
+    "expected_template_id": "release_plan_lookup",
+    "expect_sql": true,
+    "expected_sql_contains": ["due_date", "Product_3"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_release_route_product3",
+    "question": "fab10 Route_Product_3 lotrelease 조회",
+    "expected_status": "succeeded",
+    "expected_query_type": "release_plan_lookup",
+    "expected_template_id": "release_plan_lookup",
+    "expect_sql": true,
+    "expected_sql_contains": ["Route_Product_3"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_release_product3_korean",
+    "question": "fab10 Product_3 릴리즈 계획",
+    "expected_status": "succeeded",
+    "expected_query_type": "release_plan_lookup",
+    "expected_template_id": "release_plan_lookup",
+    "expect_sql": true,
+    "expected_sql_contains": ["Product_3"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_release_broad_guard",
+    "question": "fab10 release plan 보여줘",
+    "expected_status": "needs_clarification",
+    "expected_query_type": "release_plan_lookup",
+    "expect_sql": false,
+    "expected_answer_contains": ["product", "route"]
+  },
+  {
+    "id": "missing_fab_guard",
+    "question": "Dry_Etch toolgroup 목록 보여줘",
+    "fab_context": null,
+    "expected_status": "needs_clarification",
+    "expected_query_type": "master_data_lookup",
+    "expect_sql": false,
+    "expected_answer_contains": ["fab10", "fab13"]
+  },
+  {
+    "id": "fab10_route_unavailable_product1",
+    "question": "fab10 Product_1 route step 보여줘",
+    "expected_status": "unsupported",
+    "expected_query_type": "master_data_lookup",
+    "expect_sql": false,
+    "expected_answer_contains": ["General Data"],
+    "expected_limitation_contains": ["route_product_1"]
+  },
+  {
+    "id": "fab10_unsupported_yield",
+    "question": "fab10 yield 알려줘",
+    "expected_status": "unsupported",
+    "expected_query_type": "unsupported",
+    "expect_sql": false,
+    "expected_answer_contains": ["범위 밖"]
+  },
+  {
+    "id": "fab10_pm_initial_unsupported",
+    "question": "fab10 PM policy 보여줘",
+    "expected_status": "unsupported",
+    "expected_query_type": "master_data_lookup",
+    "expect_sql": false,
+    "expected_answer_contains": ["toolgroup, route step, release plan"]
+  },
+  {
+    "id": "fab10_breakdown_initial_unsupported",
+    "question": "fab10 breakdown policy 조회",
+    "expected_status": "unsupported",
+    "expected_query_type": "master_data_lookup",
+    "expect_sql": false,
+    "expected_answer_contains": ["toolgroup, route step, release plan"]
+  }
+]

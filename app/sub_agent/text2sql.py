@@ -380,7 +380,7 @@ def _extract_slots(
 
     route = _parse_route(question)
     if route:
-        slots["route"] = QuerySlot(f"Route_{route}", "parser", 0.9, route)
+        slots["route"] = QuerySlot(route, "parser", 0.9, route)
         slots["product"] = QuerySlot(route.removeprefix("Route_"), "parser", 0.8, route)
 
     toolgroup = _parse_toolgroup(question)

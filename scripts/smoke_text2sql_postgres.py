@@ -32,6 +32,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Print a final machine-readable JSON summary after the log output.",
     )
+    parser.add_argument(
+        "--case-file",
+        type=Path,
+        help="Optional JSON file containing Text2SQL eval cases.",
+    )
     return parser.parse_args()
 
 
@@ -95,13 +100,14 @@ def main() -> int:
 
     failures: list[str] = []
     summaries: list[dict[str, Any]] = []
-    cases = default_cases(args.fab)
+    cases = load_cases(args.case_file, args.fab)
 
     for idx, case in enumerate(cases, start=1):
         LOGGER.info("case %s/%s id=%s", idx, len(cases), case["id"])
         LOGGER.info("question=%s", case["question"])
 
-        result = answer_question(case["question"], fab=args.fab, execute=True)
+        fab_context = case.get("fab_context", args.fab)
+        result = answer_question(case["question"], fab=fab_context, execute=True)
         plan = asdict(result.plan) if result.plan else None
 
         LOGGER.info(
@@ -133,6 +139,7 @@ def main() -> int:
                 "query_type": result.query_type,
                 "row_count": result.row_count,
                 "has_sql": bool(result.sql),
+                "template_id": result.plan.template_id if result.plan else None,
                 "answer": result.answer,
                 "limitations": result.limitations,
             }
@@ -166,14 +173,44 @@ def validate_case(case: dict[str, Any], result: Any) -> list[str]:
             f"{case_id}: expected query_type={expected_query_type}, got query_type={result.query_type}"
         )
 
+    expected_template_id = case.get("expected_template_id")
+    actual_template_id = result.plan.template_id if result.plan else None
+    if expected_template_id and actual_template_id != expected_template_id:
+        failures.append(
+            f"{case_id}: expected template_id={expected_template_id}, got {actual_template_id}"
+        )
+
     if bool(result.sql) != case["expect_sql"]:
         failures.append(f"{case_id}: expected has_sql={case['expect_sql']}, got {bool(result.sql)}")
+
+    for fragment in case.get("expected_sql_contains", []):
+        if fragment not in (result.sql or ""):
+            failures.append(f"{case_id}: SQL did not contain expected fragment={fragment!r}")
+
+    for fragment in case.get("expected_answer_contains", []):
+        if fragment not in result.answer:
+            failures.append(f"{case_id}: answer did not contain expected fragment={fragment!r}")
+
+    limitation_text = " ".join(result.limitations)
+    for fragment in case.get("expected_limitation_contains", []):
+        if fragment not in limitation_text:
+            failures.append(f"{case_id}: limitations did not contain expected fragment={fragment!r}")
 
     min_rows = case.get("min_rows")
     if min_rows is not None and result.row_count < min_rows:
         failures.append(f"{case_id}: expected at least {min_rows} row(s), got {result.row_count}")
 
     return failures
+
+
+def load_cases(case_file: Path | None, fab: str) -> list[dict[str, Any]]:
+    if case_file is None:
+        return default_cases(fab)
+    with case_file.open(encoding="utf-8") as fh:
+        cases = json.load(fh)
+    if not isinstance(cases, list):
+        raise TypeError(f"Case file must contain a JSON array: {case_file}")
+    return cases
 
 
 def mask_dsn(dsn: str) -> str:
