@@ -97,8 +97,14 @@ FAB_PATTERN = re.compile(
     r"|(?<![A-Za-z0-9_])fab(1[0-3])(?![A-Za-z0-9_])",
     re.IGNORECASE,
 )
-PRODUCT_PATTERN = re.compile(r"\b(?:product|part|route_product)[-_ ]?([eE]?\d+)\b", re.IGNORECASE)
-ROUTE_PATTERN = re.compile(r"\broute[-_ ]?product[-_ ]?([eE]?\d+)\b", re.IGNORECASE)
+PRODUCT_PATTERN = re.compile(
+    r"(?<![A-Za-z0-9_])(?:product|part|route_product)[-_ ]?([eE]?\d+)(?![A-Za-z0-9_])",
+    re.IGNORECASE,
+)
+ROUTE_PATTERN = re.compile(
+    r"(?<![A-Za-z0-9_])route[-_ ]?product[-_ ]?([eE]?\d+)(?![A-Za-z0-9_])",
+    re.IGNORECASE,
+)
 TOOLGROUP_PATTERN = re.compile(r"\b[A-Z][A-Za-z]{1,8}_[A-Z]{2}_[0-9]{1,3}\b")
 LOT_PATTERN = re.compile(r"\b(?:init_)?lot[_-][A-Za-z0-9_-]+\b", re.IGNORECASE)
 TABLE_REF_PATTERN = re.compile(
@@ -424,7 +430,6 @@ class OpenAIText2SQLClient:
             "response_format": {
                 "type": "json_schema",
                 "json_schema": {
-                    "type": "json_schema",
                     "name": "fab_text2sql_direct_sql",
                     "strict": True,
                     "schema": TEXT2SQL_OUTPUT_SCHEMA,
@@ -441,7 +446,15 @@ class OpenAIText2SQLClient:
         )
         with httpx.Client(timeout=self.timeout_seconds) as client:
             response = client.post(url, headers=headers, json=payload)
-            response.raise_for_status()
+            try:
+                response.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                detail = response.text.strip()
+                if len(detail) > 1000:
+                    detail = f"{detail[:1000]}..."
+                raise RuntimeError(
+                    f"LLM API returned HTTP {response.status_code}: {detail or 'empty response body'}"
+                ) from exc
         output_text = _extract_chat_completion_content(response.json())
         return json.loads(output_text)
 
@@ -513,6 +526,7 @@ def plan_text2sql(
     *,
     fab: str | None = None,
     llm_client: Text2SQLClient | None = None,
+    generate: bool = True,
 ) -> Text2SQLResult:
     normalized = _normalize_question(question)
     slots = _extract_slots(question, normalized, fab=fab)
@@ -544,6 +558,25 @@ def plan_text2sql(
             confidence=0.3,
             limitations=["지원 table catalog에 매핑되는 대상이 없습니다."],
             plan=QueryPlan(query_type=query_type, template_id=None, fab_id=fab_id, slots=slots),
+        )
+
+    if not generate:
+        limitations = _base_limitations(query_type, schema_context["data_source_type"])
+        return Text2SQLResult(
+            status="succeeded",
+            query_type=query_type,
+            answer="Text2SQL 실행에 필요한 질의 메타데이터를 준비했습니다.",
+            confidence=0.7,
+            limitations=limitations,
+            plan=QueryPlan(
+                query_type=query_type,
+                template_id=None,
+                fab_id=fab_id,
+                data_source_type=schema_context["data_source_type"],
+                slots=slots,
+                limitations=limitations,
+                source_tables=schema_context["allowed_table_refs"],
+            ),
         )
 
     try:

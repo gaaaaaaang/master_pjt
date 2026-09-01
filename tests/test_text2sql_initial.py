@@ -59,6 +59,9 @@ def test_openai_client_uses_azure_chat_completions_endpoint(monkeypatch) -> None
     captured = {}
 
     class FakeResponse:
+        status_code = 200
+        text = ""
+
         def raise_for_status(self) -> None:
             return None
 
@@ -115,14 +118,34 @@ def test_openai_client_uses_azure_chat_completions_endpoint(monkeypatch) -> None
     assert captured["json"]["model"] == "gpt-4.1"
     assert captured["json"]["messages"][0]["role"] == "system"
     assert captured["json"]["response_format"]["type"] == "json_schema"
+    assert "type" not in captured["json"]["response_format"]["json_schema"]
 
 
 def test_status_query_parses_fab_before_korean_particle() -> None:
-    result = plan_text2sql("fab10에서 Queue Time이 10% 늘면 output 영향은?")
+    result = plan_text2sql(
+        "fab10에서 Queue Time이 10% 늘면 output 영향은?",
+        llm_client=FakeLLM(llm_payload("SELECT * FROM fab10.autosched_perf LIMIT 1")),
+    )
 
-    assert result.status == "failed"
+    assert result.status == "succeeded"
     assert result.plan is not None
     assert result.plan.fab_id == "fab10"
+
+
+def test_release_route_is_parsed_before_korean_particle() -> None:
+    result = plan_text2sql(
+        "fab10 lotrelease에서 Route_Product_3의 2018-01-01 release plan 목록을 보여줘",
+        llm_client=FakeLLM(
+            llm_payload(
+                "SELECT * FROM fab10.lotrelease "
+                "WHERE route_name = 'Route_Product_3' LIMIT 20"
+            )
+        ),
+    )
+
+    assert result.status == "succeeded"
+    assert result.plan is not None
+    assert result.plan.slots["route"].value == "Route_Product_3"
 
 
 def test_status_query_calls_llm_and_executes_generated_sql(monkeypatch) -> None:

@@ -6,12 +6,12 @@ from uuid import uuid4
 
 from langgraph.graph import END, START, StateGraph
 
-from app.agents.planner import PlannerDecision, create_plan
+from app.agents.llm_nodes import compose_with_llm, create_llm_plan, reflect_with_llm, review_plan
+from app.agents.planner import PlannerDecision
 from app.schemas.chat import ChatRequest
 from app.sub_agent.case_search import find_similar_cases
 from app.sub_agent.impact import estimate_output_delta
 from app.sub_agent.rag import retrieve_knowledge
-from app.sub_agent.reflection import verify_response
 from app.sub_agent.text2sql import Text2SQLResult, answer_question
 from app.sub_agent.visualization import build_chart_spec
 
@@ -37,7 +37,7 @@ class AgentState(TypedDict, total=False):
 
 def _planner_node(state: AgentState) -> dict[str, Any]:
     request = state["request"]
-    plan = create_plan(request.message, fab=request.fab)
+    plan = create_llm_plan(request.message, fab=request.fab)
     metadata = {
         "status": plan.status,
         "query_type": plan.query_type,
@@ -69,7 +69,8 @@ def _planner_node(state: AgentState) -> dict[str, Any]:
 
 
 def _supervisor_node(state: AgentState) -> dict[str, Any]:
-    plan = state["plan"]
+    request = state["request"]
+    plan, decision = review_plan(state["plan"], request.message)
     halted = plan.status != "ready"
     answer = ""
     if plan.status == "needs_clarification":
@@ -79,6 +80,7 @@ def _supervisor_node(state: AgentState) -> dict[str, Any]:
     elif plan.status == "unsupported":
         answer = "현재 지원 범위 밖의 질문입니다."
     return {
+        "plan": plan,
         "halted": halted,
         "answer": answer,
         "stream_event": {
@@ -92,6 +94,7 @@ def _supervisor_node(state: AgentState) -> dict[str, Any]:
             "data": {
                 "status": plan.status,
                 "selected_sub_agents": plan.selected_sub_agents,
+                "reason": decision["reason"],
             },
         },
     }
@@ -121,6 +124,8 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
                 "status": result.status,
                 "query_type": result.query_type,
                 "row_count": result.row_count,
+                "columns": result.columns,
+                "sample_rows": result.rows[:20],
                 "query_plan": query_plan,
                 "sql": result.sql,
             },
@@ -275,9 +280,15 @@ def _visualization_node(state: AgentState) -> dict[str, Any]:
 
 
 def _composer_node(state: AgentState) -> dict[str, Any]:
-    answer = state.get("answer") or "\n\n".join(dict.fromkeys(state.get("answer_parts", [])))
-    if not answer:
-        answer = "요청을 처리할 실행 결과가 없습니다."
+    request = state["request"]
+    answer = compose_with_llm(
+        question=request.message,
+        plan=state["plan"],
+        answer_parts=state.get("answer_parts", []),
+        evidence=state.get("evidence", []),
+        limitations=state.get("limitations", []),
+        reflection=state.get("reflection", {}),
+    )
     status = state.get("status", "succeeded")
     if status == "ready":
         status = "succeeded"
@@ -295,8 +306,9 @@ def _composer_node(state: AgentState) -> dict[str, Any]:
 
 def _reflection_node(state: AgentState) -> dict[str, Any]:
     limitations = list(dict.fromkeys(state.get("limitations", [])))
-    reflection = verify_response(
-        state.get("answer", ""),
+    reflection = reflect_with_llm(
+        question=state["request"].message,
+        answer_parts=state.get("answer_parts", []),
         evidence=state.get("evidence", []),
         limitations=limitations,
         query_type=state["plan"].query_type,
@@ -339,9 +351,9 @@ def build_agent_graph():
     builder.add_edge("rag", "case_search")
     builder.add_edge("case_search", "impact")
     builder.add_edge("impact", "visualization")
-    builder.add_edge("visualization", "composer")
-    builder.add_edge("composer", "reflection")
-    builder.add_edge("reflection", END)
+    builder.add_edge("visualization", "reflection")
+    builder.add_edge("reflection", "composer")
+    builder.add_edge("composer", END)
     return builder.compile()
 
 

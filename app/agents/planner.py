@@ -37,7 +37,7 @@ class PlannerDecision:
 def create_plan(message: str, *, fab: str | None = None) -> PlannerDecision:
     """Create a deterministic execution plan matching the Planner prompt contract."""
     routed_type = classify_query(message)
-    text2sql_plan = plan_text2sql(message, fab=fab)
+    text2sql_plan = plan_text2sql(message, fab=fab, generate=False)
 
     if routed_type in {"diagnosis", "impact", "trend"}:
         return _scenario_plan(routed_type, text2sql_plan.plan.slots if text2sql_plan.plan else {})

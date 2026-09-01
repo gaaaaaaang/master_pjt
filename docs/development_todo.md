@@ -143,7 +143,7 @@
 
 현재 LangGraph stream 경로:
 
-- `planner -> supervisor -> text2sql -> rag -> case_search -> impact -> visualization -> composer -> reflection`
+- `planner(LLM) -> supervisor(LLM) -> text2sql(LLM) -> rag -> case_search -> impact -> visualization -> reflection(LLM) -> composer(LLM)`
 - Planner가 선택하지 않은 sub-agent node는 실행 결과를 만들지 않고 통과한다.
 - `/api/chat/stream`은 Planner plan, Text2SQL query plan/SQL/result, chart spec,
   reflection, final response를 SSE로 순차 전송한다.
@@ -152,14 +152,14 @@
   SQL을 렌더링한다.
 - `scripts/load_autosched_postgres_reports.py`는 UTF-16 tab-delimited AutoSched `.rep`를
   `{fab}.autosched_*` staging table로 적재한다.
-- Text2SQL은 `OpenAIText2SQLClient`가 Responses API를 호출해 SQL을 직접 생성한다.
+- Text2SQL은 Azure OpenAI 호환 `chat/completions` API를 호출해 SQL을 직접 생성한다.
 - `sql_templates.py`는 legacy 검증 유틸로 남아 있지만, `app/sub_agent/text2sql.py` 런타임 경로에서는
   template 함수를 호출하지 않는다.
 
 남은 고도화:
 
-- 현재 자연어 slot/intent 추출은 deterministic parser 중심이다. 다음 단계에서 intent/slot 추출도
-  OpenAI structured output으로 이전하되, read-only validator와 table allowlist는 코드 경계를 유지한다.
+- Planner/Supervisor는 structured output LLM으로 intent와 실행 경로를 결정하고, Text2SQL의
+  deterministic slot parser는 LLM SQL 호출 전 안전 전처리로 유지한다.
 - `lotrelease` 외 테이블/컬럼/aggregation 조합을 schema catalog에 추가한다.
 - 대화 맥락 기반 기간 보완, 모호한 날짜 컬럼(`start_date` vs `due_date`) clarification을 추가한다.
 - SSE disconnect/cancellation, retry budget, query timeout telemetry를 추가한다.

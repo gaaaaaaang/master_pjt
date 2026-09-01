@@ -110,6 +110,30 @@ ORDER BY release_date ASC
         ),
     )
     monkeypatch.setattr("app.agents.graph.answer_question", lambda *args, **kwargs: executed)
+    from app.agents.planner import create_plan
+
+    monkeypatch.setattr("app.agents.graph.create_llm_plan", create_plan)
+    monkeypatch.setattr(
+        "app.agents.graph.review_plan",
+        lambda plan, question: (
+            plan,
+            {"reason": "test", "selected_sub_agents": plan.selected_sub_agents},
+        ),
+    )
+    monkeypatch.setattr(
+        "app.agents.graph.reflect_with_llm",
+        lambda **kwargs: {
+            "is_supported": True,
+            "warnings": [],
+            "composer_instructions": [],
+            "evidence_count": len(kwargs["evidence"]),
+            "limitation_count": len(kwargs["limitations"]),
+        },
+    )
+    monkeypatch.setattr(
+        "app.agents.graph.compose_with_llm",
+        lambda **kwargs: "Route_Product_3 release plan 집계 결과입니다.",
+    )
 
     response = client.post("/api/chat/stream", json={"message": question})
 
@@ -126,8 +150,8 @@ ORDER BY release_date ASC
         "supervisor",
         "text2sql",
         "visualization",
-        "composer",
         "reflection",
+        "composer",
         "supervisor",
     ]
     text2sql_event = next(payload for payload in payloads if payload["node"] == "text2sql")
