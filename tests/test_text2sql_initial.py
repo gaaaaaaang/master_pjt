@@ -10,6 +10,45 @@ def test_status_query_returns_data_unavailable_until_autosched_loaded() -> None:
     assert "autosched_*" in " ".join(result.limitations)
 
 
+def test_status_query_parses_fab_before_korean_particle() -> None:
+    result = plan_text2sql("fab10에서 Queue Time이 10% 늘면 output 영향은?")
+
+    assert result.status == "data_unavailable"
+    assert result.plan is not None
+    assert result.plan.fab_id == "fab10"
+
+
+def test_lotrelease_route_count_line_chart_builds_semantic_query_plan() -> None:
+    result = plan_text2sql(
+        "fab10의 lotrelease 테이블에서 route_product_3 건수를 날짜 기준으로 라인차트로 그려줘."
+    )
+
+    assert result.status == "succeeded"
+    assert result.query_type == "trend"
+    assert result.plan is not None
+    assert result.plan.template_id is None
+    assert result.plan.source_tables == ["fab10.lotrelease"]
+    assert result.plan.aggregation == "count"
+    assert result.plan.filters == [
+        {"field": "route_name", "operator": "eq", "value": "Route_Product_3"}
+    ]
+    assert result.plan.group_by == ["start_date::date"]
+    assert result.plan.chart_intent == {
+        "type": "line",
+        "x": "release_date",
+        "y": "lot_count",
+        "x_title": "Release date",
+        "y_title": "Lot release count",
+        "series": "Route_Product_3",
+    }
+    assert "SELECT start_date::date AS release_date" in (result.sql or "")
+    assert "COUNT(*)::bigint AS lot_count" in (result.sql or "")
+    assert "FROM fab10.lotrelease" in (result.sql or "")
+    assert "WHERE route_name = 'Route_Product_3'" in (result.sql or "")
+    assert "GROUP BY start_date::date" in (result.sql or "")
+    assert "ORDER BY release_date ASC" in (result.sql or "")
+
+
 def test_toolgroup_lookup_generates_general_data_sql() -> None:
     result = plan_text2sql("fab10 Dry_Etch toolgroup 목록 보여줘")
 

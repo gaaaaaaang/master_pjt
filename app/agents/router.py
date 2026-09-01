@@ -16,11 +16,27 @@ def classify_query(message: str) -> str:
         return "diagnosis"
     if any(word in text for word in ("영향", "얼마나", "기여")):
         return "impact"
-    if any(word in text for word in ("지난주", "전주", "추세", "비교", "변화")):
+    if any(
+        word in text
+        for word in (
+            "지난주",
+            "전주",
+            "추세",
+            "비교",
+            "변화",
+            "날짜 기준",
+            "일자별",
+            "일별",
+            "라인차트",
+            "라인 차트",
+            "line chart",
+            "그래프",
+            "시각화",
+        )
+    ):
         return "trend"
     if any(word in text for word in ("뭐야", "무엇", "정의", "설명")):
         return "knowledge"
     if any(word in text for word in ("대응", "어떻게", "조치")):
         return "recommendation"
     return "status"
-

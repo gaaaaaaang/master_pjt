@@ -169,7 +169,16 @@ class Supervisor:
             elif agent_name == "visualization":
                 rows = text2sql_result.rows if text2sql_result else []
                 if rows:
-                    chart = build_chart_spec("FAB trend/comparison", rows)
+                    chart_intent = (
+                        text2sql_result.plan.chart_intent
+                        if text2sql_result and text2sql_result.plan
+                        else None
+                    )
+                    chart = build_chart_spec(
+                        "FAB trend/comparison",
+                        rows,
+                        intent=chart_intent,
+                    )
                     agent_runs.append(AgentRun("visualization", "succeeded", "chart spec generated"))
                 else:
                     limitations.append("Visualization은 조회 row가 있을 때만 생성합니다.")

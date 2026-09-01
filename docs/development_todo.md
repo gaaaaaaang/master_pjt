@@ -136,8 +136,28 @@
 8. [x] Planner 실행 계획 계약 정의 및 deterministic planner 구현
 9. [x] Supervisor sub-agent 실행 제어 구현
 10. [x] Self-reflection 검증 기준 및 sub-agent 구현
-11. [ ] LangGraph node/state 연결
+11. [x] LangGraph node/state 연결
 12. [ ] SC-001 end-to-end 테스트 확장
+13. [x] fab10 lotrelease 날짜별 route 건수 Text2SQL + line chart E2E 연결
+
+현재 LangGraph stream 경로:
+
+- `planner -> supervisor -> text2sql -> rag -> case_search -> impact -> visualization -> composer -> reflection`
+- Planner가 선택하지 않은 sub-agent node는 실행 결과를 만들지 않고 통과한다.
+- `/api/chat/stream`은 Planner plan, Text2SQL query plan/SQL/result, chart spec,
+  reflection, final response를 SSE로 순차 전송한다.
+- `lotrelease` 날짜별 건수는 named SQL template가 아니라 allowlisted semantic query
+  plan(`source_tables`, `select_items`, `filters`, `group_by`, `order_by`, `aggregation`)에서
+  SQL을 렌더링한다.
+
+남은 고도화:
+
+- 현재 자연어 slot/intent 추출은 deterministic parser다. OpenAI structured output을 붙일 때도
+  LLM은 semantic query plan까지만 제안하고, SQL renderer/read-only validator는 코드 경계를 유지한다.
+- `lotrelease` 외 테이블/컬럼/aggregation 조합을 schema catalog에 추가한다.
+- 대화 맥락 기반 기간 보완, 모호한 날짜 컬럼(`start_date` vs `due_date`) clarification을 추가한다.
+- SSE disconnect/cancellation, retry budget, query timeout telemetry를 추가한다.
+- RAG, CaseSearch, Impact는 실제 저장소/모델 연결 전까지 limitation을 반환한다.
 
 비고:
 

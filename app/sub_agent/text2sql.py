@@ -20,6 +20,7 @@ QueryType = Literal[
     "status",
     "master_data_lookup",
     "release_plan_lookup",
+    "trend",
     "unsupported",
 ]
 Text2SQLStatus = Literal[
@@ -47,6 +48,14 @@ class QueryPlan:
     data_source_type: Literal["operational_report", "model_master", "release_plan"] | None = None
     slots: dict[str, QuerySlot] = field(default_factory=dict)
     limitations: list[str] = field(default_factory=list)
+    source_tables: list[str] = field(default_factory=list)
+    select_items: list[str] = field(default_factory=list)
+    filters: list[dict[str, str]] = field(default_factory=list)
+    group_by: list[str] = field(default_factory=list)
+    order_by: list[str] = field(default_factory=list)
+    aggregation: str | None = None
+    expected_result_shape: str | None = None
+    chart_intent: dict[str, str] | None = None
 
 
 @dataclass(frozen=True)
@@ -63,7 +72,11 @@ class Text2SQLResult:
     plan: QueryPlan | None = None
 
 
-FAB_PATTERN = re.compile(r"\b(?:fab|FAB)\s*[-_ ]?(1[0-3])\b|\bfab(1[0-3])\b", re.IGNORECASE)
+FAB_PATTERN = re.compile(
+    r"(?<![A-Za-z0-9_])(?:fab|FAB)\s*[-_ ]?(1[0-3])(?![A-Za-z0-9_])"
+    r"|(?<![A-Za-z0-9_])fab(1[0-3])(?![A-Za-z0-9_])",
+    re.IGNORECASE,
+)
 PRODUCT_PATTERN = re.compile(r"\b(?:product|part|route_product)[-_ ]?([eE]?\d+)\b", re.IGNORECASE)
 ROUTE_PATTERN = re.compile(r"\broute[-_ ]?product[-_ ]?([eE]?\d+)\b", re.IGNORECASE)
 TOOLGROUP_PATTERN = re.compile(r"\b[A-Z][A-Za-z]{1,8}_[A-Z]{2}_[0-9]{1,3}\b")
@@ -106,6 +119,20 @@ ROUTE_TERMS = {"route", "라우트", "공정", "step", "스텝", "단계"}
 TOOLGROUP_TERMS = {"toolgroup", "tool group", "툴그룹", "설비군", "area", "영역"}
 RELEASE_TERMS = {"release", "lotrelease", "릴리즈", "due", "duedate", "납기"}
 PM_BREAKDOWN_TERMS = {"pm", "breakdown", "고장", "장애", "setup", "셋업", "transport", "이송"}
+TREND_TERMS = {
+    "추세",
+    "트렌드",
+    "날짜 기준",
+    "일자별",
+    "일별",
+    "주별",
+    "월별",
+    "라인차트",
+    "라인 차트",
+    "line chart",
+    "그래프",
+    "시각화",
+}
 
 
 def generate_sql(question: str, schema_context: str | None = None) -> str:
@@ -179,6 +206,9 @@ def plan_text2sql(question: str, *, fab: str | None = None) -> Text2SQLResult:
 
     if query_type == "status":
         return _operational_data_unavailable(fab_id, slots)
+
+    if query_type == "trend":
+        return _plan_release_count_trend(normalized, slots, fab_id)
 
     if query_type == "release_plan_lookup":
         if not _has_selective_release_constraint(slots):
@@ -295,6 +325,87 @@ def _template_result(
     )
 
 
+def _plan_release_count_trend(
+    normalized_question: str,
+    slots: dict[str, QuerySlot],
+    fab_id: str,
+) -> Text2SQLResult:
+    """Build a grounded aggregate query from semantic query parts, not a named template."""
+    if "lotrelease" not in normalized_question:
+        return Text2SQLResult(
+            status="unsupported",
+            query_type="trend",
+            answer="현재 시계열 생성은 lotrelease의 날짜별 건수 조회부터 지원합니다.",
+            confidence=0.45,
+            limitations=["요청한 시계열에 사용할 table 또는 metric을 확정하지 못했습니다."],
+            plan=QueryPlan(query_type="trend", template_id=None, fab_id=fab_id, slots=slots),
+        )
+
+    route = _slot_value(slots, "route")
+    if not route:
+        return _clarification(
+            query_type="trend",
+            answer="lotrelease 추세를 조회할 product 또는 route를 지정해주세요.",
+            fab_id=fab_id,
+            data_source_type="release_plan",
+            slots=slots,
+        )
+
+    table = f"{fab_id}.lotrelease"
+    date_expression = "start_date::date"
+    date_alias = "release_date"
+    metric_expression = "COUNT(*)::bigint"
+    metric_alias = "lot_count"
+    escaped_route = route.replace("'", "''")
+    sql = (
+        f"SELECT {date_expression} AS {date_alias},\n"
+        f"       {metric_expression} AS {metric_alias}\n"
+        f"FROM {table}\n"
+        f"WHERE route_name = '{escaped_route}'\n"
+        f"GROUP BY {date_expression}\n"
+        f"ORDER BY {date_alias} ASC"
+    )
+    limitations = [
+        "현재 결과는 SMT2020 General Data의 release plan 기준이며 실시간 투입 실적이 아닙니다.",
+        "날짜는 lotrelease.start_date를 기준으로 집계했습니다.",
+    ]
+    plan = QueryPlan(
+        query_type="trend",
+        template_id=None,
+        fab_id=fab_id,
+        data_source_type="release_plan",
+        slots=slots,
+        limitations=limitations,
+        source_tables=[table],
+        select_items=[
+            f"{date_expression} AS {date_alias}",
+            f"{metric_expression} AS {metric_alias}",
+        ],
+        filters=[{"field": "route_name", "operator": "eq", "value": route}],
+        group_by=[date_expression],
+        order_by=[f"{date_alias} ASC"],
+        aggregation="count",
+        expected_result_shape="time_series",
+        chart_intent={
+            "type": "line",
+            "x": date_alias,
+            "y": metric_alias,
+            "x_title": "Release date",
+            "y_title": "Lot release count",
+            "series": route,
+        },
+    )
+    return Text2SQLResult(
+        status="succeeded",
+        query_type="trend",
+        answer="날짜별 lotrelease 건수 조회 SQL을 생성했습니다.",
+        sql=sql,
+        confidence=0.92,
+        limitations=limitations,
+        plan=plan,
+    )
+
+
 def _operational_data_unavailable(
     fab_id: str,
     slots: dict[str, QuerySlot],
@@ -354,6 +465,13 @@ def _summarize_execution(planned: Text2SQLResult, rows: list[dict[str, Any]]) ->
         return f"General Data 기준으로 {len(rows)}개 행을 조회했습니다."
     if planned.query_type == "release_plan_lookup":
         return f"Release plan 기준으로 {len(rows)}개 행을 조회했습니다."
+    if planned.query_type == "trend":
+        total = sum(int(row.get("lot_count", 0)) for row in rows)
+        route = _slot_value(planned.plan.slots, "route") if planned.plan else None
+        return (
+            f"{route or '선택한 route'}의 lotrelease를 start_date 기준으로 집계했습니다. "
+            f"총 {total}건이며 날짜 포인트는 {len(rows)}개입니다."
+        )
     return f"{len(rows)}개 행을 조회했습니다."
 
 
@@ -405,6 +523,8 @@ def _extract_slots(
 
 
 def _classify_query_type(normalized_question: str) -> QueryType:
+    if _contains_any(normalized_question, TREND_TERMS):
+        return "trend"
     if _contains_any(normalized_question, RELEASE_TERMS):
         return "release_plan_lookup"
     if _contains_any(normalized_question, ROUTE_TERMS | TOOLGROUP_TERMS | PM_BREAKDOWN_TERMS):

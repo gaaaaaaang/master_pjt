@@ -164,7 +164,7 @@ def _scenario_plan(query_type: str, slots: dict[str, QuerySlot]) -> PlannerDecis
         selected_sub_agents=agents,
         execution_steps=steps,
         slots=slots,
-        limitations=["SC-004 trend templates are not implemented until operational data is loaded."],
+        limitations=[],
     )
 
 

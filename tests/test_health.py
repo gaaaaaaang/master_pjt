@@ -1,6 +1,10 @@
+import json
+from dataclasses import replace
+
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.sub_agent.text2sql import plan_text2sql
 
 client = TestClient(app)
 
@@ -9,7 +13,7 @@ def test_root_describes_local_services() -> None:
     response = client.get("/")
     assert response.status_code == 200
     assert response.json()["docs"] == "/docs"
-    assert response.json()["frontend"] == "http://localhost:8501"
+    assert response.json()["frontend"] == "http://localhost:5173"
 
 
 def test_health() -> None:
@@ -30,7 +34,71 @@ def test_meta_reflects_shell_stack() -> None:
     response = client.get("/api/meta")
     assert response.status_code == 200
     assert response.json() == {
-        "frontend": "streamlit",
+        "frontend": "react-vite",
         "backend": "fastapi",
-        "agent": "planner-supervisor-initial",
+        "agent": "langgraph-text2sql-visualization",
     }
+
+
+def test_agent_trace_exposes_planner_and_supervisor_runs() -> None:
+    response = client.post("/api/agent-trace", json={"message": "왜 fab10 Queue Time이 늘었어?"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["query_type"] == "diagnosis"
+    assert body["plan"]["selected_sub_agents"] == ["text2sql", "rag", "case_search"]
+    assert [run["agent"] for run in body["agent_runs"]] == ["text2sql", "rag", "case_search"]
+    assert body["prompt_versions"]["planner"]
+    assert body["prompt_versions"]["supervisor"]
+
+
+def test_agent_trace_batch_scores_default_cases() -> None:
+    response = client.post("/api/agent-trace/batch", json={})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 5
+    assert body["passed"] == 5
+    assert all("plan" in trace for trace in body["traces"])
+
+
+def test_chat_stream_exposes_real_node_order_sql_and_chart(monkeypatch) -> None:
+    question = (
+        "fab10의 lotrelease 테이블에서 route_product_3 건수를 날짜 기준으로 라인차트로 그려줘."
+    )
+    planned = plan_text2sql(question)
+    executed = replace(
+        planned,
+        answer=(
+            "Route_Product_3의 lotrelease를 start_date 기준으로 집계했습니다. "
+            "총 3건이며 날짜 포인트는 1개입니다."
+        ),
+        rows=[{"release_date": "2018-01-01", "lot_count": 3}],
+        columns=["release_date", "lot_count"],
+        row_count=1,
+    )
+    monkeypatch.setattr("app.agents.graph.answer_question", lambda *args, **kwargs: executed)
+
+    response = client.post("/api/chat/stream", json={"message": question})
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/event-stream")
+    payloads = [
+        json.loads(line.removeprefix("data: "))
+        for line in response.text.splitlines()
+        if line.startswith("data: ")
+    ]
+    assert [payload["node"] for payload in payloads] == [
+        "input",
+        "planner",
+        "supervisor",
+        "text2sql",
+        "visualization",
+        "composer",
+        "reflection",
+        "supervisor",
+    ]
+    text2sql_event = next(payload for payload in payloads if payload["node"] == "text2sql")
+    assert "GROUP BY start_date::date" in text2sql_event["data"]["sql"]
+    final = payloads[-1]["data"]
+    assert final["status"] == "succeeded"
+    assert final["chart"]["type"] == "line"
+    assert final["chart"]["rows"] == [{"release_date": "2018-01-01", "lot_count": 3}]
