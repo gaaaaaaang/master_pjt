@@ -1,0 +1,208 @@
+[
+  {
+    "scenario_id": "SC-001",
+    "scenario_name": "current_status_lookup",
+    "acceptance_focus": "FAB, process group, station, product, lot status questions route to Text2SQL and expose AutoSched limitations when report tables are unavailable.",
+    "questions": [
+      {
+        "id": "sc001_fab_wip_current",
+        "question": "지금 fab10 WIP 몇 개야?",
+        "expected_query_type": "status",
+        "expected_agents": ["text2sql"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["AutoSched report"],
+        "target_source_tables": ["fab10.autosched_perf"],
+        "target_columns": ["report_time", "period", "wiplotavg"]
+      },
+      {
+        "id": "sc001_process_group_util_current",
+        "question": "fab10 Dry_Etch 현재 utilization 높은 설비군 보여줘",
+        "expected_query_type": "status",
+        "expected_agents": ["text2sql"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["AutoSched report"],
+        "target_source_tables": ["fab10.autosched_stngrp"],
+        "target_columns": ["report_time", "period", "stngrp", "util_percent"]
+      },
+      {
+        "id": "sc001_station_current_state",
+        "question": "fab10 DE_BE_11 설비 현재 상태와 WIP 알려줘",
+        "expected_query_type": "status",
+        "expected_agents": ["text2sql"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["AutoSched report"],
+        "target_source_tables": ["fab10.autosched_stn"],
+        "target_columns": ["report_time", "period", "stn", "curstate", "wiplotavg"]
+      },
+      {
+        "id": "sc001_product_status_current",
+        "question": "fab10 Product_3 현재 WIP, cycle time, ontime rate 요약해줘",
+        "expected_query_type": "status",
+        "expected_agents": ["text2sql"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["AutoSched report"],
+        "target_source_tables": ["fab10.autosched_part"],
+        "target_columns": ["report_time", "period", "part", "wiplotcur", "cycleavg", "ontime_percent"]
+      },
+      {
+        "id": "sc001_lot_progress_current",
+        "question": "fab10 Init_Lot_3_24 지금 어느 step과 설비에 있어?",
+        "expected_query_type": "status",
+        "expected_agents": ["text2sql"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["AutoSched report"],
+        "target_source_tables": ["fab10.autosched_lot"],
+        "target_columns": ["lot", "curstep", "curstn", "stepcomps"]
+      }
+    ]
+  },
+  {
+    "scenario_id": "SC-002",
+    "scenario_name": "root_cause_diagnosis",
+    "acceptance_focus": "Diagnosis questions route through Text2SQL, RAG, and CaseSearch, and do not claim a root cause without SQL and knowledge evidence.",
+    "questions": [
+      {
+        "id": "sc002_queue_time_increase",
+        "question": "왜 fab10 Queue Time이 늘었어?",
+        "expected_query_type": "diagnosis",
+        "expected_agents": ["text2sql", "rag", "case_search"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["RAG retrieval is not implemented yet"],
+        "target_source_tables": ["fab10.autosched_perf", "fab10.autosched_stngrp", "fab10.autosched_stn"],
+        "target_evidence_types": ["sql_result", "knowledge_chunk", "similar_case"]
+      },
+      {
+        "id": "sc002_dry_etch_bottleneck",
+        "question": "fab10 Dry_Etch에서 병목이 생긴 원인 후보를 찾아줘",
+        "expected_query_type": "diagnosis",
+        "expected_agents": ["text2sql", "rag", "case_search"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["limitation"],
+        "target_source_tables": ["fab10.autosched_stngrp", "fab10.autosched_stn"],
+        "target_columns": ["stngrp", "stn", "wiplotavg", "util_percent", "down_percent", "pm_percent"]
+      },
+      {
+        "id": "sc002_ontime_drop_reason",
+        "question": "fab10 Product_3 ontime이 떨어진 이유를 데이터랑 문서 근거로 설명해줘",
+        "expected_query_type": "diagnosis",
+        "expected_agents": ["text2sql", "rag", "case_search"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["근거", "limitation"],
+        "target_source_tables": ["fab10.autosched_part", "fab10.autosched_lot"],
+        "target_columns": ["part", "ontime_percent", "cycleavg", "duedate", "compdate"]
+      },
+      {
+        "id": "sc002_station_down_root_cause",
+        "question": "fab10 DE_BE_11 down 비율이 높아진 원인을 유사 사례까지 같이 찾아줘",
+        "expected_query_type": "diagnosis",
+        "expected_agents": ["text2sql", "rag", "case_search"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["RAG", "case"],
+        "target_source_tables": ["fab10.autosched_stn", "fab10.breakdown"],
+        "target_columns": ["stn", "down_percent", "curstate", "mttf", "mttr"]
+      }
+    ]
+  },
+  {
+    "scenario_id": "SC-003",
+    "scenario_name": "impact_analysis",
+    "acceptance_focus": "Impact questions route through Text2SQL and Impact, include deterministic calculation boundaries, and avoid unsupported production actions.",
+    "questions": [
+      {
+        "id": "sc003_queue_time_output_impact",
+        "question": "fab10에서 Queue Time이 10% 늘면 output 영향은?",
+        "expected_query_type": "impact",
+        "expected_agents": ["text2sql", "impact"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["영향도 모델", "operational metric"],
+        "target_metrics": ["baseline", "current", "lotcomps", "cycleavg"]
+      },
+      {
+        "id": "sc003_util_drop_capacity_impact",
+        "question": "fab10 Dry_Etch utilization이 5%p 떨어지면 capacity 영향 계산해줘",
+        "expected_query_type": "impact",
+        "expected_agents": ["text2sql", "impact"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["계산", "한계"],
+        "target_source_tables": ["fab10.autosched_stngrp"],
+        "target_metrics": ["util_percent", "lotcomps", "capacity_delta"]
+      },
+      {
+        "id": "sc003_station_down_output_impact",
+        "question": "fab10 DE_BE_11 down이 2시간 늘어나면 lot completion에 얼마나 영향 있어?",
+        "expected_query_type": "impact",
+        "expected_agents": ["text2sql", "impact"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["operational metric"],
+        "target_source_tables": ["fab10.autosched_stn", "fab10.autosched_perf"],
+        "target_metrics": ["down_percent", "lotcomps"]
+      },
+      {
+        "id": "sc003_product_cycle_time_impact",
+        "question": "fab10 Product_3 cycle time이 8% 증가하면 납기 준수율 영향은?",
+        "expected_query_type": "impact",
+        "expected_agents": ["text2sql", "impact"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["baseline", "current"],
+        "target_source_tables": ["fab10.autosched_part"],
+        "target_metrics": ["cycleavg", "ontime_percent"]
+      }
+    ]
+  },
+  {
+    "scenario_id": "SC-004",
+    "scenario_name": "trend_and_comparison",
+    "acceptance_focus": "Trend and comparison questions route through Text2SQL and Visualization with explicit period/date basis where needed.",
+    "questions": [
+      {
+        "id": "sc004_lotrelease_daily_start_date",
+        "question": "fab10 Route_Product_3 lotrelease 건수를 start_date 기준 일별 라인차트로 보여줘",
+        "expected_query_type": "trend",
+        "expected_agents": ["text2sql", "visualization"],
+        "expected_current_status": "succeeded",
+        "expected_sql_contains": ["FROM fab10.lotrelease", "start_date::date", "GROUP BY"],
+        "target_chart_type": "line",
+        "target_date_basis": "start_date"
+      },
+      {
+        "id": "sc004_lotrelease_due_date_daily",
+        "question": "fab10 Product_3 lotrelease를 due_date 기준 일별 추세로 보여줘",
+        "expected_query_type": "trend",
+        "expected_agents": ["text2sql", "visualization"],
+        "expected_current_status": "succeeded",
+        "expected_sql_contains": ["FROM fab10.lotrelease", "due_date::date", "GROUP BY"],
+        "target_chart_type": "line",
+        "target_date_basis": "due_date"
+      },
+      {
+        "id": "sc004_wip_daily_trend",
+        "question": "fab10 WIP 일별 추세를 보여줘",
+        "expected_query_type": "trend",
+        "expected_agents": ["text2sql", "visualization"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["AutoSched report"],
+        "target_source_tables": ["fab10.autosched_perf"],
+        "target_columns": ["report_time", "wiplotavg"],
+        "target_chart_type": "line"
+      },
+      {
+        "id": "sc004_product_cycle_ontime_compare",
+        "question": "fab10 Product_3와 Product_4의 cycle time과 ontime을 비교해줘",
+        "expected_query_type": "trend",
+        "expected_agents": ["text2sql", "visualization"],
+        "expected_current_status": "data_unavailable",
+        "expected_answer_contains": ["AutoSched report"],
+        "target_source_tables": ["fab10.autosched_part"],
+        "target_columns": ["part", "cycleavg", "ontime_percent"]
+      },
+      {
+        "id": "sc004_ambiguous_lotrelease_daily",
+        "question": "fab10 Product_3 lotrelease 일별 추세 보여줘",
+        "expected_query_type": "trend",
+        "expected_agents": [],
+        "expected_current_status": "needs_clarification",
+        "expected_answer_contains": ["start_date", "due_date"]
+      }
+    ]
+  }
+]
