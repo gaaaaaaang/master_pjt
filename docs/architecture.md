@@ -3,14 +3,20 @@
 ```text
 사용자
   -> frontend 채팅 UI
-  -> FastAPI /api/chat
-  -> ChatService
-  -> Router
-  -> Planner/Supervisor
-  -> Sub Agents: Text2SQL | RAG | Impact | Case Search | Visualization
-  -> Verifier/Self-reflection
-  -> Answer Composer
+  -> FastAPI /api/chat 또는 /api/chat/stream(SSE)
+  -> LangGraph
+  -> Planner -> Supervisor
+  -> Text2SQL -> RAG -> Case Search -> Impact -> Visualization (조건부)
+  -> Verifier/Self-reflection -> Answer Composer
 ```
+
+`/api/chat`과 `/api/chat/stream`은 동일한 LLM LangGraph를 실행한다. Planner와 Supervisor는
+각각 독립된 Azure Chat Completions structured-output 호출로 계획과 실행 승인을 결정한다.
+`/api/chat/stream`은 각 LangGraph node 완료 시 trace event를 보내고, Text2SQL event에는
+semantic query plan, 생성 SQL, 조회 column/row count/sample row를 포함한다. Visualization
+event는 chart type과 x/y encoding 및 조회 row를 포함한다. Reflection은 SQL/tool 근거와 한계를
+LLM으로 검토하고, Composer는 그 검토 지시를 반영해 최종 답변을 생성한다. 최종 event는 answer, SQL, chart,
+evidence, limitations, reflection을 함께 반환한다.
 
 ## 단계별 구현 순서
 

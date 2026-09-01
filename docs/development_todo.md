@@ -3,7 +3,8 @@
 ## 개발 원칙
 
 - Agent 구현보다 DB 스키마와 조회 API를 먼저 고정한다.
-- 자유 SQL 생성보다 SQL template 기반 Text2SQL부터 구현한다.
+- Text2SQL은 LLM API가 SQL을 직접 생성하되, schema/table allowlist와 read-only validator를
+  통과한 쿼리만 실행한다.
 - RAG는 문서 chunk, metadata, Milvus collection schema를 먼저 고정한 뒤 붙인다.
 - 모든 DB 접근은 read-only, timeout, row limit, allowlist 기반으로 제한한다.
 - 첫 end-to-end 목표는 SC-001 현재 상태 조회이다.
@@ -48,10 +49,10 @@
 - 자연어 질문에서 `query_type`을 분류한다.
 - `status`, `master_data_lookup`, `release_plan_lookup`을 구분한다.
 - 설비명, 공정명, 제품명, LOT ID, 기간, 지표를 slot으로 추출한다.
-- `slots` 기반으로 SQL template을 선택한다.
-- General Data lookup SQL template을 먼저 구현한다.
-- AutoSched 적재 후 SC-001 현재 상태 조회 SQL template을 활성화한다.
-- SC-004 추세/비교 SQL template을 다음으로 구현한다.
+- deterministic parser와 LLM structured output으로 query_type/slot/schema context를 구성한다.
+- LLM API를 호출해 PostgreSQL SELECT/WITH SQL을 직접 생성한다.
+- LLM SQL은 schema-qualified allowlist와 read-only validator를 통과해야만 반환/실행한다.
+- AutoSched 적재 후 SC-001 현재 상태 조회는 LLM이 `autosched_*` catalog 기반 SQL을 생성한다.
 - SQL validation을 통해 read-only 쿼리만 실행되도록 제한한다.
 
 ## Phase 5. RAG + Milvus 구현
@@ -131,19 +132,44 @@
 3. [x] 주요 컬럼 샘플 확인
 4. [x] SC-001 현재 상태 조회용 SQL 3~5개 작성
 5. [x] SQL을 FastAPI endpoint로 감싸기
-6. [x] General Data 기반 master/release lookup SQL template 작성
-7. [ ] AutoSched `.rep` PostgreSQL loader 작성
-8. [ ] Planner 실행 계획 계약 정의 및 deterministic planner 구현
-9. [ ] Supervisor sub-agent 실행 제어 구현
-10. [ ] Self-reflection 검증 기준 및 sub-agent 구현
-11. [ ] LangGraph node/state 연결
-12. [ ] SC-001 end-to-end 테스트 확장
+6. [x] General Data 기반 master/release lookup schema catalog 작성
+7. [x] AutoSched `.rep` PostgreSQL loader 작성
+8. [x] Planner structured-output LLM 실행 계획 구현
+9. [x] Supervisor structured-output LLM 실행 승인 및 sub-agent 제어 구현
+10. [x] Self-reflection 검증 기준 및 sub-agent 구현
+11. [x] LangGraph node/state 연결
+12. [x] SC-001 end-to-end 테스트 확장
+13. [x] fab10 lotrelease 날짜별 route 건수 Text2SQL + line chart E2E 연결
+
+현재 LangGraph stream 경로:
+
+- `planner(LLM) -> supervisor(LLM) -> text2sql(LLM) -> rag -> case_search -> impact -> visualization -> reflection(LLM) -> composer(LLM)`
+- Planner가 선택하지 않은 sub-agent node는 실행 결과를 만들지 않고 통과한다.
+- `/api/chat/stream`은 Planner plan, Text2SQL query plan/SQL/result, chart spec,
+  reflection, final response를 SSE로 순차 전송한다.
+- `lotrelease` 날짜별 건수는 named SQL template가 아니라 allowlisted semantic query
+  plan(`source_tables`, `select_items`, `filters`, `group_by`, `order_by`, `aggregation`)에서
+  SQL을 렌더링한다.
+- `scripts/load_autosched_postgres_reports.py`는 UTF-16 tab-delimited AutoSched `.rep`를
+  `{fab}.autosched_*` staging table로 적재한다.
+- Text2SQL은 Azure OpenAI 호환 `chat/completions` API를 호출해 SQL을 직접 생성한다.
+- `sql_templates.py`는 legacy 검증 유틸로 남아 있지만, `app/sub_agent/text2sql.py` 런타임 경로에서는
+  template 함수를 호출하지 않는다.
+
+남은 고도화:
+
+- Planner/Supervisor는 structured output LLM으로 intent와 실행 경로를 결정하고, Text2SQL의
+  deterministic slot parser는 LLM SQL 호출 전 안전 전처리로 유지한다.
+- `/api/chat`과 `/api/chat/stream`은 모두 같은 LangGraph를 실행하며 pattern router fallback은 없다.
+- `lotrelease` 외 테이블/컬럼/aggregation 조합을 schema catalog에 추가한다.
+- 대화 맥락 기반 기간 보완, 모호한 날짜 컬럼(`start_date` vs `due_date`) clarification을 추가한다.
+- SSE disconnect/cancellation, retry budget, query timeout telemetry를 추가한다.
+- RAG, CaseSearch, Impact는 실제 저장소/모델 연결 전까지 limitation을 반환한다.
 
 비고:
 
-- 5번은 일정상 endpoint 구현을 바로 진행하지 않고, Text2SQL template selection을 먼저 구현하는 방향으로 대체 결정했다.
-- SC-001 endpoint는 AutoSched `.rep` 적재와 Text2SQL template selection 이후 연결한다.
-- 현재 DB에는 `autosched_*` 테이블이 없으므로, 기존 SC-001 status template은 실행 전
-  table availability check가 필요하다.
-- Planner, Supervisor, Self-reflection은 다음 개발 단계에서 LangGraph 연결 전에
-  deterministic module로 먼저 구현한다.
+- 5번은 일정상 endpoint 구현을 바로 진행하지 않고, Text2SQL schema catalog와 LLM direct SQL 호출을
+  먼저 구현하는 방향으로 대체 결정했다.
+- SC-001 endpoint는 AutoSched `.rep` 적재와 LLM direct SQL validation 이후 연결한다.
+- 현재 LLM API key 인증 실패 시 Text2SQL은 `failed`로 종료하고 SQL을 생성하지 않는다.
+- Planner, Supervisor, Self-reflection, Composer는 모두 Azure Chat Completions를 호출한다.

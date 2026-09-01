@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import json
 import os
+from collections.abc import Iterator
 from typing import Any
 
 import httpx
+import pandas as pd
 import streamlit as st
-
 
 DEFAULT_BACKEND_URL = "http://localhost:8000"
 
@@ -22,6 +24,63 @@ def ask_backend(base_url: str, payload: dict[str, str]) -> dict[str, Any]:
     response = httpx.post(f"{base_url.rstrip('/')}/api/chat", json=payload, timeout=30.0)
     response.raise_for_status()
     return response.json()
+
+
+def stream_backend(base_url: str, payload: dict[str, str]) -> Iterator[dict[str, Any]]:
+    url = f"{base_url.rstrip('/')}/api/chat/stream"
+    event_name = ""
+    data_lines: list[str] = []
+    with httpx.stream("POST", url, json=payload, timeout=60.0) as response:
+        response.raise_for_status()
+        for line in response.iter_lines():
+            if line == "":
+                if data_lines:
+                    payload_text = "\n".join(data_lines)
+                    event_payload = json.loads(payload_text)
+                    if event_name:
+                        event_payload["sse_event"] = event_name
+                    yield event_payload
+                event_name = ""
+                data_lines = []
+                continue
+            if line.startswith("event:"):
+                event_name = line.removeprefix("event:").strip()
+            elif line.startswith("data:"):
+                data_lines.append(line.removeprefix("data:").strip())
+
+
+def render_agent_artifacts(message: dict[str, Any]) -> None:
+    events = message.get("events") or []
+    if events:
+        with st.expander("Agent 실행 로그", expanded=True):
+            for event in events:
+                node = event.get("node", "unknown")
+                event_type = event.get("type", "event")
+                text = event.get("message", "")
+                st.markdown(f"**{node}** · `{event_type}`  \n{text}")
+                sql = (event.get("data") or {}).get("sql")
+                if sql:
+                    st.code(sql, language="sql")
+                sample_rows = (event.get("data") or {}).get("sample_rows")
+                if sample_rows:
+                    st.caption("sample rows")
+                    st.dataframe(sample_rows, use_container_width=True, hide_index=True)
+
+    if message.get("sql"):
+        with st.expander("생성 SQL", expanded=True):
+            st.code(message["sql"], language="sql")
+
+    chart = message.get("chart")
+    if chart:
+        st.caption(chart.get("title", "Visualization"))
+        rows = chart.get("rows") or []
+        encoding = chart.get("encoding") or {}
+        x_field = (encoding.get("x") or {}).get("field")
+        y_field = (encoding.get("y") or {}).get("field")
+        if rows and x_field and y_field:
+            frame = pd.DataFrame(rows)
+            st.line_chart(frame, x=x_field, y=y_field, use_container_width=True)
+            st.dataframe(frame, use_container_width=True, hide_index=True)
 
 
 def reset_chat() -> None:
@@ -97,7 +156,7 @@ with st.sidebar:
         value=os.getenv("BACKEND_URL", DEFAULT_BACKEND_URL),
         label_visibility="collapsed",
     )
-    st.caption("● Agent / DB / RAG disabled")
+    st.caption("● LangGraph / Text2SQL / PostgreSQL connected")
 
 st.markdown('<div class="eyebrow">FAB OPERATIONS</div><div class="page-title">Customer conversations</div>', unsafe_allow_html=True)
 st.write("")
@@ -112,7 +171,7 @@ with left:
     st.markdown('<div class="list-item"><strong>Unassigned</strong><span>0 conversations</span></div>', unsafe_allow_html=True)
     st.write("")
     st.markdown('<div class="panel-title">Status</div>', unsafe_allow_html=True)
-    st.markdown('<div class="list-item"><strong><span class="dot"></span>Shell mode</strong><span>Agent connection pending</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="list-item"><strong><span class="dot"></span>Trace mode</strong><span>Streaming agent events</span></div>', unsafe_allow_html=True)
 
 with center:
     st.markdown('<div class="panel-title">FAB Assistant <span class="status">● Online</span></div><div class="panel-caption">Ask about your fab, line, or process</div>', unsafe_allow_html=True)
@@ -130,6 +189,8 @@ with center:
                 with st.expander("현재 제한사항"):
                     for limitation in item["limitations"].split("\n"):
                         st.write(f"- {limitation}")
+            if item["role"] == "assistant":
+                render_agent_artifacts(item)
 
 with right:
     st.markdown('<div class="panel-title">Conversation details</div><div class="panel-caption">Selected workspace context</div>', unsafe_allow_html=True)
@@ -139,7 +200,7 @@ with right:
         st.markdown(f'<div class="detail-row"><div class="detail-label">{label}</div><div class="detail-value">{value}</div></div>', unsafe_allow_html=True)
     st.write("")
     st.markdown('<div class="panel-title">Notes</div>', unsafe_allow_html=True)
-    st.caption("Agent 기능과 실제 데이터 연결은 다음 단계에서 추가됩니다.")
+    st.caption("질문 실행 시 Planner, Supervisor, Text2SQL, Visualization 단계가 스트림으로 표시됩니다.")
 
 prompt = st.chat_input("FAB 운영에 대해 질문해보세요...")
 if prompt:
@@ -148,14 +209,37 @@ if prompt:
         messages.append({"role": "user", "content": clean_prompt})
         payload = build_payload(clean_prompt, fab.strip(), line.strip(), process.strip())
         try:
-            with st.spinner("응답을 준비하는 중..."):
-                result = ask_backend(backend_url, payload)
-            st.session_state["conversation_id"] = result.get("conversation_id")
+            events: list[dict[str, Any]] = []
+            final_data: dict[str, Any] = {}
+            with st.chat_message("assistant"):
+                status = st.status("Agent 실행 중...", expanded=True)
+                for event in stream_backend(backend_url, payload):
+                    events.append(event)
+                    status.write(
+                        f"{event.get('node', 'unknown')} · {event.get('message', '')}"
+                    )
+                    if (event.get("data") or {}).get("sql"):
+                        status.code(event["data"]["sql"], language="sql")
+                    if event.get("type") == "run_completed":
+                        final_data = event.get("data") or {}
+                status.update(label="Agent 실행 완료", state="complete", expanded=False)
+                st.markdown(final_data.get("answer", "응답이 없습니다."))
+                render_agent_artifacts(
+                    {
+                        "events": events,
+                        "sql": final_data.get("sql"),
+                        "chart": final_data.get("chart"),
+                    }
+                )
+            st.session_state["conversation_id"] = final_data.get("conversation_id")
             messages.append(
                 {
                     "role": "assistant",
-                    "content": result.get("answer", "응답이 없습니다."),
-                    "limitations": "\n".join(result.get("limitations") or []),
+                    "content": final_data.get("answer", "응답이 없습니다."),
+                    "limitations": "\n".join(final_data.get("limitations") or []),
+                    "events": events,
+                    "sql": final_data.get("sql"),
+                    "chart": final_data.get("chart"),
                 }
             )
         except httpx.HTTPError as exc:
