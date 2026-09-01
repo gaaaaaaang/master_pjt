@@ -134,8 +134,8 @@
 5. [x] SQL을 FastAPI endpoint로 감싸기
 6. [x] General Data 기반 master/release lookup schema catalog 작성
 7. [x] AutoSched `.rep` PostgreSQL loader 작성
-8. [x] Planner 실행 계획 계약 정의 및 deterministic planner 구현
-9. [x] Supervisor sub-agent 실행 제어 구현
+8. [x] Planner structured-output LLM 실행 계획 구현
+9. [x] Supervisor structured-output LLM 실행 승인 및 sub-agent 제어 구현
 10. [x] Self-reflection 검증 기준 및 sub-agent 구현
 11. [x] LangGraph node/state 연결
 12. [x] SC-001 end-to-end 테스트 확장
@@ -160,6 +160,7 @@
 
 - Planner/Supervisor는 structured output LLM으로 intent와 실행 경로를 결정하고, Text2SQL의
   deterministic slot parser는 LLM SQL 호출 전 안전 전처리로 유지한다.
+- `/api/chat`과 `/api/chat/stream`은 모두 같은 LangGraph를 실행하며 pattern router fallback은 없다.
 - `lotrelease` 외 테이블/컬럼/aggregation 조합을 schema catalog에 추가한다.
 - 대화 맥락 기반 기간 보완, 모호한 날짜 컬럼(`start_date` vs `due_date`) clarification을 추가한다.
 - SSE disconnect/cancellation, retry budget, query timeout telemetry를 추가한다.
@@ -171,5 +172,4 @@
   먼저 구현하는 방향으로 대체 결정했다.
 - SC-001 endpoint는 AutoSched `.rep` 적재와 LLM direct SQL validation 이후 연결한다.
 - 현재 LLM API key 인증 실패 시 Text2SQL은 `failed`로 종료하고 SQL을 생성하지 않는다.
-- Planner, Supervisor, Self-reflection은 다음 개발 단계에서 LangGraph 연결 전에
-  deterministic module로 먼저 구현한다.
+- Planner, Supervisor, Self-reflection, Composer는 모두 Azure Chat Completions를 호출한다.

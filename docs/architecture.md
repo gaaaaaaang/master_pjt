@@ -10,6 +10,8 @@
   -> Verifier/Self-reflection -> Answer Composer
 ```
 
+`/api/chat`과 `/api/chat/stream`은 동일한 LLM LangGraph를 실행한다. Planner와 Supervisor는
+각각 독립된 Azure Chat Completions structured-output 호출로 계획과 실행 승인을 결정한다.
 `/api/chat/stream`은 각 LangGraph node 완료 시 trace event를 보내고, Text2SQL event에는
 semantic query plan, 생성 SQL, 조회 column/row count/sample row를 포함한다. Visualization
 event는 chart type과 x/y encoding 및 조회 row를 포함한다. Reflection은 SQL/tool 근거와 한계를

@@ -6,13 +6,15 @@ from uuid import uuid4
 
 from langgraph.graph import END, START, StateGraph
 
-from app.agents.llm_nodes import compose_with_llm, create_llm_plan, reflect_with_llm, review_plan
-from app.agents.planner import PlannerDecision
+from app.agents.llm_nodes import compose_with_llm, reflect_with_llm
+from app.agents.planner import PlannerDecision, create_plan
+from app.agents.supervisor import review_plan
+from app.config import get_settings
 from app.schemas.chat import ChatRequest
 from app.sub_agent.case_search import find_similar_cases
 from app.sub_agent.impact import estimate_output_delta
 from app.sub_agent.rag import retrieve_knowledge
-from app.sub_agent.text2sql import Text2SQLResult, answer_question
+from app.sub_agent.text2sql import QueryType, Text2SQLResult, answer_question
 from app.sub_agent.visualization import build_chart_spec
 
 
@@ -37,8 +39,11 @@ class AgentState(TypedDict, total=False):
 
 def _planner_node(state: AgentState) -> dict[str, Any]:
     request = state["request"]
-    plan = create_llm_plan(request.message, fab=request.fab)
+    plan = create_plan(request.message, fab=request.fab)
+    model = get_settings().openai_model
     metadata = {
+        "execution_mode": "llm_chat_completions",
+        "model": model,
         "status": plan.status,
         "query_type": plan.query_type,
         "selected_sub_agents": plan.selected_sub_agents,
@@ -95,6 +100,8 @@ def _supervisor_node(state: AgentState) -> dict[str, Any]:
                 "status": plan.status,
                 "selected_sub_agents": plan.selected_sub_agents,
                 "reason": decision["reason"],
+                "execution_mode": "llm_chat_completions",
+                "model": get_settings().openai_model,
             },
         },
     }
@@ -106,7 +113,11 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
         return _skipped("text2sql", "Planner가 Text2SQL을 선택하지 않았습니다.")
 
     request = state["request"]
-    result = answer_question(request.message, fab=request.fab)
+    result = answer_question(
+        request.message,
+        fab=request.fab,
+        query_type=_text2sql_query_type(plan.query_type),
+    )
     run = {
         "agent": "text2sql",
         "status": result.status,
@@ -299,7 +310,11 @@ def _composer_node(state: AgentState) -> dict[str, Any]:
             "type": "node_completed",
             "node": "composer",
             "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
-            "data": {"answer": answer},
+            "data": {
+                "answer": answer,
+                "execution_mode": "llm_chat_completions",
+                "model": get_settings().openai_model,
+            },
         },
     }
 
@@ -313,6 +328,8 @@ def _reflection_node(state: AgentState) -> dict[str, Any]:
         limitations=limitations,
         query_type=state["plan"].query_type,
     )
+    reflection["execution_mode"] = "llm_chat_completions"
+    reflection["model"] = get_settings().openai_model
     for warning in reflection.get("warnings", []):
         if warning not in limitations:
             limitations.append(warning)
@@ -331,6 +348,16 @@ def _reflection_node(state: AgentState) -> dict[str, Any]:
 def _skipped(node: str, message: str) -> dict[str, Any]:
     del node, message
     return {"stream_event": None}
+
+
+def _text2sql_query_type(planner_query_type: str) -> QueryType:
+    if planner_query_type in {"diagnosis", "impact"}:
+        return "status"
+    if planner_query_type in {
+        "status", "master_data_lookup", "release_plan_lookup", "trend", "unsupported"
+    }:
+        return planner_query_type
+    return "unsupported"
 
 
 def build_agent_graph():

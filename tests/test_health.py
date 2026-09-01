@@ -21,18 +21,7 @@ def test_health() -> None:
     assert response.json() == {"status": "ok"}
 
 
-def test_status_chat_works_in_mock_mode(monkeypatch) -> None:
-    monkeypatch.setattr(
-        "app.agents.supervisor.answer_question",
-        lambda *args, **kwargs: Text2SQLResult(
-            status="failed",
-            query_type="status",
-            answer="LLM Text2SQL 호출을 완료하지 못했습니다.",
-            limitations=["OPENAI_API_KEY is not configured."],
-            plan=QueryPlan(query_type="status", template_id=None, fab_id="fab10"),
-        ),
-    )
-
+def test_status_chat_works_in_mock_mode() -> None:
     response = client.post("/api/chat", json={"message": "지금 fab10 WIP 몇 개야?"})
     assert response.status_code == 200
     body = response.json()
@@ -110,9 +99,6 @@ ORDER BY release_date ASC
         ),
     )
     monkeypatch.setattr("app.agents.graph.answer_question", lambda *args, **kwargs: executed)
-    from app.agents.planner import create_plan
-
-    monkeypatch.setattr("app.agents.graph.create_llm_plan", create_plan)
     monkeypatch.setattr(
         "app.agents.graph.review_plan",
         lambda plan, question: (
@@ -155,6 +141,10 @@ ORDER BY release_date ASC
         "supervisor",
     ]
     text2sql_event = next(payload for payload in payloads if payload["node"] == "text2sql")
+    planner_event = next(payload for payload in payloads if payload["node"] == "planner")
+    supervisor_event = next(payload for payload in payloads if payload["node"] == "supervisor")
+    assert planner_event["data"]["execution_mode"] == "llm_chat_completions"
+    assert supervisor_event["data"]["execution_mode"] == "llm_chat_completions"
     assert "GROUP BY start_date::date" in text2sql_event["data"]["sql"]
     final = payloads[-1]["data"]
     assert final["status"] == "succeeded"

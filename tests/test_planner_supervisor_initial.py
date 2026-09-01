@@ -1,7 +1,66 @@
 from app.agents.planner import create_plan
-from app.agents.supervisor import Supervisor
+from app.agents.supervisor import Supervisor, review_plan
 from app.schemas.chat import ChatRequest
 from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
+
+
+class RecordingLLM:
+    def __init__(self, output) -> None:
+        self.output = output
+        self.calls = []
+
+    def complete_json(self, **kwargs):
+        self.calls.append(kwargs)
+        return self.output
+
+
+def test_planner_uses_chat_completions_structured_output() -> None:
+    llm = RecordingLLM(
+        {
+            "status": "ready",
+            "query_type": "master_data_lookup",
+            "intent": "lookup toolgroups",
+            "fab_id": "fab10",
+            "missing_slots": [],
+            "selected_sub_agents": ["text2sql"],
+            "execution_steps": [
+                {
+                    "agent": "text2sql",
+                    "action": "generate SQL",
+                    "required": True,
+                    "reason": "database evidence is required",
+                }
+            ],
+            "clarification_question": None,
+            "limitations": [],
+        }
+    )
+
+    plan = create_plan("fab10 toolgroup 조회", llm_client=llm)
+
+    assert plan.query_type == "master_data_lookup"
+    assert llm.calls[0]["schema_name"] == "fab_planner_decision"
+    assert llm.calls[0]["input_data"]["question"] == "fab10 toolgroup 조회"
+
+
+def test_supervisor_uses_independent_chat_completions_review() -> None:
+    plan = create_plan("fab10 toolgroup 조회")
+    llm = RecordingLLM(
+        {
+            "proceed": True,
+            "status": "ready",
+            "selected_sub_agents": ["text2sql"],
+            "reason": "plan is executable",
+            "answer": None,
+            "limitations": [],
+        }
+    )
+
+    reviewed, decision = review_plan(plan, "fab10 toolgroup 조회", llm_client=llm)
+
+    assert reviewed.selected_sub_agents == ["text2sql"]
+    assert decision["proceed"] is True
+    assert llm.calls[0]["schema_name"] == "fab_supervisor_decision"
 
 
 def test_planner_routes_master_lookup_to_text2sql() -> None:
@@ -41,7 +100,7 @@ def test_planner_missing_fab_returns_clarification_plan() -> None:
 
 def test_supervisor_status_stops_on_data_unavailable(monkeypatch) -> None:
     monkeypatch.setattr(
-        "app.agents.supervisor.answer_question",
+        "app.agents.graph.answer_question",
         lambda *args, **kwargs: Text2SQLResult(
             status="data_unavailable",
             query_type="status",
@@ -67,7 +126,7 @@ def test_supervisor_status_stops_on_data_unavailable(monkeypatch) -> None:
 
 def test_supervisor_master_lookup_returns_planner_and_text2sql_evidence(monkeypatch) -> None:
     monkeypatch.setattr(
-        "app.agents.supervisor.answer_question",
+        "app.agents.graph.answer_question",
         lambda *args, **kwargs: Text2SQLResult(
             status="succeeded",
             query_type="master_data_lookup",

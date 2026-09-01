@@ -481,9 +481,15 @@ def answer_question(
     *,
     fab: str | None = None,
     execute: bool | None = None,
+    query_type: QueryType | None = None,
     llm_client: Text2SQLClient | None = None,
 ) -> Text2SQLResult:
-    result = plan_text2sql(question, fab=fab, llm_client=llm_client)
+    result = plan_text2sql(
+        question,
+        fab=fab,
+        query_type=query_type,
+        llm_client=llm_client,
+    )
     if result.status != "succeeded" or not result.sql:
         return result
 
@@ -525,13 +531,13 @@ def plan_text2sql(
     question: str,
     *,
     fab: str | None = None,
+    query_type: QueryType | None = None,
     llm_client: Text2SQLClient | None = None,
-    generate: bool = True,
 ) -> Text2SQLResult:
     normalized = _normalize_question(question)
     slots = _extract_slots(question, normalized, fab=fab)
     fab_id = slots.get("fab_id").value if "fab_id" in slots else None
-    query_type = _classify_query_type(normalized)
+    query_type = query_type or _classify_query_type(normalized)
 
     if not fab_id:
         return _clarification(
@@ -558,25 +564,6 @@ def plan_text2sql(
             confidence=0.3,
             limitations=["지원 table catalog에 매핑되는 대상이 없습니다."],
             plan=QueryPlan(query_type=query_type, template_id=None, fab_id=fab_id, slots=slots),
-        )
-
-    if not generate:
-        limitations = _base_limitations(query_type, schema_context["data_source_type"])
-        return Text2SQLResult(
-            status="succeeded",
-            query_type=query_type,
-            answer="Text2SQL 실행에 필요한 질의 메타데이터를 준비했습니다.",
-            confidence=0.7,
-            limitations=limitations,
-            plan=QueryPlan(
-                query_type=query_type,
-                template_id=None,
-                fab_id=fab_id,
-                data_source_type=schema_context["data_source_type"],
-                slots=slots,
-                limitations=limitations,
-                source_tables=schema_context["allowed_table_refs"],
-            ),
         )
 
     try:
