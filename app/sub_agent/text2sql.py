@@ -4,6 +4,8 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+from psycopg import Error as PsycopgError
+
 from app.config import get_settings
 from app.db.read_only import ReadOnlyQueryExecutor, SqlValidationError
 from app.sub_agent.sql_templates import (
@@ -137,7 +139,7 @@ def answer_question(
 
     try:
         execution = ReadOnlyQueryExecutor().execute(result.sql)
-    except (RuntimeError, SqlValidationError) as exc:
+    except (RuntimeError, SqlValidationError, PsycopgError) as exc:
         return Text2SQLResult(
             status="failed",
             query_type=result.query_type,

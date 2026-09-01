@@ -288,7 +288,7 @@ SELECT
     processing_unit,
     processingtime_distribution,
     mean,
-    offset,
+    "offset",
     pt_units,
     batch_minimum,
     batch_maximum,
