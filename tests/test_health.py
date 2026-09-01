@@ -61,7 +61,7 @@ def test_agent_trace_batch_scores_default_cases() -> None:
 
 def test_chat_stream_exposes_real_node_order_sql_and_chart(monkeypatch) -> None:
     question = (
-        "fab10의 lotrelease 테이블에서 route_product_3 건수를 날짜 기준으로 라인차트로 그려줘."
+        "fab10의 lotrelease 테이블에서 route_product_3 건수를 start_date 기준으로 라인차트로 그려줘."
     )
     executed = Text2SQLResult(
         status="succeeded",
@@ -145,8 +145,34 @@ ORDER BY release_date ASC
     supervisor_event = next(payload for payload in payloads if payload["node"] == "supervisor")
     assert planner_event["data"]["execution_mode"] == "llm_chat_completions"
     assert supervisor_event["data"]["execution_mode"] == "llm_chat_completions"
+    assert all("elapsed_ms" in payload["data"] for payload in payloads)
+    assert all("retry_budget_remaining" in payload["data"] for payload in payloads)
     assert "GROUP BY start_date::date" in text2sql_event["data"]["sql"]
     final = payloads[-1]["data"]
     assert final["status"] == "succeeded"
     assert final["chart"]["type"] == "line"
     assert final["chart"]["rows"] == [{"release_date": "2018-01-01", "lot_count": 3}]
+
+
+def test_chat_stream_returns_error_event_with_telemetry(monkeypatch) -> None:
+    class BrokenGraph:
+        def stream(self, state, stream_mode):
+            del state, stream_mode
+            raise RuntimeError("test stream failure")
+            yield
+
+    monkeypatch.setattr("app.api.routes.build_agent_graph", lambda: BrokenGraph())
+
+    response = client.post("/api/chat/stream", json={"message": "지금 fab10 WIP 몇 개야?"})
+
+    assert response.status_code == 200
+    payloads = [
+        json.loads(line.removeprefix("data: "))
+        for line in response.text.splitlines()
+        if line.startswith("data: ")
+    ]
+    assert [payload["type"] for payload in payloads] == ["run_started", "run_failed"]
+    assert payloads[-1]["node"] == "supervisor"
+    assert payloads[-1]["data"]["error"] == "test stream failure"
+    assert "elapsed_ms" in payloads[-1]["data"]
+    assert "retry_budget_remaining" in payloads[-1]["data"]

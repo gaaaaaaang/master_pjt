@@ -161,10 +161,18 @@
 - Planner/Supervisor는 structured output LLM으로 intent와 실행 경로를 결정하고, Text2SQL의
   deterministic slot parser는 LLM SQL 호출 전 안전 전처리로 유지한다.
 - `/api/chat`과 `/api/chat/stream`은 모두 같은 LangGraph를 실행하며 pattern router fallback은 없다.
-- `lotrelease` 외 테이블/컬럼/aggregation 조합을 schema catalog에 추가한다.
-- 대화 맥락 기반 기간 보완, 모호한 날짜 컬럼(`start_date` vs `due_date`) clarification을 추가한다.
-- SSE disconnect/cancellation, retry budget, query timeout telemetry를 추가한다.
+- `lotrelease` 외 AutoSched operational report, PM, breakdown 대표 질문 fixture를 추가했고,
+  schema context에는 metric/date catalog와 parsed slot을 함께 제공한다.
+- `lotrelease`의 `최근`, `일별`, `날짜 기준` 질문은 `start_date`와 `due_date` 중 기준이
+  명확하지 않으면 SQL 생성 전 clarification으로 중단한다.
+- `/api/chat/stream`은 elapsed time, retry budget, timeout, disconnect/cancellation telemetry를
+  SSE event data에 포함한다.
 - RAG, CaseSearch, Impact는 실제 저장소/모델 연결 전까지 limitation을 반환한다.
+
+최근 추가된 검증 fixture:
+
+- `tests/fixtures/text2sql_fab10_eval.json`: fab10 Text2SQL 대표 질문 47개.
+- `tests/fixtures/scenario_acceptance_questions.json`: SC-001~SC-004 acceptance 질문 18개.
 
 비고:
 
