@@ -32,5 +32,5 @@ def test_meta_reflects_shell_stack() -> None:
     assert response.json() == {
         "frontend": "streamlit",
         "backend": "fastapi",
-        "agent": "text2sql-initial",
+        "agent": "planner-supervisor-initial",
     }

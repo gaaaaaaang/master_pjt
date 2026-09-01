@@ -133,9 +133,9 @@
 5. [x] SQL을 FastAPI endpoint로 감싸기
 6. [x] General Data 기반 master/release lookup SQL template 작성
 7. [ ] AutoSched `.rep` PostgreSQL loader 작성
-8. [ ] Planner 실행 계획 계약 정의 및 deterministic planner 구현
-9. [ ] Supervisor sub-agent 실행 제어 구현
-10. [ ] Self-reflection 검증 기준 및 sub-agent 구현
+8. [x] Planner 실행 계획 계약 정의 및 deterministic planner 구현
+9. [x] Supervisor sub-agent 실행 제어 구현
+10. [x] Self-reflection 검증 기준 및 sub-agent 구현
 11. [ ] LangGraph node/state 연결
 12. [ ] SC-001 end-to-end 테스트 확장
 
