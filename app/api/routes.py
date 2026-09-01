@@ -1,13 +1,15 @@
 import json
 import logging
+import time
 from dataclasses import asdict
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 
 from app.agents.graph import build_agent_graph, initial_graph_state
+from app.config import get_settings
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.services.chat_service import ChatService
 
@@ -64,29 +66,68 @@ def chat(request: ChatRequest) -> ChatResponse:
 
 
 @router.post("/chat/stream")
-def chat_stream(request: ChatRequest) -> StreamingResponse:
+def chat_stream(request: ChatRequest, http_request: Request) -> StreamingResponse:
     """Stream real LangGraph node/tool progress as server-sent events."""
 
-    def event_source():
+    async def event_source():
         graph = build_agent_graph()
         state = initial_graph_state(request)
+        started_at = time.monotonic()
+        retry_budget = 0
         yield _sse(
             "trace",
-            {
-                "type": "run_started",
-                "node": "input",
-                "message": "질문을 접수했습니다.",
-                "data": {"conversation_id": state["conversation_id"]},
-            },
+            _with_stream_telemetry(
+                {
+                    "type": "run_started",
+                    "node": "input",
+                    "message": "질문을 접수했습니다.",
+                    "data": {
+                        "conversation_id": state["conversation_id"],
+                        "retry_budget_remaining": retry_budget,
+                        "timeout_seconds": get_settings().stream_timeout_seconds,
+                    },
+                },
+                started_at,
+            ),
         )
-        logger.info("stream.start conversation_id=%s message=%s", state["conversation_id"], request.message)
+        logger.info(
+            "stream.start conversation_id=%s message=%s",
+            state["conversation_id"],
+            request.message,
+        )
         try:
             for update in graph.stream(state, stream_mode="updates"):
+                if await http_request.is_disconnected():
+                    logger.info(
+                        "stream.cancelled conversation_id=%s reason=client_disconnected",
+                        state["conversation_id"],
+                    )
+                    yield _sse(
+                        "cancelled",
+                        _with_stream_telemetry(
+                            {
+                                "type": "run_cancelled",
+                                "node": "supervisor",
+                                "message": "클라이언트 연결이 종료되어 stream을 중단했습니다.",
+                                "data": {
+                                    "conversation_id": state["conversation_id"],
+                                    "reason": "client_disconnected",
+                                    "retry_budget_remaining": retry_budget,
+                                },
+                            },
+                            started_at,
+                        ),
+                    )
+                    return
+                if time.monotonic() - started_at > get_settings().stream_timeout_seconds:
+                    raise TimeoutError("SSE stream exceeded configured timeout.")
                 for patch in update.values():
                     state.update(patch)
                     if event := patch.get("stream_event"):
                         _log_stream_event(event)
-                        yield _sse("trace", event)
+                        event_data = event.setdefault("data", {})
+                        event_data["retry_budget_remaining"] = retry_budget
+                        yield _sse("trace", _with_stream_telemetry(event, started_at))
 
             final = {
                 "conversation_id": state["conversation_id"],
@@ -112,23 +153,36 @@ def chat_stream(request: ChatRequest) -> StreamingResponse:
             )
             yield _sse(
                 "final",
-                {
-                    "type": "run_completed",
-                    "node": "supervisor",
-                    "message": "전체 실행을 완료했습니다.",
-                    "data": final,
-                },
+                _with_stream_telemetry(
+                    {
+                        "type": "run_completed",
+                        "node": "supervisor",
+                        "message": "전체 실행을 완료했습니다.",
+                        "data": {
+                            **final,
+                            "retry_budget_remaining": retry_budget,
+                        },
+                    },
+                    started_at,
+                ),
             )
-        except (KeyError, RuntimeError, TypeError, ValueError) as exc:
+        except (KeyError, RuntimeError, TimeoutError, TypeError, ValueError) as exc:
             logger.exception("stream.failed message=%s", request.message)
             yield _sse(
                 "error",
-                {
-                    "type": "run_failed",
-                    "node": "supervisor",
-                    "message": "에이전트 실행 중 오류가 발생했습니다.",
-                    "data": {"error": str(exc)},
-                },
+                _with_stream_telemetry(
+                    {
+                        "type": "run_failed",
+                        "node": "supervisor",
+                        "message": "에이전트 실행 중 오류가 발생했습니다.",
+                        "data": {
+                            "error": str(exc),
+                            "conversation_id": state["conversation_id"],
+                            "retry_budget_remaining": retry_budget,
+                        },
+                    },
+                    started_at,
+                ),
             )
 
     return StreamingResponse(
@@ -221,6 +275,12 @@ def _trace_case(case: dict[str, Any]) -> dict[str, Any]:
 def _sse(event: str, payload: dict[str, Any]) -> str:
     body = json.dumps(jsonable_encoder(payload), ensure_ascii=False)
     return f"event: {event}\ndata: {body}\n\n"
+
+
+def _with_stream_telemetry(event: dict[str, Any], started_at: float) -> dict[str, Any]:
+    data = event.setdefault("data", {})
+    data["elapsed_ms"] = int((time.monotonic() - started_at) * 1000)
+    return event
 
 
 def _log_stream_event(event: dict[str, Any]) -> None:

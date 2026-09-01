@@ -271,7 +271,7 @@ ORDER BY release_date ASC
     )
 
     result = plan_text2sql(
-        "fab10의 lotrelease 테이블에서 route_product_3 건수를 날짜 기준으로 라인차트로 그려줘.",
+        "fab10의 lotrelease 테이블에서 route_product_3 건수를 start_date 기준으로 라인차트로 그려줘.",
         llm_client=llm,
     )
 
@@ -291,6 +291,92 @@ ORDER BY release_date ASC
     }
     assert "GROUP BY start_date::date" in (result.sql or "")
     assert len(llm.calls) == 1
+
+
+def test_ambiguous_lotrelease_date_basis_asks_for_clarification() -> None:
+    llm = FakeLLM(llm_payload("SELECT * FROM fab10.lotrelease LIMIT 1"))
+
+    result = plan_text2sql("fab10 Product_3 lotrelease 일별 추세 보여줘", llm_client=llm)
+
+    assert result.status == "needs_clarification"
+    assert result.sql is None
+    assert "start_date" in result.answer
+    assert "due_date" in result.answer
+    assert llm.calls == []
+
+
+def test_explicit_due_date_lotrelease_adds_date_slots_to_schema_context() -> None:
+    llm = FakeLLM(
+        llm_payload(
+            """
+SELECT due_date::date AS due_date,
+       COUNT(*)::bigint AS lot_count
+FROM fab10.lotrelease
+WHERE product_name = 'Product_3'
+GROUP BY due_date::date
+ORDER BY due_date ASC
+""".strip(),
+            source_tables=["fab10.lotrelease"],
+        )
+    )
+
+    result = plan_text2sql(
+        "fab10 Product_3 lotrelease를 due_date 기준 일별로 집계해줘",
+        llm_client=llm,
+    )
+
+    assert result.status == "succeeded"
+    schema_context = llm.calls[0]["schema_context"]
+    assert schema_context["data_source_type"] == "release_plan"
+    assert schema_context["slots"]["date_basis"]["value"] == "due_date"
+    assert schema_context["slots"]["date_grain"]["value"] == "day"
+    assert "fab10.lotrelease" in schema_context["allowed_table_refs"]
+
+
+def test_operational_trend_uses_autosched_schema_context() -> None:
+    llm = FakeLLM(
+        llm_payload(
+            """
+SELECT report_time::date AS report_date,
+       AVG(wiplotavg) AS wiplotavg
+FROM fab10.autosched_perf
+WHERE relative = 'Y'
+GROUP BY report_time::date
+ORDER BY report_date ASC
+""".strip(),
+            source_tables=["fab10.autosched_perf"],
+        )
+    )
+
+    result = plan_text2sql("fab10 WIP 일별 추세를 보여줘", llm_client=llm)
+
+    assert result.status == "succeeded"
+    schema_context = llm.calls[0]["schema_context"]
+    assert schema_context["data_source_type"] == "operational_report"
+    assert "fab10.autosched_perf" in schema_context["allowed_table_refs"]
+    assert "fab10.lotrelease" not in schema_context["allowed_table_refs"]
+    assert schema_context["slots"]["metric"]["value"] == "wiplotavg"
+
+
+def test_pm_and_breakdown_tables_are_available_for_master_lookup() -> None:
+    llm = FakeLLM(
+        llm_payload(
+            """
+SELECT pm_event_name, type_name, pm_type, mean
+FROM fab10.pm
+ORDER BY source_row_id
+LIMIT 50
+""".strip(),
+            source_tables=["fab10.pm"],
+        )
+    )
+
+    result = plan_text2sql("fab10 PM policy 목록 보여줘", llm_client=llm)
+
+    assert result.status == "succeeded"
+    schema_context = llm.calls[0]["schema_context"]
+    assert "fab10.pm" in schema_context["allowed_table_refs"]
+    assert "fab10.breakdown" in schema_context["allowed_table_refs"]
 
 
 def test_toolgroup_lookup_uses_llm_generated_general_data_sql() -> None:

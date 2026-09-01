@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass, field
+from datetime import date, datetime, timedelta
 from typing import Any, Literal, Protocol
+from zoneinfo import ZoneInfo
 
 import httpx
 from psycopg import Error as PsycopgError
@@ -162,6 +164,65 @@ TREND_TERMS = {
     "line chart",
     "그래프",
     "시각화",
+}
+DATE_AMBIGUITY_TERMS = {
+    "최근",
+    "latest",
+    "recent",
+    "지난주",
+    "이번주",
+    "일별",
+    "날짜 기준",
+    "date basis",
+}
+DATE_GRAIN_TERMS = {
+    "일별": "day",
+    "daily": "day",
+    "주별": "week",
+    "weekly": "week",
+    "월별": "month",
+    "monthly": "month",
+}
+DATE_BASIS_ALIASES = {
+    "start_date": "start_date",
+    "start date": "start_date",
+    "투입일": "start_date",
+    "릴리즈일": "start_date",
+    "due_date": "due_date",
+    "due date": "due_date",
+    "duedate": "due_date",
+    "납기": "due_date",
+    "납기일": "due_date",
+    "report_time": "report_time",
+    "report time": "report_time",
+    "리포트 시간": "report_time",
+    "보고 시간": "report_time",
+    "startdate": "startdate",
+    "compdate": "compdate",
+}
+METRIC_ALIASES = {
+    "wip": "wiplotavg",
+    "재공": "wiplotavg",
+    "현재 wip": "wiplotcur",
+    "util": "util_percent",
+    "utilization": "util_percent",
+    "가동률": "util_percent",
+    "cycle time": "cycleavg",
+    "cycle": "cycleavg",
+    "ct": "cycleavg",
+    "ontime": "ontime_percent",
+    "on-time": "ontime_percent",
+    "납기 준수": "ontime_percent",
+    "lot completion": "lotcomps",
+    "lot completions": "lotcomps",
+    "completion": "lotcomps",
+    "처리량": "lotcomps",
+    "down": "down_percent",
+    "고장": "down_percent",
+    "pm": "pm_percent",
+    "현재 상태": "curstate",
+    "current state": "curstate",
+    "진행 step": "curstep",
 }
 
 
@@ -546,6 +607,18 @@ def plan_text2sql(
             slots=slots,
         )
 
+    if _needs_date_basis_clarification(query_type, normalized, slots):
+        return _clarification(
+            query_type=query_type,
+            answer=(
+                "기간/날짜 기준이 모호합니다. lotrelease는 start_date 기준인지 "
+                "due_date 기준인지 지정해주세요."
+            ),
+            fab_id=fab_id,
+            data_source_type="release_plan",
+            slots=slots,
+        )
+
     if query_type == "release_plan_lookup" and not _has_selective_release_constraint(slots):
         return _clarification(
             query_type=query_type,
@@ -674,7 +747,7 @@ def _schema_context_for_question(
     slots: dict[str, QuerySlot],
     fab_id: str,
 ) -> dict[str, Any]:
-    data_source_type = _data_source_type(query_type)
+    data_source_type = _data_source_type(query_type, slots)
     tables: dict[str, list[str]] = {}
     if data_source_type == "model_master":
         tables.update(SCHEMA_CATALOG["model_master"])
@@ -707,6 +780,9 @@ def _schema_context_for_question(
         "data_source_type": data_source_type,
         "tables": {f"{fab_id}.{table}": columns for table, columns in tables.items()},
         "allowed_table_refs": [f"{fab_id}.{table}" for table in tables],
+        "slots": _serialize_slots(slots),
+        "metric_catalog": _metric_catalog_for_tables(tables),
+        "date_columns": _date_columns_for_tables(tables),
         "rules": [
             "Return exactly one SELECT or WITH query.",
             "Use only schema-qualified table names from allowed_table_refs.",
@@ -714,6 +790,8 @@ def _schema_context_for_question(
             "Always include a deterministic ORDER BY when using LIMIT.",
             "Never scan release-plan tables without a selective product, route, scenario, or date predicate.",
             "For current status, use AutoSched tables only; never infer live status from General Data.",
+            "If the user specified date_basis/date_start/date_end slots, preserve those exact constraints.",
+            "For lotrelease trends, do not choose between start_date and due_date unless date_basis is explicit.",
         ],
     }
 
@@ -738,11 +816,19 @@ Hard rules:
 
 def _data_source_type(
     query_type: QueryType,
+    slots: dict[str, QuerySlot] | None = None,
 ) -> Literal["operational_report", "model_master", "release_plan"]:
     if query_type == "status":
         return "operational_report"
-    if query_type in {"release_plan_lookup", "trend"}:
+    if query_type == "release_plan_lookup":
         return "release_plan"
+    if query_type == "trend":
+        if "release_table" in (slots or {}):
+            return "release_plan"
+        slot_values = " ".join(slot.value for slot in (slots or {}).values()).casefold()
+        if any(term in slot_values for term in ("start_date", "due_date")):
+            return "release_plan"
+        return "operational_report"
     return "model_master"
 
 
@@ -905,6 +991,28 @@ def _extract_slots(
         slots["release_scenario"] = QuerySlot(
             release_scenario, "parser", 0.75, release_scenario
         )
+    if _contains_any(normalized_question, RELEASE_TERMS):
+        slots["release_table"] = QuerySlot("lotrelease", "parser", 0.85, "lotrelease")
+
+    date_basis = _parse_date_basis(normalized_question)
+    if date_basis:
+        slots["date_basis"] = QuerySlot(date_basis, "parser", 0.9, date_basis)
+
+    date_grain = _parse_date_grain(normalized_question)
+    if date_grain:
+        slots["date_grain"] = QuerySlot(date_grain, "parser", 0.85, date_grain)
+
+    relative_period = _parse_relative_period(normalized_question)
+    if relative_period:
+        slots["relative_period"] = QuerySlot(relative_period, "parser", 0.8, relative_period)
+        start, end = _relative_period_bounds(relative_period)
+        if start and end:
+            slots["date_start"] = QuerySlot(start.isoformat(), "parser", 0.8, relative_period)
+            slots["date_end"] = QuerySlot(end.isoformat(), "parser", 0.8, relative_period)
+
+    metric = _parse_metric(normalized_question)
+    if metric:
+        slots["metric"] = QuerySlot(metric, "alias_match", 0.8, metric)
 
     return slots
 
@@ -930,7 +1038,10 @@ def _looks_like_master_lookup(normalized_question: str) -> bool:
 
 
 def _has_selective_release_constraint(slots: dict[str, QuerySlot]) -> bool:
-    return any(key in slots for key in ("product", "route", "release_scenario"))
+    return any(
+        key in slots
+        for key in ("product", "route", "release_scenario", "date_start", "date_end")
+    )
 
 
 def _slot_value(slots: dict[str, QuerySlot], key: str) -> str | None:
@@ -1009,6 +1120,80 @@ def _parse_release_scenario(question: str) -> str | None:
         if scenario in lowered:
             return scenario
     return None
+
+
+def _parse_date_basis(normalized_question: str) -> str | None:
+    normalized = normalized_question.replace("-", "_")
+    for alias, column in DATE_BASIS_ALIASES.items():
+        if alias in normalized:
+            return column
+    return None
+
+
+def _parse_date_grain(normalized_question: str) -> str | None:
+    for alias, grain in DATE_GRAIN_TERMS.items():
+        if alias in normalized_question:
+            return grain
+    return None
+
+
+def _parse_relative_period(normalized_question: str) -> str | None:
+    if "지난주" in normalized_question or "last week" in normalized_question:
+        return "last_week"
+    if "이번주" in normalized_question or "this week" in normalized_question:
+        return "this_week"
+    if "최근" in normalized_question or "recent" in normalized_question or "latest" in normalized_question:
+        return "recent"
+    return None
+
+
+def _relative_period_bounds(relative_period: str) -> tuple[date | None, date | None]:
+    today = datetime.now(tz=ZoneInfo("Asia/Seoul")).date()
+    monday = today - timedelta(days=today.weekday())
+    if relative_period == "last_week":
+        start = monday - timedelta(days=7)
+        return start, monday
+    if relative_period == "this_week":
+        return monday, today + timedelta(days=1)
+    return None, None
+
+
+def _parse_metric(normalized_question: str) -> str | None:
+    normalized = normalized_question.replace("-", " ")
+    for alias, column in sorted(METRIC_ALIASES.items(), key=lambda item: len(item[0]), reverse=True):
+        if alias in normalized:
+            return column
+    return None
+
+
+def _needs_date_basis_clarification(
+    query_type: QueryType,
+    normalized_question: str,
+    slots: dict[str, QuerySlot],
+) -> bool:
+    if query_type not in {"release_plan_lookup", "trend"}:
+        return False
+    if "date_basis" in slots:
+        return False
+    if not _contains_any(normalized_question, RELEASE_TERMS):
+        return False
+    return _contains_any(normalized_question, DATE_AMBIGUITY_TERMS | TREND_TERMS)
+
+
+def _metric_catalog_for_tables(tables: dict[str, list[str]]) -> dict[str, list[str]]:
+    supported_metrics = set(METRIC_ALIASES.values())
+    return {
+        table: [column for column in columns if column in supported_metrics]
+        for table, columns in tables.items()
+    }
+
+
+def _date_columns_for_tables(tables: dict[str, list[str]]) -> dict[str, list[str]]:
+    date_like = {"report_time", "start_date", "due_date", "startdate", "compdate", "duedate"}
+    return {
+        table: [column for column in columns if column in date_like]
+        for table, columns in tables.items()
+    }
 
 
 def _serialize_slots(slots: dict[str, QuerySlot]) -> dict[str, dict[str, Any]]:

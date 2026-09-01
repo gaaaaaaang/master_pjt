@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     postgres_dsn: str | None = None
     db_query_timeout_seconds: int = 5
     db_max_rows: int = 200
+    stream_timeout_seconds: int = 120
     db_allowed_schemas: str = "fab10,fab11,fab12,fab13"
     vector_db_url: str | None = None
     langsmith_tracing: bool = False
