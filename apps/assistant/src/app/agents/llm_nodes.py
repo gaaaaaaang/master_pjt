@@ -27,6 +27,8 @@ COMPOSER_SCHEMA = {
 def reflect_with_llm(
     *, question: str, query_type: str, answer_parts: list[str],
     evidence: list[dict[str, Any]], limitations: list[str],
+    agent_reflections: list[dict[str, Any]] | None = None,
+    supervisor_reviews: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     draft = "\n\n".join(dict.fromkeys(answer_parts))
     deterministic = verify_response(
@@ -39,11 +41,14 @@ def reflect_with_llm(
             "is simulation/model input, not live factory state. Return concise repair instructions."
             "RAG-only diagnosis may suggest possible causes but cannot confirm the actual root cause. "
             "Incident playbook evidence must be framed as review guidance, not automatic execution. "
-            "Process-basics evidence must stay educational and must not become operational control."
+            "Process-basics evidence must stay educational and must not become operational control. "
+            "Treat supervisor_reviews as unresolved agent-level verification findings."
         ),
         input_data={
             "question": question, "query_type": query_type, "draft_tool_summary": draft,
             "evidence": evidence, "limitations": limitations,
+            "agent_reflections": agent_reflections or [],
+            "supervisor_reviews": supervisor_reviews or [],
             "deterministic_safety_check": deterministic,
         },
         output_schema=REFLECTION_SCHEMA,
@@ -52,6 +57,20 @@ def reflect_with_llm(
     output["evidence_count"] = len(evidence)
     output["limitation_count"] = len(limitations)
     output["deterministic_warnings"] = deterministic["warnings"]
+    output["agent_reflections"] = agent_reflections or []
+    reviews = supervisor_reviews or []
+    output["supervisor_reviews"] = reviews
+    if reviews:
+        review_warnings = [
+            f"{review['agent_name']} requires supervisor review: {review['reason']}"
+            for review in reviews
+        ]
+        output["is_supported"] = False
+        output["warnings"] = list(dict.fromkeys([*output["warnings"], *review_warnings]))
+        instruction = "Keep unresolved agent findings explicit and do not overstate the result."
+        output["composer_instructions"] = list(
+            dict.fromkeys([*output["composer_instructions"], instruction])
+        )
     return output
 
 

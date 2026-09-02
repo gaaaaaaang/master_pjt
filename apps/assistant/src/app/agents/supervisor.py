@@ -61,6 +61,8 @@ class SupervisorResult:
     limitations: list[str] = field(default_factory=list)
     plan: PlannerDecision | None = None
     agent_runs: list[AgentRun] = field(default_factory=list)
+    agent_reflections: list[dict[str, Any]] = field(default_factory=list)
+    supervisor_reviews: list[dict[str, Any]] = field(default_factory=list)
     reflection: dict[str, Any] = field(default_factory=dict)
     prompt_version: str = SUPERVISOR_PROMPT_VERSION
     prompt_contract: str = SUPERVISOR_SYSTEM_PROMPT
@@ -115,5 +117,7 @@ class Supervisor:
             limitations=state.get("limitations", []),
             plan=plan,
             agent_runs=[AgentRun(**run) for run in state.get("agent_runs", [])],
+            agent_reflections=state.get("agent_reflections", []),
+            supervisor_reviews=state.get("supervisor_reviews", []),
             reflection=state.get("reflection", {}),
         )

@@ -136,6 +136,11 @@ def test_supervisor_status_stops_on_data_unavailable(monkeypatch) -> None:
     assert result.query_type == "status"
     assert result.sql is None
     assert any(run.agent == "text2sql" for run in result.agent_runs)
+    assert result.agent_reflections[0]["agent_name"] == "text2sql"
+    assert result.agent_reflections[0]["decision"] == "needs_supervisor_review"
+    assert result.supervisor_reviews[0]["agent_name"] == "text2sql"
+    assert result.reflection["is_supported"] is False
+    assert result.reflection["agent_reflections"] == result.agent_reflections
     assert "AutoSched" in " ".join(result.limitations)
 
 
@@ -165,6 +170,8 @@ def test_supervisor_master_lookup_returns_planner_and_text2sql_evidence(monkeypa
     assert result.query_type == "master_data_lookup"
     assert result.sql is not None
     assert [item.source_type for item in result.evidence] == ["planner_plan", "text2sql_plan"]
+    assert result.agent_reflections[0]["decision"] == "pass"
+    assert result.supervisor_reviews == []
 
 
 def test_supervisor_diagnosis_exposes_placeholder_limitations(monkeypatch, tmp_path: Path) -> None:

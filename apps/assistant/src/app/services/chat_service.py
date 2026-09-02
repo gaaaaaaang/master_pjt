@@ -17,4 +17,7 @@ class ChatService:
             chart=result.chart,
             confidence=result.confidence,
             limitations=result.limitations,
+            agent_reflections=result.agent_reflections,
+            supervisor_reviews=result.supervisor_reviews,
+            reflection=result.reflection,
         )

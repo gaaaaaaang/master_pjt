@@ -141,6 +141,8 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                 "evidence": state.get("evidence", []),
                 "plan": asdict(state["plan"]),
                 "agent_runs": state.get("agent_runs", []),
+                "agent_reflections": state.get("agent_reflections", []),
+                "supervisor_reviews": state.get("supervisor_reviews", []),
                 "reflection": state.get("reflection", {}),
             }
             logger.info(
@@ -263,6 +265,8 @@ def _trace_case(case: dict[str, Any]) -> dict[str, Any]:
         "limitations": result.limitations,
         "plan": plan,
         "agent_runs": agent_runs,
+        "agent_reflections": result.agent_reflections,
+        "supervisor_reviews": result.supervisor_reviews,
         "evidence": [item.model_dump() for item in result.evidence],
         "reflection": result.reflection,
         "prompt_versions": {

@@ -6,7 +6,8 @@
   -> FastAPI /api/chat 또는 /api/chat/stream(SSE)
   -> LangGraph
   -> Planner -> Supervisor
-  -> Text2SQL -> RAG -> Case Search -> Impact -> Visualization (조건부)
+  -> Text2SQL -> Agent Reflection -> RAG -> Agent Reflection (선택 agent마다 반복)
+  -> Case Search -> Impact -> Visualization (조건부, 각 실행 뒤 Agent Reflection)
   -> Verifier/Self-reflection -> Answer Composer
 ```
 
@@ -17,6 +18,11 @@ semantic query plan, 생성 SQL, 조회 column/row count/sample row를 포함한
 event는 chart type과 x/y encoding 및 조회 row를 포함한다. Reflection은 SQL/tool 근거와 한계를
 LLM으로 검토하고, Composer는 그 검토 지시를 반영해 최종 답변을 생성한다. 최종 event는 answer, SQL, chart,
 evidence, limitations, reflection을 함께 반환한다.
+
+각 선택 agent 실행 직후 공통 `sub_agent/reflection.py` 계약으로 Planner의 intent/action,
+agent output, success criteria, 신규 evidence와 limitation을 검증한다. 결과는 실행 순서대로
+`agent_reflections`에 누적한다. `pass`가 아닌 결과는 `supervisor_reviews`에도 기록해 최종
+Reflection/Composer와 API 응답에 전달한다. 현재 단계에서는 이 결과로 재시도나 replan을 자동 실행하지 않는다.
 
 ## 단계별 구현 순서
 

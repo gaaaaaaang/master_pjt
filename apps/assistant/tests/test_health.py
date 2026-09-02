@@ -1,9 +1,8 @@
 import json
 
-from fastapi.testclient import TestClient
-
 from app.main import app
 from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
@@ -27,6 +26,8 @@ def test_status_chat_works_in_mock_mode() -> None:
     body = response.json()
     assert body["query_type"] == "status"
     assert "OPENAI_API_KEY" in " ".join(body["limitations"])
+    assert body["agent_reflections"][0]["agent_name"] == "text2sql"
+    assert body["supervisor_reviews"][0]["agent_name"] == "text2sql"
 
 
 def test_meta_reflects_shell_stack() -> None:
@@ -152,6 +153,11 @@ ORDER BY release_date ASC
     assert final["status"] == "succeeded"
     assert final["chart"]["type"] == "line"
     assert final["chart"]["rows"] == [{"release_date": "2018-01-01", "lot_count": 3}]
+    assert [item["agent_name"] for item in final["agent_reflections"]] == [
+        "text2sql",
+        "visualization",
+    ]
+    assert final["supervisor_reviews"] == []
 
 
 def test_chat_stream_returns_error_event_with_telemetry(monkeypatch) -> None:

@@ -14,6 +14,7 @@ from app.schemas.chat import ChatRequest
 from app.sub_agent.case_search import find_similar_cases
 from app.sub_agent.impact import estimate_output_delta
 from app.sub_agent.rag import INCIDENT_PLAYBOOK, retrieve_knowledge
+from app.sub_agent.reflection import reflect_agent_output
 from app.sub_agent.text2sql import QueryType, Text2SQLResult, answer_question
 from app.sub_agent.visualization import build_chart_spec
 
@@ -29,6 +30,9 @@ class AgentState(TypedDict, total=False):
     limitations: list[str]
     evidence: list[dict[str, Any]]
     agent_runs: list[dict[str, Any]]
+    agent_reflections: list[dict[str, Any]]
+    current_reflection: dict[str, Any]
+    supervisor_reviews: list[dict[str, Any]]
     text2sql_result: Text2SQLResult
     sql: str | None
     chart: dict[str, Any] | None
@@ -65,6 +69,8 @@ def _planner_node(state: AgentState) -> dict[str, Any]:
         "evidence": [evidence],
         "answer_parts": [],
         "agent_runs": [],
+        "agent_reflections": [],
+        "supervisor_reviews": [],
         "stream_event": {
             "type": "node_completed",
             "node": "planner",
@@ -127,37 +133,50 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
     }
     query_plan = asdict(result.plan) if result.plan else None
     evidence = list(state.get("evidence", []))
-    evidence.append(
-        {
-            "source_type": "text2sql_plan",
-            "title": "Text2SQL query and result",
-            "content": result.answer,
-            "metadata": {
-                "status": result.status,
-                "query_type": result.query_type,
-                "row_count": result.row_count,
-                "columns": result.columns,
-                "sample_rows": result.rows[:20],
-                "query_plan": query_plan,
-                "sql": result.sql,
-            },
-        }
-    )
+    result_evidence = {
+        "source_type": "text2sql_plan",
+        "title": "Text2SQL query and result",
+        "content": result.answer,
+        "metadata": {
+            "status": result.status,
+            "query_type": result.query_type,
+            "row_count": result.row_count,
+            "columns": result.columns,
+            "sample_rows": result.rows[:20],
+            "query_plan": query_plan,
+            "sql": result.sql,
+        },
+    }
+    evidence.append(result_evidence)
     failures = {"needs_clarification", "data_unavailable", "unsupported", "failed"}
     text2sql_required = next(
         (step.required for step in plan.execution_steps if step.agent == "text2sql"),
         False,
     )
+    limitations = [*state.get("limitations", []), *result.limitations]
+    reflection_patch = _agent_reflection_patch(
+        state,
+        run,
+        agent_output={
+            **run,
+            "sql": result.sql,
+            "row_count": result.row_count,
+            "columns": result.columns,
+        },
+        evidence=[result_evidence],
+        limitations=result.limitations,
+    )
     return {
         "text2sql_result": result,
         "sql": result.sql,
         "confidence": result.confidence,
-        "limitations": [*state.get("limitations", []), *result.limitations],
+        "limitations": limitations,
         "evidence": evidence,
         "agent_runs": [*state.get("agent_runs", []), run],
         "answer_parts": [*state.get("answer_parts", []), result.answer],
         "halted": result.status in failures and text2sql_required,
         "status": result.status,
+        **reflection_patch,
         "stream_event": {
             "type": "tool_completed",
             "node": "text2sql",
@@ -168,6 +187,7 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
                 "row_count": result.row_count,
                 "columns": result.columns,
                 "sample_rows": result.rows[:5],
+                "reflection": reflection_patch["current_reflection"],
             },
         },
     }
@@ -201,10 +221,19 @@ def _rag_node(state: AgentState) -> dict[str, Any]:
         "summary": summary,
         "metadata": {"knowledge_base": state["plan"].rag_knowledge_base},
     }
+    agent_evidence = [item.model_dump() for item in items] if status == "succeeded" else []
+    reflection_patch = _agent_reflection_patch(
+        state,
+        run,
+        agent_output={**run, "retrieved_count": len(items)},
+        evidence=agent_evidence,
+        limitations=limitations,
+    )
     return {
         "evidence": evidence,
         "limitations": limitations,
         "agent_runs": [*state.get("agent_runs", []), run],
+        **reflection_patch,
         "answer_parts": [
             *state.get("answer_parts", []),
             *_rag_answer_parts(items if status == "succeeded" else []),
@@ -213,7 +242,11 @@ def _rag_node(state: AgentState) -> dict[str, Any]:
             "type": "tool_completed",
             "node": "rag",
             "message": summary,
-            "data": {"status": status, "knowledge_base": state["plan"].rag_knowledge_base},
+            "data": {
+                "status": status,
+                "knowledge_base": state["plan"].rag_knowledge_base,
+                "reflection": reflection_patch["current_reflection"],
+            },
         },
     }
 
@@ -228,14 +261,26 @@ def _case_search_node(state: AgentState) -> dict[str, Any]:
     evidence = [*state.get("evidence", []), *(item.model_dump() for item in items)]
     summary = f"{len(items)}개 유사 사례를 조회했습니다."
     run = {"agent": "case_search", "status": "succeeded", "summary": summary, "metadata": {}}
+    agent_evidence = [item.model_dump() for item in items]
+    reflection_patch = _agent_reflection_patch(
+        state,
+        run,
+        agent_output={**run, "retrieved_count": len(items)},
+        evidence=agent_evidence,
+        limitations=[],
+    )
     return {
         "evidence": evidence,
         "agent_runs": [*state.get("agent_runs", []), run],
+        **reflection_patch,
         "stream_event": {
             "type": "tool_completed",
             "node": "case_search",
             "message": summary,
-            "data": {"evidence_count": len(items)},
+            "data": {
+                "evidence_count": len(items),
+                "reflection": reflection_patch["current_reflection"],
+            },
         },
     }
 
@@ -251,15 +296,26 @@ def _impact_node(state: AgentState) -> dict[str, Any]:
     limitations = [*state.get("limitations", []), *impact.get("limitations", [])]
     summary = "영향도 모델이 아직 operational metric과 연결되지 않았습니다."
     run = {"agent": "impact", "status": "data_unavailable", "summary": summary, "metadata": {}}
+    reflection_patch = _agent_reflection_patch(
+        state,
+        run,
+        agent_output={**run, "calculation": impact},
+        evidence=[],
+        limitations=impact.get("limitations", []),
+    )
     return {
         "limitations": limitations,
         "answer_parts": [*state.get("answer_parts", []), summary],
         "agent_runs": [*state.get("agent_runs", []), run],
+        **reflection_patch,
         "stream_event": {
             "type": "tool_completed",
             "node": "impact",
             "message": summary,
-            "data": {"status": "data_unavailable"},
+            "data": {
+                "status": "data_unavailable",
+                "reflection": reflection_patch["current_reflection"],
+            },
         },
     }
 
@@ -276,13 +332,21 @@ def _visualization_node(state: AgentState) -> dict[str, Any]:
             "summary": "조회 결과가 없어 차트를 생성하지 않았습니다.",
             "metadata": {},
         }
+        reflection_patch = _agent_reflection_patch(
+            state,
+            run,
+            agent_output={**run, "chart": None},
+            evidence=[],
+            limitations=[],
+        )
         return {
             "agent_runs": [*state.get("agent_runs", []), run],
+            **reflection_patch,
             "stream_event": {
                 "type": "tool_skipped",
                 "node": "visualization",
                 "message": run["summary"],
-                "data": {},
+                "data": {"reflection": reflection_patch["current_reflection"]},
             },
         }
 
@@ -294,14 +358,25 @@ def _visualization_node(state: AgentState) -> dict[str, Any]:
         "summary": f"{chart['type']} chart를 생성했습니다.",
         "metadata": {"encoding": chart["encoding"]},
     }
+    reflection_patch = _agent_reflection_patch(
+        state,
+        run,
+        agent_output={**run, "chart": chart},
+        evidence=[],
+        limitations=[],
+    )
     return {
         "chart": chart,
         "agent_runs": [*state.get("agent_runs", []), run],
+        **reflection_patch,
         "stream_event": {
             "type": "tool_completed",
             "node": "visualization",
             "message": run["summary"],
-            "data": {"chart": chart},
+            "data": {
+                "chart": chart,
+                "reflection": reflection_patch["current_reflection"],
+            },
         },
     }
 
@@ -343,6 +418,8 @@ def _reflection_node(state: AgentState) -> dict[str, Any]:
         evidence=state.get("evidence", []),
         limitations=limitations,
         query_type=state["plan"].query_type,
+        agent_reflections=state.get("agent_reflections", []),
+        supervisor_reviews=state.get("supervisor_reviews", []),
     )
     reflection["execution_mode"] = "llm_chat_completions"
     reflection["model"] = get_settings().openai_model
@@ -359,6 +436,74 @@ def _reflection_node(state: AgentState) -> dict[str, Any]:
             "data": reflection,
         },
     }
+
+
+def _agent_reflection_patch(
+    state: AgentState,
+    run: dict[str, Any],
+    *,
+    agent_output: dict[str, Any],
+    evidence: list[dict[str, Any]],
+    limitations: list[str],
+) -> dict[str, Any]:
+    plan = state["plan"]
+    agent_name = str(run["agent"])
+    step = next((item for item in plan.execution_steps if item.agent == agent_name), None)
+    agent_intent = plan.intent
+    required = False
+    if step:
+        agent_intent = f"{step.action} ({step.reason})"
+        required = step.required
+
+    reflection = reflect_agent_output(
+        agent_name=agent_name,
+        agent_intent=agent_intent,
+        planner_plan=asdict(plan),
+        agent_output=agent_output,
+        success_criteria=_agent_success_criteria(agent_name, step.action if step else None),
+        evidence=evidence,
+        limitations=limitations,
+        required=required,
+    )
+    agent_reflections = [*state.get("agent_reflections", []), reflection]
+    supervisor_reviews = list(state.get("supervisor_reviews", []))
+    if reflection["decision"] == "needs_supervisor_review":
+        supervisor_reviews.append(
+            {
+                "agent_name": agent_name,
+                "status": run["status"],
+                "reason": reflection["reason"],
+                "warnings": reflection["warnings"],
+                "recommended_action": reflection["recommended_action"],
+            }
+        )
+    return {
+        "agent_reflections": agent_reflections,
+        "current_reflection": reflection,
+        "supervisor_reviews": supervisor_reviews,
+    }
+
+
+def _agent_success_criteria(agent_name: str, planned_action: str | None) -> list[str]:
+    criteria = []
+    if planned_action:
+        criteria.append(f"Complete planner action: {planned_action}")
+    criteria.extend(
+        {
+            "text2sql": [
+                "Return a succeeded status with read-only SQL.",
+                "Record query/result evidence and limitations.",
+            ],
+            "rag": [
+                "Return retrieved knowledge evidence.",
+                "Keep diagnosis claims within the retrieved evidence boundary.",
+            ],
+            "case_search": ["Return at least one traceable similar-case evidence item."],
+            "impact": ["Return calculation inputs, result, and calculation limitations."],
+            "visualization": ["Return a chart specification backed by query rows."],
+        }.get(agent_name, ["Return a non-empty, evidence-backed result."])
+    )
+    return criteria
 
 
 def _skipped(node: str, message: str) -> dict[str, Any]:
@@ -422,4 +567,6 @@ def initial_graph_state(request: ChatRequest) -> AgentState:
         "limitations": [],
         "evidence": [],
         "agent_runs": [],
+        "agent_reflections": [],
+        "supervisor_reviews": [],
     }

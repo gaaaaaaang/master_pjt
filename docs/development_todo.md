@@ -102,6 +102,11 @@
 
 ### Self-reflection 구현 기준
 
+- 각 선택 agent 실행 직후 `agent_name`, `agent_intent`, `planner_plan`, `agent_output`,
+  `success_criteria`, `evidence`, `limitations` 공통 계약으로 결과를 검증한다.
+- agent별 검증 결과는 `agent_reflections`에 실행 순서대로 누적한다.
+- `pass`가 아닌 결과는 `supervisor_reviews`에 추가해 최종 Reflection/Composer와 API로 전달한다.
+- 1차 구현에서는 검토 필요 상태를 기록만 하고 retry/replan routing은 실행하지 않는다.
 - SQL 결과 없이 실제 수치나 현재 상태를 단정하지 않는다.
 - General Data 기반 조회를 live/current factory state처럼 표현하지 않는다.
 - RAG 근거만으로 실제 원인을 확정하지 않는다.

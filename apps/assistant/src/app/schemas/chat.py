@@ -28,3 +28,6 @@ class ChatResponse(BaseModel):
     confidence: float | None = None
     limitations: list[str] = Field(default_factory=list)
 
+    agent_reflections: list[dict[str, Any]] = Field(default_factory=list)
+    supervisor_reviews: list[dict[str, Any]] = Field(default_factory=list)
+    reflection: dict[str, Any] = Field(default_factory=dict)

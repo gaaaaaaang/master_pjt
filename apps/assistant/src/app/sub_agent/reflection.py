@@ -3,7 +3,69 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, Literal
+
+AgentReflectionDecision = Literal["pass", "needs_supervisor_review"]
+
+
+def reflect_agent_output(
+    *,
+    agent_name: str,
+    agent_intent: str,
+    planner_plan: dict[str, Any],
+    agent_output: dict[str, Any],
+    success_criteria: list[str],
+    evidence: list[dict[str, Any]] | None = None,
+    limitations: list[str] | None = None,
+    required: bool = False,
+) -> dict[str, Any]:
+    """Evaluate one agent result against its planner intent and evidence contract."""
+    evidence = evidence or []
+    limitations = limitations or []
+    status = str(agent_output.get("status") or "unknown")
+    warnings: list[str] = []
+
+    if not agent_intent.strip():
+        warnings.append("Planner intent for the agent is missing.")
+    if not success_criteria:
+        warnings.append("Success criteria for the agent are missing.")
+    if not str(agent_output.get("summary") or "").strip():
+        warnings.append("Agent output summary is empty.")
+
+    if status != "succeeded":
+        requirement = "Required" if required else "Selected"
+        warnings.append(f"{requirement} agent finished with status '{status}'.")
+    elif agent_name == "text2sql" and not agent_output.get("sql"):
+        warnings.append("Text2SQL succeeded without returning SQL.")
+    elif agent_name in {"rag", "case_search"} and not evidence:
+        warnings.append(f"{agent_name} succeeded without recording retrieved evidence.")
+    elif agent_name == "impact" and not agent_output.get("calculation"):
+        warnings.append("Impact analysis succeeded without a calculation result.")
+    elif agent_name == "visualization" and not agent_output.get("chart"):
+        warnings.append("Visualization succeeded without a chart specification.")
+
+    decision: AgentReflectionDecision = "pass" if not warnings else "needs_supervisor_review"
+    reason = (
+        "Agent output satisfies the declared success criteria."
+        if decision == "pass"
+        else " ".join(warnings)
+    )
+    return {
+        "agent_name": agent_name,
+        "agent_intent": agent_intent,
+        "planner_intent": str(planner_plan.get("intent") or ""),
+        "query_type": str(planner_plan.get("query_type") or ""),
+        "required": required,
+        "status": status,
+        "success_criteria": success_criteria,
+        "agent_output": agent_output,
+        "decision": decision,
+        "recommended_action": "continue" if decision == "pass" else "supervisor_review",
+        "reason": reason,
+        "warnings": warnings,
+        "evidence_count": len(evidence),
+        "limitation_count": len(limitations),
+    }
 
 
 def verify_response(
