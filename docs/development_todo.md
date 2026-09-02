@@ -150,7 +150,7 @@
 - `lotrelease` 날짜별 건수는 named SQL template가 아니라 allowlisted semantic query
   plan(`source_tables`, `select_items`, `filters`, `group_by`, `order_by`, `aggregation`)에서
   SQL을 렌더링한다.
-- `scripts/load_autosched_postgres_reports.py`는 UTF-16 tab-delimited AutoSched `.rep`를
+- `apps/assistant/scripts/load_autosched_postgres_reports.py`는 UTF-16 tab-delimited AutoSched `.rep`를
   `{fab}.autosched_*` staging table로 적재한다.
 - Text2SQL은 Azure OpenAI 호환 `chat/completions` API를 호출해 SQL을 직접 생성한다.
 - `sql_templates.py`는 legacy 검증 유틸로 남아 있지만, `app/sub_agent/text2sql.py` 런타임 경로에서는
@@ -171,8 +171,8 @@
 
 최근 추가된 검증 fixture:
 
-- `tests/fixtures/text2sql_fab10_eval.json`: fab10 Text2SQL 대표 질문 47개.
-- `tests/fixtures/scenario_acceptance_questions.json`: SC-001~SC-004 acceptance 질문 18개.
+- `apps/assistant/tests/fixtures/text2sql_fab10_eval.json`: fab10 Text2SQL 대표 질문 47개.
+- `apps/assistant/tests/fixtures/scenario_acceptance_questions.json`: SC-001~SC-004 acceptance 질문 18개.
 
 비고:
 

@@ -19,8 +19,8 @@ AutoSched report table이 없는 환경에서는 live/current status 질문이 `
 ```bash
 cp .env.example .env
 uv sync --extra dev
-uv run uvicorn app.main:app --reload
-cd frontend
+PYTHONPATH=apps/assistant/src uv run uvicorn app.main:app --reload
+cd apps/web
 npm install
 npm run dev
 ```
@@ -36,5 +36,5 @@ uv run pytest
 
 주요 fixture:
 
-- `tests/fixtures/text2sql_fab10_eval.json`: fab10 Text2SQL 대표 질문 세트
-- `tests/fixtures/scenario_acceptance_questions.json`: SC-001~SC-004 acceptance 질문 세트
+- `apps/assistant/tests/fixtures/text2sql_fab10_eval.json`: fab10 Text2SQL 대표 질문 세트
+- `apps/assistant/tests/fixtures/scenario_acceptance_questions.json`: SC-001~SC-004 acceptance 질문 세트

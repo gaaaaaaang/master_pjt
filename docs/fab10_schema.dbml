@@ -1,0 +1,245 @@
+Project fab10_smt2020_staging {
+  database_type: "PostgreSQL"
+  Note: "fab10 schema only. SMT2020 General Data staging tables. Physical FKs are not enforced; refs show logical business-key relationships."
+}
+
+Table fab10.toolgroups {
+  source_row_id bigserial [pk]
+  area text
+  toolgroup text
+  number_of_tools integer
+  cascadingtool text
+  bacthingtool text
+  batchcriterion text
+  batching_unit text
+  loadingtime integer
+  lt_units text
+  unloadingtime integer
+  ult_units text
+  toolgrouplocation text
+  dispatching text
+  ranking_1 text
+  ranking_2 text
+  ranking_3 text
+  tool_wake_up_ranking text
+
+  Note: "SMT2020 General Data sheet: Toolgroups"
+}
+
+Table fab10.pm {
+  source_row_id bigserial [pk]
+  pm_event_name text
+  pm_event_valid_for_type text
+  type_name text
+  pm_type text
+  mtbeforepm integer
+  mtbpm_units text
+  ttr_distribution text
+  mean numeric
+  offset numeric
+  ttr_units text
+  first_one_at_distribution text
+  foa numeric
+  foa_units text
+
+  Note: "SMT2020 General Data sheet: PM"
+}
+
+Table fab10.breakdown {
+  source_row_id bigserial [pk]
+  down_event_name text
+  down_event_valid_for_type text
+  type_name text
+  down_type text
+  ttf_distribution text
+  mttf integer
+  mttf_units text
+  ttr_distribution text
+  mttr numeric
+  mttr_units text
+  first_one_at_distribution text
+  foa integer
+  foa_units text
+
+  Note: "SMT2020 General Data sheet: Breakdown"
+}
+
+Table fab10.route_product_3 {
+  source_row_id bigserial [pk]
+  route text
+  step text
+  step_description text
+  area text
+  toolgroup text
+  processing_unit text
+  processingtime_distribution text
+  mean numeric
+  offset numeric
+  pt_units text
+  cascading_interval numeric
+  c_units text
+  batch_minimum integer
+  batch_maximum integer
+  setup text
+  when text
+  setup_distribution text
+  setup_time integer
+  offset_2 text
+  st_units text
+  step_for_ltl_dedication text
+  rework_probability_in_percent numeric
+  r_unit text
+  step_for_rework text
+  processing_probability_in_percent_sampling integer
+  step_for_critical_queue_time text
+  cqt integer
+  cqtunits text
+
+  Note: "SMT2020 General Data sheet: Route_Product_3"
+}
+
+Table fab10.route_product_4 {
+  source_row_id bigserial [pk]
+  route text
+  step text
+  step_description text
+  area text
+  toolgroup text
+  processing_unit text
+  processingtime_distribution text
+  mean numeric
+  offset numeric
+  pt_units text
+  cascading_interval numeric
+  c_units text
+  batch_minimum integer
+  batch_maximum integer
+  setup text
+  when text
+  setup_distribution text
+  setup_time integer
+  offset_2 text
+  st_units text
+  step_for_ltl_dedication text
+  rework_probability_in_percent numeric
+  r_unit text
+  step_for_rework text
+  processing_probability_in_percent_sampling integer
+  step_for_critical_queue_time text
+  cqt integer
+  cqtunits text
+
+  Note: "SMT2020 General Data sheet: Route_Product_4"
+}
+
+Table fab10.lotrelease {
+  source_row_id bigserial [pk]
+  product_name text
+  route_name text
+  lot_name_type text
+  priority integer
+  superhotlot text
+  wafers_per_lot integer
+  start_date timestamp
+  release_distribution text
+  release_interval numeric
+  r_units text
+  lots_per_release integer
+  due_date timestamp
+  release_scenario text
+
+  Note: "SMT2020 General Data sheet: Lotrelease"
+}
+
+Table fab10.lotrelease_variable_due_dates {
+  source_row_id bigserial [pk]
+  product_name text
+  route_name text
+  lot_name_type text
+  priority integer
+  superhotlot text
+  wafers_per_lot integer
+  start_date timestamp
+  due_date timestamp
+  release_scenario text
+
+  Note: "Compatibility table. Source workbook does not include this SMT2020 worksheet for fab10."
+}
+
+Table fab10.lotrelease_engineering {
+  source_row_id bigserial [pk]
+  product_name text
+  route_name text
+  lot_name_type text
+  priority integer
+  wafers_per_lot integer
+  start_date timestamp
+  due_date timestamp
+  release_scenario text
+
+  Note: "Compatibility table. Source workbook does not include this SMT2020 worksheet for fab10."
+}
+
+Table fab10.setups {
+  source_row_id bigserial [pk]
+  setup_group_name text
+  current_setup text
+  new_setup text
+  setup_time integer
+  st_units text
+  minmal_number_of_runs integer
+
+  Note: "SMT2020 General Data sheet: Setups"
+}
+
+Table fab10.setup_matrix_implant_gas {
+  source_row_id bigserial [pk]
+  col_001 text
+  product_route text
+  step text
+  setup text
+  su128_3 text
+  su128_1 text
+  su128_1_2 text
+  su128_2 text
+  su128_1_3 text
+  su128_2_2 text
+  su128_2_3 text
+  su128_3_2 text
+  su128_2_4 text
+  su128_3_3 text
+  su128_2_5 text
+  su128_1_4 integer
+  su128_3_4 integer
+  su128_1_5 integer
+  su128_2_6 integer
+  su128_1_6 integer
+
+  Note: "SMT2020 General Data sheet: Setup_Matrix_Implant_Gas"
+}
+
+Table fab10.transport {
+  source_row_id bigserial [pk]
+  from_location text
+  to_location text
+  transporttime_distribution text
+  mean numeric
+  offset numeric
+  tt_units text
+
+  Note: "SMT2020 General Data sheet: Transport"
+}
+
+Ref: fab10.route_product_3.toolgroup > fab10.toolgroups.toolgroup
+Ref: fab10.route_product_4.toolgroup > fab10.toolgroups.toolgroup
+
+Ref: fab10.route_product_3.route > fab10.lotrelease.route_name
+Ref: fab10.route_product_4.route > fab10.lotrelease.route_name
+Ref: fab10.route_product_3.route > fab10.lotrelease_variable_due_dates.route_name
+Ref: fab10.route_product_4.route > fab10.lotrelease_variable_due_dates.route_name
+Ref: fab10.route_product_3.route > fab10.lotrelease_engineering.route_name
+Ref: fab10.route_product_4.route > fab10.lotrelease_engineering.route_name
+
+Ref: fab10.setup_matrix_implant_gas.product_route > fab10.route_product_3.route
+Ref: fab10.setup_matrix_implant_gas.product_route > fab10.route_product_4.route
+Ref: fab10.setups.setup_group_name > fab10.setup_matrix_implant_gas.setup
