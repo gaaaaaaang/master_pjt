@@ -27,13 +27,15 @@ data = [
   "pymysql>=1.1,<2.0",
 ]
 rag = [
-  "chromadb>=0.5,<1.0",
   "openai>=1.50,<2.0",
+  "pymilvus>=2.4,<3.0",
+  "pypdf>=5.0,<6.0",
+  "python-docx>=1.1,<2.0",
 ]
 
 [tool.pytest.ini_options]
-pythonpath = ["."]
-testpaths = ["tests"]
+pythonpath = ["apps/assistant/src", "apps/assistant"]
+testpaths = ["apps/assistant/tests"]
 
 [tool.ruff]
 line-length = 100

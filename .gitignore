@@ -7,10 +7,9 @@ __pycache__/
 .ruff_cache/
 *.py[cod]
 *.egg-info/
-data/processed/
-data/chroma/
+apps/assistant/data/processed/
+apps/assistant/data/chroma/
 logs/
 .DS_Store
 
-pjt_planning/*
-SMT_2020 - Final/*
+apps/assistant/data/smt2020/*
