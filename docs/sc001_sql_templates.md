@@ -111,4 +111,5 @@ Main metrics:
 - `fab_id` must be one of `fab10`, `fab11`, `fab12`, `fab13`.
 - Generated SQL must pass `ReadOnlyQueryExecutor.validate`.
 - Queries must stay schema-qualified and read-only.
-- API implementation is intentionally deferred; the next implementation step is constrained Text2SQL template selection.
+- Source completeness and latest source-snapshot values must pass
+  `apps/assistant/scripts/check_sc001_release_gate.py` before SC-001 answers are treated as releasable.

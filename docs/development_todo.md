@@ -106,7 +106,10 @@
   `success_criteria`, `evidence`, `limitations` 공통 계약으로 결과를 검증한다.
 - agent별 검증 결과는 `agent_reflections`에 실행 순서대로 누적한다.
 - `pass`가 아닌 결과는 `supervisor_reviews`에 추가해 최종 Reflection/Composer와 API로 전달한다.
-- 1차 구현에서는 검토 필요 상태를 기록만 하고 retry/replan routing은 실행하지 않는다.
+- `needs_supervisor_review` 결과는 post-execution Supervisor가 `continue`,
+  `retry_same_agent`, `replan`, `alternate_agent` 중 하나로 판정한다.
+- 전체 retry 2회, agent별 retry 1회, replan 1회, alternate 1회 budget을 넘지 않는다.
+- `data_unavailable`, `unsupported`, `needs_clarification`, `skipped`는 같은 agent를 재시도하지 않는다.
 - SQL 결과 없이 실제 수치나 현재 상태를 단정하지 않는다.
 - General Data 기반 조회를 live/current factory state처럼 표현하지 않는다.
 - RAG 근거만으로 실제 원인을 확정하지 않는다.
@@ -145,11 +148,65 @@
 11. [x] LangGraph node/state 연결
 12. [x] SC-001 end-to-end 테스트 확장
 13. [x] fab10 lotrelease 날짜별 route 건수 Text2SQL + line chart E2E 연결
+14. [x] Agent reflection 기반 bounded retry/replan/alternate routing 연결
+
+## 최초 서비스 기획 대비 현황 점검 (2026-09-03)
+
+전체 방향인 `Planner -> Supervisor -> specialist agent -> 검증 -> Composer`와 read-only,
+근거/한계 노출, 자동 설비 제어 금지 원칙은 유지되고 있다. 다만 orchestration과 trace 기능이
+실제 시나리오 데이터 capability보다 먼저 고도화되어, graph가 실행되더라도 일부 agent는 아직
+실질적인 업무 답변을 만들지 못한다.
+
+| 기획 항목 | 현재 상태 | 판단 및 후속 작업 |
+| - | - | - |
+| SC-001 현재 상태 조회 | 부분 완료 | AutoSched loader/catalog/Text2SQL 경로는 있으나 실제 적재 DB 기반 대표 질문 정확도와 freshness 검증이 release gate로 남아 있다. |
+| 공정 지식 질의 | 부분 완료 | local/Milvus RAG 경로는 있으나 운영 corpus 적재 상태와 검색 품질 KPI가 고정되지 않았다. |
+| SC-002 원인 진단 | 부분 완료 | Text2SQL + RAG 조합은 실행되지만 CaseSearch가 placeholder이고 실제 수치와 원인 후보의 결합 정확도 평가가 없다. |
+| SC-003 영향도 | 미완료 | 최초 PoC 우선순위에서는 제외됐지만 graph 뼈대가 먼저 들어갔다. Impact 계산과 해석은 아직 placeholder다. |
+| SC-004 추세/비교 | 부분 완료 | lotrelease 날짜별 건수 + line chart는 동작하지만 최초 기획의 수율/WIP 기간 비교 범위는 충족하지 못한다. |
+| 대응 추천 질의 | 부분 완료 | incident playbook RAG와 안전 경계는 있으나 상황별 retrieval 평가와 담당자 검토 흐름이 없다. |
+| 후속/맥락 질의 | 미완료 | conversation_id는 있으나 대화/SQL history 저장과 재호출 context가 없다. |
+| 사용자 피드백 반영 | 미완료 | `/feedback`은 persistence placeholder이며 few-shot/reflection 개선 데이터로 연결되지 않는다. |
+| 4개 기본 FAB 조회 API | 미완료 | chat/Text2SQL 내부 경로는 있으나 기획한 `/api/fab/*` direct endpoint 계약은 구현되지 않았다. |
+| KPI 측정 | 미완료 | fixture는 있으나 SQL 정확도 75%, 복합 추론 70%, routing 90%, latency 기준의 자동 산출이 없다. |
+| Agent별 reflection | 완료(범위 확장) | 최초에는 복합 질의 중심이었으나 현재는 선택된 모든 agent 결과를 공통 계약으로 검증한다. |
+
+명시적인 기획 변경:
+
+- 원안의 MySQL 단일 제약을 PostgreSQL schema 기반으로 변경했다.
+- Text2SQL 설계 문서의 `SC-001 template-first / LLM optional`보다 LLM direct SQL을 먼저 활성화했다.
+  allowlist/read-only validation은 유지하지만, LLM 장애 시 deterministic SC-001 경로가 없다는 차이가 있다.
+- 실제 Impact/CaseSearch/feedback capability보다 Planner/Supervisor/SSE trace를 먼저 구현했다.
+
+사용자 결정에 따른 실행 순서:
+
+1. [x] 현재 진행 중인 오케스트레이션 확장을 완료한다.
+   - Planner의 `execution_steps`를 기준으로 다음 agent를 직접 dispatch하고, 선택되지 않은
+     node를 고정 순서로 통과하는 구조를 제거한다.
+   - 최종 Reflection 결과를 `compose`, `replan`, `retry_target`, `human_review` 종료 상태로
+     분기하되 기존 retry/replan budget을 공유한다.
+   - 동일 agent/plan 반복, alternate 순환, budget 초과를 graph invariant 테스트로 차단한다.
+   - 최종 응답에 `termination_reason`, 최종 선택 action, 전체 recovery trace를 노출한다.
+2. [x] SC-001 실제 AutoSched DB golden query와 freshness/정확도 release gate를 만든다.
+   - [x] fab10 원본 report 전체 row count와 source snapshot time을 고정한다.
+   - [x] fab/process-group/station/product/lot 대표 golden query와 기대값을 fixture로 만든다.
+   - [x] read-only release gate 스크립트와 단위 테스트를 구현한다.
+   - [x] fab10 `autosched_*` 샘플 테이블을 전체 원본으로 재적재하고 release gate를 통과시킨다.
+   - [x] 기존 시나리오와 다른 공정/설비/제품/lot/과거 기간 robustness query를 추가한다.
+3. [ ] SC-002용 운영 RAG corpus와 retrieval 평가를 고정하고 CaseSearch의 데이터 소스를 연결한다.
+4. [ ] SC-004 수율/WIP 기간 비교 data contract와 fixture를 추가한다.
+5. [ ] 대화 history와 feedback persistence를 구현한다.
+6. [ ] SC-003 Impact 계산식/기준값 계약은 PoC 핵심 범위 완료 후 구현한다.
+7. [ ] KPI 자동 리포트를 추가해 최초 목표 수치를 실제로 측정한다.
 
 현재 LangGraph stream 경로:
 
-- `planner(LLM) -> supervisor(LLM) -> text2sql(LLM) -> rag -> case_search -> impact -> visualization -> reflection(LLM) -> composer(LLM)`
-- Planner가 선택하지 않은 sub-agent node는 실행 결과를 만들지 않고 통과한다.
+- `planner(LLM) -> supervisor(LLM) -> selected agent -> agent reflection -> post-execution supervisor(LLM)`
+- post-execution supervisor는 `continue -> 다음 agent`, `retry_same_agent -> 같은 agent`,
+  `replan -> planner`, `alternate_agent -> 호환 agent` 조건부 edge를 선택한다.
+- 모든 실행이 끝나면 `reflection(LLM) -> composer(LLM)`로 종료한다.
+- 최종 Reflection은 `compose`, `replan`, `retry_target`, `human_review` 중 하나를 선택한다.
+- Dispatcher는 Planner의 `execution_steps` cursor를 따라 선택된 agent만 직접 호출한다.
 - `/api/chat/stream`은 Planner plan, Text2SQL query plan/SQL/result, chart spec,
   reflection, final response를 SSE로 순차 전송한다.
 - `lotrelease` 날짜별 건수는 named SQL template가 아니라 allowlisted semantic query

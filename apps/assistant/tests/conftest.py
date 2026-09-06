@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-
 from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
 
 
@@ -96,7 +95,10 @@ def _planner_output(question: str) -> dict[str, Any]:
 def fake_agent_chat_completions(monkeypatch):
     def complete_json(self, *, schema_name, input_data, **kwargs):
         if schema_name == "fab_planner_decision":
-            return _planner_output(input_data["question"])
+            output = _planner_output(input_data["question"])
+            if input_data.get("request_fab") and output["status"] == "needs_clarification":
+                output = _planner_output(f"{input_data['request_fab']} {input_data['question']}")
+            return output
         if schema_name == "fab_supervisor_decision":
             plan = input_data["planner_decision"]
             return {
@@ -107,8 +109,23 @@ def fake_agent_chat_completions(monkeypatch):
                 "answer": None,
                 "limitations": [],
             }
+        if schema_name == "fab_agent_recovery_decision":
+            return {
+                "action": "continue",
+                "alternate_agent": None,
+                "reason": "test recovery continuation",
+                "planner_feedback": None,
+                "limitations": [],
+            }
         if schema_name == "fab_self_reflection":
-            return {"is_supported": True, "warnings": [], "composer_instructions": []}
+            return {
+                "is_supported": True,
+                "warnings": [],
+                "composer_instructions": [],
+                "action": "compose",
+                "retry_target": None,
+                "reason": "test reflection accepted",
+            }
         if schema_name == "fab_final_answer":
             summaries = input_data.get("tool_summaries") or []
             return {"answer": "\n\n".join(summaries) or "테스트 답변입니다."}

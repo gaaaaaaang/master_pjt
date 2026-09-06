@@ -135,8 +135,11 @@ ORDER BY release_date ASC
         "input",
         "planner",
         "supervisor",
+        "dispatcher",
         "text2sql",
+        "dispatcher",
         "visualization",
+        "dispatcher",
         "reflection",
         "composer",
         "supervisor",
@@ -149,9 +152,22 @@ ORDER BY release_date ASC
     assert all("elapsed_ms" in payload["data"] for payload in payloads)
     assert all("retry_budget_remaining" in payload["data"] for payload in payloads)
     assert "GROUP BY start_date::date" in text2sql_event["data"]["sql"]
+    assert text2sql_event["data"]["status"] == "succeeded"
+    assert text2sql_event["data"]["reasoning"]["node"] == "text2sql"
     final = payloads[-1]["data"]
     assert final["status"] == "succeeded"
     assert final["chart"]["type"] == "line"
+    assert [item["node"] for item in final["reasoning_state"]] == [
+        "planner",
+        "supervisor",
+        "dispatcher",
+        "text2sql",
+        "dispatcher",
+        "visualization",
+        "dispatcher",
+        "reflection",
+        "composer",
+    ]
     assert final["chart"]["rows"] == [{"release_date": "2018-01-01", "lot_count": 3}]
     assert [item["agent_name"] for item in final["agent_reflections"]] == [
         "text2sql",

@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from app.config import get_settings
 from app.rag.ingest import build_chunks_for_paths, ingest_documents
 from app.rag.milvus_store import ensure_collection, insert_chunks, search_chunks
