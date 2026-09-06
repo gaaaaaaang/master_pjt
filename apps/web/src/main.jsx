@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
 
 function App() {
   const [cases, setCases] = useState([]);
@@ -12,6 +12,8 @@ function App() {
     "fab10의 lotrelease 테이블에서 route_product_3 건수를 날짜 기준으로 라인차트로 그려줘."
   );
   const [streamEvents, setStreamEvents] = useState([]);
+  const [conversationId, setConversationId] = useState("");
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -20,7 +22,6 @@ function App() {
       const response = await fetch(`${API_BASE}/agent-trace/samples`);
       const body = await response.json();
       setCases(body.cases);
-      runBatch(body.cases);
     }
     loadSamples().catch((reason) => setError(String(reason)));
   }, []);
@@ -50,11 +51,13 @@ function App() {
     setLoading(true);
     setError("");
     setStreamEvents([]);
+    const outgoing = customMessage.trim();
+    setMessages((current) => [...current, { role: "user", content: outgoing }]);
     try {
       const response = await fetch(`${API_BASE}/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: customMessage }),
+        body: JSON.stringify({ message: outgoing, conversation_id: conversationId || null }),
       });
       if (!response.ok || !response.body) {
         throw new Error(`Stream request failed: ${response.status}`);
@@ -72,10 +75,15 @@ function App() {
           if (!payload) continue;
           setStreamEvents((current) => [...current, payload]);
           if (payload.type === "run_completed") {
+            setConversationId(payload.data.conversation_id);
+            setMessages((current) => [
+              ...current,
+              { role: "assistant", content: payload.data.answer || "" },
+            ]);
             const finalTrace = {
               ...payload.data,
               label: "Live Text2SQL + visualization",
-              message: customMessage,
+              message: outgoing,
               passed: payload.data.status === "succeeded",
             };
             setTraces((current) => [finalTrace, ...current]);
@@ -147,12 +155,29 @@ function App() {
             <input
               value={customMessage}
               onChange={(event) => setCustomMessage(event.target.value)}
-              placeholder="질문 입력"
+              placeholder="이어질 질문 입력"
             />
             <button type="submit" disabled={loading}>
               Trace
             </button>
           </form>
+
+          {messages.length > 0 && (
+            <section className="chat-panel" aria-label="conversation">
+              <div className="chat-title">
+                <h3>Conversation</h3>
+                {conversationId && <span>{conversationId.slice(0, 8)}</span>}
+              </div>
+              <div className="message-list">
+                {messages.map((message, index) => (
+                  <article className={`message ${message.role}`} key={`${message.role}-${index}`}>
+                    <small>{message.role}</small>
+                    <p>{message.content}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
 
           {streamEvents.length > 0 && (
             <section className="stream-panel" aria-live="polite">
@@ -167,6 +192,9 @@ function App() {
                     <div>
                       <strong>{event.node}</strong>
                       <p>{event.message}</p>
+                      {event.data?.reasoning?.summary && (
+                        <p className="reasoning">{event.data.reasoning.summary}</p>
+                      )}
                       {event.node === "text2sql" && event.data?.sql && (
                         <pre>{event.data.sql}</pre>
                       )}
@@ -206,6 +234,20 @@ function App() {
                   </article>
                 ))}
               </section>
+
+              {activeTrace.reasoning_state?.length > 0 && (
+                <section className="reasoning-panel">
+                  <h3>Reasoning state</h3>
+                  <div className="reasoning-list">
+                    {activeTrace.reasoning_state.map((item, index) => (
+                      <article className="reasoning-row" key={`${item.node}-${index}`}>
+                        <strong>{item.node}</strong>
+                        <p>{item.summary}</p>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
 
               <div className="split">
                 <section>

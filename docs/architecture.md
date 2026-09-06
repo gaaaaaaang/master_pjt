@@ -6,8 +6,17 @@
   -> FastAPI /api/chat 또는 /api/chat/stream(SSE)
   -> LangGraph
   -> Planner -> Supervisor
-  -> Text2SQL -> RAG -> Case Search -> Impact -> Visualization (조건부)
-  -> Verifier/Self-reflection -> Answer Composer
+  -> 선택 Agent -> Agent Reflection
+  -> Post-execution Supervisor
+       -> continue: 다음 계획 Agent
+       -> retry_same_agent: 같은 Agent (agent별 최대 1회)
+       -> replan: Planner (최대 1회)
+       -> alternate_agent: 호환 Agent (최대 1회)
+  -> Verifier/Self-reflection
+       -> compose: Answer Composer
+       -> replan: Planner
+       -> retry_target: 특정 Agent
+       -> human_review: 검토 필요 상태로 Composer
 ```
 
 `/api/chat`과 `/api/chat/stream`은 동일한 LLM LangGraph를 실행한다. Planner와 Supervisor는
@@ -17,6 +26,16 @@ semantic query plan, 생성 SQL, 조회 column/row count/sample row를 포함한
 event는 chart type과 x/y encoding 및 조회 row를 포함한다. Reflection은 SQL/tool 근거와 한계를
 LLM으로 검토하고, Composer는 그 검토 지시를 반영해 최종 답변을 생성한다. 최종 event는 answer, SQL, chart,
 evidence, limitations, reflection을 함께 반환한다.
+
+각 선택 agent 실행 직후 공통 `sub_agent/reflection.py` 계약으로 Planner의 intent/action,
+agent output, success criteria, 신규 evidence와 limitation을 검증한다. 결과는 실행 순서대로
+`agent_reflections`에 누적한다. `pass`가 아닌 결과는 `supervisor_reviews`에도 기록하고,
+post-execution Supervisor가 bounded recovery action을 선택한다. 결정은 `supervisor_decisions`에,
+재시도 횟수는 `retry_counts`와 budget state에 남겨 최종 Reflection/Composer 및 API 응답에 전달한다.
+`data_unavailable`, `unsupported`, `needs_clarification`, `skipped`는 동일 agent 재시도 대상이 아니다.
+Planner 승인 후에는 고정 agent chain을 순회하지 않고 `execution_steps` cursor 기반 Dispatcher가
+다음 agent를 직접 호출한다. 최종 Reflection도 같은 retry/replan budget을 공유하며,
+`termination_reason`과 `reflection_decisions`에 최종 종료 또는 재분기 이유를 기록한다.
 
 ## 단계별 구현 순서
 

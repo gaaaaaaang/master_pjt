@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FAB AI Assistant Scenario Screenshots</title>
+    <style>
+      :root {
+        color: #1c2321;
+        background: #f4f5f2;
+        font-family: Inter, "Apple SD Gothic Neo", system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      .page {
+        padding: 28px;
+      }
+
+      .scenario {
+        background: #f4f5f2;
+        min-height: 900px;
+        padding: 28px;
+        width: 1440px;
+      }
+
+      .summary {
+        align-items: end;
+        border-bottom: 1px solid #cdd4cf;
+        display: flex;
+        gap: 24px;
+        justify-content: space-between;
+        padding-bottom: 22px;
+      }
+
+      .eyebrow {
+        color: #60746b;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        margin: 0 0 8px;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 36px;
+        line-height: 1.08;
+      }
+
+      h2 {
+        font-size: 22px;
+        line-height: 1.25;
+      }
+
+      h3 {
+        font-size: 15px;
+        margin-bottom: 12px;
+      }
+
+      .scoreboard {
+        align-items: baseline;
+        background: #1f332d;
+        color: white;
+        display: flex;
+        gap: 10px;
+        min-width: 160px;
+        padding: 16px 18px;
+      }
+
+      .scoreboard span {
+        font-size: 32px;
+        font-weight: 800;
+      }
+
+      .scoreboard small {
+        color: #c8d9d0;
+      }
+
+      .workbench {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: 300px 1fr;
+        padding-top: 24px;
+      }
+
+      .case-row {
+        align-items: center;
+        background: white;
+        border: 1px solid #dbe0dc;
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 10px 1fr;
+        margin-bottom: 8px;
+        min-height: 72px;
+        padding: 12px;
+        text-align: left;
+        width: 100%;
+      }
+
+      .case-row.active {
+        border-color: #2e5f52;
+        box-shadow: inset 4px 0 0 #2e5f52;
+      }
+
+      .case-row strong,
+      .metric strong {
+        display: block;
+        font-size: 15px;
+        line-height: 1.25;
+      }
+
+      .case-row small,
+      .metric small,
+      .step small,
+      .evidence small {
+        color: #66736e;
+        display: block;
+        font-size: 12px;
+        line-height: 1.4;
+        margin-top: 4px;
+      }
+
+      .dot,
+      .pill.pass {
+        background: #2e7a4f;
+      }
+
+      .dot.review,
+      .pill.review {
+        background: #c04d39;
+      }
+
+      .dot {
+        border-radius: 999px;
+        display: block;
+        height: 10px;
+        width: 10px;
+      }
+
+      .custom-runner {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: 1fr 88px;
+        margin-bottom: 18px;
+      }
+
+      .custom-runner input {
+        background: white;
+        border: 1px solid #cfd7d1;
+        min-height: 42px;
+        min-width: 0;
+        padding: 0 12px;
+      }
+
+      .custom-runner button {
+        background: #1f332d;
+        border: 0;
+        color: white;
+        font-weight: 750;
+        min-height: 42px;
+      }
+
+      .trace-header {
+        align-items: start;
+        background: white;
+        border: 1px solid #dbe0dc;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        padding: 18px;
+      }
+
+      .pill {
+        color: white;
+        display: inline-flex;
+        font-size: 12px;
+        font-weight: 800;
+        min-width: 78px;
+        padding: 7px 10px;
+        place-content: center;
+      }
+
+      .metric-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin: 14px 0;
+      }
+
+      .metric,
+      .step,
+      .run-row,
+      .evidence,
+      .answer-box {
+        background: white;
+        border: 1px solid #dbe0dc;
+      }
+
+      .metric {
+        min-height: 78px;
+        padding: 14px;
+      }
+
+      .flow {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        margin-bottom: 18px;
+      }
+
+      .step {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 28px 1fr;
+        min-height: 126px;
+        padding: 14px;
+      }
+
+      .step span {
+        align-items: center;
+        background: #e7ece8;
+        color: #244139;
+        display: inline-flex;
+        font-size: 13px;
+        font-weight: 800;
+        height: 28px;
+        justify-content: center;
+        width: 28px;
+      }
+
+      .split {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: 1fr 1fr;
+        margin-bottom: 18px;
+      }
+
+      .run-row,
+      .evidence,
+      .answer-box {
+        margin-bottom: 10px;
+        padding: 14px;
+      }
+
+      .run-row {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: 110px 120px 1fr;
+      }
+
+      .run-row span {
+        color: #2e5f52;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .limit {
+        background: #fff7e5;
+        border-left: 4px solid #cf8b2b;
+        color: #493820;
+        font-size: 13px;
+        line-height: 1.45;
+        margin-bottom: 8px;
+        padding: 10px 12px;
+      }
+
+      .answer-box p {
+        color: #394640;
+        font-size: 14px;
+        line-height: 1.55;
+        white-space: pre-line;
+      }
+
+      pre {
+        background: #17211d;
+        color: #e5f2ea;
+        font-size: 12px;
+        line-height: 1.45;
+        margin: 12px 0 0;
+        overflow: hidden;
+        padding: 14px;
+        white-space: pre-wrap;
+      }
+
+      .chart {
+        background: white;
+        border: 1px solid #dbe0dc;
+        margin: 14px 0 0;
+        padding: 14px;
+      }
+
+      .chart figcaption {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      svg {
+        display: block;
+        height: 260px;
+        width: 100%;
+      }
+
+      line {
+        stroke: #8c9993;
+      }
+
+      polyline {
+        fill: none;
+        stroke: #2e5f52;
+        stroke-width: 3;
+      }
+
+      circle {
+        fill: #2e7a4f;
+      }
+
+      text {
+        fill: #53625c;
+        font-size: 12px;
+      }
+
+      .point-value {
+        fill: #1f332d;
+        font-weight: 800;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="root"></div>
+    <script>
+      const scenarios = [
+        {
+          id: "SC-001",
+          label: "SC-001 current status",
+          message: "지금 fab10 WIP 몇 개야?",
+          status: "data_unavailable",
+          queryType: "status",
+          expected: "status",
+          confidence: "80%",
+          evidence: 2,
+          passed: false,
+          steps: [
+            ["text2sql", "Generate current WIP SQL", "AutoSched operational report가 필요함"],
+          ],
+          runs: [
+            ["text2sql", "data_unavailable", "fab10의 live/current operational status는 아직 조회할 수 없습니다."],
+          ],
+          limits: [
+            "현재 PostgreSQL에는 AutoSched report table(autosched_*)이 적재되어 있지 않습니다.",
+            "General Data는 model input/master data라서 WIP, 설비 현재 상태, utilization을 추정하지 않습니다.",
+          ],
+          answer:
+            "fab10의 live/current WIP는 현재 조회할 수 없습니다. SC-001은 autosched_perf 같은 AutoSched report table 적재 후 활성화해야 합니다.",
+        },
+        {
+          id: "SC-002",
+          label: "SC-002 diagnosis",
+          message: "왜 fab10 Queue Time이 늘었어?",
+          status: "data_unavailable",
+          queryType: "diagnosis",
+          expected: "diagnosis",
+          confidence: "n/a",
+          evidence: 3,
+          passed: false,
+          steps: [
+            ["text2sql", "Collect trend/anomaly evidence", "Queue Time 증가 수치 근거 확인"],
+            ["rag", "Retrieve incident playbook", "병목/WIP/다운타임 대응 근거 검색"],
+            ["case_search", "Find similar cases", "유사 사례 연결"],
+          ],
+          runs: [
+            ["text2sql", "failed", "LLM Text2SQL 호출 또는 AutoSched report 조회를 완료하지 못했습니다."],
+            ["rag", "data_unavailable", "RAG store 또는 Milvus chunk가 아직 충분히 적재되지 않았습니다."],
+            ["case_search", "succeeded", "유사 사례 검색 구조는 graph에 연결되어 있습니다."],
+          ],
+          limits: [
+            "RAG 근거만으로 실제 원인을 확정할 수 없으며 SQL/운영 로그 확인이 필요합니다.",
+            "현재 상태 수치가 없으면 병목 원인을 단정하지 않습니다.",
+          ],
+          answer:
+            "Queue Time 증가 원인은 아직 확정할 수 없습니다. 현재 PoC는 Text2SQL, RAG, CaseSearch 조합까지 라우팅하며, AutoSched 수치와 incident playbook 근거가 준비되면 원인 후보를 비교하도록 설계되어 있습니다.",
+        },
+        {
+          id: "SC-003",
+          label: "SC-003 impact",
+          message: "fab10에서 Queue Time이 10% 늘면 output 영향은?",
+          status: "data_unavailable",
+          queryType: "impact",
+          expected: "impact",
+          confidence: "n/a",
+          evidence: 2,
+          passed: false,
+          steps: [
+            ["text2sql", "Collect baseline metrics", "lotcomps/cycleavg/current metric 필요"],
+            ["impact", "Estimate output delta", "계산 모델에 baseline과 scenario 전달"],
+          ],
+          runs: [
+            ["text2sql", "data_unavailable", "baseline operational metric을 조회할 AutoSched table이 없습니다."],
+            ["impact", "data_unavailable", "영향도 모델이 아직 operational metric과 연결되지 않았습니다."],
+          ],
+          limits: [
+            "수치 근거 없이 output impact를 단정하지 않습니다.",
+            "Impact agent는 연결되어 있지만 baseline/current metric 적재 후 계산 정확도가 생깁니다.",
+          ],
+          answer:
+            "Queue Time 10% 증가의 output 영향은 현재 계산할 수 없습니다. PoC에서는 Text2SQL로 기준 지표를 확보한 뒤 Impact agent가 계산하도록 graph가 연결되어 있으며, 지금은 operational metric 미연결 한계를 반환합니다.",
+        },
+        {
+          id: "SC-004",
+          label: "SC-004 trend",
+          message: "fab10 Route_Product_3 lotrelease 건수를 start_date 기준 일별 라인차트로 보여줘",
+          status: "succeeded",
+          queryType: "trend",
+          expected: "trend",
+          confidence: "82%",
+          evidence: 3,
+          passed: true,
+          steps: [
+            ["text2sql", "Generate release trend SQL", "start_date 기준 일별 집계"],
+            ["visualization", "Build line chart spec", "SQL 결과 column과 chart encoding 검증"],
+          ],
+          runs: [
+            ["text2sql", "succeeded", "lotrelease를 집계했습니다. 총 48건이며 날짜 포인트는 5개입니다."],
+            ["visualization", "succeeded", "line chart를 생성했습니다."],
+          ],
+          limits: [
+            "현재 결과는 SMT2020 General Data의 release plan 기준이며 실시간 투입 실적이 아닙니다.",
+          ],
+          answer:
+            "fab10 Route_Product_3 lotrelease를 start_date 기준으로 일별 집계했습니다. 결과는 release plan 기준이며 실제 실시간 투입 실적은 아닙니다.",
+          sql:
+            "SELECT start_date::date AS release_date, route_name, COUNT(*) AS lot_count\\nFROM fab10.lotrelease\\nWHERE route_name ILIKE '%Route_Product_3%'\\nGROUP BY start_date::date, route_name\\nORDER BY release_date ASC, route_name ASC\\nLIMIT 200",
+          chartRows: [
+            ["2020-01-01", 8],
+            ["2020-01-08", 10],
+            ["2020-01-15", 9],
+            ["2020-01-22", 11],
+            ["2020-01-29", 10],
+          ],
+        },
+      ];
+
+      function renderScenario(scenario, index) {
+        const max = Math.max(...(scenario.chartRows || [["", 1]]).map((row) => row[1]), 1);
+        const points = (scenario.chartRows || []).map((row, i) => {
+          const x = 60 + i * 150;
+          const y = 220 - (row[1] / max) * 170;
+          return { x, y, label: row[0].slice(5), value: row[1] };
+        });
+        return `
+          <section class="scenario" id="${scenario.id}">
+            <section class="summary">
+              <div>
+                <p class="eyebrow">Planner / Supervisor Evaluation</p>
+                <h1>Agent orchestration trace</h1>
+              </div>
+              <div class="scoreboard">
+                <span>${scenario.passed ? index + 1 : index}</span>
+                <small>passed / 4</small>
+              </div>
+            </section>
+            <section class="workbench">
+              <aside>
+                ${scenarios.map((item) => `
+                  <div class="case-row ${item.id === scenario.id ? "active" : ""}">
+                    <span class="dot ${item.passed ? "" : "review"}"></span>
+                    <span>
+                      <strong>${item.label}</strong>
+                      <small>${item.queryType} · ${item.status}</small>
+                    </span>
+                  </div>
+                `).join("")}
+              </aside>
+              <section>
+                <form class="custom-runner">
+                  <input value="${scenario.message}" readonly />
+                  <button type="button">Trace</button>
+                </form>
+                <header class="trace-header">
+                  <div>
+                    <p class="eyebrow">${scenario.status}</p>
+                    <h2>${scenario.message}</h2>
+                  </div>
+                  <span class="pill ${scenario.passed ? "pass" : "review"}">${scenario.passed ? "Pass" : "Review"}</span>
+                </header>
+                <div class="metric-grid">
+                  <article class="metric"><small>Query type</small><strong>${scenario.queryType}</strong></article>
+                  <article class="metric"><small>Expected</small><strong>${scenario.expected}</strong></article>
+                  <article class="metric"><small>Confidence</small><strong>${scenario.confidence}</strong></article>
+                  <article class="metric"><small>Evidence</small><strong>${scenario.evidence}</strong></article>
+                </div>
+                <section class="flow">
+                  ${scenario.steps.map((step, i) => `
+                    <article class="step">
+                      <span>${i + 1}</span>
+                      <div><strong>${step[0]}</strong><p>${step[1]}</p><small>${step[2]}</small></div>
+                    </article>
+                  `).join("")}
+                </section>
+                <div class="split">
+                  <section>
+                    <h3>Supervisor runs</h3>
+                    ${scenario.runs.map((run) => `
+                      <article class="run-row"><strong>${run[0]}</strong><span>${run[1]}</span><p>${run[2]}</p></article>
+                    `).join("")}
+                  </section>
+                  <section>
+                    <h3>Evidence and limits</h3>
+                    <article class="evidence"><strong>Planner plan</strong><small>planner_plan</small></article>
+                    <article class="evidence"><strong>${scenario.id} query/result contract</strong><small>scenario_fixture</small></article>
+                    ${scenario.limits.map((limit) => `<p class="limit">${limit}</p>`).join("")}
+                  </section>
+                </div>
+                <section class="answer-box">
+                  <h3>Answer</h3>
+                  <p>${scenario.answer}</p>
+                  ${scenario.sql ? `<pre>${scenario.sql}</pre>` : ""}
+                  ${scenario.chartRows ? `
+                    <figure class="chart">
+                      <figcaption><strong>Route lot releases by date</strong><span>line</span></figcaption>
+                      <svg viewBox="0 0 760 260">
+                        <line x1="56" y1="24" x2="56" y2="220"></line>
+                        <line x1="56" y1="220" x2="730" y2="220"></line>
+                        <polyline points="${points.map((p) => `${p.x},${p.y}`).join(" ")}"></polyline>
+                        ${points.map((p) => `<g><circle cx="${p.x}" cy="${p.y}" r="5"></circle><text class="point-value" x="${p.x}" y="${p.y - 12}" text-anchor="middle">${p.value}</text><text x="${p.x}" y="242" text-anchor="middle">${p.label}</text></g>`).join("")}
+                      </svg>
+                    </figure>
+                  ` : ""}
+                </section>
+              </section>
+            </section>
+          </section>
+        `;
+      }
+
+      const selectedId = new URLSearchParams(window.location.search).get("id");
+      const visibleScenarios = selectedId
+        ? scenarios.filter((scenario) => scenario.id === selectedId)
+        : scenarios;
+      document.getElementById("root").innerHTML = visibleScenarios.map((scenario) => {
+        const originalIndex = scenarios.findIndex((item) => item.id === scenario.id);
+        return renderScenario(scenario, originalIndex);
+      }).join("");
+    </script>
+  </body>
+</html>

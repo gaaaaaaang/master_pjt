@@ -13,8 +13,24 @@ REFLECTION_SCHEMA = {
         "is_supported": {"type": "boolean"},
         "warnings": {"type": "array", "items": {"type": "string"}},
         "composer_instructions": {"type": "array", "items": {"type": "string"}},
+        "action": {
+            "type": "string",
+            "enum": ["compose", "replan", "retry_target", "human_review"],
+        },
+        "retry_target": {
+            "type": ["string", "null"],
+            "enum": ["text2sql", "rag", "impact", "case_search", "visualization", None],
+        },
+        "reason": {"type": "string"},
     },
-    "required": ["is_supported", "warnings", "composer_instructions"],
+    "required": [
+        "is_supported",
+        "warnings",
+        "composer_instructions",
+        "action",
+        "retry_target",
+        "reason",
+    ],
 }
 
 COMPOSER_SCHEMA = {
@@ -27,6 +43,9 @@ COMPOSER_SCHEMA = {
 def reflect_with_llm(
     *, question: str, query_type: str, answer_parts: list[str],
     evidence: list[dict[str, Any]], limitations: list[str],
+    agent_reflections: list[dict[str, Any]] | None = None,
+    supervisor_reviews: list[dict[str, Any]] | None = None,
+    conversation_history: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     draft = "\n\n".join(dict.fromkeys(answer_parts))
     deterministic = verify_response(
@@ -39,11 +58,17 @@ def reflect_with_llm(
             "is simulation/model input, not live factory state. Return concise repair instructions."
             "RAG-only diagnosis may suggest possible causes but cannot confirm the actual root cause. "
             "Incident playbook evidence must be framed as review guidance, not automatic execution. "
-            "Process-basics evidence must stay educational and must not become operational control."
+            "Process-basics evidence must stay educational and must not become operational control. "
+            "Use supervisor_reviews as agent-level review history and treat only pending reviews "
+            "as unresolved findings. Choose compose, bounded replan, bounded retry_target, or "
+            "human_review. Never request a retry for unavailable or unsupported data."
         ),
         input_data={
             "question": question, "query_type": query_type, "draft_tool_summary": draft,
             "evidence": evidence, "limitations": limitations,
+            "agent_reflections": agent_reflections or [],
+            "supervisor_reviews": supervisor_reviews or [],
+            "conversation_history": conversation_history or [],
             "deterministic_safety_check": deterministic,
         },
         output_schema=REFLECTION_SCHEMA,
@@ -52,12 +77,30 @@ def reflect_with_llm(
     output["evidence_count"] = len(evidence)
     output["limitation_count"] = len(limitations)
     output["deterministic_warnings"] = deterministic["warnings"]
+    output["agent_reflections"] = agent_reflections or []
+    reviews = supervisor_reviews or []
+    output["supervisor_reviews"] = reviews
+    unresolved_reviews = [
+        review for review in reviews if review.get("resolution", "pending") == "pending"
+    ]
+    if unresolved_reviews:
+        review_warnings = [
+            f"{review['agent_name']} requires supervisor review: {review['reason']}"
+            for review in unresolved_reviews
+        ]
+        output["is_supported"] = False
+        output["warnings"] = list(dict.fromkeys([*output["warnings"], *review_warnings]))
+        instruction = "Keep unresolved agent findings explicit and do not overstate the result."
+        output["composer_instructions"] = list(
+            dict.fromkeys([*output["composer_instructions"], instruction])
+        )
     return output
 
 
 def compose_with_llm(
     *, question: str, plan: PlannerDecision, answer_parts: list[str],
     evidence: list[dict[str, Any]], limitations: list[str], reflection: dict[str, Any],
+    conversation_history: list[dict[str, Any]] | None = None,
 ) -> str:
     output = AzureAgentClient().complete_json(
         system_prompt=(
@@ -69,6 +112,7 @@ def compose_with_llm(
         input_data={
             "question": question, "plan": asdict(plan), "tool_summaries": answer_parts,
             "evidence": evidence, "limitations": limitations, "reflection": reflection,
+            "conversation_history": conversation_history or [],
         },
         output_schema=COMPOSER_SCHEMA,
         schema_name="fab_final_answer",

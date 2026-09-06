@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Any, Literal
 
 from app.agents.llm import AzureAgentClient
 from app.agents.prompts import PLANNER_PROMPT_VERSION, PLANNER_SYSTEM_PROMPT
@@ -90,12 +90,19 @@ def create_plan(
     message: str,
     *,
     fab: str | None = None,
+    conversation_history: list[dict[str, Any]] | None = None,
+    execution_feedback: list[dict[str, Any]] | None = None,
     llm_client: AzureAgentClient | None = None,
 ) -> PlannerDecision:
     """Create a structured execution plan with an LLM Chat Completions call."""
     output = (llm_client or AzureAgentClient()).complete_json(
         system_prompt=PLANNER_SYSTEM_PROMPT,
-        input_data={"question": message, "request_fab": fab},
+        input_data={
+            "question": message,
+            "request_fab": fab,
+            "conversation_history": conversation_history or [],
+            "execution_feedback": execution_feedback or [],
+        },
         output_schema=PLANNER_OUTPUT_SCHEMA,
         schema_name="fab_planner_decision",
     )

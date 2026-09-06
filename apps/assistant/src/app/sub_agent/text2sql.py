@@ -543,12 +543,16 @@ def answer_question(
     fab: str | None = None,
     execute: bool | None = None,
     query_type: QueryType | None = None,
+    conversation_history: list[dict[str, Any]] | None = None,
+    execution_feedback: list[dict[str, Any]] | None = None,
     llm_client: Text2SQLClient | None = None,
 ) -> Text2SQLResult:
     result = plan_text2sql(
         question,
         fab=fab,
         query_type=query_type,
+        conversation_history=conversation_history,
+        execution_feedback=execution_feedback,
         llm_client=llm_client,
     )
     if result.status != "succeeded" or not result.sql:
@@ -593,6 +597,8 @@ def plan_text2sql(
     *,
     fab: str | None = None,
     query_type: QueryType | None = None,
+    conversation_history: list[dict[str, Any]] | None = None,
+    execution_feedback: list[dict[str, Any]] | None = None,
     llm_client: Text2SQLClient | None = None,
 ) -> Text2SQLResult:
     normalized = _normalize_question(question)
@@ -629,6 +635,8 @@ def plan_text2sql(
         )
 
     schema_context = _schema_context_for_question(query_type, slots, fab_id)
+    schema_context["conversation_history"] = conversation_history or []
+    schema_context["execution_feedback"] = execution_feedback or []
     if not schema_context["tables"]:
         return Text2SQLResult(
             status="unsupported",

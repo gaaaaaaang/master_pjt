@@ -1,5 +1,4 @@
 import pytest
-
 from app.db.read_only import ReadOnlyQueryExecutor, SqlValidationError
 
 

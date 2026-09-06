@@ -1,0 +1,87 @@
+{
+  "fab_id": "fab10",
+  "freshness_mode": "source_snapshot",
+  "source_snapshot_time": "2021-12-31 00:00:00",
+  "tables": {
+    "autosched_perf": {"row_count": 4, "max_report_time": "2021-12-31 00:00:00"},
+    "autosched_stngrp": {"row_count": 48, "max_report_time": "2021-12-31 00:00:00"},
+    "autosched_stn": {"row_count": 5772, "max_report_time": "2021-12-31 00:00:00"},
+    "autosched_part": {"row_count": 8, "max_report_time": "2021-12-31 00:00:00"},
+    "autosched_lot": {"row_count": 85772, "max_report_time": null},
+    "autosched_order": {"row_count": 24, "max_report_time": "2021-12-31 00:00:00"},
+    "autosched_semi": {"row_count": 418, "max_report_time": null},
+    "autosched_stnfam": {"row_count": 424, "max_report_time": "2021-12-31 00:00:00"}
+  },
+  "queries": [
+    {
+      "id": "fab_latest_non_warmup",
+      "table": "autosched_perf",
+      "sql": "SELECT period, report_time::text, lotstarts::text, lotcomps::text, wiplotavg::text, ontime_percent::text FROM fab10.autosched_perf WHERE period <> 'WarmUp' ORDER BY report_time DESC, source_report_row DESC LIMIT 1",
+      "expected": {"period": "Period_3", "report_time": "2021-12-31 00:00:00", "lotstarts": "62631", "lotcomps": "62647", "wiplotavg": "2264.75", "ontime_percent": "89.68"}
+    },
+    {
+      "id": "dry_etch_latest_status",
+      "table": "autosched_stngrp",
+      "sql": "SELECT period, report_time::text, stngrp, lotcomps::text, util_percent::text, wiplotavg::text FROM fab10.autosched_stngrp WHERE period <> 'WarmUp' AND stngrp = 'Dry_Etch' ORDER BY report_time DESC, source_report_row DESC LIMIT 1",
+      "expected": {"period": "Period_3", "report_time": "2021-12-31 00:00:00", "stngrp": "Dry_Etch", "lotcomps": "3667675", "util_percent": "78.47", "wiplotavg": "290.53"}
+    },
+    {
+      "id": "station_latest_status",
+      "table": "autosched_stn",
+      "sql": "SELECT period, report_time::text, stn, curstate, util_percent::text, wiplotavg::text FROM fab10.autosched_stn WHERE period <> 'WarmUp' AND stn = 'DE_BE_11' ORDER BY report_time DESC, source_report_row DESC LIMIT 1",
+      "expected": {"period": "Period_3", "report_time": "2021-12-31 00:00:00", "stn": "DE_BE_11", "curstate": "PROCSTATE", "util_percent": "77.63", "wiplotavg": "0.79"}
+    },
+    {
+      "id": "product_latest_status",
+      "table": "autosched_part",
+      "sql": "SELECT period, report_time::text, part, lotstarts::text, lotcomps::text, wiplotavg::text, wiplotcur::text, ontime_percent::text FROM fab10.autosched_part WHERE period <> 'WarmUp' AND part = 'part_3' ORDER BY report_time DESC, source_report_row DESC LIMIT 1",
+      "expected": {"period": "Period_3", "report_time": "2021-12-31 00:00:00", "part": "part_3", "lotstarts": "31344", "lotcomps": "31304", "wiplotavg": "1458.11", "wiplotcur": "1467", "ontime_percent": "89.31"}
+    },
+    {
+      "id": "lot_final_status",
+      "table": "autosched_lot",
+      "sql": "SELECT period, lot, part, startdate::text, compdate::text, duedate::text, curstn, curstep, stepcomps::text FROM fab10.autosched_lot WHERE lot = 'Init_Lot_3_24' ORDER BY source_report_row DESC LIMIT 1",
+      "expected": {"period": "final", "lot": "Init_Lot_3_24", "part": "part_3", "startdate": "2018-01-01 00:00:00", "compdate": "2018-01-01 00:14:19", "duedate": "2018-01-05 15:18:24", "curstn": null, "curstep": null, "stepcomps": "1"}
+    },
+    {
+      "id": "robustness_wet_etch_latest_status",
+      "evaluation_role": "robustness",
+      "question_variants": ["fab10 Wet_Etch 최신 가동률과 WIP 알려줘", "fab10 웻에치 공정의 최근 util 상태는?"],
+      "table": "autosched_stngrp",
+      "sql": "SELECT period, report_time::text, stngrp, lotcomps::text, util_percent::text, wiplotavg::text FROM fab10.autosched_stngrp WHERE period <> 'WarmUp' AND stngrp = 'Wet_Etch' ORDER BY report_time DESC, source_report_row DESC LIMIT 1",
+      "expected": {"period": "Period_3", "report_time": "2021-12-31 00:00:00", "stngrp": "Wet_Etch", "lotcomps": "7523419", "util_percent": "76.91", "wiplotavg": "96.72"}
+    },
+    {
+      "id": "robustness_station_latest_status",
+      "evaluation_role": "robustness",
+      "question_variants": ["fab10 LithoMet_BE_18_2 설비 상태를 확인해줘", "LithoMet_BE_18_2의 최신 가동률은 fab10에서 얼마야?"],
+      "table": "autosched_stn",
+      "sql": "SELECT period, report_time::text, stn, curstate, util_percent::text, wiplotavg::text FROM fab10.autosched_stn WHERE period <> 'WarmUp' AND stn = 'LithoMet_BE_18_2' ORDER BY report_time DESC, source_report_row DESC LIMIT 1",
+      "expected": {"period": "Period_3", "report_time": "2021-12-31 00:00:00", "stn": "LithoMet_BE_18_2", "curstate": "PROCSTATE", "util_percent": "88.71", "wiplotavg": "0.89"}
+    },
+    {
+      "id": "robustness_product_latest_status",
+      "evaluation_role": "robustness",
+      "question_variants": ["fab10 Product_4의 현재 WIP와 ontime을 요약해줘", "part 4 최근 재공과 납기 준수율 fab10 기준으로 보여줘"],
+      "table": "autosched_part",
+      "sql": "SELECT period, report_time::text, part, lotstarts::text, lotcomps::text, wiplotavg::text, wiplotcur::text, ontime_percent::text FROM fab10.autosched_part WHERE period <> 'WarmUp' AND part = 'part_4' ORDER BY report_time DESC, source_report_row DESC LIMIT 1",
+      "expected": {"period": "Period_3", "report_time": "2021-12-31 00:00:00", "part": "part_4", "lotstarts": "31287", "lotcomps": "31343", "wiplotavg": "806.64", "wiplotcur": "799", "ontime_percent": "90.05"}
+    },
+    {
+      "id": "robustness_active_lot_status",
+      "evaluation_role": "robustness",
+      "question_variants": ["fab10 HotLot_4_1043은 지금 어느 공정에 있어?", "HotLot_4_1043의 현재 설비와 완료 step을 fab10에서 찾아줘"],
+      "table": "autosched_lot",
+      "sql": "SELECT period, lot, part, startdate::text, compdate::text, duedate::text, curstn, curstep, stepcomps::text FROM fab10.autosched_lot WHERE lot = 'HotLot_4_1043' ORDER BY source_report_row DESC LIMIT 1",
+      "expected": {"period": "final", "lot": "HotLot_4_1043", "part": "part_4", "startdate": "2021-12-29 19:12:00", "compdate": null, "duedate": "2022-01-18 08:29:36", "curstn": "Diffusion_FE_127_9", "curstep": "8", "stepcomps": "4"}
+    },
+    {
+      "id": "robustness_historical_fab_status",
+      "evaluation_role": "robustness",
+      "question_variants": ["fab10 Period_2의 WIP와 완료 lot 수를 보여줘", "최신값 말고 fab10 Period_2 생산 현황을 조회해줘"],
+      "table": "autosched_perf",
+      "sql": "SELECT period, report_time::text, lotstarts::text, lotcomps::text, wiplotavg::text, ontime_percent::text FROM fab10.autosched_perf WHERE period = 'Period_2' ORDER BY report_time DESC, source_report_row DESC LIMIT 1",
+      "expected": {"period": "Period_2", "report_time": "2021-01-01 00:00:00", "lotstarts": "41810", "lotcomps": "41848", "wiplotavg": "2256.05", "ontime_percent": "89.98"}
+    }
+  ]
+}

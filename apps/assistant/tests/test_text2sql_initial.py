@@ -37,6 +37,20 @@ def llm_payload(sql: str, **overrides) -> dict:
     return payload
 
 
+def test_retry_feedback_is_included_in_text2sql_schema_context() -> None:
+    llm = FakeLLM(llm_payload("SELECT toolgroup FROM fab10.toolgroups LIMIT 20"))
+    feedback = [{"reason": "The first SQL failed validation."}]
+
+    result = plan_text2sql(
+        "fab10 toolgroup 목록 보여줘",
+        execution_feedback=feedback,
+        llm_client=llm,
+    )
+
+    assert result.status == "succeeded"
+    assert llm.calls[0]["schema_context"]["execution_feedback"] == feedback
+
+
 def test_status_query_reports_llm_call_failure(monkeypatch) -> None:
     class MissingKeyLLM:
         def __init__(self, *args, **kwargs) -> None:

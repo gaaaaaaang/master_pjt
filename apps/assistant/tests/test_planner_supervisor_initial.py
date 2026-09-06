@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.agents.planner import create_plan
-from app.agents.supervisor import Supervisor, review_plan
+from app.agents.supervisor import Supervisor, review_agent_result, review_plan
 from app.config import get_settings
 from app.schemas.chat import ChatRequest, Evidence
 from app.sub_agent.rag import PROCESS_BASICS
@@ -48,6 +48,35 @@ def test_planner_uses_chat_completions_structured_output() -> None:
     assert llm.calls[0]["input_data"]["question"] == "fab10 toolgroup 조회"
 
 
+def test_planner_receives_execution_feedback_for_replan() -> None:
+    llm = RecordingLLM(
+        {
+            "status": "ready",
+            "query_type": "master_data_lookup",
+            "intent": "revised toolgroup lookup",
+            "fab_id": "fab10",
+            "rag_knowledge_base": None,
+            "missing_slots": [],
+            "selected_sub_agents": ["text2sql"],
+            "execution_steps": [
+                {
+                    "agent": "text2sql",
+                    "action": "generate a narrower SQL query",
+                    "required": True,
+                    "reason": "the first query failed",
+                }
+            ],
+            "clarification_question": None,
+            "limitations": [],
+        }
+    )
+    feedback = [{"agent_name": "text2sql", "planner_feedback": "narrow the query"}]
+
+    create_plan("fab10 toolgroup 조회", execution_feedback=feedback, llm_client=llm)
+
+    assert llm.calls[0]["input_data"]["execution_feedback"] == feedback
+
+
 def test_supervisor_uses_independent_chat_completions_review() -> None:
     plan = create_plan("fab10 toolgroup 조회")
     llm = RecordingLLM(
@@ -66,6 +95,33 @@ def test_supervisor_uses_independent_chat_completions_review() -> None:
     assert reviewed.selected_sub_agents == ["text2sql"]
     assert decision["proceed"] is True
     assert llm.calls[0]["schema_name"] == "fab_supervisor_decision"
+
+
+def test_recovery_policy_does_not_retry_data_unavailable() -> None:
+    plan = create_plan("fab10 toolgroup 조회")
+    llm = RecordingLLM(
+        {
+            "action": "retry_same_agent",
+            "alternate_agent": None,
+            "reason": "try again",
+            "planner_feedback": "change the data source",
+            "limitations": [],
+        }
+    )
+
+    decision = review_agent_result(
+        plan,
+        {"agent_name": "text2sql", "status": "data_unavailable"},
+        retry_count=0,
+        retry_budget_remaining=2,
+        replan_budget_remaining=1,
+        alternate_budget_remaining=1,
+        allowed_alternate_agents=[],
+        llm_client=llm,
+    )
+
+    assert decision["action"] == "replan"
+    assert "bounded recovery policy" in decision["reason"]
 
 
 def test_planner_routes_master_lookup_to_text2sql() -> None:
@@ -136,6 +192,12 @@ def test_supervisor_status_stops_on_data_unavailable(monkeypatch) -> None:
     assert result.query_type == "status"
     assert result.sql is None
     assert any(run.agent == "text2sql" for run in result.agent_runs)
+    assert result.agent_reflections[0]["agent_name"] == "text2sql"
+    assert result.agent_reflections[0]["decision"] == "needs_supervisor_review"
+    assert result.supervisor_reviews[0]["agent_name"] == "text2sql"
+    assert result.supervisor_reviews[0]["resolution"] == "continue"
+    assert result.supervisor_decisions[0]["action"] == "continue"
+    assert result.reflection["agent_reflections"] == result.agent_reflections
     assert "AutoSched" in " ".join(result.limitations)
 
 
@@ -165,6 +227,8 @@ def test_supervisor_master_lookup_returns_planner_and_text2sql_evidence(monkeypa
     assert result.query_type == "master_data_lookup"
     assert result.sql is not None
     assert [item.source_type for item in result.evidence] == ["planner_plan", "text2sql_plan"]
+    assert result.agent_reflections[0]["decision"] == "pass"
+    assert result.supervisor_reviews == []
 
 
 def test_supervisor_diagnosis_exposes_placeholder_limitations(monkeypatch, tmp_path: Path) -> None:

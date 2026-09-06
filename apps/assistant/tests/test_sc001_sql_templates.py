@@ -1,5 +1,4 @@
 import pytest
-
 from app.db.read_only import ReadOnlyQueryExecutor
 from app.sub_agent.sql_templates import (
     fab_status_summary,
