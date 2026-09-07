@@ -99,6 +99,26 @@ def reflect_with_llm(
     return output
 
 
+def uses_document_grounding(plan: PlannerDecision, evidence: list[dict[str, Any]]) -> bool:
+    """Use verified document answers when tools produced no other factual evidence.
+
+    Planning a SQL/case call is not proof that operational facts were returned.
+    Conversely, a knowledge_lookup label must not discard actual SQL results.
+    """
+    if plan.query_type != "knowledge_lookup" and "rag" not in plan.selected_sub_agents:
+        return False
+    for item in evidence:
+        kind = item.get("source_type")
+        if kind in {"planner_plan", "rag_chunk"}:
+            continue
+        if kind == "text2sql_plan" and (item.get("metadata") or {}).get("status") in {
+            "failed", "data_unavailable", "unsupported", "needs_clarification"
+        }:
+            continue
+        return False
+    return True
+
+
 def compose_with_llm(
     *,
     question: str,
@@ -109,7 +129,7 @@ def compose_with_llm(
     reflection: dict[str, Any],
     grounding: dict[str, Any] | None = None,
 ) -> str:
-    if plan.query_type == "knowledge_lookup" or plan.selected_sub_agents == ["rag"]:
+    if uses_document_grounding(plan, evidence):
         result = compose_grounded(question, evidence)
         if grounding is not None:
             grounding.update(
@@ -120,6 +140,12 @@ def compose_with_llm(
                 version=result.version,
             )
         return result.answer
+    if grounding is not None and "rag" in plan.selected_sub_agents:
+        grounding.update(
+            status="not_checked",
+            validation="not_applied_mixed_evidence",
+            scope="mixed_tool_answer",
+        )
     output = AzureAgentClient().complete_json(
         system_prompt=(
             "You are the final answer Composer for a semiconductor FAB assistant. Answer in the "

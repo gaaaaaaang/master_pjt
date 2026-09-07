@@ -241,3 +241,29 @@ def test_reliability_disclaimer_describes_cited_sources_not_unused_candidates():
     assert "실제 사내 승인 SOP가 아닙니다" not in result.answer
     sources["chunk-a"]["reliability"] = "simulation_reference"
     assert "실제 사내 승인 SOP가 아닙니다" in render_grounded(answer(), sources).answer
+
+
+def test_grounding_uses_actual_evidence_not_only_planned_agent_names(monkeypatch):
+    from types import SimpleNamespace
+
+    from app.agents.llm_nodes import compose_with_llm, uses_document_grounding
+    from app.rag.grounding import GroundedAnswer
+
+    plan = SimpleNamespace(query_type="diagnosis", selected_sub_agents=["rag", "text2sql"])
+    docs = [{"source_type": "rag_chunk"}]
+    failed_sql = {"source_type": "text2sql_plan", "metadata": {"status": "data_unavailable"}}
+    assert uses_document_grounding(plan, [*docs, failed_sql])
+    monkeypatch.setattr("app.agents.llm_nodes.compose_grounded",
+                        lambda *_: GroundedAnswer("verified document answer", "partial"))
+    grounding = {}
+    answer_text = compose_with_llm(
+        question="실제 상태와 매뉴얼", plan=plan, answer_parts=[],
+        evidence=[*docs, failed_sql], limitations=[], reflection={}, grounding=grounding,
+    )
+    assert answer_text == "verified document answer"
+    assert grounding["status"] == "partial"
+    actual_sql = {"source_type": "text2sql_plan", "metadata": {"status": "succeeded", "row_count": 2}}
+    assert not uses_document_grounding(plan, [*docs, actual_sql])
+    plan.query_type = "knowledge_lookup"
+    assert not uses_document_grounding(plan, [*docs, actual_sql])
+    assert not uses_document_grounding(plan, [*docs, {"source_type": "case", "content": "case result"}])

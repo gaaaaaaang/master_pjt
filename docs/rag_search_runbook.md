@@ -138,3 +138,8 @@ python apps/assistant/scripts/audit_rag_citations.py --report apps/assistant/out
 
 SSE 종료 후에는 요청 ledger가 후속 모델 호출을 차단한다. 이미 전송된 API 요청은 완료될
 수 있으며, 해당 API 공급자에서 발생하는 사용량까지 취소되는 것은 아니다.
+
+문서 외 도구를 계획했더라도 실제 반환 근거가 문서뿐이면 문서 인용 검증을 사용한다.
+실제 SQL/사례 근거와 문서를 함께 요약하는 경로는 현재 문서 전용 검증 대상이 아니며
+`grounding.validation=not_applied_mixed_evidence`를 반환한다. 문서 전용 API 평가 결과를
+운영 데이터와 혼합한 답변의 정확도로 확장해 해석하지 않는다.

@@ -123,3 +123,10 @@ batch가 호출되지 않았고, 클릭 후 원문 ‘납기 압박은 품질 ho
 실행 안내 점검: README의 오래된 RAG placeholder 설명과 누락된 `.env.example`을 수정했다.
 설정 예제에는 비밀값을 넣지 않았으며, Settings로 실제 로드하고 기본 corpus 경로가 존재함을
 확인했다. 로컬 BM25 검색과 유료 전체 chat 호출을 구분하고 하이브리드 활성화 안내를 연결했다.
+
+복합 계획 검토: Planner가 SQL/사례 도구를 선택했더라도 실제 근거가 문서뿐이면
+원문 인용 검증 경로를 사용하도록 변경했다. 반대로 knowledge_lookup 분류여도 실제 SQL
+결과가 있으면 이를 문서 전용 처리로 버리지 않는다. 실제 혼합 근거 답변은
+`grounding.validation=not_applied_mixed_evidence`로 범위를 명시한다. 이 분기 변경은
+로컬 회귀로 확인했으며 실제 DB 결과를 API로 전송하는 검증은 수행하지 않았다.
+전체 회귀 194 passed, 변경 파일 Ruff 통과.

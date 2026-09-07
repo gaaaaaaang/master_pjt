@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from langgraph.graph import END, START, StateGraph
 
-from app.agents.llm_nodes import compose_with_llm, reflect_with_llm
+from app.agents.llm_nodes import compose_with_llm, reflect_with_llm, uses_document_grounding
 from app.agents.planner import PlannerDecision, create_plan
 from app.agents.supervisor import review_plan
 from app.agents.usage import UsageLedger, usage_scope
@@ -431,9 +431,7 @@ def _reflection_node(state: AgentState) -> dict[str, Any]:
         or (state.get("status") == "needs_clarification" and state.get("answer"))
     ):
         return {"stream_event": None}
-    if state["plan"].query_type == "knowledge_lookup" or state["plan"].selected_sub_agents == [
-        "rag"
-    ]:
+    if uses_document_grounding(state["plan"], state.get("evidence", [])):
         # Grounded Composer verifies actual claims after generation, not a pre-answer summary.
         return {
             "reflection": {"execution_mode": "post_generation_grounded_review"},
