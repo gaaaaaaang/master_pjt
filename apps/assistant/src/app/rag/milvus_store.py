@@ -104,6 +104,7 @@ def insert_chunks(
             if index_version:
                 for row in rows:
                     row["index_version"] = index_version
+                    row["id"] = _int_id(f"{index_version}:{row['chunk_id']}")
             if rows:
                 result = _write_rows(active_client, collection_name, rows, mode=mode)
                 count = next(

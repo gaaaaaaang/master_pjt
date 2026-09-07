@@ -265,3 +265,40 @@ def test_zero_reported_writes_are_not_counted_as_success(monkeypatch):
         [doc], client=Client(), embedding_client=Embeddings(), dimension=3
     )
     assert result["inserted"] == 0
+
+
+def test_index_versions_coexist_and_same_version_upsert_is_idempotent(monkeypatch):
+    from app.rag import milvus_store
+
+    class Client:
+        def __init__(self):
+            self.rows = {}
+
+        def upsert(self, **kwargs):
+            for row in kwargs["data"]:
+                self.rows[row["id"]] = row
+            return {"upsert_count": len(kwargs["data"])}
+
+        def flush(self, **kwargs):
+            pass
+
+        def get_collection_stats(self, **kwargs):
+            return {"row_count": len(self.rows)}
+
+    class Embeddings:
+        def embed_texts(self, texts):
+            return [[0.1, 0.2, 0.3] for _ in texts]
+
+    monkeypatch.setattr(milvus_store, "ensure_collection", lambda **kwargs: {})
+    client = Client()
+    for version in ["old", "new", "new"]:
+        milvus_store.insert_chunks(
+            [{**record(), "collection": "test"}],
+            client=client,
+            embedding_client=Embeddings(),
+            dimension=3,
+            index_version=version,
+        )
+    assert len(client.rows) == 2
+    assert {row["index_version"] for row in client.rows.values()} == {"old", "new"}
+    assert {row["chunk_id"] for row in client.rows.values()} == {"a"}
