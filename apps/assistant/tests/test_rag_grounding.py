@@ -267,3 +267,32 @@ def test_grounding_uses_actual_evidence_not_only_planned_agent_names(monkeypatch
     plan.query_type = "knowledge_lookup"
     assert not uses_document_grounding(plan, [*docs, actual_sql])
     assert not uses_document_grounding(plan, [*docs, {"source_type": "case", "content": "case result"}])
+
+
+def test_explicit_approval_requirements_survive_summary_omission():
+    from app.rag.grounding import GroundedAnswer, retain_procedural_requirements
+
+    source = deepcopy(SOURCES)
+    source["chunk-a"]["content"] = (
+        "PM 연기는 Engineer 승인 없이는 허용하지 않는다.\nPM 이후 dummy run 결과를 기록한다.\n"
+        "Decision\nAllowed When\nEvidence\nPM short delay\n"
+        "low risk and manager approval\nrisk memo\nRAG note:"
+    )
+    result = GroundedAnswer("Manager 승인이 필요합니다.", "supported", citations=[{
+        "number": 1, "chunk_id": "chunk-a", "quote": "low risk and manager approval",
+        "source_document": "원본_매뉴얼.pdf", "page_number": 13,
+    }])
+    checked = retain_procedural_requirements(result, "누가 PM 연기를 승인해?", source)
+    assert "Engineer 승인 없이는 허용하지 않는다" in checked.answer
+    assert "low risk and manager approval risk memo" in checked.answer
+    assert checked.review["extractive_requirement_count"] == 2
+    assert len(checked.citations) == 3
+    for citation in checked.citations:
+        assert normalized(citation["quote"]) in normalized(source["chunk-a"]["content"])
+    refused = GroundedAnswer("근거 없음", "insufficient")
+    assert retain_procedural_requirements(refused, "승인?", source).answer == "근거 없음"
+    unrelated = GroundedAnswer("qualification 결과", "supported", citations=result.citations)
+    assert retain_procedural_requirements(unrelated, "PM 뜻?", source).answer == "qualification 결과"
+    records = retain_procedural_requirements(unrelated, "복구 기록?", source)
+    assert "PM 이후 dummy run 결과를 기록한다" in records.answer
+    assert "Engineer 승인" not in records.answer

@@ -140,7 +140,7 @@ class GroundedAnswer:
     citations: list[dict[str, Any]] = field(default_factory=list)
     validation: str = "verified_quotes"
     review: dict[str, Any] = field(default_factory=dict)
-    version: str = "source_spans.v3"
+    version: str = "source_spans.v4"
 
 
 def normalized(text: str) -> str:
@@ -413,6 +413,66 @@ def apply_review(output: dict, review: dict, sources: dict[str, dict]) -> Ground
     return result
 
 
+def retain_procedural_requirements(
+    result: GroundedAnswer, question: str, sources: dict[str, dict]
+) -> GroundedAnswer:
+    """Expose explicit approval/record requirements when a supported summary omits one.
+
+    This is an extractive safeguard for procedural questions, not a semantic policy
+    engine. It does not infer roles, authority hierarchy, or applicability.
+    """
+    approval_requested = bool(re.search(r"승인|허가|approv", question, re.IGNORECASE))
+    records_requested = bool(re.search(r"기록|남길|남겨|record|log", question, re.IGNORECASE))
+    if result.status == "insufficient" or not (approval_requested or records_requested):
+        return result
+    cited_ids = {citation["chunk_id"] for citation in result.citations}
+    additions = []
+    for cid in sorted(cited_ids):
+        source = sources[cid]
+        # Standalone prose requirements, not generic owner/RACI descriptions.
+        parts = re.split(r"(?<=[.!?。])\s+|\n[ \t]*[-•][ \t]*\n", source["content"])
+        quotes = [
+            part.strip().removeprefix("-\n")
+            for part in parts
+            if (
+                (approval_requested and re.search(r"승인[^.\n]*(?:없이는|필요|요구)", part))
+                or (records_requested and re.search(r"기록(?:한다|해야|하여|하도록|할)", part))
+            ) and len(part.strip()) <= 600
+        ]
+        quotes.extend(
+            row["quote"] for row in decision_rows(source["content"])
+            if approval_requested and re.search(r"approval", row["allowed_when"], re.IGNORECASE)
+        )
+        seen = set()
+        for quote in quotes:
+            key = normalized(quote)
+            if key in seen or key not in normalized(source["content"]):
+                continue
+            seen.add(key)
+            citation = next(
+                (item for item in result.citations
+                 if item["chunk_id"] == cid and normalized(item["quote"]) == key),
+                None,
+            )
+            if citation is None:
+                citation = {
+                    "number": len(result.citations) + 1,
+                    "chunk_id": cid,
+                    "quote": quote,
+                    "source_document": source["source_document"],
+                    "page_number": source["page_number"],
+                }
+                result.citations.append(citation)
+            page = f", p.{source['page_number']}" if source["page_number"] is not None else ""
+            additions.append(
+                f"원문: {key} [{citation['number']}] ({source['source_document']}{page})"
+            )
+    if additions:
+        result.answer = "인용한 절차의 명시적 승인·기록 조건(원문)\n" + "\n".join(additions) + "\n\n" + result.answer
+        result.review["extractive_requirement_count"] = len(additions)
+    return result
+
+
 def compose_grounded(
     question: str, evidence: list[dict[str, Any]], *, client=None
 ) -> GroundedAnswer:
@@ -459,7 +519,7 @@ def compose_grounded(
             schema_name="fab_grounded_review",
         )
         stage = "review_validation"
-        return apply_review(output, review, sources)
+        return retain_procedural_requirements(apply_review(output, review, sources), question, sources)
     except (ValueError, TypeError, RuntimeError, httpx.HTTPError) as exc:
         # No unverified generated claim escapes. Keep evidence on the response for review.
         return GroundedAnswer(

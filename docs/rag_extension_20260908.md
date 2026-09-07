@@ -130,3 +130,23 @@ batch가 호출되지 않았고, 클릭 후 원문 ‘납기 압박은 품질 ho
 `grounding.validation=not_applied_mixed_evidence`로 범위를 명시한다. 이 분기 변경은
 로컬 회귀로 확인했으며 실제 DB 결과를 API로 전송하는 검증은 수행하지 않았다.
 전체 회귀 194 passed, 변경 파일 Ruff 통과.
+
+## 07:44 마지막 실측에서 발견한 누락과 원문 조건 보존
+
+최종 코드 확인용 PM 1문항(`rag_final_commit_smoke.json`, f3e11b3, 15.296초)에서
+모델이 Manager 승인/low risk/risk memo와 복구 기록을 설명하면서 Engineer 승인 조건을
+다시 누락했다. 모델 검토는 또 supported/complete였다. 이 결과는 정상 인용 검증과
+별개로 PM 완전성 rubric 실패이며, 결과 파일의 post_run_source_audit에 별도 기록했다.
+
+source_spans.v4에서는 승인·기록을 묻는 질문에 대해 **이미 인용한 절차**의 명시적 승인/기록
+문장과 알려진 decision-table의 approval 행을 원문으로 함께 표시한다. 요약을 더 잘 쓰라는
+프롬프트만으로 이 누락을 해결했다고 주장하지 않는다. 출처 범위를 넓히거나 권한의 우선순위,
+최종 승인자, 원인 관계를 추론하지 않는다. 해당 패턴 밖의 조건까지 포괄하는 정책 엔진도 아니다.
+
+수정 후 전체 실제 SSE PM 1문항(`rag_procedure_requirements_final.json`, 14.402초)에서
+Engineer 승인, PM short delay의 low risk/manager approval/risk memo, PM 이후 qualification
+또는 dummy run 결과 기록이 모두 표시됐다. 서버 추출 조건 3개, 인용 4개 corpus 대조 통과
+(`rag_procedure_requirements_citation_audit.json`). 이 단일 사례의 확인을 전체 답변 정확도나
+독립 전문가 평가로 확대하지 않는다. 이전 실패 실행도 함께 보존한다.
+
+현재 전체 회귀 195 passed, 변경 파일 Ruff 통과. 이후 변경은 결과·문서 정리에 한정한다.
