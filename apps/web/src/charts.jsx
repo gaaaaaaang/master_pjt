@@ -1,4 +1,5 @@
 import React from "react";
+import { showTick, compactLabel } from "./chart-labels";
 function LineChart({ spec }) {
   const width = 720;
   const height = 280;
@@ -29,17 +30,17 @@ function LineChart({ spec }) {
       </figcaption>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={spec.title}>
         <line x1={padding.left} y1={padding.top} x2={padding.left} y2={height - padding.bottom} />
-        <line x1={padding.left} y1={yPosition(0)} x2={width - padding.right} y2={yPosition(0)} />
+        <line x1={padding.left} y1={yPosition(Math.max(minY, Math.min(maxY, 0)))} x2={width - padding.right} y2={yPosition(Math.max(minY, Math.min(maxY, 0)))} />
         <text x={padding.left - 12} y={padding.top + 4} textAnchor="end">{maxY}</text>
         <text x={padding.left - 12} y={height - padding.bottom + 4} textAnchor="end">{minY}</text>
         {points.length > 1 && <polyline points={pointString} />}
-        {points.map((point) => (
+        {points.map((point, pointIndex) => (
           <g key={`${point.label}-${point.x}`}>
             <circle className={point.imputed ? "imputed-point" : undefined} cx={point.x} cy={point.y} r="5">
               <title>{point.imputed ? `${point.label}: inferred zero` : `${point.label}: ${point.value}`}</title>
             </circle>
-            <text className="point-value" x={point.x} y={point.y - 12} textAnchor="middle">{point.value}</text>
-            <text x={point.x} y={height - padding.bottom + 22} textAnchor="middle">{point.label}</text>
+            {points.length <= 8 && <text className="point-value" x={point.x} y={point.y - 12} textAnchor="middle">{point.value}</text>}
+            {showTick(pointIndex, points.length) && <text x={point.x} y={height - padding.bottom + 22} textAnchor="middle"><title>{point.label}</title>{compactLabel(point.label)}</text>}
           </g>
         ))}
         <text className="axis-title" x={width / 2} y={height - 8} textAnchor="middle">
@@ -84,7 +85,7 @@ function MultiSeriesLineChart({ spec }) {
       </figcaption>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={spec.title}>
         <line x1={padding.left} y1={padding.top} x2={padding.left} y2={height - padding.bottom} />
-        <line x1={padding.left} y1={yPosition(0)} x2={width - padding.right} y2={yPosition(0)} />
+        <line x1={padding.left} y1={yPosition(Math.max(minY, Math.min(maxY, 0)))} x2={width - padding.right} y2={yPosition(Math.max(minY, Math.min(maxY, 0)))} />
         <text x={padding.left - 12} y={padding.top + 4} textAnchor="end">{maxY}</text>
         <text x={padding.left - 12} y={height - padding.bottom + 4} textAnchor="end">{minY}</text>
         {series.map((seriesName, seriesIndex) => {
@@ -126,9 +127,9 @@ function MultiSeriesLineChart({ spec }) {
             </g>
           );
         })}
-        {categories.map((category, index) => (
+        {categories.map((category, index) => showTick(index, categories.length) && (
           <text key={category} x={xPosition(index)} y={height - padding.bottom + 24} textAnchor="middle">
-            {category}
+            <title>{category}</title>{compactLabel(category)}
           </text>
         ))}
         <text className="axis-title" x={width / 2} y={height - 10} textAnchor="middle">
@@ -145,7 +146,7 @@ function MultiSeriesLineChart({ spec }) {
 export function Chart({ spec }) {
   if (!spec || !["line", "bar", "grouped_bar"].includes(spec.type) || !spec.encoding?.x?.field || !spec.encoding?.y?.field) return <p className="notice">이 차트 형식은 아직 지원하지 않아요. 원본 데이터에서 확인해 주세요.</p>;
   if (!Array.isArray(spec.rows) || !spec.rows.length) return <p className="notice">표시할 데이터가 없어요.</p>;
-  if (spec.rows.some(row => row[spec.encoding.x.field] == null || row[spec.encoding.y.field] == null || row[spec.encoding.y.field] === '' || !Number.isFinite(Number(row[spec.encoding.y.field])))) return <p className="notice">차트에 필요한 값이 누락되었어요. 원본 데이터에서 확인해 주세요.</p>;
+  if (spec.rows.some(row => !row || typeof row !== "object" || row[spec.encoding.x.field] == null || row[spec.encoding.y.field] == null || row[spec.encoding.y.field] === '' || !Number.isFinite(Number(row[spec.encoding.y.field])))) return <p className="notice">차트에 필요한 값이 누락되었어요. 원본 데이터에서 확인해 주세요.</p>;
   if (["bar", "grouped_bar"].includes(spec.type) && spec.encoding?.color?.field) {
     return <GroupedBarChart spec={spec} />;
   }
@@ -234,7 +235,7 @@ function BarChart({ spec }) {
   const groupWidth = plotWidth / Math.max(categories.length, 1);
   const barWidth = Math.min(56, groupWidth * 0.64);
   const yPosition = (value) => padding.top + ((maxY - Number(value)) / span) * plotHeight;
-  const zeroY = yPosition(0);
+  const zeroY = yPosition(Math.max(minY, Math.min(maxY, 0)));
 
   return (
     <figure className="chart">
@@ -249,7 +250,8 @@ function BarChart({ spec }) {
         <text x={padding.left - 12} y={height - padding.bottom + 4} textAnchor="end">{minY}</text>
         {categories.map((category, index) => {
           const row = rows.find((item) => String(item[xField]) === category);
-          const value = Number(row?.[yField]) || 0;
+          if (!row) return null;
+          const value = Number(row[yField]);
           const valueY = yPosition(value);
           const x = padding.left + index * groupWidth + (groupWidth - barWidth) / 2;
           const y = Math.min(valueY, zeroY);
@@ -262,9 +264,9 @@ function BarChart({ spec }) {
               <text className="point-value" x={x + barWidth / 2} y={value >= 0 ? y - 8 : y + barHeight + 16} textAnchor="middle">
                 {value}
               </text>
-              <text x={x + barWidth / 2} y={height - padding.bottom + 24} textAnchor="middle">
-                {category}
-              </text>
+              {showTick(index, categories.length) && <text x={x + barWidth / 2} y={height - padding.bottom + 24} textAnchor="middle">
+                <title>{category}</title>{compactLabel(category)}
+              </text>}
             </g>
           );
         })}
@@ -298,7 +300,7 @@ function GroupedBarChart({ spec }) {
   const barWidth = Math.min(48, (groupWidth * 0.72) / Math.max(series.length, 1));
   const colors = ["#3182f6", "#8f7ae5", "#19a988", "#e5aa56"];
   const yPosition = (value) => padding.top + ((maxY - Number(value)) / span) * plotHeight;
-  const zeroY = yPosition(0);
+  const zeroY = yPosition(Math.max(minY, Math.min(maxY, 0)));
 
   return (
     <figure className="chart">
@@ -316,7 +318,8 @@ function GroupedBarChart({ spec }) {
             const row = rows.find(
               (item) => String(item[xField]) === category && String(item[colorField]) === seriesName,
             );
-            const value = Number(row?.[yField]) || 0;
+            if (!row) return null;
+            const value = Number(row[yField]);
             const valueY = yPosition(value);
             const barHeight = Math.abs(zeroY - valueY);
             const groupStart = padding.left + categoryIndex * groupWidth + groupWidth * 0.14;
@@ -341,14 +344,14 @@ function GroupedBarChart({ spec }) {
             );
           }),
         )}
-        {categories.map((category, index) => (
+        {categories.map((category, index) => showTick(index, categories.length) && (
           <text
             key={category}
             x={padding.left + index * groupWidth + groupWidth / 2}
             y={height - padding.bottom + 24}
             textAnchor="middle"
           >
-            {category}
+            <title>{category}</title>{compactLabel(category)}
           </text>
         ))}
         <text className="axis-title" x={width / 2} y={height - 10} textAnchor="middle">
