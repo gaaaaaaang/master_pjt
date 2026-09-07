@@ -343,3 +343,17 @@ def test_dense_rank_survives_feature_rejection_before_bounded_rerank():
         rerank_limit=2,
     )
     assert result.chunks[0]["chunk_id"] == "z-best"
+
+
+def test_equal_model_grades_keep_dense_rank_in_final_selection():
+    candidates = [record("z-first", "First semantic passage."), record("a-second", "Second passage.")]
+
+    class Reranker:
+        def rank(self, query, chunks):
+            return [Relevance(c["chunk_id"], 3, "equally supported") for c in chunks]
+
+    result = search(
+        "새로운질의", [], knowledge_base="incident_playbook",
+        dense_search=lambda *_: candidates, reranker=Reranker(), top_k=1,
+    )
+    assert result.chunks[0]["chunk_id"] == "z-first"

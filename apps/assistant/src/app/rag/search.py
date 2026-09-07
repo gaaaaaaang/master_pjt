@@ -40,7 +40,8 @@ def eligible(chunk: Chunk, plan: QueryPlan) -> bool:
     scope = metadata.get("fab_ids") or ([metadata["fab_id"]] if metadata.get("fab_id") else [])
     if plan.fab_ids and scope and not set(plan.fab_ids) & set(scope):
         return False
-    return metadata.get("status") not in {"withdrawn", "superseded"}
+    status = str(metadata.get("status") or "").strip().casefold()
+    return status not in {"withdrawn", "superseded", "retired"}
 
 
 class BM25Index:
@@ -236,7 +237,10 @@ def search(
             trace["reranker"] = "feature.v1_fallback"
             trace["reranker_error"] = type(exc).__name__
             limitations.append("리랭커 호출 실패로 규칙 기반 정렬 결과를 사용했습니다.")
-    reranked.sort(key=lambda item: (-item[0], item[1]["chunk_id"]))
+    # Preserve retrieval rank when equal LLM grades provide no lexical tie-break.
+    reranked.sort(
+        key=lambda item: (-item[0], -item[2]["fusion_score"], item[1]["chunk_id"])
+    )
     selected = []
     seen_content = set()
     covered = set()

@@ -119,8 +119,12 @@ def test_conflicting_fab_scope_is_not_silently_combined():
         search("fab10 PM 대응", [], fab_id="fab11")
 
 
-def test_withdrawn_document_is_excluded():
-    assert not search("고장", [chunk("a", "고장", metadata={"status": "withdrawn"})]).chunks
+@pytest.mark.parametrize("status", ["withdrawn", "superseded", "retired", " Retired "])
+def test_inactive_document_is_excluded_from_lexical_dense_and_exact_paths(status):
+    record = chunk("a", "playbook_id PB-EQ-001 설비 고장", metadata={"status": status})
+    for query in ("설비 고장", "PB-EQ-001"):
+        result = search(query, [record], dense_search=lambda *_: [record])
+        assert result.chunks == []
 
 
 def test_duplicate_content_is_not_repeated():

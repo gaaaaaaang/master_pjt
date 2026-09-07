@@ -106,3 +106,16 @@ batch가 호출되지 않았고, 클릭 후 원문 ‘납기 압박은 품질 ho
   강제 중단은 보장하지 않는다. 실제 worker thread 회귀 테스트로 후속 호출 차단을 확인했다.
 
 검증: 추가 수정 후 전체 Python 테스트 189 passed(기존 의존성 deprecation 경고 2건), 변경 파일 Ruff 통과. 웹은 07:04 체크포인트 이후 변경하지 않았다.
+
+## 07:21 검색 경로 후속 검토
+
+- LLM이 같은 관련도 등급을 준 의미 검색 후보는 마지막 정렬에서도 RRF 검색 순위를
+  유지한다. 이전에는 lexical feature가 둘 다 탈락한 동점 후보가 chunk ID 순으로 정렬됐다.
+  bounded rerank 진입 전 순위 보존과 최종 선택 동점 보존을 각각 테스트한다.
+- 메타데이터의 Retired 상태(대소문자/공백 정규화 포함)를 withdrawn/superseded와 함께
+  제외한다. lexical, dense, 정확 ID 경로 모두 확인했다.
+- serving adapter는 vector DB 후보의 본문/KB를 현재 local corpus와 대조한 뒤 현재 metadata를
+  사용한다. 상태 변경 후 오래된 vector metadata가 문서를 다시 살리는 경로는 없음을 확인했다.
+- 이 변경은 로컬 회귀로 확인했다. 추가 API 성능 수치로 포장하지 않는다.
+
+최신 전체 회귀: 193 passed, 변경 파일 Ruff 및 diff 검사 통과.
