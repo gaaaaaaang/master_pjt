@@ -86,3 +86,14 @@ PB-BN-001/PB-HL-001로 연결되는 정도다. 토스와 같은 관계 검색을
 
 후속 automation: `rag-7`, 이 task 전용 heartbeat. 00/30분 간격이며 마지막 01:00 KST 회차 포함.
 기존 7시간 goal의 문구보다 사용자의 최신 01:00 종료 지시가 우선한다.
+
+## 23:20 운영 경로 점검
+
+- Milvus ensure/insert/search에서 직접 만든 client만 finally에서 닫는다. 주입받은 client 소유권은 유지한다.
+- Milvus가 0건 저장을 보고했을 때 요청 row 수로 대체해 성공 처리하던 결함을 제거했다.
+- 명시 dimension=0을 기본 차원으로 바꾸지 않고 거절하도록 수정했다.
+- RAG 단독 질의의 corpus 오류는 전체 status=failed로 전파한다.
+- 복합 KB diagnosis에서도 incident 근거가 있으면 실제 원인 확정 불가 limitation을 유지한다.
+- 관련 테스트 61개 통과, 변경 파일 lint/diff 검사 통과. 검색 순위 로직은 변경하지 않았으므로
+  평가 세트를 불필요하게 반복 실행하지 않았다.
+- 외부 문서 egress 승인은 여전히 대기 중이다. 실제 dense/LLM 성능을 확인한 것으로 간주하지 않는다.

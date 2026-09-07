@@ -213,15 +213,17 @@ def _rag_node(state: AgentState) -> dict[str, Any]:
                 if limitation not in limitations:
                     limitations.append(limitation)
         evidence.extend(item.model_dump() for item in items)
-        if state["plan"].query_type == "diagnosis" and knowledge_base == INCIDENT_PLAYBOOK:
+        if state["plan"].query_type == "diagnosis" and any(
+            item.metadata.get("knowledge_base") == INCIDENT_PLAYBOOK for item in items
+        ):
             limitation = (
                 "RAG 근거만으로 실제 원인을 확정할 수 없으며 SQL/운영 로그 확인이 필요합니다."
             )
             if limitation not in limitations:
                 limitations.append(limitation)
     overall_status = state.get("status", "ready")
-    if state["plan"].selected_sub_agents == ["rag"] and status == "data_unavailable":
-        overall_status = "data_unavailable"
+    if state["plan"].selected_sub_agents == ["rag"] and status in {"data_unavailable", "failed"}:
+        overall_status = status
     run = {
         "agent": "rag",
         "status": status,

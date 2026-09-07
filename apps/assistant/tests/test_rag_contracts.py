@@ -216,3 +216,52 @@ def test_invalid_corpus_records_fail_closed(records):
 
     with pytest.raises((ValueError, TypeError)):
         validate_chunks(records)
+
+
+@pytest.mark.parametrize("injected", [True, False])
+def test_search_closes_only_owned_client_after_embedding_failure(monkeypatch, injected):
+    from app.rag import milvus_store
+
+    class Client:
+        closed = False
+
+        def close(self):
+            self.closed = True
+
+    class Embeddings:
+        def embed_texts(self, texts):
+            raise RuntimeError("embedding failure")
+
+    client = Client()
+    monkeypatch.setattr(milvus_store, "_create_client", lambda uri: client)
+    with pytest.raises(RuntimeError, match="embedding failure"):
+        milvus_store.search_chunks(
+            "고장",
+            knowledge_base="incident_playbook",
+            top_k=1,
+            client=client if injected else None,
+            embedding_client=Embeddings(),
+        )
+    assert client.closed is not injected
+
+
+def test_zero_reported_writes_are_not_counted_as_success(monkeypatch):
+    from app.rag import milvus_store
+
+    class Client:
+        def upsert(self, **kwargs):
+            return {"upsert_count": 0}
+
+        def get_collection_stats(self, **kwargs):
+            return {"row_count": 0}
+
+    class Embeddings:
+        def embed_texts(self, texts):
+            return [[0.1, 0.2, 0.3] for text in texts]
+
+    monkeypatch.setattr(milvus_store, "ensure_collection", lambda **kwargs: {})
+    doc = {**record(), "collection": "test"}
+    result = milvus_store.insert_chunks(
+        [doc], client=Client(), embedding_client=Embeddings(), dimension=3
+    )
+    assert result["inserted"] == 0

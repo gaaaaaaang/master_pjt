@@ -253,3 +253,13 @@ def test_rag_simulation_provenance_reaches_answer_limitations(monkeypatch) -> No
     )
     result = Supervisor().run(ChatRequest(message="CMP 공정이 뭐야?"))
     assert any("실제 사내 SOP가 아닙니다" in item for item in result.limitations)
+
+
+def test_corrupt_rag_corpus_marks_overall_request_failed(monkeypatch):
+    def invalid(*args, **kwargs):
+        raise ValueError("invalid corpus")
+
+    monkeypatch.setattr("app.agents.graph.retrieve_knowledge", invalid)
+    result = Supervisor().run(ChatRequest(message="CMP 공정이 뭐야?"))
+    assert result.status == "failed"
+    assert any(run.agent == "rag" and run.status == "failed" for run in result.agent_runs)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -26,37 +27,37 @@ def ensure_collection(
     settings = get_settings()
     uri = uri or settings.vector_db_url or "./apps/assistant/output/rag/milvus_lite.db"
     collection_name = collection_name or settings.vector_db_collection
-    dimension = dimension or settings.embedding_dimension
+    dimension = settings.embedding_dimension if dimension is None else dimension
     if dimension <= 0:
         raise ValueError("Milvus collection dimension must be positive.")
 
-    client = client or _create_client(uri)
-    existed = bool(client.has_collection(collection_name=collection_name))
-    if existed and not recreate and hasattr(client, "describe_collection"):
-        description = client.describe_collection(collection_name=collection_name)
-        vector_field = next(
-            (f for f in description.get("fields", []) if f.get("name") == "vector"), None
-        )
-        stored_dimension = (vector_field or {}).get("params", {}).get("dim")
-        if stored_dimension is None or int(stored_dimension) != dimension:
-            raise ValueError("Existing Milvus collection has an incompatible vector dimension.")
-    if existed and recreate:
-        client.drop_collection(collection_name=collection_name)
-        existed = False
-    if not existed:
-        client.create_collection(
-            collection_name=collection_name,
-            schema=_build_schema(dimension),
-            index_params=_build_index_params(),
-        )
+    with _managed_client(uri, client) as active_client:
+        existed = bool(active_client.has_collection(collection_name=collection_name))
+        if existed and not recreate and hasattr(active_client, "describe_collection"):
+            description = active_client.describe_collection(collection_name=collection_name)
+            vector_field = next(
+                (f for f in description.get("fields", []) if f.get("name") == "vector"), None
+            )
+            stored_dimension = (vector_field or {}).get("params", {}).get("dim")
+            if stored_dimension is None or int(stored_dimension) != dimension:
+                raise ValueError("Existing Milvus collection has an incompatible vector dimension.")
+        if existed and recreate:
+            active_client.drop_collection(collection_name=collection_name)
+            existed = False
+        if not existed:
+            active_client.create_collection(
+                collection_name=collection_name,
+                schema=_build_schema(dimension),
+                index_params=_build_index_params(),
+            )
 
-    return {
-        "uri": uri,
-        "collection_name": collection_name,
-        "dimension": dimension,
-        "created": not existed,
-        "recreated": recreate,
-    }
+        return {
+            "uri": uri,
+            "collection_name": collection_name,
+            "dimension": dimension,
+            "created": not existed,
+            "recreated": recreate,
+        }
 
 
 def insert_chunks(
@@ -74,7 +75,7 @@ def insert_chunks(
     settings = get_settings()
     uri = uri or settings.vector_db_url or "./apps/assistant/output/rag/milvus_lite.db"
     collection_name = collection_name or settings.vector_db_collection
-    dimension = dimension or settings.embedding_dimension
+    dimension = settings.embedding_dimension if dimension is None else dimension
     if batch_size <= 0:
         raise ValueError("batch_size must be positive.")
 
@@ -82,43 +83,51 @@ def insert_chunks(
         raise ValueError("mode must be 'upsert' or 'insert'.")
     if any(len(str(chunk.get("content", ""))) > 8192 for chunk in chunks):
         raise ValueError("Chunk exceeds the maximum stored content length; split before embedding.")
-    client = client or _create_client(uri)
-    embedding_client = embedding_client or AzureEmbeddingClient()
-    ensure_collection(
-        uri=uri,
-        collection_name=collection_name,
-        dimension=dimension,
-        client=client,
-    )
+    with _managed_client(uri, client) as active_client:
+        embedding_client = embedding_client or AzureEmbeddingClient()
+        ensure_collection(
+            uri=uri,
+            collection_name=collection_name,
+            dimension=dimension,
+            client=active_client,
+        )
 
-    inserted = 0
-    for start in range(0, len(chunks), batch_size):
-        batch = chunks[start : start + batch_size]
-        vectors = embedding_client.embed_texts([str(chunk["content"]) for chunk in batch])
-        for vector in vectors:
-            _validate_vector(vector, dimension)
-        rows = [_chunk_to_row(chunk, vector) for chunk, vector in zip(batch, vectors, strict=True)]
-        if index_version:
-            for row in rows:
-                row["index_version"] = index_version
-        if rows:
-            result = _write_rows(client, collection_name, rows, mode=mode)
-            inserted += int(
-                result.get("insert_count")
-                or result.get("inserted_count")
-                or result.get("upsert_count")
-                or len(rows)
-            )
-    if inserted:
-        client.flush(collection_name=collection_name)
-    stats = client.get_collection_stats(collection_name=collection_name)
-    return {
-        "collection_name": collection_name,
-        "inserted": inserted,
-        "mode": mode,
-        "row_count": int(stats.get("row_count") or 0),
-        "uri": uri,
-    }
+        inserted = 0
+        for start in range(0, len(chunks), batch_size):
+            batch = chunks[start : start + batch_size]
+            vectors = embedding_client.embed_texts([str(chunk["content"]) for chunk in batch])
+            for vector in vectors:
+                _validate_vector(vector, dimension)
+            rows = [
+                _chunk_to_row(chunk, vector) for chunk, vector in zip(batch, vectors, strict=True)
+            ]
+            if index_version:
+                for row in rows:
+                    row["index_version"] = index_version
+            if rows:
+                result = _write_rows(active_client, collection_name, rows, mode=mode)
+                count = next(
+                    (
+                        result[key]
+                        for key in ("insert_count", "inserted_count", "upsert_count")
+                        if key in result
+                    ),
+                    None,
+                )
+                if type(count) is not int or not 0 <= count <= len(rows):
+                    raise RuntimeError("Milvus did not report a valid written row count.")
+                inserted += count
+
+        if inserted:
+            active_client.flush(collection_name=collection_name)
+        stats = active_client.get_collection_stats(collection_name=collection_name)
+        return {
+            "collection_name": collection_name,
+            "inserted": inserted,
+            "mode": mode,
+            "row_count": int(stats.get("row_count") or 0),
+            "uri": uri,
+        }
 
 
 def search_chunks(
@@ -142,35 +151,35 @@ def search_chunks(
     settings = get_settings()
     uri = uri or settings.vector_db_url or "./apps/assistant/output/rag/milvus_lite.db"
     collection_name = collection_name or settings.vector_db_collection
-    client = client or _create_client(uri)
-    embedding_client = embedding_client or AzureEmbeddingClient()
-    vectors = embedding_client.embed_texts([query])
-    if len(vectors) != 1:
-        raise ValueError("Embedding API must return exactly one query vector.")
-    vector = vectors[0]
-    _validate_vector(vector, dimension if dimension is not None else len(vector))
-    filter_expression = f"knowledge_base == {json.dumps(knowledge_base)}"
-    if index_version:
-        filter_expression += f" and index_version == {json.dumps(index_version)}"
-    results = _search_client(
-        client,
-        collection_name=collection_name,
-        data=[vector],
-        filter=filter_expression,
-        limit=top_k,
-        timeout=10.0,
-        output_fields=[
-            "chunk_id",
-            "collection",
-            "knowledge_base",
-            "source",
-            "source_document",
-            "title",
-            "content",
-            "metadata_json",
-        ],
-    )
-    return [_hit_to_chunk(hit) for hit in (results[0] if results else [])]
+    with _managed_client(uri, client) as active_client:
+        embedding_client = embedding_client or AzureEmbeddingClient()
+        vectors = embedding_client.embed_texts([query])
+        if len(vectors) != 1:
+            raise ValueError("Embedding API must return exactly one query vector.")
+        vector = vectors[0]
+        _validate_vector(vector, dimension if dimension is not None else len(vector))
+        filter_expression = f"knowledge_base == {json.dumps(knowledge_base)}"
+        if index_version:
+            filter_expression += f" and index_version == {json.dumps(index_version)}"
+        results = _search_client(
+            active_client,
+            collection_name=collection_name,
+            data=[vector],
+            filter=filter_expression,
+            limit=top_k,
+            timeout=10.0,
+            output_fields=[
+                "chunk_id",
+                "collection",
+                "knowledge_base",
+                "source",
+                "source_document",
+                "title",
+                "content",
+                "metadata_json",
+            ],
+        )
+        return [_hit_to_chunk(hit) for hit in (results[0] if results else [])]
 
 
 def _create_client(uri: str):
@@ -283,3 +292,14 @@ def _search_client(client: Any, **kwargs):
         return client.search(**kwargs)
     except MilvusException as exc:
         raise RuntimeError("Milvus search failed.") from exc
+
+
+@contextmanager
+def _managed_client(uri: str, client: Any | None):
+    owned = client is None
+    active = _create_client(uri) if owned else client
+    try:
+        yield active
+    finally:
+        if owned:
+            active.close()
