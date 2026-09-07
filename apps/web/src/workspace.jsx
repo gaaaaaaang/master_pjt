@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Chart } from './charts';
 import { Icon, Brand, Chip, CopyButton, AnswerText, DataTable, Drawer, Inspector, downloadRows } from './ui';
 import { consumeSse, requestForAttempt, restoreMessages, progressLabel, rowsFromResult } from './chat-model';
+import { restoreWorkspaceUi } from './session-ui';
 import { makePreview } from './preview';
 import './workspace.css';
 
@@ -24,8 +25,13 @@ function initialState() {
 }
 function Workspace() {
   const [conversations, setConversations] = useState(initialState);
-  const [activeId, setActiveId] = useState(conversations[0].id);
-  const [drafts, setDrafts] = useState({});
+  const [savedUi] = useState(() => {
+    let raw = null;
+    if (!isPreview) { try { raw = sessionStorage.getItem(`${STORE_KEY}:ui`); } catch {} }
+    return restoreWorkspaceUi(raw, conversations.map(c => c.id));
+  });
+  const [activeId, setActiveId] = useState(savedUi.activeId);
+  const [drafts, setDrafts] = useState(savedUi.drafts);
   const draft = drafts[activeId] || '';
   const setDraft = value => setDrafts(current => ({ ...current, [activeId]: value }));
   const [search, setSearch] = useState('');
@@ -59,6 +65,11 @@ function Workspace() {
   const selectedMessage = drawer?.messageId && active.messages.find(m => m.id === drawer.messageId);
   const artifacts = active.messages.filter(m => m.result?.chart || m.result?.sql || rowsFromResult(m.result, m.events).length);
   useEffect(() => { if (!isPreview) { try { sessionStorage.setItem(STORE_KEY, JSON.stringify(conversations)); } catch { setNotice('브라우저 저장 공간이 부족해요. 이 대화는 새로고침하면 사라질 수 있어요.'); } } }, [conversations]);
+  useEffect(() => {
+    if (isPreview) return;
+    try { sessionStorage.setItem(`${STORE_KEY}:ui`, JSON.stringify({ activeId, drafts })); }
+    catch { setNotice('초안을 저장하지 못했어요. 새로고침 전에 입력 내용을 복사해 주세요.'); }
+  }, [activeId, drafts]);
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 5000); return () => clearTimeout(timer); }, [notice]);
   useEffect(() => {
     if (isPreview) return;
