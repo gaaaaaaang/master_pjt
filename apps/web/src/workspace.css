@@ -363,3 +363,12 @@ figure.chart{overflow:auto;padding-bottom:5px}
 .chart-legend>span{display:inline-flex;align-items:center;gap:5px}
 .chart-legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
 
+
+.answer-text ol{padding-left:24px;margin:12px 0}
+.answer-text li+li{margin-top:5px}
+.answer-table table{font-size:12px;white-space:normal}
+.answer-table td,.answer-table th{min-width:95px;overflow-wrap:anywhere}
+/* Secondary copy must remain legible at small sizes on the light surfaces. */
+.welcome-description,.suggestion-card small,.composer-caption,.inline-limitations ul,.context-trigger,.trace-trigger small,.text-button,.chart-footnote{color:#6b7684}
+.suggestion-card small{font-size:11px}
+.inline-limitations ul{font-size:11px}

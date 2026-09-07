@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { answerBlocks } from './answer-blocks';
 import { agentLabel, resultStatus, rowsFromResult, toCsv } from './chat-model';
 
 const paths = {
@@ -27,20 +28,18 @@ export function CopyButton({ text, label = '복사', onNotice }) {
 }
 function inline(text) { return text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((part, i) => part.startsWith('**') ? <strong key={i}>{part.slice(2, -2)}</strong> : part.startsWith('`') ? <code key={i}>{part.slice(1, -1)}</code> : part); }
 export function AnswerText({ text = '' }) {
-  const lines = String(text).split('\n'); const blocks = [];
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (line.startsWith('```')) { const code = []; while (++i < lines.length && !lines[i].startsWith('```')) code.push(lines[i]); blocks.push(<pre key={i}>{code.join('\n')}</pre>); }
-    else if (/^#{1,6}\s/.test(line)) blocks.push(<h3 key={i}>{inline(line.replace(/^#+\s/, ''))}</h3>);
-    else if (/^\s*[-*]\s/.test(line)) { const items = [line.replace(/^\s*[-*]\s/, '')]; while (i + 1 < lines.length && /^\s*[-*]\s/.test(lines[i + 1])) items.push(lines[++i].replace(/^\s*[-*]\s/, '')); blocks.push(<ul key={i}>{items.map((item, j) => <li key={j}>{inline(item)}</li>)}</ul>); }
-    else if (line.trim()) blocks.push(<p key={i}>{inline(line)}</p>);
-  }
-  return <div className="answer-text">{blocks}</div>;
+  return <div className="answer-text">{answerBlocks(text).map((block, i) => {
+    if (block.type === 'code') return <pre key={i}>{block.text}</pre>;
+    if (block.type === 'heading') return <h3 key={i}>{inline(block.text)}</h3>;
+    if (block.type === 'table') return <div className="data-table answer-table" role="region" tabIndex={0} aria-label="답변 표" key={i}><table><thead><tr>{block.headings.map((cell, j) => <th scope="col" key={j} style={{ textAlign: block.align[j] }}>{inline(cell)}</th>)}</tr></thead><tbody>{block.rows.map((row, j) => <tr key={j}>{row.map((cell, k) => <td key={k} style={{ textAlign: block.align[k] }}>{inline(cell)}</td>)}</tr>)}</tbody></table></div>;
+    if (block.type === 'list') { const Tag = block.ordered ? 'ol' : 'ul'; return <Tag key={i} start={block.start}>{block.items.map((item, j) => <li key={j}>{inline(item)}</li>)}</Tag>; }
+    return <p key={i}>{inline(block.text)}</p>;
+  })}</div>;
 }
 export function DataTable({ rows }) {
   const [page, setPage] = useState(0);
   const fields = [...new Set(rows.flatMap(row => Object.keys(row)))];
-  return <><div className="data-table" tabIndex={0} role="region" aria-label="조회 결과 표"><table><thead><tr>{fields.map(key => <th key={key}>{key}</th>)}</tr></thead><tbody>{rows.slice(page * 20, page * 20 + 20).map((row, i) => <tr key={i}>{fields.map(key => <td key={key}>{row[key] == null ? '—' : typeof row[key] === 'object' ? JSON.stringify(row[key]) : String(row[key])}</td>)}</tr>)}</tbody></table></div>{rows.length > 20 && <div className="pagination"><button disabled={!page} onClick={() => setPage(page - 1)}>이전</button><span>{page + 1} / {Math.ceil(rows.length / 20)}</span><button disabled={(page + 1) * 20 >= rows.length} onClick={() => setPage(page + 1)}>다음</button></div>}</>;
+  return <><div className="data-table" tabIndex={0} role="region" aria-label="조회 결과 표"><table><thead><tr>{fields.map(key => <th scope="col" key={key}>{key}</th>)}</tr></thead><tbody>{rows.slice(page * 20, page * 20 + 20).map((row, i) => <tr key={i}>{fields.map(key => <td key={key}>{row[key] == null ? '—' : typeof row[key] === 'object' ? JSON.stringify(row[key]) : String(row[key])}</td>)}</tr>)}</tbody></table></div>{rows.length > 20 && <div className="pagination"><button disabled={!page} onClick={() => setPage(page - 1)}>이전</button><span>{page + 1} / {Math.ceil(rows.length / 20)}</span><button disabled={(page + 1) * 20 >= rows.length} onClick={() => setPage(page + 1)}>다음</button></div>}</>;
 }
 export function downloadRows(rows) {
   const url = URL.createObjectURL(new Blob([toCsv(rows)], { type: 'text/csv;charset=utf-8;' }));
