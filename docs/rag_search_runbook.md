@@ -5,7 +5,8 @@
 `fix/rag_adv`는 main `94eba81` 기준이다. 다른 브랜치의 최신 Text2SQL/대화 메모리 변경은
 이 브랜치에 병합하지 않았다. 기본 corpus는 package 경로 기준
 `apps/assistant/output/rag/master_pjt_v2.jsonl`이며 실제 Vector DB 설정이 없으면 BM25를 사용한다.
-이 모드는 외부 API 없이 실행된다. 로컬 평가에 `store_path`를 넘기면 LLM reranker도 호출하지 않는다.
+BM25 검색 자체는 외부 API 없이 실행된다. 전체 chat의 Planner/Supervisor/답변 생성은
+별도로 모델 API를 호출한다. 로컬 검색 평가에 `store_path`를 넘기면 LLM reranker도 호출하지 않는다.
 
 ```sh
 python -m pytest -q
