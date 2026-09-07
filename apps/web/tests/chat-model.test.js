@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { consumeSse, parseSseBlock, buildPayload, toCsv, resultStatus } from '../src/chat-model.js';
+import { consumeSse, parseSseBlock, buildPayload, toCsv, resultStatus, requestForAttempt, restoreMessages } from '../src/chat-model.js';
 function response(chunks) { return new Response(new ReadableStream({ start(controller) { for (const c of chunks) controller.enqueue(typeof c === 'string' ? new TextEncoder().encode(c) : c); controller.close(); } }), { headers: { 'Content-Type': 'text/event-stream' } }); }
 test('SSE handles UTF-8 split across bytes and CRLF split across chunks', async () => {
   const text = 'event: trace\r\ndata: {"type":"node_completed","message":"한글"}\r\n\r\nevent: final\r\ndata: {"type":"run_completed","data":{"answer":"완료"}}\r\n\r\n';
@@ -17,3 +17,16 @@ test('SSE rejects invalid payloads and HTTP errors', async () => { assert.throws
 test('Payload trims explicit context and preserves conversation identity', () => { assert.deepEqual(buildPayload('질문', { fab: ' fab10 ', line: '', process: '  ' }, 'session-1'), { message: '질문', fab: 'fab10', conversation_id: 'session-1' }); });
 test('CSV escapes formula strings, commas, quotes, preserves numeric negatives', () => { const csv = toCsv([{ name: '=SUM(A1)', count: -5, other: 'a,"b"' }]); assert.ok(csv.startsWith('\uFEFF')); assert.ok(csv.includes('"\'=SUM(A1)"')); assert.ok(csv.includes('"-5"')); assert.ok(csv.includes('"a,""b"""')); });
 test('Non-success statuses never claim analysis success', () => { assert.equal(resultStatus('needs_clarification').tone, 'warning'); assert.equal(resultStatus('data_unavailable').tone, 'warning'); assert.equal(resultStatus('human_review').tone, 'warning'); });
+
+test('Retry keeps original scope and conversation despite changed settings', () => {
+  const first = requestForAttempt('목록', { fab: 'fab10' }, 'original');
+  const retry = requestForAttempt('목록', { fab: 'fab20' }, 'different', { requestPayload: first });
+  assert.deepEqual(retry, { message: '목록', fab: 'fab10', conversation_id: 'original' });
+  assert.notEqual(first, retry);
+});
+test('Restored sessions release interrupted stream and feedback controls', () => {
+  const messages = restoreMessages([{ status: 'streaming' }, { status: 'done', feedback: 'pending' }, { status: 'done', feedback: 'helpful' }]);
+  assert.equal(messages[0].status, 'cancelled');
+  assert.equal(messages[1].feedback, null);
+  assert.equal(messages[2].feedback, 'helpful');
+});

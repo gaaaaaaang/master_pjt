@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Chart } from './charts';
 import { Icon, Brand, Chip, CopyButton, AnswerText, DataTable, Drawer, Inspector, downloadRows } from './ui';
-import { consumeSse, buildPayload, progressLabel, rowsFromResult } from './chat-model';
+import { consumeSse, requestForAttempt, restoreMessages, progressLabel, rowsFromResult } from './chat-model';
 import { makePreview } from './preview';
 import './workspace.css';
 
@@ -19,7 +19,7 @@ const examples = [
 function newConversation() { return { id: crypto.randomUUID(), title: '새 대화', context: { fab: '', line: '', process: '' }, messages: [] }; }
 function initialState() {
   if (isPreview) return [makePreview(previewKey)];
-  try { const saved = JSON.parse(sessionStorage.getItem(STORE_KEY)); if (Array.isArray(saved) && saved.length && saved.every(c => typeof c.id === 'string' && typeof c.title === 'string' && Array.isArray(c.messages))) return saved.map(c => ({ ...c, context: { fab: '', line: '', process: '', ...c.context }, messages: c.messages.map(m => m.status === 'streaming' ? { ...m, status: 'cancelled' } : m) })); } catch { /* A new session remains usable if browser storage is unavailable. */ }
+  try { const saved = JSON.parse(sessionStorage.getItem(STORE_KEY)); if (Array.isArray(saved) && saved.length && saved.every(c => typeof c.id === 'string' && typeof c.title === 'string' && Array.isArray(c.messages))) return saved.map(c => ({ ...c, context: { fab: '', line: '', process: '', ...c.context }, messages: restoreMessages(c.messages) })); } catch { /* A new session remains usable if browser storage is unavailable. */ }
   return [newConversation()];
 }
 function Workspace() {
@@ -81,19 +81,20 @@ function Workspace() {
   useEffect(() => () => abortRef.current?.abort(), []);
   function patchConversation(id, update) { setConversations(current => current.map(c => c.id === id ? update(c) : c)); }
   function patchMessage(conversation, id, patch) { patchConversation(conversation, c => ({ ...c, messages: c.messages.map(m => m.id === id ? { ...m, ...patch } : m) })); }
-  function startNew() { if (busy) return; if (isPreview) { window.location.href = '/'; return; } const next = newConversation(); setConversations(current => [next, ...current]); setActiveId(next.id); setDraft(''); setDrawer(null); setSidebar(false); shouldFollow.current = true; textarea.current?.focus(); }
+  function startNew() { if (busy) return; if (isPreview) { window.location.href = '/'; return; } const next = newConversation(); setConversations(current => [next, ...current]); setActiveId(next.id); setSearch(''); setDraft(''); setDrawer(null); setSidebar(false); shouldFollow.current = true; textarea.current?.focus(); }
   function choose(id) { if (busy) return; setActiveId(id); setDraft(''); setDrawer(null); setSidebar(false); shouldFollow.current = true; }
   async function send(text = draft, retryId = null) {
     if (busy || abortRef.current || !text.trim()) return;
     if (isPreview) { setNotice('여기는 예시 화면이에요. 실제 질문은 새 대화에서 시작해 주세요.'); return; }
     const outgoing = text.trim(); const conversation = active.id; const messageId = retryId || crypto.randomUUID();
+    const requestPayload = requestForAttempt(outgoing, active.context, active.backendId, active.messages.find(m => m.id === retryId));
     const controller = new AbortController(); abortRef.current = controller;
-    setBusy(true); setDraft(''); setDrawer(null); shouldFollow.current = true;
+    setBusy(true); if (!retryId) setDraft(''); setDrawer(null); shouldFollow.current = true;
     let events = []; let timedOut = false;
     const timer = setTimeout(() => { timedOut = true; controller.abort(); }, 180000);
-    patchConversation(conversation, c => ({ ...c, title: c.messages.length ? c.title : outgoing.slice(0, 48), messages: retryId ? c.messages.map(m => m.id === retryId ? { ...m, status: 'streaming', error: null, result: null, events: [] } : m) : [...c.messages, { id: crypto.randomUUID(), role: 'user', content: outgoing }, { id: messageId, role: 'assistant', question: outgoing, status: 'streaming', events: [] }] }));
+    patchConversation(conversation, c => ({ ...c, title: c.messages.length ? c.title : outgoing.slice(0, 48), messages: retryId ? c.messages.map(m => m.id === retryId ? { ...m, status: 'streaming', error: null, result: null, events: [], requestPayload } : m) : [...c.messages, { id: crypto.randomUUID(), role: 'user', content: outgoing }, { id: messageId, role: 'assistant', question: outgoing, status: 'streaming', events: [], requestPayload }] }));
     try {
-      const response = await fetch(`${API_BASE}/chat/stream`, { method: 'POST', signal: controller.signal, headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' }, body: JSON.stringify(buildPayload(outgoing, active.context, active.backendId)) });
+      const response = await fetch(`${API_BASE}/chat/stream`, { method: 'POST', signal: controller.signal, headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' }, body: JSON.stringify(requestPayload) });
       await consumeSse(response, event => {
         if (event.type === 'run_completed') {
           const result = event.data || {};

@@ -80,3 +80,17 @@ export function toCsv(rows) {
   };
   return '\uFEFF' + [fields.map(cell).join(','), ...rows.map(row => fields.map(key => cell(row[key])).join(','))].join('\r\n');
 }
+
+// Retrying repeats the original request, even if the sidebar scope changed later.
+export function requestForAttempt(message, context, conversationId, previousAttempt) {
+  return previousAttempt?.requestPayload
+    ? { ...previousAttempt.requestPayload }
+    : buildPayload(message, context, conversationId);
+}
+export function restoreMessages(messages) {
+  return messages.map(message => ({
+    ...message,
+    ...(message.status === 'streaming' ? { status: 'cancelled' } : {}),
+    ...(message.feedback === 'pending' ? { feedback: null } : {}),
+  }));
+}
