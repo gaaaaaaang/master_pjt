@@ -372,3 +372,5 @@ figure.chart{overflow:auto;padding-bottom:5px}
 .welcome-description,.suggestion-card small,.composer-caption,.inline-limitations ul,.context-trigger,.trace-trigger small,.text-button,.chart-footnote{color:#6b7684}
 .suggestion-card small{font-size:11px}
 .inline-limitations ul{font-size:11px}
+
+.status-chip.progress{color:#3182f6}

@@ -18,6 +18,7 @@ export function progressLabel(events) {
   return AGENTS[last?.node]?.[1] || '요청을 전달하고 있어요';
 }
 export function resultStatus(status) {
+  if (status === 'streaming') return { label: '분석 중', tone: 'progress' };
   if (status === 'succeeded') return { label: '분석 완료', tone: 'success' };
   if (status === 'needs_clarification') return { label: '확인이 필요해요', tone: 'warning' };
   if (status === 'data_unavailable') return { label: '데이터 확인 필요', tone: 'warning' };
