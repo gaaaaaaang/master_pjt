@@ -59,7 +59,10 @@ export function DataTable({ rows }) {
 }
 export function downloadRows(rows) {
   const url = URL.createObjectURL(new Blob([toCsv(rows)], { type: 'text/csv;charset=utf-8;' }));
-  const link = document.createElement('a'); link.href = url; link.download = 'fab-analysis.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const link = document.createElement('a');
+  link.href = url; link.download = 'fab-analysis.csv'; link.hidden = true;
+  document.body.appendChild(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 export function Drawer({ title, subtitle, children, onClose, wide = false }) {
   const ref = useRef(null);
@@ -87,7 +90,7 @@ export function Inspector({ message, initialTab = 'trace', onClose, onNotice }) 
         {Object.keys(result).length > 0 && <details className="raw-details"><summary>최종 응답 원본</summary><pre>{JSON.stringify(result, null, 2)}</pre></details>}
       </>}
       {tab === 'evidence' && <><h3>답변의 근거</h3>{!(result.evidence?.length) && <p className="empty-panel">이 답변에 첨부된 근거가 없어요.</p>}{(result.evidence || []).map((item, i) => <article className="evidence-card" key={i}><span className="source-kind">{item.source_type}</span><h4>{item.title}</h4><AnswerText text={item.content}/>{Object.keys(item.metadata || {}).length > 0 && <details className="raw-details"><summary>출처 상세</summary><pre>{JSON.stringify(item.metadata, null, 2)}</pre></details>}</article>)}{result.limitations?.length > 0 && <div className="limitations"><h4>해석할 때 확인해 주세요</h4><ul>{result.limitations.map((item, i) => <li key={i}>{item}</li>)}</ul></div>}</>}
-      {tab === 'data' && <><div className="section-heading"><h3>조회 데이터 <span className="count">{rows.length}행</span></h3>{rows.length > 0 && <button className="text-button" onClick={() => downloadRows(rows)}><Icon name="download" size={16}/>전체 CSV 저장</button>}</div>{rows.length ? <><p className="muted small-text">서버가 반환한 차트 데이터 또는 조회 샘플이에요.</p><DataTable rows={rows}/></> : <p className="empty-panel">반환된 데이터가 없어요.</p>}{result.sql && <section className="sql-section"><div className="section-heading"><h3>실행 SQL</h3><CopyButton text={result.sql} onNotice={onNotice}/></div><pre>{result.sql}</pre></section>}</>}
+      {tab === 'data' && <><div className="section-heading"><h3>조회 데이터 <span className="count">{rows.length}행</span></h3>{rows.length > 0 && <button className="text-button" onClick={() => downloadRows(rows)}><Icon name="download" size={16}/>전체 CSV 저장</button>}</div>{rows.length ? <><p className="muted small-text">서버가 반환한 차트 데이터 또는 조회 샘플이에요.</p><div className="csv-copy"><CopyButton text={toCsv(rows).replace(/^\uFEFF/, "")} label="전체 CSV 복사" onNotice={onNotice}/><span>파일 저장이 어려울 때 복사해서 사용할 수 있어요.</span></div><DataTable rows={rows}/></> : <p className="empty-panel">반환된 데이터가 없어요.</p>}{result.sql && <section className="sql-section"><div className="section-heading"><h3>실행 SQL</h3><CopyButton text={result.sql} onNotice={onNotice}/></div><pre>{result.sql}</pre></section>}</>}
     </div>
   </Drawer>;
 }

@@ -392,3 +392,5 @@ figure.chart{overflow:auto;padding-bottom:5px}
 .agent-summary{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11px;line-height:1.75;color:#6b7684;margin-top:9px;overflow-wrap:anywhere}
 .agent-step>summary{align-items:flex-start}
 .agent-step>summary>svg{margin-top:7px}
+
+.csv-copy{display:flex;align-items:center;gap:12px;margin-top:7px;flex-wrap:wrap}.csv-copy>span{font-size:10px;color:#8b95a1}
