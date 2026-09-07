@@ -25,7 +25,9 @@ function initialState() {
 function Workspace() {
   const [conversations, setConversations] = useState(initialState);
   const [activeId, setActiveId] = useState(conversations[0].id);
-  const [draft, setDraft] = useState('');
+  const [drafts, setDrafts] = useState({});
+  const draft = drafts[activeId] || '';
+  const setDraft = value => setDrafts(current => ({ ...current, [activeId]: value }));
   const [search, setSearch] = useState('');
   const [drawer, setDrawer] = useState(null);
   const [sidebar, setSidebar] = useState(false);
@@ -81,8 +83,8 @@ function Workspace() {
   useEffect(() => () => abortRef.current?.abort(), []);
   function patchConversation(id, update) { setConversations(current => current.map(c => c.id === id ? update(c) : c)); }
   function patchMessage(conversation, id, patch) { patchConversation(conversation, c => ({ ...c, messages: c.messages.map(m => m.id === id ? { ...m, ...patch } : m) })); }
-  function startNew() { if (busy) return; if (isPreview) { window.location.href = '/'; return; } const next = newConversation(); setConversations(current => [next, ...current]); setActiveId(next.id); setSearch(''); setDraft(''); setDrawer(null); setSidebar(false); shouldFollow.current = true; textarea.current?.focus(); }
-  function choose(id) { if (busy) return; setActiveId(id); setDraft(''); setDrawer(null); setSidebar(false); shouldFollow.current = true; }
+  function startNew() { if (busy) return; if (isPreview) { window.location.href = '/'; return; } const next = newConversation(); setConversations(current => [next, ...current]); setActiveId(next.id); setSearch(''); setDrawer(null); setSidebar(false); shouldFollow.current = true; textarea.current?.focus(); }
+  function choose(id) { if (busy) return; setActiveId(id); setDrawer(null); setSidebar(false); shouldFollow.current = true; }
   async function send(text = draft, retryId = null) {
     if (busy || abortRef.current || !text.trim()) return;
     if (isPreview) { setNotice('여기는 예시 화면이에요. 실제 질문은 새 대화에서 시작해 주세요.'); return; }
