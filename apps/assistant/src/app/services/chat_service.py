@@ -10,6 +10,7 @@ class ChatService:
         result = self.supervisor.run(request)
         return ChatResponse(
             conversation_id=result.conversation_id,
+            status=result.status,
             query_type=result.query_type,
             answer=result.answer,
             evidence=result.evidence,
@@ -17,4 +18,7 @@ class ChatService:
             chart=result.chart,
             confidence=result.confidence,
             limitations=result.limitations,
+            citations=result.citations,
+            grounding=result.grounding,
+            model_usage=result.model_usage,
         )

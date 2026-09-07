@@ -44,8 +44,8 @@ def test_explicit_playbook_id_routes_and_restricts():
     result = search(
         "PB-QT-001",
         [
-            chunk("right", "PB-QT-001 Queue Time limit"),
-            chunk("other", "PB-EQ-001 Queue Time equipment"),
+            chunk("right", "playbook_id PB-QT-001 Queue Time limit"),
+            chunk("other", "playbook_id PB-EQ-001 Queue Time equipment"),
         ],
     )
     assert [c["chunk_id"] for c in result.chunks] == ["right"]
@@ -77,6 +77,46 @@ def test_kb_filter_is_hard():
         knowledge_base="incident_playbook",
     )
     assert not result.chunks
+
+
+def test_model_document_and_manual_request_search_both_bases():
+    plan = analyze_query("AutoSched의 PM 이벤트 연결 방식과 대응 매뉴얼의 PM 연기 승인 조건")
+    assert set(plan.knowledge_bases) == {"incident_playbook", "process_basics"}
+    assert analyze_query("AutoSched PM 이벤트 연결 방식").knowledge_bases == ("process_basics",)
+    assert analyze_query("AutoSched PM 이벤트 연결 방식", "incident_playbook").knowledge_bases == (
+        "incident_playbook",
+    )
+
+
+def test_explicit_negation_does_not_reintroduce_excluded_fab_id_or_approval_filter():
+    assert analyze_query("fab11 말고 fab10 PM 대응").fab_ids == ("fab10",)
+    assert analyze_query("PB-EQ-001 말고 PB-HL-001 절차").exact_ids == ("PB-HL-001",)
+    assert not analyze_query("실제 사내 승인된 SOP 말고 시뮬레이션 PM 대응").require_verified
+    assert analyze_query("시뮬레이션 말고 실제 사내 승인된 SOP의 PM 대응").require_verified
+
+
+def test_context_budget_omission_is_observable():
+    result = search("PM 대응", [chunk("large", "PM 대응 " * 100)], context_chars=10)
+    assert not result.chunks
+    assert result.trace["budget_dropped_count"] == 1
+    assert any("원문이 길어" in message for message in result.limitations)
+
+
+def test_structured_fab_scope_filters_documents_even_when_question_has_no_fab():
+    records = [
+        chunk("fab10", "PM 대응 기준", metadata={"fab_ids": ["fab10"]}),
+        chunk("fab11", "PM 대응 기준", metadata={"fab_ids": ["fab11"]}),
+    ]
+    result = search("PM 대응", records, fab_id="FAB11")
+    assert [record["chunk_id"] for record in result.chunks] == ["fab11"]
+    assert result.trace["plan"]["fab_ids"] == ("fab11",)
+
+
+def test_conflicting_fab_scope_is_not_silently_combined():
+    from app.rag.query import QueryScopeError
+
+    with pytest.raises(QueryScopeError):
+        search("fab10 PM 대응", [], fab_id="fab11")
 
 
 def test_withdrawn_document_is_excluded():

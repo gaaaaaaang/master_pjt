@@ -1,10 +1,12 @@
+import asyncio
 import json
 import logging
 import time
 from dataclasses import asdict
 from typing import Any
 
-from fastapi import APIRouter, Request
+import httpx
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 
@@ -54,7 +56,17 @@ DEFAULT_TRACE_CASES = [
 @router.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest) -> ChatResponse:
     logger.info("chat.start message=%s fab=%s", request.message, request.fab)
-    response = service.ask(request)
+    try:
+        response = service.ask(request)
+    except (KeyError, RuntimeError, ValueError, TypeError, httpx.HTTPError) as exc:
+        logger.error("chat.failed error_type=%s", type(exc).__name__)
+        raise HTTPException(
+            status_code=504 if isinstance(exc, httpx.TimeoutException) else 502,
+            detail={
+                "error": "에이전트 실행을 완료하지 못했습니다.",
+                "error_type": type(exc).__name__,
+            },
+        ) from exc
     logger.info(
         "chat.done conversation_id=%s query_type=%s sql=%s chart=%s",
         response.conversation_id,
@@ -96,38 +108,39 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
             request.message,
         )
         try:
-            for update in graph.stream(state, stream_mode="updates"):
-                if await http_request.is_disconnected():
-                    logger.info(
-                        "stream.cancelled conversation_id=%s reason=client_disconnected",
-                        state["conversation_id"],
-                    )
-                    yield _sse(
-                        "cancelled",
-                        _with_stream_telemetry(
-                            {
-                                "type": "run_cancelled",
-                                "node": "supervisor",
-                                "message": "클라이언트 연결이 종료되어 stream을 중단했습니다.",
-                                "data": {
-                                    "conversation_id": state["conversation_id"],
-                                    "reason": "client_disconnected",
-                                    "retry_budget_remaining": retry_budget,
+            async with asyncio.timeout(get_settings().stream_timeout_seconds):
+                async for update in graph.astream(state, stream_mode="updates"):
+                    if await http_request.is_disconnected():
+                        logger.info(
+                            "stream.cancelled conversation_id=%s reason=client_disconnected",
+                            state["conversation_id"],
+                        )
+                        yield _sse(
+                            "cancelled",
+                            _with_stream_telemetry(
+                                {
+                                    "type": "run_cancelled",
+                                    "node": "supervisor",
+                                    "message": "클라이언트 연결이 종료되어 stream을 중단했습니다.",
+                                    "data": {
+                                        "conversation_id": state["conversation_id"],
+                                        "reason": "client_disconnected",
+                                        "retry_budget_remaining": retry_budget,
+                                    },
                                 },
-                            },
-                            started_at,
-                        ),
-                    )
-                    return
-                if time.monotonic() - started_at > get_settings().stream_timeout_seconds:
-                    raise TimeoutError("SSE stream exceeded configured timeout.")
-                for patch in update.values():
-                    state.update(patch)
-                    if event := patch.get("stream_event"):
-                        _log_stream_event(event)
-                        event_data = event.setdefault("data", {})
-                        event_data["retry_budget_remaining"] = retry_budget
-                        yield _sse("trace", _with_stream_telemetry(event, started_at))
+                                started_at,
+                            ),
+                        )
+                        return
+                    if time.monotonic() - started_at > get_settings().stream_timeout_seconds:
+                        raise TimeoutError("SSE stream exceeded configured timeout.")
+                    for patch in update.values():
+                        state.update(patch)
+                        if event := patch.get("stream_event"):
+                            _log_stream_event(event)
+                            event_data = event.setdefault("data", {})
+                            event_data["retry_budget_remaining"] = retry_budget
+                            yield _sse("trace", _with_stream_telemetry(event, started_at))
 
             final = {
                 "conversation_id": state["conversation_id"],
@@ -142,6 +155,9 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                 "plan": asdict(state["plan"]),
                 "agent_runs": state.get("agent_runs", []),
                 "reflection": state.get("reflection", {}),
+                "citations": state.get("citations", []),
+                "grounding": state.get("grounding", {}),
+                "model_usage": state.get("model_usage", {}),
             }
             logger.info(
                 "stream.done conversation_id=%s status=%s query_type=%s sql=%s chart=%s",
@@ -166,7 +182,14 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                     started_at,
                 ),
             )
-        except (KeyError, RuntimeError, TimeoutError, TypeError, ValueError) as exc:
+        except (
+            KeyError,
+            RuntimeError,
+            TimeoutError,
+            TypeError,
+            ValueError,
+            httpx.HTTPError,
+        ) as exc:
             logger.exception("stream.failed message=%s", request.message)
             yield _sse(
                 "error",
@@ -176,7 +199,9 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                         "node": "supervisor",
                         "message": "에이전트 실행 중 오류가 발생했습니다.",
                         "data": {
-                            "error": str(exc),
+                            "error": "에이전트 실행을 완료하지 못했습니다.",
+                            "error_type": type(exc).__name__,
+                            "model_usage": state["usage_ledger"].snapshot(),
                             "conversation_id": state["conversation_id"],
                             "retry_budget_remaining": retry_budget,
                         },
@@ -265,6 +290,9 @@ def _trace_case(case: dict[str, Any]) -> dict[str, Any]:
         "agent_runs": agent_runs,
         "evidence": [item.model_dump() for item in result.evidence],
         "reflection": result.reflection,
+        "citations": result.citations,
+        "grounding": result.grounding,
+        "model_usage": result.model_usage,
         "prompt_versions": {
             "planner": result.plan.prompt_version if result.plan else None,
             "supervisor": result.prompt_version,

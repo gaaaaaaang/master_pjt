@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from app.config import get_settings
+from app.rag.embeddings import AzureEmbeddingClient, RequestEmbeddingCache
 from app.rag.ingest import load_chunks
 from app.rag.manifest import load_manifest, verify_manifest
 from app.rag.milvus_store import search_chunks
@@ -15,20 +17,44 @@ INCIDENT_PLAYBOOK = "incident_playbook"
 PROCESS_BASICS = "process_basics"
 
 
+@dataclass
+class EvidenceResult:
+    evidence: list[Evidence]
+    trace: dict[str, Any]
+    limitations: list[str]
+
+
 def retrieve_knowledge(
     query: str,
     top_k: int = 5,
     *,
     knowledge_base: str | None = None,
+    fab_id: str | None = None,
     store_path: Path | None = None,
 ) -> list[Evidence]:
     """Route a general RAG request to the relevant FAB knowledge base."""
-    result = retrieve_with_trace(query, top_k, knowledge_base=knowledge_base, store_path=store_path)
+    return retrieve_evidence(
+        query, top_k, knowledge_base=knowledge_base, fab_id=fab_id, store_path=store_path
+    ).evidence
+
+
+def retrieve_evidence(
+    query: str,
+    top_k: int = 5,
+    *,
+    knowledge_base: str | None = None,
+    fab_id: str | None = None,
+    store_path: Path | None = None,
+) -> EvidenceResult:
+    """Keep trace and limitations available even when retrieval returns no evidence."""
+    result = retrieve_with_trace(
+        query, top_k, knowledge_base=knowledge_base, fab_id=fab_id, store_path=store_path
+    )
     evidence = [_to_evidence(chunk, chunk["metadata"]["score"]) for chunk in result.chunks]
     for item in evidence:
         item.metadata["retrieval_trace"] = result.trace
         item.metadata["retrieval_limitations"] = result.limitations
-    return evidence
+    return EvidenceResult(evidence, result.trace, result.limitations)
 
 
 def retrieve_incident_playbook(
@@ -68,12 +94,7 @@ def _retrieve_from_store(
     knowledge_base: str,
     store_path: Path | None = None,
 ) -> list[Evidence]:
-    result = retrieve_with_trace(query, top_k, knowledge_base=knowledge_base, store_path=store_path)
-    evidence = [_to_evidence(chunk, chunk["metadata"]["score"]) for chunk in result.chunks]
-    for item in evidence:
-        item.metadata["retrieval_trace"] = result.trace
-        item.metadata["retrieval_limitations"] = result.limitations
-    return evidence
+    return retrieve_knowledge(query, top_k, knowledge_base=knowledge_base, store_path=store_path)
 
 
 def retrieve_with_trace(
@@ -81,6 +102,7 @@ def retrieve_with_trace(
     top_k: int = 5,
     *,
     knowledge_base: str | None = None,
+    fab_id: str | None = None,
     store_path: Path | None = None,
 ) -> SearchResult:
     settings = get_settings()
@@ -91,6 +113,7 @@ def retrieve_with_trace(
         raise NotImplementedError(f"RAG store has no chunks: {selected_path}")
 
     local_by_id = {chunk["chunk_id"]: chunk for chunk in chunks}
+    embedding_client = RequestEmbeddingCache(AzureEmbeddingClient()) if use_dense else None
 
     def dense(query: str, base: str, limit: int):
         if not settings.rag_index_manifest_path:
@@ -111,6 +134,7 @@ def retrieve_with_trace(
             collection_name=settings.vector_db_collection,
             index_version=manifest.index_version,
             dimension=settings.embedding_dimension,
+            embedding_client=embedding_client,
         )
         result = []
         for candidate in candidates:
@@ -134,6 +158,7 @@ def retrieve_with_trace(
         query,
         chunks,
         knowledge_base=knowledge_base,
+        fab_id=fab_id,
         top_k=top_k,
         candidate_k=settings.rag_candidate_k,
         context_chars=settings.rag_context_chars,

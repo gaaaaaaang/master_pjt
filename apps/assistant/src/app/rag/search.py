@@ -7,6 +7,7 @@ no synthetic embeddings or scores are substituted for real vector search.
 from __future__ import annotations
 
 import math
+import re
 from collections import Counter
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field, replace
@@ -15,7 +16,7 @@ from typing import Any
 
 import httpx
 
-from app.rag.query import QueryPlan, analyze_query, concepts, tokenize
+from app.rag.query import QueryPlan, analyze_query, apply_fab_scope, concepts, tokenize
 from app.rag.rerank import Reranker
 
 Chunk = dict[str, Any]
@@ -150,6 +151,7 @@ def search(
     chunks: list[Chunk],
     *,
     knowledge_base: str | None = None,
+    fab_id: str | None = None,
     top_k: int = 5,
     candidate_k: int = 30,
     dense_search: DenseSearch | None = None,
@@ -164,9 +166,9 @@ def search(
         raise ValueError("context_chars must be positive.")
     if not 1 <= rerank_limit <= 40:
         raise ValueError("rerank_limit must be between 1 and 40.")
-    plan = analyze_query(query, knowledge_base)
+    plan = apply_fab_scope(analyze_query(query, knowledge_base), fab_id)
     trace: dict[str, Any] = {
-        "pipeline_version": "hybrid.v1",
+        "pipeline_version": "hybrid.v2",
         "plan": asdict(plan),
         "retrieval_mode": "hybrid" if dense_search else "bm25",
         "reranker": "feature.v1",
@@ -175,6 +177,8 @@ def search(
     if top_k <= 0 or not query.strip():
         return SearchResult([], trace)
     top_k = min(top_k, 20)
+    if re.fullmatch(r"(?:PB-[A-Z]+-\d+[\s,;]*)+", query.strip(), re.IGNORECASE):
+        return _exact_lookup(chunks, plan, top_k, context_chars, trace, start)
     index = BM25Index(chunks)
     lexical = index.search(plan, candidate_k)
     rankings = [[chunk for _, chunk in lexical]]
@@ -237,6 +241,7 @@ def search(
     seen_content = set()
     covered = set()
     used_chars = 0
+    budget_dropped = 0
     # Greedy coverage makes complementary evidence competitive with repeated matches.
     while reranked and len(selected) < top_k:
         best = max(
@@ -253,11 +258,15 @@ def search(
         score, chunk, features, ranks = reranked.pop(best)
         content = str(chunk.get("content") or "")
         fingerprint = " ".join(content.split()).casefold()
-        if fingerprint in seen_content or used_chars + len(content) > context_chars:
+        if fingerprint in seen_content:
+            continue
+        if used_chars + len(content) > context_chars:
+            budget_dropped += 1
             continue
         seen_content.add(fingerprint)
         used_chars += len(content)
-        covered.update(features["focus_matches"] or features["concept_matches"])
+        # Focus controls diversity, but supporting body text can cover another requested topic.
+        covered.update(features["concept_matches"])
         metadata = dict(chunk.get("metadata") or {})
         metadata.update(
             {
@@ -275,6 +284,7 @@ def search(
             "fused_candidates": len(fused),
             "selected_count": len(selected),
             "context_chars": used_chars,
+            "budget_dropped_count": budget_dropped,
             "covered_concepts": sorted(covered),
             "uncovered_concepts": sorted(set(plan.concepts) - covered),
             "latency_ms": round((perf_counter() - start) * 1000, 3),
@@ -282,9 +292,57 @@ def search(
     )
     if not selected:
         limitations.append("질문을 뒷받침하는 문서 근거를 찾지 못했습니다.")
+    if budget_dropped:
+        limitations.append("검색된 일부 원문이 길어 답변 근거에 모두 포함하지 못했습니다.")
     if trace["uncovered_concepts"]:
         limitations.append(
             "질문의 일부 주제에 대한 문서 근거가 부족합니다: "
             + ", ".join(trace["uncovered_concepts"])
         )
     return SearchResult(selected, trace, list(dict.fromkeys(limitations)))
+
+
+def _exact_lookup(chunks, plan, top_k, context_chars, trace, start):
+    """Pure procedure IDs need an identifier lookup, not embedding or LLM judgement."""
+    selected, found, used = [], set(), 0
+    for wanted in plan.exact_ids:
+        for chunk in chunks:
+            primary = re.findall(
+                r"playbook_id\s+(PB-[A-Z]+-\d+)", chunk.get("content", ""), re.IGNORECASE
+            )
+            if wanted not in {p.upper() for p in primary} or not eligible(chunk, plan):
+                continue
+            if len(selected) >= top_k or used + len(chunk["content"]) > context_chars:
+                continue
+            if chunk["chunk_id"] in {c["chunk_id"] for c in selected}:
+                continue
+            found.add(wanted)
+            used += len(chunk["content"])
+            selected.append(
+                {
+                    **chunk,
+                    "metadata": {
+                        **(chunk.get("metadata") or {}),
+                        "score": 1.0,
+                        "retrieval_mode": "exact_id",
+                        "retrieval_features": {"exact_id_match": True},
+                        "retrieval_ranks": {},
+                    },
+                }
+            )
+    missing = sorted(set(plan.exact_ids) - found)
+    trace.update(
+        retrieval_mode="exact_id",
+        reranker="none",
+        retrieval_channels=["primary_playbook_id"],
+        selected_count=len(selected),
+        context_chars=used,
+        missing_exact_ids=missing,
+        latency_ms=round((perf_counter() - start) * 1000, 3),
+    )
+    limitations = (
+        ["요청한 절차 ID의 원문 근거를 제공하지 못했습니다: " + ", ".join(missing)]
+        if missing
+        else []
+    )
+    return SearchResult(selected, trace, limitations)

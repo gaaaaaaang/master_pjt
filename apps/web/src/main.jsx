@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-const API_BASE = "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
 
 function App() {
   const [cases, setCases] = useState([]);
@@ -20,7 +20,6 @@ function App() {
       const response = await fetch(`${API_BASE}/agent-trace/samples`);
       const body = await response.json();
       setCases(body.cases);
-      runBatch(body.cases);
     }
     loadSamples().catch((reason) => setError(String(reason)));
   }, []);
@@ -74,7 +73,7 @@ function App() {
           if (payload.type === "run_completed") {
             const finalTrace = {
               ...payload.data,
-              label: "Live Text2SQL + visualization",
+              label: payload.data.query_type,
               message: customMessage,
               passed: payload.data.status === "succeeded",
             };
@@ -221,8 +220,11 @@ function App() {
                 <section>
                   <h3>Evidence and limits</h3>
                   {activeTrace.evidence.map((item) => (
-                    <article className="evidence" key={`${item.source_type}-${item.title}`}>
-                      <strong>{item.title}</strong>
+                    <article className="evidence" key={item.metadata?.chunk_id || `${item.source_type}-${item.title}`}>
+                      <details>
+                        <summary>{item.title}</summary>
+                        <p className="source-content">{item.content}</p>
+                      </details>
                       <small>{item.source_type}</small>
                     </article>
                   ))}
@@ -237,6 +239,26 @@ function App() {
               <section className="answer-box">
                 <h3>Answer</h3>
                 <p>{activeTrace.answer}</p>
+                {Boolean(activeTrace.citations?.length) && (
+                  <section className="citations" aria-label="답변의 원문 인용">
+                    <h4>인용 원문 확인</h4>
+                    {activeTrace.citations.map((citation) => (
+                      <details key={`${citation.number}-${citation.chunk_id}`}>
+                        <summary>
+                          [{citation.number}] {citation.source_document}
+                          {citation.page_number != null && ` · p.${citation.page_number}`}
+                        </summary>
+                        <blockquote>{citation.quote}</blockquote>
+                      </details>
+                    ))}
+                  </section>
+                )}
+                {activeTrace.model_usage && (
+                  <p className="usage-summary">
+                    모델 호출 {activeTrace.model_usage.call_count}회 · API 보고 토큰 {activeTrace.model_usage.reported_total_tokens.toLocaleString()}
+                    {activeTrace.model_usage.unreported_usage_calls > 0 && ` · 사용량 미보고 ${activeTrace.model_usage.unreported_usage_calls}회`}
+                  </p>
+                )}
                 {activeTrace.sql && <pre>{activeTrace.sql}</pre>}
                 {activeTrace.chart && <LineChart spec={activeTrace.chart} />}
               </section>

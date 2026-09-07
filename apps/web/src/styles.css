@@ -430,6 +430,48 @@ pre {
   padding: 12px;
 }
 
+.citations details {
+  border-top: 1px solid #dce5df;
+  padding: 10px 0;
+}
+
+.answer-box > p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.citations summary {
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  color: #26765b;
+}
+
+.citations blockquote {
+  margin: 12px 0 0;
+  border-left: 3px solid #8dad9a;
+  padding: 8px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f3f7f4;
+}
+
+.usage-summary {
+  color: #65716c;
+  font-size: 0.82rem;
+}
+
+.evidence summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.source-content {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 24rem;
+  overflow-y: auto;
+}
+
 .error {
   background: #fff0ed;
   border: 1px solid #e2afa6;

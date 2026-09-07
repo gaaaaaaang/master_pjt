@@ -20,6 +20,7 @@ class Evidence(BaseModel):
 
 class ChatResponse(BaseModel):
     conversation_id: str
+    status: str = "succeeded"
     query_type: str
     answer: str
     evidence: list[Evidence] = Field(default_factory=list)
@@ -27,4 +28,6 @@ class ChatResponse(BaseModel):
     chart: dict[str, Any] | None = None
     confidence: float | None = None
     limitations: list[str] = Field(default_factory=list)
-
+    citations: list[dict[str, Any]] = Field(default_factory=list)
+    grounding: dict[str, Any] = Field(default_factory=dict)
+    model_usage: dict[str, Any] = Field(default_factory=dict)

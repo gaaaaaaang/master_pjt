@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from functools import wraps
 from typing import Any, TypedDict
 from uuid import uuid4
 
@@ -9,12 +10,13 @@ from langgraph.graph import END, START, StateGraph
 from app.agents.llm_nodes import compose_with_llm, reflect_with_llm
 from app.agents.planner import PlannerDecision, create_plan
 from app.agents.supervisor import review_plan
+from app.agents.usage import UsageLedger, usage_scope
 from app.config import get_settings
-from app.rag.query import analyze_query
+from app.rag.query import QueryScopeError, analyze_query
 from app.schemas.chat import ChatRequest
 from app.sub_agent.case_search import find_similar_cases
 from app.sub_agent.impact import estimate_output_delta
-from app.sub_agent.rag import INCIDENT_PLAYBOOK, retrieve_knowledge
+from app.sub_agent.rag import INCIDENT_PLAYBOOK, retrieve_evidence
 from app.sub_agent.text2sql import QueryType, Text2SQLResult, answer_question
 from app.sub_agent.visualization import build_chart_spec
 
@@ -35,6 +37,10 @@ class AgentState(TypedDict, total=False):
     chart: dict[str, Any] | None
     confidence: float | None
     reflection: dict[str, Any]
+    grounding: dict[str, Any]
+    citations: list[dict[str, Any]]
+    usage_ledger: UsageLedger
+    model_usage: dict[str, Any]
     stream_event: dict[str, Any]
 
 
@@ -78,7 +84,7 @@ def _planner_node(state: AgentState) -> dict[str, Any]:
 def _supervisor_node(state: AgentState) -> dict[str, Any]:
     request = state["request"]
     plan, decision = review_plan(state["plan"], request.message)
-    halted = plan.status != "ready"
+    halted = not decision["proceed"] or plan.status != "ready"
     answer = ""
     if plan.status == "needs_clarification":
         answer = plan.clarification_question or "추가 정보가 필요합니다."
@@ -86,8 +92,12 @@ def _supervisor_node(state: AgentState) -> dict[str, Any]:
         answer = plan.limitations[0] if plan.limitations else "필요한 데이터가 없습니다."
     elif plan.status == "unsupported":
         answer = "현재 지원 범위 밖의 질문입니다."
+    if halted and decision.get("answer"):
+        answer = decision["answer"]
     return {
         "plan": plan,
+        "status": plan.status,
+        "limitations": list(dict.fromkeys([*state.get("limitations", []), *plan.limitations])),
         "halted": halted,
         "answer": answer,
         "stream_event": {
@@ -181,12 +191,21 @@ def _rag_node(state: AgentState) -> dict[str, Any]:
     evidence = list(state.get("evidence", []))
     limitations = list(state.get("limitations", []))
     items = []
+    trace = {}
+    knowledge_base = state["plan"].rag_knowledge_base
     try:
-        knowledge_base = state["plan"].rag_knowledge_base
         understood = analyze_query(request.message)
         if len(understood.knowledge_bases) > 1:
             knowledge_base = None
-        items = retrieve_knowledge(request.message, knowledge_base=knowledge_base)
+        result = retrieve_evidence(
+            request.message, knowledge_base=knowledge_base, fab_id=request.fab
+        )
+        items, trace = result.evidence, result.trace
+        limitations.extend(item for item in result.limitations if item not in limitations)
+    except QueryScopeError as exc:
+        status = "needs_clarification"
+        summary = str(exc)
+        limitations.append(summary)
     except NotImplementedError as exc:
         status = "data_unavailable"
         summary = str(exc)
@@ -222,19 +241,27 @@ def _rag_node(state: AgentState) -> dict[str, Any]:
             if limitation not in limitations:
                 limitations.append(limitation)
     overall_status = state.get("status", "ready")
-    if state["plan"].selected_sub_agents == ["rag"] and status in {"data_unavailable", "failed"}:
+    if state["plan"].selected_sub_agents == ["rag"] and status in {
+        "data_unavailable",
+        "failed",
+        "needs_clarification",
+    }:
+        overall_status = status
+    if status == "needs_clarification":
         overall_status = status
     run = {
         "agent": "rag",
         "status": status,
         "summary": summary,
         "metadata": {
-            "knowledge_base": state["plan"].rag_knowledge_base,
-            "retrieval_trace": items[0].metadata.get("retrieval_trace", {}) if items else {},
+            "knowledge_base": knowledge_base,
+            "retrieval_trace": trace,
         },
     }
     return {
         "status": overall_status,
+        "halted": status == "needs_clarification",
+        "answer": summary if status == "needs_clarification" else state.get("answer", ""),
         "evidence": evidence,
         "limitations": limitations,
         "agent_runs": [*state.get("agent_runs", []), run],
@@ -247,7 +274,12 @@ def _rag_node(state: AgentState) -> dict[str, Any]:
             "type": "tool_completed",
             "node": "rag",
             "message": summary,
-            "data": {"status": status, "knowledge_base": state["plan"].rag_knowledge_base},
+            "data": {
+                "status": status,
+                "knowledge_base": knowledge_base,
+                "retrieval_trace": trace,
+                "evidence_count": len(items),
+            },
         },
     }
 
@@ -343,7 +375,14 @@ def _visualization_node(state: AgentState) -> dict[str, Any]:
 
 
 def _composer_node(state: AgentState) -> dict[str, Any]:
+    # A stopped plan has an explicit answer and no tool results to compose.
+    if state.get("halted") and (
+        not state.get("agent_runs")
+        or (state.get("status") == "needs_clarification" and state.get("answer"))
+    ):
+        return {"stream_event": None}
     request = state["request"]
+    grounding: dict[str, Any] = {}
     answer = compose_with_llm(
         question=request.message,
         plan=state["plan"],
@@ -351,19 +390,34 @@ def _composer_node(state: AgentState) -> dict[str, Any]:
         evidence=state.get("evidence", []),
         limitations=state.get("limitations", []),
         reflection=state.get("reflection", {}),
+        grounding=grounding,
     )
     status = state.get("status", "succeeded")
     if status == "ready":
         status = "succeeded"
+    limitations = list(state.get("limitations", []))
+    if grounding.get("status") == "insufficient":
+        status = (
+            "failed"
+            if status == "failed" or grounding.get("validation") == "rejected"
+            else "data_unavailable"
+        )
+        limitations.append(answer)
+    elif grounding.get("status") == "partial":
+        limitations.append("질문의 일부 항목은 문서 근거가 부족하여 확정할 수 없습니다.")
     return {
         "answer": answer,
         "status": status,
+        "grounding": grounding,
+        "citations": grounding.get("citations", []),
+        "limitations": list(dict.fromkeys(limitations)),
         "stream_event": {
             "type": "node_completed",
             "node": "composer",
             "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
             "data": {
                 "answer": answer,
+                "grounding": grounding,
                 "execution_mode": "llm_chat_completions",
                 "model": get_settings().openai_model,
             },
@@ -372,6 +426,19 @@ def _composer_node(state: AgentState) -> dict[str, Any]:
 
 
 def _reflection_node(state: AgentState) -> dict[str, Any]:
+    if state.get("halted") and (
+        not state.get("agent_runs")
+        or (state.get("status") == "needs_clarification" and state.get("answer"))
+    ):
+        return {"stream_event": None}
+    if state["plan"].query_type == "knowledge_lookup" or state["plan"].selected_sub_agents == [
+        "rag"
+    ]:
+        # Grounded Composer verifies actual claims after generation, not a pre-answer summary.
+        return {
+            "reflection": {"execution_mode": "post_generation_grounded_review"},
+            "stream_event": None,
+        }
     limitations = list(dict.fromkeys(state.get("limitations", [])))
     reflection = reflect_with_llm(
         question=state["request"].message,
@@ -430,17 +497,34 @@ def _rag_answer_parts(items) -> list[str]:
     return parts
 
 
+def _tracked_node(function):
+    @wraps(function)
+    def run(state):
+        ledger = state.get("usage_ledger")
+        if ledger is None:
+            return function(state)
+        with usage_scope(ledger):
+            patch = function(state)
+        snapshot = ledger.snapshot()
+        patch["model_usage"] = snapshot
+        if patch.get("stream_event"):
+            patch["stream_event"].setdefault("data", {})["model_usage"] = snapshot
+        return patch
+
+    return run
+
+
 def build_agent_graph():
     builder = StateGraph(AgentState)
-    builder.add_node("planner", _planner_node)
-    builder.add_node("supervisor", _supervisor_node)
-    builder.add_node("text2sql", _text2sql_node)
-    builder.add_node("rag", _rag_node)
-    builder.add_node("case_search", _case_search_node)
-    builder.add_node("impact", _impact_node)
-    builder.add_node("visualization", _visualization_node)
-    builder.add_node("composer", _composer_node)
-    builder.add_node("reflection", _reflection_node)
+    builder.add_node("planner", _tracked_node(_planner_node))
+    builder.add_node("supervisor", _tracked_node(_supervisor_node))
+    builder.add_node("text2sql", _tracked_node(_text2sql_node))
+    builder.add_node("rag", _tracked_node(_rag_node))
+    builder.add_node("case_search", _tracked_node(_case_search_node))
+    builder.add_node("impact", _tracked_node(_impact_node))
+    builder.add_node("visualization", _tracked_node(_visualization_node))
+    builder.add_node("composer", _tracked_node(_composer_node))
+    builder.add_node("reflection", _tracked_node(_reflection_node))
     builder.add_edge(START, "planner")
     builder.add_edge("planner", "supervisor")
     builder.add_edge("supervisor", "text2sql")
@@ -464,4 +548,5 @@ def initial_graph_state(request: ChatRequest) -> AgentState:
         "limitations": [],
         "evidence": [],
         "agent_runs": [],
+        "usage_ledger": UsageLedger(),
     }

@@ -5,6 +5,7 @@ from typing import Any
 
 from app.agents.llm import AzureAgentClient
 from app.agents.planner import PlannerDecision
+from app.rag.grounding import compose_grounded
 from app.sub_agent.reflection import verify_response
 
 REFLECTION_SCHEMA = {
@@ -26,6 +27,37 @@ COMPOSER_SCHEMA = {
 }
 
 
+def compact_evidence(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Do not send debug traces or the Planner's own instructions back as evidence."""
+    fields = (
+        "chunk_id",
+        "source_document",
+        "page_number",
+        "section_title",
+        "reliability",
+        "knowledge_base",
+    )
+    return [
+        {
+            **item,
+            "metadata": {
+                key: item.get("metadata", {})[key]
+                for key in fields
+                if key in item.get("metadata", {})
+            },
+        }
+        if item.get("source_type") == "rag_chunk"
+        else item
+        for item in evidence
+        if item.get("source_type") != "planner_plan"
+    ]
+
+
+def compact_summaries(parts: list[str]) -> list[str]:
+    # Full RAG text is already present once in evidence.
+    return list(dict.fromkeys(part for part in parts if part and not part.startswith("RAG(")))
+
+
 def reflect_with_llm(
     *,
     question: str,
@@ -34,7 +66,7 @@ def reflect_with_llm(
     evidence: list[dict[str, Any]],
     limitations: list[str],
 ) -> dict[str, Any]:
-    draft = "\n\n".join(dict.fromkeys(answer_parts))
+    draft = "\n\n".join(compact_summaries(answer_parts))
     deterministic = verify_response(
         draft,
         evidence=evidence,
@@ -54,7 +86,7 @@ def reflect_with_llm(
             "question": question,
             "query_type": query_type,
             "draft_tool_summary": draft,
-            "evidence": evidence,
+            "evidence": compact_evidence(evidence),
             "limitations": limitations,
             "deterministic_safety_check": deterministic,
         },
@@ -75,7 +107,19 @@ def compose_with_llm(
     evidence: list[dict[str, Any]],
     limitations: list[str],
     reflection: dict[str, Any],
+    grounding: dict[str, Any] | None = None,
 ) -> str:
+    if plan.query_type == "knowledge_lookup" or plan.selected_sub_agents == ["rag"]:
+        result = compose_grounded(question, evidence)
+        if grounding is not None:
+            grounding.update(
+                status=result.status,
+                validation=result.validation,
+                citations=result.citations,
+                review=result.review,
+                version=result.version,
+            )
+        return result.answer
     output = AzureAgentClient().complete_json(
         system_prompt=(
             "You are the final answer Composer for a semiconductor FAB assistant. Answer in the "
@@ -97,9 +141,13 @@ def compose_with_llm(
         ),
         input_data={
             "question": question,
-            "plan": asdict(plan),
-            "tool_summaries": answer_parts,
-            "evidence": evidence,
+            "plan": {
+                key: value
+                for key, value in asdict(plan).items()
+                if key not in {"prompt_contract", "prompt_version"}
+            },
+            "tool_summaries": compact_summaries(answer_parts),
+            "evidence": compact_evidence(evidence),
             "limitations": limitations,
             "reflection": reflection,
         },

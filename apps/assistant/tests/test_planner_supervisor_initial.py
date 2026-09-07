@@ -4,7 +4,7 @@ from app.agents.planner import create_plan
 from app.agents.supervisor import Supervisor, review_plan
 from app.config import get_settings
 from app.schemas.chat import ChatRequest, Evidence
-from app.sub_agent.rag import PROCESS_BASICS
+from app.sub_agent.rag import PROCESS_BASICS, EvidenceResult
 from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
 
 
@@ -186,15 +186,23 @@ def test_supervisor_diagnosis_exposes_placeholder_limitations(monkeypatch, tmp_p
 
 def test_supervisor_process_basics_runs_rag_without_text2sql(monkeypatch) -> None:
     monkeypatch.setattr(
-        "app.agents.graph.retrieve_knowledge",
-        lambda *args, **kwargs: [
-            Evidence(
-                source_type="rag_chunk",
-                title="CMP 기본",
-                content="CMP는 wafer 표면을 평탄화하는 공정입니다.",
-                metadata={"knowledge_base": PROCESS_BASICS, "score": 0.91},
-            )
-        ],
+        "app.agents.graph.retrieve_evidence",
+        lambda *args, **kwargs: EvidenceResult(
+            [
+                Evidence(
+                    source_type="rag_chunk",
+                    title="CMP 기본",
+                    content="CMP는 wafer 표면을 평탄화하는 공정입니다.",
+                    metadata={
+                        "knowledge_base": PROCESS_BASICS,
+                        "score": 0.91,
+                        "chunk_id": "test-cmp",
+                    },
+                )
+            ],
+            {},
+            [],
+        ),
     )
 
     result = Supervisor().run(ChatRequest(message="CMP 공정이 뭐야?"))
@@ -208,15 +216,19 @@ def test_supervisor_process_basics_runs_rag_without_text2sql(monkeypatch) -> Non
 
 def test_supervisor_diagnosis_continues_to_rag_when_text2sql_fails(monkeypatch) -> None:
     monkeypatch.setattr(
-        "app.agents.graph.retrieve_knowledge",
-        lambda *args, **kwargs: [
-            Evidence(
-                source_type="rag_chunk",
-                title="Queue Time 대응",
-                content="Queue Time 증가는 병목 설비와 WIP 증가를 함께 검토합니다.",
-                metadata={"knowledge_base": "incident_playbook", "score": 0.88},
-            )
-        ],
+        "app.agents.graph.retrieve_evidence",
+        lambda *args, **kwargs: EvidenceResult(
+            [
+                Evidence(
+                    source_type="rag_chunk",
+                    title="Queue Time 대응",
+                    content="Queue Time 증가는 병목 설비와 WIP 증가를 함께 검토합니다.",
+                    metadata={"knowledge_base": "incident_playbook", "score": 0.88},
+                )
+            ],
+            {},
+            [],
+        ),
     )
 
     result = Supervisor().run(ChatRequest(message="왜 fab10 Queue Time이 늘었어?"))
@@ -228,7 +240,9 @@ def test_supervisor_diagnosis_continues_to_rag_when_text2sql_fails(monkeypatch) 
 
 
 def test_rag_empty_result_is_not_reported_as_success(monkeypatch) -> None:
-    monkeypatch.setattr("app.agents.graph.retrieve_knowledge", lambda *args, **kwargs: [])
+    monkeypatch.setattr(
+        "app.agents.graph.retrieve_evidence", lambda *args, **kwargs: EvidenceResult([], {}, [])
+    )
     result = Supervisor().run(ChatRequest(message="CMP 공정이 뭐야?"))
     assert result.status == "data_unavailable"
     assert any(run.agent == "rag" and run.status == "data_unavailable" for run in result.agent_runs)
@@ -237,19 +251,23 @@ def test_rag_empty_result_is_not_reported_as_success(monkeypatch) -> None:
 
 def test_rag_simulation_provenance_reaches_answer_limitations(monkeypatch) -> None:
     monkeypatch.setattr(
-        "app.agents.graph.retrieve_knowledge",
-        lambda *args, **kwargs: [
-            Evidence(
-                source_type="rag_chunk",
-                title="시뮬레이션 자료",
-                content="교육 목적 내용",
-                metadata={
-                    "knowledge_base": PROCESS_BASICS,
-                    "score": 1,
-                    "reliability": "simulation_reference",
-                },
-            )
-        ],
+        "app.agents.graph.retrieve_evidence",
+        lambda *args, **kwargs: EvidenceResult(
+            [
+                Evidence(
+                    source_type="rag_chunk",
+                    title="시뮬레이션 자료",
+                    content="교육 목적 내용",
+                    metadata={
+                        "knowledge_base": PROCESS_BASICS,
+                        "score": 1,
+                        "reliability": "simulation_reference",
+                    },
+                )
+            ],
+            {},
+            [],
+        ),
     )
     result = Supervisor().run(ChatRequest(message="CMP 공정이 뭐야?"))
     assert any("실제 사내 SOP가 아닙니다" in item for item in result.limitations)
@@ -259,7 +277,7 @@ def test_corrupt_rag_corpus_marks_overall_request_failed(monkeypatch):
     def invalid(*args, **kwargs):
         raise ValueError("invalid corpus")
 
-    monkeypatch.setattr("app.agents.graph.retrieve_knowledge", invalid)
+    monkeypatch.setattr("app.agents.graph.retrieve_evidence", invalid)
     result = Supervisor().run(ChatRequest(message="CMP 공정이 뭐야?"))
     assert result.status == "failed"
     assert any(run.agent == "rag" and run.status == "failed" for run in result.agent_runs)

@@ -34,9 +34,7 @@ SUPERVISOR_OUTPUT_SCHEMA = {
         "answer": {"type": ["string", "null"]},
         "limitations": {"type": "array", "items": {"type": "string"}},
     },
-    "required": [
-        "proceed", "status", "selected_sub_agents", "reason", "answer", "limitations"
-    ],
+    "required": ["proceed", "status", "selected_sub_agents", "reason", "answer", "limitations"],
 }
 
 
@@ -62,6 +60,9 @@ class SupervisorResult:
     plan: PlannerDecision | None = None
     agent_runs: list[AgentRun] = field(default_factory=list)
     reflection: dict[str, Any] = field(default_factory=dict)
+    citations: list[dict[str, Any]] = field(default_factory=list)
+    grounding: dict[str, Any] = field(default_factory=dict)
+    model_usage: dict[str, Any] = field(default_factory=dict)
     prompt_version: str = SUPERVISOR_PROMPT_VERSION
     prompt_contract: str = SUPERVISOR_SYSTEM_PROMPT
 
@@ -75,11 +76,32 @@ def review_plan(
     """Review and authorize a Planner plan with an independent LLM call."""
     output = (llm_client or AzureAgentClient()).complete_json(
         system_prompt=SUPERVISOR_SYSTEM_PROMPT,
-        input_data={"question": question, "planner_decision": asdict(plan)},
+        input_data={
+            "question": question,
+            "planner_decision": {
+                key: value
+                for key, value in asdict(plan).items()
+                if key not in {"prompt_contract", "prompt_version"}
+            },
+        },
         output_schema=SUPERVISOR_OUTPUT_SCHEMA,
         schema_name="fab_supervisor_decision",
     )
     selected = list(output["selected_sub_agents"])
+    # Reject contradictory authorization instead of treating status=ready as approval.
+    if not output["proceed"] and output["status"] == "ready":
+        output = {
+            **output,
+            "status": "unsupported",
+            "selected_sub_agents": [],
+            "answer": output.get("answer")
+            or "실행 계획이 승인되지 않아 조회를 진행하지 않았습니다.",
+            "limitations": [
+                *output["limitations"],
+                "Supervisor 실행 승인과 상태가 일치하지 않습니다.",
+            ],
+        }
+        selected = []
     selected_set = set(selected)
     reviewed = replace(
         plan,
@@ -116,4 +138,7 @@ class Supervisor:
             plan=plan,
             agent_runs=[AgentRun(**run) for run in state.get("agent_runs", [])],
             reflection=state.get("reflection", {}),
+            citations=state.get("citations", []),
+            grounding=state.get("grounding", {}),
+            model_usage=state.get("model_usage", {}),
         )

@@ -64,7 +64,7 @@ def evaluate(cases, *, store_path, top_k=3, retrieve_fn=retrieve_knowledge):
         relevant_ids = {
             c["chunk_id"]
             for c in corpus
-            if c["knowledge_base"] == case["knowledge_base"]
+            if (case["knowledge_base"] is None or c["knowledge_base"] == case["knowledge_base"])
             and covered_units(c["content"], expected)
         }
         gains = []

@@ -91,3 +91,35 @@ reliability, retrieval_features, retrieval_ranks, retrieval_trace, retrieval_lim
 로컬 feature 검색만 사용하려면 VECTOR_DB_URL을 비우고 RAG_RERANKER=feature로 설정한다.
 기존 corpus 비교는 RAG_LOCAL_STORE_PATH 또는 평가 CLI --store-path로 선택한다.
 구 코드 복귀는 이 브랜치의 변경 commit을 확인하고 별도 검증한 뒤 revert한다.
+
+## 추가 고도화: 원문 인용과 실제 chat 검증
+
+문서 전용 응답은 source_spans.v2를 사용한다. 모델은 원문 span ID를 선택하며 서버가 인용문,
+문서명, 페이지를 복원한다. 존재하지 않는 ID/인용/새 숫자는 거절한다. 생성 후 별도 모델 호출로
+각 주장과 조건·역할·불확실성 보존을 검토한다. 인용 존재 검증은 결정적 검사이지만 의미 검토는
+동일 모델 기반으로, 독립 전문가의 정답 보증이 아니다. 검증 실패는 failed, 근거 없음은
+ data_unavailable, 일부 항목 부족은 grounding.status=partial과 limitations로 전달한다.
+
+`/api/chat` 및 SSE final은 status, citations, grounding, model_usage를 반환한다. citations에는
+number/chunk_id/quote/source_document/page_number가 있다. UI에서 선택한 인용문과 전체 근거를
+펼쳐 볼 수 있다. 페이지를 여는 것만으로 유료 sample batch를 실행하지 않는다.
+model_usage는 실제 호출별 공급자 보고 토큰/지연/실패를 담는다. 미보고 사용량은 0으로 간주하지
+않고 unreported_usage_calls로 표시하며 가격 환산은 하지 않는다.
+
+순수 PB ID는 primary ID 조회로 embedding/rerank 호출을 생략한다. 복합 KB의 동일 질문 embedding은
+요청 안에서만 재사용한다. ChatRequest.fab은 문서 FAB 범위를 제한하며 문장과 충돌하면 확인을
+요청한다. 현재 Milvus 후보 검색 뒤에도 로컬 canonical metadata 필터를 적용하므로, 대규모
+FAB별 corpus에서는 서버측 필터와 후보 재현율을 추가 검증해야 한다.
+
+```sh
+python apps/assistant/scripts/evaluate_rag_chat_live.py --live --env-file .env --output /tmp/rag_chat_live.json
+python apps/assistant/scripts/evaluate_rag_chat_live.py --live --env-file .env --mode chat --case-id ext_hold_deadline --output /tmp/rag_chat_http.json
+python apps/assistant/scripts/serve_rag_validation.py --env-file .env --port 8007
+# 다른 터미널에서 기존 PM/EUV 두 문항의 실제 TCP HTTP/SSE 확인
+python apps/assistant/scripts/check_rag_http_live.py --live --output /tmp/rag_tcp.json
+```
+
+위 검증 스크립트는 현재 명시 승인된 skax.ai-talentlab.com 또는 루프백 목적지로 제한한다.
+다른 목적지나 추가 전송 범위는 별도 확인이 필요하다. 추가 실행 기록과 실제 검증 범위는
+`docs/rag_extension_20260908.md`를 참조한다. SSE timeout/cancellation 이후 후속 node는 중단하지만
+이미 전송된 동기 HTTP 요청을 강제로 취소할 수 있다고 보장하지 않는다.

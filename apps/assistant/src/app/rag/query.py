@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import lru_cache
 
 # Versioned domain vocabulary: aliases describe terminology, never causal relations.
@@ -211,6 +211,24 @@ class QueryPlan:
     require_verified: bool = False
 
 
+class QueryScopeError(ValueError):
+    """The structured FAB scope conflicts with the user's stated document scope."""
+
+
+def apply_fab_scope(plan: QueryPlan, fab_id: str | None) -> QueryPlan:
+    if fab_id is None:
+        return plan
+    match = re.fullmatch(r"(?:fab|m|팹)\s*[-_]?\s*(\d+)", fab_id.strip(), re.IGNORECASE)
+    if not match:
+        raise QueryScopeError("검색할 FAB을 fab10과 같은 형식으로 지정해 주세요.")
+    selected = "fab" + match.group(1)
+    if plan.fab_ids and set(plan.fab_ids) != {selected}:
+        raise QueryScopeError(
+            "선택한 FAB과 질문에 적힌 FAB 범위가 다릅니다. 검색할 FAB을 확인해 주세요."
+        )
+    return replace(plan, fab_ids=(selected,))
+
+
 def analyze_query(query: str, knowledge_base: str | None = None) -> QueryPlan:
     if knowledge_base is not None and knowledge_base not in {"process_basics", "incident_playbook"}:
         raise ValueError("Unknown RAG knowledge_base.")
@@ -222,9 +240,27 @@ def analyze_query(query: str, knowledge_base: str | None = None) -> QueryPlan:
         positive = positive.replace(clause, " ", 1)
     active = concepts(positive)
     excluded -= active
-    exact_ids = tuple(dict.fromkeys(re.findall(r"\bPB-[A-Z]+-\d+\b", query.upper())))
+    exact_ids = tuple(dict.fromkeys(re.findall(r"\bPB-[A-Z]+-\d+\b", positive.upper())))
+    named_model_reference = bool(
+        re.search(
+            r"(?<![a-z0-9])(?:SMT\s*2020|AutoSched|CURSTEP|CALTYPE)(?![a-z0-9])",
+            positive,
+            re.IGNORECASE,
+        )
+    )
+    named_manual_intent = bool(
+        re.search(
+            r"대응|조치|승인|돌발|(?<![a-z])playbook(?![a-z])|(?<![a-z])lot\s+hold(?![a-z])",
+            positive,
+            re.IGNORECASE,
+        )
+    )
     if knowledge_base:
         bases = (knowledge_base,)
+    elif named_model_reference:
+        bases = ("process_basics",)
+        if named_manual_intent and (active & INCIDENT_CONCEPTS or exact_ids):
+            bases = ("incident_playbook", "process_basics")
     elif (
         exact_ids or active & INCIDENT_CONCEPTS or any(w in query for w in ("대응", "조치", "위기"))
     ):
@@ -237,7 +273,7 @@ def analyze_query(query: str, knowledge_base: str | None = None) -> QueryPlan:
         dict.fromkeys(
             "fab" + match.group(1)
             for match in re.finditer(
-                r"(?i)(?<![a-z0-9])(?:fab|m|팹)\s*[-_]?\s*(\d+)(?![0-9a-z])", query
+                r"(?i)(?<![a-z0-9])(?:fab|m|팹)\s*[-_]?\s*(\d+)(?![0-9a-z])", positive
             )
         )
     )
@@ -258,7 +294,7 @@ def analyze_query(query: str, knowledge_base: str | None = None) -> QueryPlan:
         bool(
             re.search(
                 r"(?:실제|사내|승인된|검증된).{0,20}(?:SOP|절차서|운영 매뉴얼)|(?:verified|approved)\s+SOP",
-                query,
+                positive,
                 re.IGNORECASE,
             )
         ),

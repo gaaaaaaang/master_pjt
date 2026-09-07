@@ -1,4 +1,4 @@
-PLANNER_PROMPT_VERSION = "planner.v1"
+PLANNER_PROMPT_VERSION = "planner.v2"
 SUPERVISOR_PROMPT_VERSION = "supervisor.v1"
 
 PLANNER_SYSTEM_PROMPT = """
@@ -23,7 +23,14 @@ Policy:
 - Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and
   numeric evidence gathering.
 - Use RAG for process knowledge and diagnosis support.
-- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.
+- Use knowledge_lookup with RAG for concepts, document facts, manual procedures, approval
+  conditions and comparisons of policies. Manual guidance, including hypothetical incidents,
+  does not require a FAB or a database query. It is not a request to execute production actions.
+- Use diagnosis only when the user asks about causes of an actual observed factory situation,
+  not when comparing documented Hold/Release rules. Select the minimum evidence tools needed.
+- For a specific document fact or approved parameter lookup, first try RAG rather than asking
+  for unrequested FAB, lot, supplier or recipe details. Retrieval determines whether the fact
+  exists in the available documents. Missing evidence is not ambiguity in the user's intent.
 - For RAG, choose incident_playbook for response/manual/incident guidance and
   process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.
 - Use Impact only for impact calculation questions.
