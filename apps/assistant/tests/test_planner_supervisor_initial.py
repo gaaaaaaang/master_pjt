@@ -120,7 +120,9 @@ def test_supervisor_status_stops_on_data_unavailable(monkeypatch) -> None:
             status="data_unavailable",
             query_type="status",
             answer="AutoSched report 적재 후 활성화해야 합니다.",
-            limitations=["현재 PostgreSQL에는 AutoSched report table(autosched_*)이 적재되어 있지 않습니다."],
+            limitations=[
+                "현재 PostgreSQL에는 AutoSched report table(autosched_*)이 적재되어 있지 않습니다."
+            ],
             plan=QueryPlan(
                 query_type="status",
                 template_id=None,
@@ -148,7 +150,9 @@ def test_supervisor_master_lookup_returns_planner_and_text2sql_evidence(monkeypa
             answer="LLM이 read-only SQL을 생성했습니다.",
             sql="SELECT area, toolgroup FROM fab10.toolgroups ORDER BY area, toolgroup LIMIT 50",
             confidence=0.82,
-            limitations=["현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다."],
+            limitations=[
+                "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다."
+            ],
             plan=QueryPlan(
                 query_type="master_data_lookup",
                 template_id=None,
@@ -221,3 +225,31 @@ def test_supervisor_diagnosis_continues_to_rag_when_text2sql_fails(monkeypatch) 
     assert [run.agent for run in result.agent_runs] == ["text2sql", "rag", "case_search"]
     assert any(run.agent == "rag" and run.status == "succeeded" for run in result.agent_runs)
     assert any("실제 원인을 확정할 수 없" in item for item in result.limitations)
+
+
+def test_rag_empty_result_is_not_reported_as_success(monkeypatch) -> None:
+    monkeypatch.setattr("app.agents.graph.retrieve_knowledge", lambda *args, **kwargs: [])
+    result = Supervisor().run(ChatRequest(message="CMP 공정이 뭐야?"))
+    assert result.status == "data_unavailable"
+    assert any(run.agent == "rag" and run.status == "data_unavailable" for run in result.agent_runs)
+    assert any("근거를 찾지 못" in item for item in result.limitations)
+
+
+def test_rag_simulation_provenance_reaches_answer_limitations(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "app.agents.graph.retrieve_knowledge",
+        lambda *args, **kwargs: [
+            Evidence(
+                source_type="rag_chunk",
+                title="시뮬레이션 자료",
+                content="교육 목적 내용",
+                metadata={
+                    "knowledge_base": PROCESS_BASICS,
+                    "score": 1,
+                    "reliability": "simulation_reference",
+                },
+            )
+        ],
+    )
+    result = Supervisor().run(ChatRequest(message="CMP 공정이 뭐야?"))
+    assert any("실제 사내 SOP가 아닙니다" in item for item in result.limitations)

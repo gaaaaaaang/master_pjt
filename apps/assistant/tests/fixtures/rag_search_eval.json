@@ -1,0 +1,277 @@
+[
+  {
+    "id": "equipment",
+    "query": "설비 고장이 발생했을 때 초기 대응 절차는?",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-EQ-001"
+    ],
+    "split": "holdout",
+    "requires_all": false
+  },
+  {
+    "id": "equipment_en",
+    "query": "equipment breakdown containment procedure",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-EQ-001"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "pm",
+    "query": "예방정비 일정이 지연되었을 때 어떻게 대응해?",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-EQ-002"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "bottleneck",
+    "query": "병목 공정에 WIP가 쌓이고 대기시간이 늘었어",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-BN-001"
+    ],
+    "split": "holdout",
+    "requires_all": false
+  },
+  {
+    "id": "upstream",
+    "query": "병목의 전후 공정 영향은 어떻게 확인해?",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-BN-002"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "yield",
+    "query": "수율이 저하됐을 때 조사 순서와 담당자는?",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-YD-001"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "spc",
+    "query": "SPC 관리한계 이탈 알람에 어떻게 대응해?",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-QA-001"
+    ],
+    "split": "holdout",
+    "requires_all": false
+  },
+  {
+    "id": "hold",
+    "query": "Lot Hold 격리와 추적 절차 알려줘",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-HL-001"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "release",
+    "query": "보류된 로트를 해제하기 전에 확인할 조건은?",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-HL-002"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "material",
+    "query": "자재 부족으로 투입이 지연될 때 대처 방법",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-MT-001"
+    ],
+    "split": "holdout",
+    "requires_all": false
+  },
+  {
+    "id": "hot",
+    "query": "긴급 오더와 Hot Lot 우선순위 판단",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-HOT-001"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "qtime",
+    "query": "Queue Time limit 초과 위험 시 확인 항목",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-QT-001"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "dispatch",
+    "query": "Dispatching Rule Override 승인 절차",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-SC-001"
+    ],
+    "split": "holdout",
+    "requires_all": false
+  },
+  {
+    "id": "alternate",
+    "query": "대체 설비를 사용하기 전 확인할 내용",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-ALT-001"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "rca",
+    "query": "RCA 재발방지 분석은 어떤 순서로 해?",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-RCA-001"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "recovery",
+    "query": "Recovery Checklist 복구 완료 판단 기준",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-RCV-001"
+    ],
+    "split": "holdout",
+    "requires_all": false
+  },
+  {
+    "id": "communication",
+    "query": "상황 보고와 escalation 커뮤니케이션",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-COM-001"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "kb_update",
+    "query": "사건 대응 후 지식베이스 갱신 방법",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-KB-001"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "exact",
+    "query": "PB-QT-001",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-QT-001"
+    ],
+    "split": "holdout",
+    "requires_all": false
+  },
+  {
+    "id": "multi",
+    "query": "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-EQ-001",
+      "PB-HL-001"
+    ],
+    "split": "development",
+    "requires_all": true
+  },
+  {
+    "id": "batch",
+    "query": "AutoSched Batching BATCHMIN BATCHMAX 설정",
+    "knowledge_base": "process_basics",
+    "expected_markers": [
+      "BATCHMIN"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "rework",
+    "query": "AutoSched REWORK RWKSTEP RWKTYPE 설정",
+    "knowledge_base": "process_basics",
+    "expected_markers": [
+      "RWKSTEP"
+    ],
+    "split": "holdout",
+    "requires_all": false
+  },
+  {
+    "id": "transport",
+    "query": "fromto.txt transportation time 설정",
+    "knowledge_base": "process_basics",
+    "expected_markers": [
+      "fromto.txt"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "setup",
+    "query": "setupgrp.txt setup.txt 설정 방법",
+    "knowledge_base": "process_basics",
+    "expected_markers": [
+      "setupgrp.txt"
+    ],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "release_model",
+    "query": "order.txt lot release DUE REPEAT 설정",
+    "knowledge_base": "process_basics",
+    "expected_markers": [
+      "order.txt"
+    ],
+    "split": "holdout",
+    "requires_all": false
+  },
+  {
+    "id": "unknown_weather",
+    "query": "내일 서울 날씨와 우산 추천",
+    "knowledge_base": "process_basics",
+    "expected_markers": [],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "unknown_recipe",
+    "query": "최신 EUV 레지스트의 최적 노광량 숫자를 알려줘",
+    "knowledge_base": "process_basics",
+    "expected_markers": [],
+    "split": "development",
+    "requires_all": false
+  },
+  {
+    "id": "unknown_sport",
+    "query": "야구 경기 결과와 선수 순위",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [],
+    "split": "holdout",
+    "requires_all": false
+  }
+]

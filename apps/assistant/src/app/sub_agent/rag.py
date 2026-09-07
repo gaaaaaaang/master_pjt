@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-import json
-import math
-import re
 from pathlib import Path
 from typing import Any
 
 from app.config import get_settings
+from app.rag.ingest import load_chunks
+from app.rag.manifest import load_manifest, verify_manifest
 from app.rag.milvus_store import search_chunks
+from app.rag.rerank import AzureReranker
+from app.rag.search import SearchResult, search
 from app.schemas.chat import Evidence
 
 INCIDENT_PLAYBOOK = "incident_playbook"
@@ -22,8 +23,12 @@ def retrieve_knowledge(
     store_path: Path | None = None,
 ) -> list[Evidence]:
     """Route a general RAG request to the relevant FAB knowledge base."""
-    selected_base = knowledge_base or _select_knowledge_base(query)
-    return _retrieve_from_store(query, top_k, knowledge_base=selected_base, store_path=store_path)
+    result = retrieve_with_trace(query, top_k, knowledge_base=knowledge_base, store_path=store_path)
+    evidence = [_to_evidence(chunk, chunk["metadata"]["score"]) for chunk in result.chunks]
+    for item in evidence:
+        item.metadata["retrieval_trace"] = result.trace
+        item.metadata["retrieval_limitations"] = result.limitations
+    return evidence
 
 
 def retrieve_incident_playbook(
@@ -63,105 +68,83 @@ def _retrieve_from_store(
     knowledge_base: str,
     store_path: Path | None = None,
 ) -> list[Evidence]:
-    if top_k <= 0:
-        return []
-
-    settings = get_settings()
-    if settings.vector_db_url and store_path is None:
-        evidence = [
-            _to_evidence(chunk, float((chunk.get("metadata") or {}).get("score", 0.0)))
-            for chunk in search_chunks(
-                query,
-                knowledge_base=knowledge_base,
-                top_k=top_k,
-                uri=settings.vector_db_url,
-                collection_name=settings.vector_db_collection,
-            )
-        ]
-        if not evidence:
-            raise NotImplementedError(
-                f"Milvus RAG store has no chunks for knowledge_base={knowledge_base}: "
-                f"{settings.vector_db_collection}"
-            )
-        return evidence
-
-    store_path = store_path or Path(settings.rag_local_store_path)
-    chunks = [
-        chunk
-        for chunk in _load_local_chunks(store_path)
-        if str(chunk.get("knowledge_base") or "") == knowledge_base
-    ]
-    if not chunks:
-        raise NotImplementedError(
-            f"RAG store has no chunks for knowledge_base={knowledge_base}: {store_path}"
-        )
-
-    query_terms = _tokenize(query)
-    ranked = sorted(
-        ((_score_chunk(query_terms, chunk), chunk) for chunk in chunks),
-        key=lambda item: item[0],
-        reverse=True,
-    )
-    evidence = [_to_evidence(chunk, score) for score, chunk in ranked[:top_k] if score > 0]
-    if not evidence and ranked:
-        evidence = [_to_evidence(ranked[0][1], ranked[0][0])]
+    result = retrieve_with_trace(query, top_k, knowledge_base=knowledge_base, store_path=store_path)
+    evidence = [_to_evidence(chunk, chunk["metadata"]["score"]) for chunk in result.chunks]
+    for item in evidence:
+        item.metadata["retrieval_trace"] = result.trace
+        item.metadata["retrieval_limitations"] = result.limitations
     return evidence
 
 
-def _select_knowledge_base(query: str) -> str:
-    terms = _tokenize(query)
-    incident_terms = {
-        "alarm",
-        "breakdown",
-        "down",
-        "hold",
-        "impact",
-        "queue",
-        "rca",
-        "time",
-        "wip",
-        "고장",
-        "대응",
-        "병목",
-        "영향",
-        "위기",
-        "장애",
-        "조치",
-        "증가",
-    }
-    if terms & incident_terms:
-        return INCIDENT_PLAYBOOK
-    return PROCESS_BASICS
+def retrieve_with_trace(
+    query: str,
+    top_k: int = 5,
+    *,
+    knowledge_base: str | None = None,
+    store_path: Path | None = None,
+) -> SearchResult:
+    settings = get_settings()
+    selected_path = store_path or Path(settings.rag_local_store_path)
+    chunks = _load_local_chunks(selected_path)
+    use_dense = bool(settings.vector_db_url) and store_path is None
+    if not chunks and not use_dense and top_k > 0:
+        raise NotImplementedError(f"RAG store has no chunks: {selected_path}")
+
+    local_by_id = {chunk["chunk_id"]: chunk for chunk in chunks}
+
+    def dense(query: str, base: str, limit: int):
+        if not settings.rag_index_manifest_path:
+            raise RuntimeError("A serving index manifest is required for hybrid search.")
+        manifest = load_manifest(Path(settings.rag_index_manifest_path))
+        verify_manifest(
+            manifest,
+            chunks,
+            embedding_model=settings.embedding_model,
+            embedding_revision=settings.embedding_revision,
+            dimension=settings.embedding_dimension,
+        )
+        candidates = search_chunks(
+            query,
+            knowledge_base=base,
+            top_k=limit,
+            uri=settings.vector_db_url,
+            collection_name=settings.vector_db_collection,
+            index_version=manifest.index_version,
+            dimension=settings.embedding_dimension,
+        )
+        result = []
+        for candidate in candidates:
+            original = local_by_id.get(candidate["chunk_id"])
+            if original is None or original["knowledge_base"] != base:
+                continue
+            if candidate["content"] != original["content"]:
+                continue
+            result.append(
+                {
+                    **original,
+                    "metadata": {
+                        **original.get("metadata", {}),
+                        "dense_score": candidate["metadata"].get("score"),
+                    },
+                }
+            )
+        return result
+
+    return search(
+        query,
+        chunks,
+        knowledge_base=knowledge_base,
+        top_k=top_k,
+        candidate_k=settings.rag_candidate_k,
+        context_chars=settings.rag_context_chars,
+        dense_search=dense if use_dense else None,
+        reranker=AzureReranker() if settings.rag_reranker == "llm" and store_path is None else None,
+        rerank_limit=settings.rag_rerank_limit,
+    )
 
 
 def _load_local_chunks(store_path: Path) -> list[dict[str, Any]]:
-    if not store_path.exists():
-        return []
-    chunks: list[dict[str, Any]] = []
-    with store_path.open("r", encoding="utf-8") as handle:
-        for line in handle:
-            line = line.strip()
-            if line:
-                chunks.append(json.loads(line))
-    return chunks
-
-
-def _score_chunk(query_terms: set[str], chunk: dict[str, Any]) -> float:
-    content = str(chunk.get("content") or "")
-    title = str(chunk.get("title") or "")
-    metadata = chunk.get("metadata") or {}
-    haystack_terms = _tokenize(f"{title} {content} {' '.join(map(str, metadata.values()))}")
-    if not query_terms or not haystack_terms:
-        return 0.0
-
-    overlap = query_terms & haystack_terms
-    title_overlap = query_terms & _tokenize(title)
-    metadata_overlap = query_terms & _tokenize(" ".join(map(str, metadata.values())))
-    return (
-        len(overlap) / math.sqrt(len(haystack_terms))
-        + len(title_overlap) * 0.5
-        + len(metadata_overlap) * 0.25
-    )
+    return load_chunks(store_path) if store_path.exists() else []
 
 
 def _to_evidence(chunk: dict[str, Any], score: float) -> Evidence:
@@ -186,26 +169,3 @@ def _to_evidence(chunk: dict[str, Any], score: float) -> Evidence:
         content=str(chunk.get("content") or ""),
         metadata=metadata,
     )
-
-
-def _tokenize(text: str) -> set[str]:
-    normalized = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", text)
-    normalized = normalized.casefold().replace("_", " ")
-    return {token for token in re.findall(r"[0-9a-z가-힣]{2,}", normalized) if token not in _STOPWORDS}
-
-
-_STOPWORDS = {
-    "and",
-    "for",
-    "from",
-    "that",
-    "the",
-    "this",
-    "with",
-    "공정",
-    "관련",
-    "기준",
-    "라인",
-    "질문",
-    "확인",
-}

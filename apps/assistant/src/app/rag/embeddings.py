@@ -48,5 +48,7 @@ class AzureEmbeddingClient:
                 ) from exc
 
         body = response.json()
-        vectors = [item["embedding"] for item in sorted(body["data"], key=lambda item: item["index"])]
+        vectors = [
+            item["embedding"] for item in sorted(body["data"], key=lambda item: item["index"])
+        ]
         return vectors

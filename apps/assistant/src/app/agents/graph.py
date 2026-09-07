@@ -10,6 +10,7 @@ from app.agents.llm_nodes import compose_with_llm, reflect_with_llm
 from app.agents.planner import PlannerDecision, create_plan
 from app.agents.supervisor import review_plan
 from app.config import get_settings
+from app.rag.query import analyze_query
 from app.schemas.chat import ChatRequest
 from app.sub_agent.case_search import find_similar_cases
 from app.sub_agent.impact import estimate_output_delta
@@ -182,31 +183,62 @@ def _rag_node(state: AgentState) -> dict[str, Any]:
     items = []
     try:
         knowledge_base = state["plan"].rag_knowledge_base
+        understood = analyze_query(request.message)
+        if len(understood.knowledge_bases) > 1:
+            knowledge_base = None
         items = retrieve_knowledge(request.message, knowledge_base=knowledge_base)
     except NotImplementedError as exc:
         status = "data_unavailable"
         summary = str(exc)
         limitations.append(summary)
+    except (OSError, ValueError, TypeError):
+        status = "failed"
+        summary = "RAG 문서 저장소를 읽거나 검색 결과를 검증하지 못했습니다."
+        limitations.append(summary)
     else:
-        status = "succeeded"
-        summary = f"{len(items)}개 지식 근거를 조회했습니다."
+        status = "succeeded" if items else "data_unavailable"
+        summary = (
+            f"{len(items)}개 지식 근거를 조회했습니다."
+            if items
+            else "질문을 뒷받침하는 문서 근거를 찾지 못했습니다."
+        )
+        if not items:
+            limitations.append(summary)
+        for item in items:
+            for limitation in item.metadata.get("retrieval_limitations", []):
+                if limitation not in limitations:
+                    limitations.append(limitation)
+            if item.metadata.get("reliability") == "simulation_reference":
+                limitation = "검색 문서는 시뮬레이션 참조 자료이며 실제 사내 SOP가 아닙니다."
+                if limitation not in limitations:
+                    limitations.append(limitation)
         evidence.extend(item.model_dump() for item in items)
         if state["plan"].query_type == "diagnosis" and knowledge_base == INCIDENT_PLAYBOOK:
-            limitation = "RAG 근거만으로 실제 원인을 확정할 수 없으며 SQL/운영 로그 확인이 필요합니다."
+            limitation = (
+                "RAG 근거만으로 실제 원인을 확정할 수 없으며 SQL/운영 로그 확인이 필요합니다."
+            )
             if limitation not in limitations:
                 limitations.append(limitation)
+    overall_status = state.get("status", "ready")
+    if state["plan"].selected_sub_agents == ["rag"] and status == "data_unavailable":
+        overall_status = "data_unavailable"
     run = {
         "agent": "rag",
         "status": status,
         "summary": summary,
-        "metadata": {"knowledge_base": state["plan"].rag_knowledge_base},
+        "metadata": {
+            "knowledge_base": state["plan"].rag_knowledge_base,
+            "retrieval_trace": items[0].metadata.get("retrieval_trace", {}) if items else {},
+        },
     }
     return {
+        "status": overall_status,
         "evidence": evidence,
         "limitations": limitations,
         "agent_runs": [*state.get("agent_runs", []), run],
         "answer_parts": [
             *state.get("answer_parts", []),
+            summary if not items else "",
             *_rag_answer_parts(items if status == "succeeded" else []),
         ],
         "stream_event": {
@@ -242,7 +274,9 @@ def _case_search_node(state: AgentState) -> dict[str, Any]:
 
 def _impact_node(state: AgentState) -> dict[str, Any]:
     if state.get("halted") or "impact" not in state["plan"].selected_sub_agents:
-        return _skipped("impact", "Planner가 영향도 계산을 선택하지 않았거나 필수 단계가 실패했습니다.")
+        return _skipped(
+            "impact", "Planner가 영향도 계산을 선택하지 않았거나 필수 단계가 실패했습니다."
+        )
     request = state["request"]
     impact = estimate_output_delta(
         baseline={},
@@ -370,7 +404,11 @@ def _text2sql_query_type(planner_query_type: str) -> QueryType:
     if planner_query_type in {"diagnosis", "impact"}:
         return "status"
     if planner_query_type in {
-        "status", "master_data_lookup", "release_plan_lookup", "trend", "unsupported"
+        "status",
+        "master_data_lookup",
+        "release_plan_lookup",
+        "trend",
+        "unsupported",
     }:
         return planner_query_type
     return "unsupported"
@@ -378,12 +416,14 @@ def _text2sql_query_type(planner_query_type: str) -> QueryType:
 
 def _rag_answer_parts(items) -> list[str]:
     parts = []
-    for item in items[:3]:
+    for item in items:
         knowledge_base = item.metadata.get("knowledge_base", "rag")
         source_document = item.metadata.get("source_document") or item.title
         parts.append(
-            f"RAG({knowledge_base}) 근거 문서: {source_document}\n"
-            f"{item.content[:700]}"
+            f"RAG({knowledge_base}) 근거 문서: {source_document} "
+            f"[chunk={item.metadata.get('chunk_id', '')}, "
+            f"page={item.metadata.get('page_number', 'unknown')}]\n"
+            f"{item.content}"
         )
     return parts
 
