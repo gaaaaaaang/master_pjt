@@ -58,7 +58,22 @@ python apps/assistant/scripts/check_rag_live.py --live --env-file .env --case-li
 ```
 
 이 smoke는 LLM reranker 실제 호출을 확인하는 도구이며 Vector DB 실측을 대신하지 않는다.
-현재 checkpoint에서 실제 LLM/dense 경로는 검증되지 않았다.
+2026-09-08 명시적 문서 전송 승인 후 실제 임베딩 55건, Milvus 저장/검색,
+LLM reranker 9문항 및 Composer 3문항을 검증했다. 결과 범위와 한계는
+`docs/rag_hackathon_20260907.md`의 최종 통합 검증 절을 참조한다.
+
+```sh
+docker compose -p rag-adv-validation up -d milvus
+# 최초에는 build_rag_index.py로 collection/manifest를 준비한다.
+python apps/assistant/scripts/evaluate_rag_live.py --live --env-file .env --manifest apps/assistant/output/rag/api_eval_manifest.json --compose --output /tmp/rag_actual.json
+# 저장한 검색을 재사용해 Composer만 재검증할 수 있다.
+python apps/assistant/scripts/evaluate_rag_live.py --live --env-file .env --manifest apps/assistant/output/rag/api_eval_manifest.json --compose --replay-report /tmp/rag_actual.json --output /tmp/rag_composer.json
+docker compose -p rag-adv-validation stop
+```
+
+평가 기본 collection은 `master_pjt_rag_api_eval`이다. 다른 이름이면 `--collection`을 지정한다.
+manifest만 복사해도 DB가 복원되지는 않는다. 인덱스가 없는 환경에서는 동일 corpus를 재인덱싱한다.
+`--case-id`를 반복하면 일부 문항만 실행한다. 실제 평가에서도 전체 오케스트레이터는 우회한다.
 
 ## 근거와 평가 해석
 

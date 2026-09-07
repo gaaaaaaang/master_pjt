@@ -208,7 +208,7 @@ def search(
     for fusion_score, chunk, ranks in fused:
         score, features = _rerank(plan, chunk, fusion_score)
         scored.append((score, chunk, features, ranks))
-    scored.sort(key=lambda item: (-item[0], item[1]["chunk_id"]))
+    scored.sort(key=lambda item: (-item[0], -item[2]["fusion_score"], item[1]["chunk_id"]))
     reranked = [item for item in scored if item[0] > 0]
     if reranker and scored:
         # Dense-only candidates remain eligible for model judgement even without lexical overlap.

@@ -118,3 +118,54 @@ PB-BN-001/PB-HL-001로 연결되는 정도다. 토스와 같은 관계 검색을
 - 문서 egress 승인 답변은 없었으며 실제 API/Vector DB 실측을 추가 수행하지 않았다.
 - rag-7 heartbeat를 PAUSED로 변경했다. 예약에 의한 추가 실행은 없다.
 - 해커톤 작업을 종료하여 로컬 개선 결과와 미검증 범위를 보고한다. 실제 서비스 동등성은 미증명으로 남는다.
+
+## 사용자 후속 요청: 실제 API 검증
+
+사용자가 실제 API 검증 진행을 지시했다. 기존 목적지 skax.ai-talentlab.com 및 문서 payload를
+구체화해 재검토했지만 자동 승인 검토가 두 번 차단했다. 별도의 명시적 승인 질문을 제시한 상태다.
+문서 전송 차단과 독립적으로, corpus를 읽지 않는 비민감 합성 문장 검사로 실제 API를 호출했다.
+
+- 임베딩 API: 성공, 실제 3072차원 반환, 약 0.27초.
+- LLM reranker API: 성공, 관련 합성 문서 grade=3 / 무관 문서 grade=0, 약 2.23초.
+- 결과: `apps/assistant/output/evals/rag_api_connectivity.json`.
+- 재현: `check_rag_api_connectivity.py --live --env-file <기존 .env 경로>`.
+
+이는 실제 인증·연결·응답 계약 검증이며 실제 매뉴얼 검색 품질이나 Milvus 통합 성능 평가가 아니다.
+그 문서 평가에 대한 egress 승인은 여전히 대기 중이다.
+
+## 명시적 전송 승인 후 실제 통합 검증 완료
+
+사용자는 “해당 목적지로 명시된 문서와 질문 전송 승인”이라고 답했다. 위의 승인 대기는
+해소되었으며 기존 skax.ai-talentlab.com API로 다음 검증을 수행했다.
+
+- 실제 text-embedding-3-large로 55개 청크를 3072차원 임베딩하여 Milvus 2.5.4에 저장했다.
+  격리 compose project `rag-adv-validation`, collection `master_pjt_rag_api_eval`,
+  index version `61d9cd5e076e055f0b6436f7`. 기존 DB와 collection은 수정하지 않았다.
+- 동일한 9문항(답변 가능 7, 불가 2)의 local/실제 hybrid 비교:
+
+| 경로 | Hit@3 | Recall@3 | MRR | 근거 없음 판정 |
+| --- | --- | --- | --- | --- |
+| 로컬 feature | 3/7 | 0.429 | 0.429 | 2/2 |
+| 실제 API 최초 실행 | 4/7 | 0.571 | 0.571 | 2/2 |
+| 후보 순서 수정 후 실제 API | 7/7 | 1.000 | 0.929 | 2/2 |
+
+- 수정 전에는 lexical gate에서 탈락한 후보들이 ID 순으로 정렬되어 좋은 dense 후보가
+  bounded reranker 입력에서 빠졌다. 동점에 RRF 순위를 보존하도록 수정하고 회귀 테스트를 추가했다.
+- 초기 별도 reranker smoke에서 ValueError fallback 1건을 관측했다. 원인은 재현되지 않았다.
+  응답 schema의 ID enum을 실제 후보에 한정해 계약을 강화했다. 최종 9문항에서는 LLM 대상
+  8문항 모두 llm.v1이었고 승인 SOP 요구 1문항은 문서 범위 필터로 API rerank 전에 제외됐다.
+- 짧은 rerank 근거를 요청해 최종 검색 시간 중앙값 5.139초, 최댓값 8.712초를 관측했다.
+  9건의 단회 측정이며 p95/SLA/비용 또는 장시간 안정성 검증은 아니다.
+- Composer는 PM/복합 장비 고장+Hold/EUV unknown 3건을 실제 API로 검증했다.
+  최초 답변에서 문서명 축약과 가능성 조건 변형을 발견해 원문 조건/역할/파일명 보존 지침을 보강했다.
+  저장된 검색 근거를 재사용한 최종 생성 3건에서 정확한 파일명·페이지, 시뮬레이션 자료 표시,
+  EUV 수치 답변 보류를 확인했다. 생성 시간은 각각 3.049/4.214/1.239초였다.
+  disposition을 ‘처분’, reroute를 ‘공정 변경’으로 풀이하는 등 전문 용어 번역은 추가 검토가 필요하다.
+- 전체 회귀 145개 통과. 검색 수정과 동적 schema의 회귀 테스트를 포함한다.
+
+최종 결과: `rag_actual_api_final.json` (검색), `rag_actual_composer_final.json` (검색 재사용 및
+최종 생성). 최초 결과 `rag_actual_api_eval.json`과 smoke도 실패 분석용으로 보존한다.
+이 9문항은 이미 실패를 관찰한 개발 문항이며 독립 blind test가 아니다. 생성 검증은 명시적 KB와
+고정 PlannerDecision으로 실행한 Composer 검증이다. HTTP /chat, Planner/Supervisor 전체 흐름,
+부하/비용, 실제 승인 SOP나 토스 운영 수준을 검증한 것으로 해석하면 안 된다.
+검증용 compose 컨테이너는 종료하고 인덱스 volume은 재현을 위해 보존한다.

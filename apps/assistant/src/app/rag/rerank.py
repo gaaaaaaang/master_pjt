@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any, Protocol
 
@@ -51,7 +52,7 @@ Grade 3: directly substantiates the main request with specific evidence.
 Keyword overlap, a table of contents, or a list of document references is not sufficient evidence.
 Evaluate what the document actually says. Do not infer numerical recipes, current factory state,
 or causal conclusions from a simulation manual. Respect negation and exact requested playbook IDs.
-Explain the grade briefly based only on the supplied content, in Korean."""
+Explain the grade in one short Korean sentence (about 60 characters), based only on the supplied content."""
 
 
 class AzureReranker:
@@ -59,6 +60,10 @@ class AzureReranker:
         self.client = client or AzureAgentClient(timeout_seconds=timeout_seconds)
 
     def rank(self, query: str, chunks: list[dict[str, Any]]) -> list[Relevance]:
+        schema = deepcopy(RERANK_SCHEMA)
+        schema["properties"]["results"]["items"]["properties"]["chunk_id"]["enum"] = [
+            chunk["chunk_id"] for chunk in chunks
+        ]
         output = self.client.complete_json(
             system_prompt=SYSTEM_PROMPT,
             input_data={
@@ -76,7 +81,7 @@ class AzureReranker:
                     for c in chunks
                 ],
             },
-            output_schema=RERANK_SCHEMA,
+            output_schema=schema,
             schema_name="fab_rag_rerank",
         )
         return validate_relevance(output, {c["chunk_id"] for c in chunks})

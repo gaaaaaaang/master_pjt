@@ -302,3 +302,44 @@ def test_index_versions_coexist_and_same_version_upsert_is_idempotent(monkeypatc
     assert len(client.rows) == 2
     assert {row["index_version"] for row in client.rows.values()} == {"old", "new"}
     assert {row["chunk_id"] for row in client.rows.values()} == {"a"}
+
+
+def test_reranker_schema_restricts_ids_to_current_candidates():
+    from app.rag.rerank import RERANK_SCHEMA
+
+    class Client:
+        def complete_json(self, **kwargs):
+            field = kwargs["output_schema"]["properties"]["results"]["items"]["properties"][
+                "chunk_id"
+            ]
+            assert field["enum"] == ["a"]
+            return {"results": [{"chunk_id": "a", "grade": 3, "reason": "직접 근거"}]}
+
+    AzureReranker(client=Client()).rank("고장", [record()])
+    assert "enum" not in RERANK_SCHEMA["properties"]["results"]["items"]["properties"]["chunk_id"]
+
+
+def test_dense_rank_survives_feature_rejection_before_bounded_rerank():
+    candidates = [
+        record("z-best", "No overlapping terms."),
+        record("a-noise", "Another passage."),
+        record("b-noise", "Unrelated passage."),
+    ]
+
+    class Reranker:
+        def rank(self, query, chunks):
+            assert chunks[0]["chunk_id"] == "z-best"
+            return [
+                Relevance(c["chunk_id"], 3 if c["chunk_id"] == "z-best" else 0, "판정")
+                for c in chunks
+            ]
+
+    result = search(
+        "새로운질의",
+        [],
+        knowledge_base="incident_playbook",
+        dense_search=lambda *args: candidates,
+        reranker=Reranker(),
+        rerank_limit=2,
+    )
+    assert result.chunks[0]["chunk_id"] == "z-best"
