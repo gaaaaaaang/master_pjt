@@ -1,8 +1,9 @@
 import json
 from pathlib import Path
 
-FIXTURE = Path("apps/assistant/tests/fixtures/scenario_acceptance_questions.json")
-TEXT2SQL_FIXTURE = Path("apps/assistant/tests/fixtures/text2sql_fab10_eval.json")
+FIXTURE_ROOT = Path(__file__).resolve().parent / "fixtures"
+FIXTURE = FIXTURE_ROOT / "scenario_acceptance_questions.json"
+TEXT2SQL_FIXTURE = FIXTURE_ROOT / "text2sql_fab10_eval.json"
 
 
 def test_scenario_acceptance_fixture_covers_sc001_to_sc004() -> None:

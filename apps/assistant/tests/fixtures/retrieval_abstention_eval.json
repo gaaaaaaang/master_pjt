@@ -1,0 +1,17 @@
+[
+  {"id":"rag_incident_cafeteria","agent":"rag","knowledge_base":"incident_playbook","query":"사내 식당 오늘 메뉴 알려줘"},
+  {"id":"rag_incident_phone","agent":"rag","knowledge_base":"incident_playbook","query":"fab10 담당자 전화번호 알려줘"},
+  {"id":"rag_incident_weather","agent":"rag","knowledge_base":"incident_playbook","query":"서울 날씨와 미세먼지 알려줘"},
+  {"id":"rag_basics_vacation","agent":"rag","knowledge_base":"process_basics","query":"직원 휴가 규정은 어떻게 돼?"},
+  {"id":"rag_basics_image","agent":"rag","knowledge_base":"process_basics","query":"고양이 사진 보여줘"},
+  {"id":"case_cafeteria","agent":"case_search","query":"식당 메뉴 문제의 비슷한 사례 찾아줘"},
+  {"id":"case_phone","agent":"case_search","query":"fab10 담당자 연락처 관련 사례"},
+  {"id":"case_weather","agent":"case_search","query":"서울 날씨가 나빴던 원인 사례"},
+  {"id":"case_near_domain_yield_contamination","agent":"case_search","query":"fab10 제품 수율 저하 오염 사례"},
+  {"id":"case_near_domain_shift_quality","agent":"case_search","query":"fab10 작업자 교대 후 품질 이상 사례"},
+  {"id":"case_near_domain_sensor_calibration","agent":"case_search","query":"fab10 설비 센서 보정 오류 사례"},
+  {"id":"case_unsupported_pm_issue","agent":"case_search","query":"fab10 정기점검 지연과 유지보수 실패 사례"},
+  {"id":"case_equipment_type_mismatch","agent":"case_search","query":"fab10 PH_ST_2 down 비율 상승 유사 사례"},
+  {"id":"case_process_group_mismatch","agent":"case_search","query":"fab10 Photo Queue Time 증가 유사 사례"},
+  {"id":"case_fab_mismatch","agent":"case_search","query":"fab11 Dry_Etch Queue Time 증가 유사 사례"}
+]

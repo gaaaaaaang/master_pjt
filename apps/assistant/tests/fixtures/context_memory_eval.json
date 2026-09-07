@@ -1,0 +1,72 @@
+[
+  {
+    "id": "normalize_spaced_fab_process_equipment",
+    "category": "normalization",
+    "history": ["FAB 10 Dry Etch DE-BE-11 due-date 상태를 보여줘"],
+    "follow_up": {"message": "같은 대상으로 다시 보여줘"},
+    "expected_context": {"fab":"fab10","process":"Dry_Etch","equipment":"DE_BE_11","date_basis":"due_date"}
+  },
+  {
+    "id": "normalize_hyphen_product_route",
+    "category": "normalization",
+    "history": ["FAB-10 Product-3 Route-Product-3 start-date release plan"],
+    "follow_up": {"message": "같은 제품과 route로 다시 보여줘"},
+    "expected_context": {"fab":"fab10","product":"Product_3","route":"Route_Product_3","date_basis":"start_date"}
+  },
+  {
+    "id": "switch_fab_and_product",
+    "category": "switch",
+    "history": ["fab10 Product_3 WIP 보여줘", "FAB-13 Product-4로 바꿔줘"],
+    "follow_up": {"message": "그 제품 다시 보여줘"},
+    "expected_context": {"fab":"fab13","product":"Product_4"}
+  },
+  {
+    "id": "switch_process_and_equipment",
+    "category": "switch",
+    "history": ["fab10 Dry_Etch DE_BE_11 상태", "fab13 Photo PH-ST-2 상태로 변경"],
+    "follow_up": {"message": "같은 설비 원인 후보 보여줘"},
+    "expected_context": {"fab":"fab13","process":"Photo","equipment":"PH_ST_2"}
+  },
+  {
+    "id": "explicit_request_context_wins",
+    "category": "override",
+    "history": ["fab10 Product_3 WIP 보여줘"],
+    "follow_up": {"message":"그 제품 다시 보여줘","request_context":{"fab":"fab12","product":"Product_7"}},
+    "expected_context": {"fab":"fab12","product":"Product_7"}
+  },
+  {
+    "id": "plain_context_inheritance",
+    "category": "inheritance",
+    "history": ["fab10 Product_3 due_date 기준 lotrelease 보여줘"],
+    "follow_up": {"message": "같은 기준으로 월별 추세 보여줘"},
+    "expected_context": {"fab":"fab10","product":"Product_3","date_basis":"due_date"}
+  },
+  {
+    "id": "korean_due_date_inheritance",
+    "category": "inheritance",
+    "history": ["fab10 Product_3 납기일 기준 lotrelease 보여줘"],
+    "follow_up": {"message": "같은 기준으로 월별 추세 보여줘"},
+    "expected_context": {"fab":"fab10","product":"Product_3","date_basis":"due_date"}
+  },
+  {
+    "id": "korean_date_basis_switch",
+    "category": "switch",
+    "history": ["fab10 Product_3 납기일 기준 release 추세", "이번에는 투입일 기준으로 바꿔줘"],
+    "follow_up": {"message": "같은 기준으로 다시 보여줘"},
+    "expected_context": {"fab":"fab10","product":"Product_3","date_basis":"start_date"}
+  },
+  {
+    "id": "metric_inheritance_for_bare_threshold",
+    "category": "selection_inheritance",
+    "history": ["fab10 Dry_Etch utilization 보여줘"],
+    "follow_up": {"message": "그중 80% 이상만 상위 5개"},
+    "expected_context": {"fab":"fab10","process":"Dry_Etch","metric":"util_percent"}
+  },
+  {
+    "id": "explicit_metric_switch_wins",
+    "category": "switch",
+    "history": ["fab10 Dry_Etch utilization 보여줘"],
+    "follow_up": {"message": "이번에는 WIP 낮은 순으로 보여줘"},
+    "expected_context": {"fab":"fab10","process":"Dry_Etch","metric":"wiplotavg"}
+  }
+]

@@ -47,6 +47,44 @@ def test_ingest_documents_writes_chunk_jsonl(tmp_path: Path) -> None:
     assert "Queue Time" in records[0]["content"]
 
 
+def test_ingest_infers_issue_metadata_per_chunk_instead_of_whole_document(tmp_path: Path) -> None:
+    path = tmp_path / "playbook.txt"
+    path.write_text(
+        "issue_type\nbreakdown\n장비 고장 대응\n\n"
+        "issue_type\nqueue_time_risk\nQueue Time 위반 대응",
+        encoding="utf-8",
+    )
+
+    chunks = build_chunks_for_paths(
+        [path],
+        collection="test",
+        knowledge_base=INCIDENT_PLAYBOOK,
+        chunk_target_chars=45,
+        chunk_overlap_chars=0,
+    )
+
+    assert chunks[0].metadata["issue_type"] == "breakdown"
+    assert chunks[-1].metadata["issue_type"] == "queue_time_risk"
+
+
+def test_chunk_ids_are_stable_across_absolute_source_directories(tmp_path: Path) -> None:
+    first = tmp_path / "one" / "playbook.txt"
+    second = tmp_path / "two" / "playbook.txt"
+    first.parent.mkdir()
+    second.parent.mkdir()
+    first.write_text("Queue Time 대응 절차", encoding="utf-8")
+    second.write_text("Queue Time 대응 절차", encoding="utf-8")
+
+    first_chunks = build_chunks_for_paths(
+        [first], collection="test", knowledge_base=INCIDENT_PLAYBOOK
+    )
+    second_chunks = build_chunks_for_paths(
+        [second], collection="test", knowledge_base=INCIDENT_PLAYBOOK
+    )
+
+    assert first_chunks[0].chunk_id == second_chunks[0].chunk_id
+
+
 def test_retrieve_knowledge_returns_ranked_evidence(tmp_path: Path) -> None:
     store_path = tmp_path / "store.jsonl"
     records = [
@@ -84,9 +122,163 @@ def test_retrieve_knowledge_returns_ranked_evidence(tmp_path: Path) -> None:
     assert evidence[0].metadata["score"] > 0
 
 
+def test_retrieval_deprioritizes_table_of_contents_matches(tmp_path: Path) -> None:
+    store_path = tmp_path / "store.jsonl"
+    records = [
+        {
+            "chunk_id": "toc",
+            "collection": "master_pjt",
+            "knowledge_base": PROCESS_BASICS,
+            "source": "manual.pdf",
+            "title": "Manual",
+            "content": (
+                "Critical Queue Time .......... 13\n"
+                "Reports ...................... 14\n"
+                "Setup ........................ 15"
+            ),
+            "metadata": {},
+        },
+        {
+            "chunk_id": "body",
+            "collection": "master_pjt",
+            "knowledge_base": PROCESS_BASICS,
+            "source": "manual.pdf",
+            "title": "Critical Queue Time",
+            "content": "Critical Queue Time requires a custom dispatching function.",
+            "metadata": {"issue_type": "queue_time"},
+        },
+    ]
+    store_path.write_text(
+        "\n".join(json.dumps(record) for record in records),
+        encoding="utf-8",
+    )
+
+    evidence = retrieve_knowledge(
+        "critical queue time 구현",
+        knowledge_base=PROCESS_BASICS,
+        store_path=store_path,
+    )
+
+    assert evidence[0].metadata["chunk_id"] == "body"
+
+
+def test_rag_auto_router_ignores_negated_incident_when_requesting_process_basics(
+    tmp_path: Path,
+) -> None:
+    store_path = tmp_path / "store.jsonl"
+    records = [
+        {
+            "chunk_id": "incident",
+            "collection": "test",
+            "knowledge_base": INCIDENT_PLAYBOOK,
+            "source": "incident.txt",
+            "title": "장비 고장 대응",
+            "content": "장비 고장과 down 복구 절차",
+            "metadata": {"issue_type": "equipment_down"},
+        },
+        {
+            "chunk_id": "cmp-basics",
+            "collection": "test",
+            "knowledge_base": PROCESS_BASICS,
+            "source": "cmp.txt",
+            "title": "CMP 공정 기초",
+            "content": "CMP는 웨이퍼 평탄화 공정입니다.",
+            "metadata": {"issue_type": "all"},
+        },
+    ]
+    store_path.write_text(
+        "\n".join(json.dumps(record, ensure_ascii=False) for record in records),
+        encoding="utf-8",
+    )
+
+    evidence = retrieve_knowledge(
+        "장비 고장은 아니고 CMP 공정을 설명해줘",
+        store_path=store_path,
+    )
+
+    assert [item.metadata["chunk_id"] for item in evidence] == ["cmp-basics"]
+    assert evidence[0].metadata["knowledge_base"] == PROCESS_BASICS
+
+
 def test_retrieve_knowledge_reports_missing_store(tmp_path: Path) -> None:
     with pytest.raises(NotImplementedError, match="RAG store has no chunks"):
         retrieve_knowledge("Queue Time", store_path=tmp_path / "missing.jsonl")
+
+
+def test_rag_abstains_when_only_identifier_or_no_semantic_terms_match(tmp_path: Path) -> None:
+    store_path = tmp_path / "store.jsonl"
+    record = {
+        "chunk_id": "fab10-down",
+        "collection": "master_pjt",
+        "knowledge_base": INCIDENT_PLAYBOOK,
+        "source": "down.txt",
+        "title": "fab10 장비 고장",
+        "content": "fab10 equipment down 대응 절차",
+        "metadata": {"fab_id": "fab10", "issue_type": "equipment_down"},
+    }
+    store_path.write_text(json.dumps(record, ensure_ascii=False), encoding="utf-8")
+
+    assert (
+        retrieve_knowledge(
+            "fab10 담당자 전화번호 알려줘",
+            knowledge_base=INCIDENT_PLAYBOOK,
+            store_path=store_path,
+        )
+        == []
+    )
+    assert (
+        retrieve_knowledge(
+            "오늘 식당 메뉴 알려줘",
+            knowledge_base=INCIDENT_PLAYBOOK,
+            store_path=store_path,
+        )
+        == []
+    )
+
+
+def test_incident_rag_filters_explicit_issue_mismatch_and_reads_all_chunk_declarations(
+    tmp_path: Path,
+) -> None:
+    store_path = tmp_path / "store.jsonl"
+    records = [
+        {
+            "chunk_id": "pm-only",
+            "collection": "master_pjt",
+            "knowledge_base": INCIDENT_PLAYBOOK,
+            "source": "playbook.txt",
+            "title": "설비 PM과 대기 증가",
+            "content": "issue_type pm_delay\n설비 PM 지연으로 queue와 WIP가 증가한다.",
+            "metadata": {"issue_type": "pm_delay"},
+        },
+        {
+            "chunk_id": "combined-queue",
+            "collection": "master_pjt",
+            "knowledge_base": INCIDENT_PLAYBOOK,
+            "source": "playbook.txt",
+            "title": "Hot lot과 Queue Time",
+            "content": (
+                "issue_type hot_lot\n긴급 lot 대응\n"
+                "issue_type queue_time_risk\nQueue Time 증가와 대기 lot 대응"
+            ),
+            "metadata": {"issue_type": "hot_lot"},
+        },
+    ]
+    store_path.write_text(
+        "\n".join(json.dumps(record, ensure_ascii=False) for record in records),
+        encoding="utf-8",
+    )
+
+    evidence = retrieve_incident_playbook(
+        "Queue Time 증가와 대기 lot 대응",
+        top_k=5,
+        store_path=store_path,
+    )
+
+    assert [item.metadata["chunk_id"] for item in evidence] == ["combined-queue"]
+    assert evidence[0].metadata["declared_issue_types"] == ["hot_lot", "queue_time_risk"]
+    assert evidence[0].metadata["query_issue_intents"] == ["queue_time"]
+    assert evidence[0].metadata["matched_issue_types"] == ["queue_time_risk"]
+    assert evidence[0].metadata["issue_aligned"] is True
 
 
 def test_retrieve_agents_keep_playbook_and_basics_separate(tmp_path: Path) -> None:

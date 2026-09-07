@@ -9,10 +9,11 @@ from langgraph.graph import END, START, StateGraph
 
 from app.agents.llm_nodes import compose_with_llm, reflect_with_llm
 from app.agents.planner import PlannerDecision, create_plan
-from app.agents.supervisor import review_agent_result, review_plan
+from app.agents.supervisor import review_agent_result, review_final_answer, review_plan
 from app.config import get_settings
 from app.schemas.chat import ChatRequest
 from app.sub_agent.case_search import find_similar_cases
+from app.sub_agent.diagnosis import synthesize_diagnosis
 from app.sub_agent.impact import estimate_output_delta
 from app.sub_agent.rag import INCIDENT_PLAYBOOK, retrieve_knowledge
 from app.sub_agent.reflection import reflect_agent_output
@@ -57,6 +58,7 @@ class AgentState(TypedDict, total=False):
     confidence: float | None
     reflection: dict[str, Any]
     reflection_decisions: list[dict[str, Any]]
+    answer_review: dict[str, Any]
     stream_event: dict[str, Any]
 
 
@@ -65,12 +67,19 @@ def _planner_node(state: AgentState) -> dict[str, Any]:
     plan = create_plan(
         request.message,
         fab=request.fab,
+        line=request.line,
+        process=request.process,
+        product=request.product,
+        route=request.route,
+        equipment=request.equipment,
+        date_basis=request.date_basis,
+        metric=request.metric,
         conversation_history=state.get("conversation_history", []),
         execution_feedback=state.get("replan_feedback", []),
     )
     model = get_settings().openai_model
     metadata = {
-        "execution_mode": "llm_chat_completions",
+        "execution_mode": plan.execution_mode,
         "model": model,
         "status": plan.status,
         "query_type": plan.query_type,
@@ -164,7 +173,11 @@ def _supervisor_node(state: AgentState) -> dict[str, Any]:
                 "status": plan.status,
                 "selected_sub_agents": plan.selected_sub_agents,
                 "reason": decision["reason"],
-                "execution_mode": "llm_chat_completions",
+                "execution_mode": (
+                    "deterministic_fallback"
+                    if decision.get("fallback_used")
+                    else "llm_chat_completions"
+                ),
                 "model": get_settings().openai_model,
                 "reasoning": reasoning,
             },
@@ -235,7 +248,15 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
     result = answer_question(
         request.message,
         fab=request.fab,
-        query_type=_text2sql_query_type(plan.query_type),
+        process=request.process,
+        product=request.product,
+        route=request.route,
+        equipment=request.equipment,
+        date_basis=request.date_basis,
+        metric=request.metric,
+        query_type=_text2sql_query_type(
+            plan.query_type, plan.selected_sub_agents
+        ),
         conversation_history=state.get("conversation_history", []),
         execution_feedback=[
             decision
@@ -323,7 +344,11 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
         "evidence": evidence,
         "agent_runs": [*state.get("agent_runs", []), run],
         "answer_parts": [*state.get("answer_parts", []), result.answer],
-        "halted": result.status in failures and text2sql_required,
+        "halted": (
+            result.status in failures
+            and text2sql_required
+            and plan.query_type != "diagnosis"
+        ),
         "status": result.status,
         **reflection_patch,
         "reasoning_state": [*state.get("reasoning_state", []), reasoning],
@@ -360,10 +385,17 @@ def _rag_node(state: AgentState) -> dict[str, Any]:
         summary = str(exc)
         limitations.append(summary)
     else:
-        status = "succeeded"
-        summary = f"{len(items)}개 지식 근거를 조회했습니다."
-        evidence.extend(item.model_dump() for item in items)
-        if state["plan"].query_type == "diagnosis" and knowledge_base == INCIDENT_PLAYBOOK:
+        status = "succeeded" if items else "data_unavailable"
+        summary = (
+            f"{len(items)}개 지식 근거를 조회했습니다."
+            if items
+            else "질문과 관련성이 확인된 지식 근거가 없습니다."
+        )
+        if items:
+            evidence.extend(item.model_dump() for item in items)
+        else:
+            limitations.append(summary)
+        if items and state["plan"].query_type == "diagnosis" and knowledge_base == INCIDENT_PLAYBOOK:
             limitation = "RAG 근거만으로 실제 원인을 확정할 수 없으며 SQL/운영 로그 확인이 필요합니다."
             if limitation not in limitations:
                 limitations.append(limitation)
@@ -391,6 +423,7 @@ def _rag_node(state: AgentState) -> dict[str, Any]:
         },
     )
     return {
+        "status": status,
         "evidence": evidence,
         "limitations": limitations,
         "agent_runs": [*state.get("agent_runs", []), run],
@@ -420,17 +453,36 @@ def _case_search_node(state: AgentState) -> dict[str, Any]:
             "case_search",
             "Planner가 유사 사례 검색을 선택하지 않았거나 필수 단계가 실패했습니다.",
         )
-    items = find_similar_cases(state["request"].message)
+    limitations = list(state.get("limitations", []))
+    try:
+        items = find_similar_cases(state["request"].message)
+    except (NotImplementedError, TypeError, ValueError) as exc:
+        items = []
+        status = "data_unavailable"
+        summary = str(exc)
+        limitations.append(summary)
+    else:
+        status = "succeeded" if items else "data_unavailable"
+        summary = (
+            f"{len(items)}개 유사 사례를 조회했습니다."
+            if items
+            else "질문과 일치하는 검증된 유사 사례가 없습니다."
+        )
+        if not items:
+            limitations.append(summary)
     evidence = [*state.get("evidence", []), *(item.model_dump() for item in items)]
-    summary = f"{len(items)}개 유사 사례를 조회했습니다."
-    run = {"agent": "case_search", "status": "succeeded", "summary": summary, "metadata": {}}
+    diagnosis_synthesis = None
+    if state["plan"].query_type == "diagnosis":
+        diagnosis_synthesis = synthesize_diagnosis(evidence)
+        evidence.append(diagnosis_synthesis)
+    run = {"agent": "case_search", "status": status, "summary": summary, "metadata": {}}
     agent_evidence = [item.model_dump() for item in items]
     reflection_patch = _agent_reflection_patch(
         state,
         run,
         agent_output={**run, "retrieved_count": len(items)},
         evidence=agent_evidence,
-        limitations=[],
+        limitations=limitations,
     )
     reasoning = _reasoning_entry(
         "case_search",
@@ -439,14 +491,24 @@ def _case_search_node(state: AgentState) -> dict[str, Any]:
     )
     return {
         "evidence": evidence,
+        "limitations": limitations,
         "agent_runs": [*state.get("agent_runs", []), run],
         **reflection_patch,
         "reasoning_state": [*state.get("reasoning_state", []), reasoning],
+        "answer_parts": [
+            *state.get("answer_parts", []),
+            *(
+                [diagnosis_synthesis["content"]]
+                if diagnosis_synthesis is not None
+                else []
+            ),
+        ],
         "stream_event": {
             "type": "tool_completed",
             "node": "case_search",
             "message": summary,
             "data": {
+                "status": status,
                 "evidence_count": len(items),
                 "reflection": reflection_patch["current_reflection"],
                 "reasoning": reasoning,
@@ -459,27 +521,59 @@ def _impact_node(state: AgentState) -> dict[str, Any]:
     if not _should_run_agent(state, "impact"):
         return _skipped("impact", "Planner가 영향도 계산을 선택하지 않았거나 필수 단계가 실패했습니다.")
     request = state["request"]
+    text2sql_result = state.get("text2sql_result")
     impact = estimate_output_delta(
-        baseline={},
+        baseline={
+            "rows": text2sql_result.rows if text2sql_result else [],
+            "columns": text2sql_result.columns if text2sql_result else [],
+            "query_plan": (
+                asdict(text2sql_result.plan)
+                if text2sql_result and text2sql_result.plan
+                else None
+            ),
+        },
         scenario={"question": request.message, "fab": request.fab},
     )
     limitations = [*state.get("limitations", []), *impact.get("limitations", [])]
-    summary = "영향도 모델이 아직 operational metric과 연결되지 않았습니다."
-    run = {"agent": "impact", "status": "data_unavailable", "summary": summary, "metadata": {}}
+    summary = impact["summary"]
+    status = impact["status"]
+    mixed_dimensions = impact.get("baseline", {}).get("mixed_dimensions", [])
+    run = {
+        "agent": "impact",
+        "status": status,
+        "summary": summary,
+        "metadata": {
+            "estimate_keys": sorted(impact.get("estimates", {})),
+            "mixed_dimensions": mixed_dimensions,
+        },
+    }
+    impact_evidence = {
+        "source_type": "impact_calculation",
+        "title": "Impact sensitivity calculation",
+        "content": summary,
+        "metadata": impact,
+    }
     reflection_patch = _agent_reflection_patch(
         state,
         run,
         agent_output={**run, "calculation": impact},
-        evidence=[],
+        evidence=[impact_evidence],
         limitations=impact.get("limitations", []),
     )
     reasoning = _reasoning_entry(
         "impact",
         summary,
-        {"status": "data_unavailable", "has_baseline": False},
+        {
+            "status": status,
+            "has_baseline": bool(text2sql_result and text2sql_result.rows),
+            "estimate_keys": sorted(impact.get("estimates", {})),
+            "mixed_dimensions": mixed_dimensions,
+        },
     )
     return {
+        "status": status,
         "limitations": limitations,
+        "evidence": [*state.get("evidence", []), impact_evidence],
         "answer_parts": [*state.get("answer_parts", []), summary],
         "agent_runs": [*state.get("agent_runs", []), run],
         **reflection_patch,
@@ -489,7 +583,9 @@ def _impact_node(state: AgentState) -> dict[str, Any]:
             "node": "impact",
             "message": summary,
             "data": {
-                "status": "data_unavailable",
+                "status": status,
+                "mixed_dimensions": mixed_dimensions,
+                "calculation": impact,
                 "reflection": reflection_patch["current_reflection"],
                 "reasoning": reasoning,
             },
@@ -536,19 +632,101 @@ def _visualization_node(state: AgentState) -> dict[str, Any]:
         }
 
     intent = result.plan.chart_intent if result.plan else None
-    chart = build_chart_spec("Route lot releases by date", result.rows, intent=intent)
+    try:
+        chart = build_chart_spec(state["request"].message, result.rows, intent=intent)
+    except ValueError as exc:
+        summary = f"차트 생성 계약을 충족하지 못했습니다: {exc}"
+        limitations = [*state.get("limitations", []), summary]
+        run = {
+            "agent": "visualization",
+            "status": "data_unavailable",
+            "summary": summary,
+            "metadata": {"chart_error": str(exc)},
+        }
+        reflection_patch = _agent_reflection_patch(
+            state,
+            run,
+            agent_output={**run, "chart": None},
+            evidence=[],
+            limitations=limitations,
+        )
+        reasoning = _reasoning_entry(
+            "visualization",
+            summary,
+            {"row_count": len(result.rows), "chart_error": str(exc)},
+        )
+        return {
+            "chart": None,
+            "limitations": limitations,
+            "agent_runs": [*state.get("agent_runs", []), run],
+            **reflection_patch,
+            "reasoning_state": [*state.get("reasoning_state", []), reasoning],
+            "stream_event": {
+                "type": "tool_completed",
+                "node": "visualization",
+                "message": summary,
+                "data": {
+                    "status": "data_unavailable",
+                    "reflection": reflection_patch["current_reflection"],
+                    "reasoning": reasoning,
+                },
+            },
+        }
+    insufficient_series = {
+        str(item["series"])
+        for item in chart.get("series_coverage", [])
+        if item.get("assessment") == "insufficient"
+    }
+    coverage_limitations = [
+        (
+            f"차트 series '{item['series']}'는 전체 {item['axis_point_count']}시점 중 "
+            f"{item['point_count']}시점만 관측되어 추세를 계산할 수 없습니다."
+            if item.get("reason") == "coverage_below_0.5"
+            else f"차트 series '{item['series']}'는 관측치가 "
+            f"{item['point_count']}개뿐이어서 추세를 계산할 수 없습니다."
+        )
+        for item in chart.get("series_coverage", [])
+        if item.get("assessment") == "insufficient"
+    ]
+    gap_limitations = [
+        "차트 series "
+        f"'{gap['series']}'에 관측 누락 시점이 있습니다: "
+        + ", ".join(str(value) for value in gap.get("missing_x", []))
+        for gap in chart.get("series_gaps", [])
+        if str(gap.get("series")) not in insufficient_series
+    ]
+    chart_limitations = [*coverage_limitations, *gap_limitations]
+    limitations = [*state.get("limitations", []), *chart_limitations]
     run = {
         "agent": "visualization",
         "status": "succeeded",
         "summary": f"{chart['type']} chart를 생성했습니다.",
-        "metadata": {"encoding": chart["encoding"]},
+        "metadata": {
+            "encoding": chart["encoding"],
+            "series_gap_count": len(chart.get("series_gaps", [])),
+            "insufficient_series_count": len(insufficient_series),
+        },
+    }
+    visualization_evidence = {
+        "source_type": "visualization_spec",
+        "title": f"{chart['type']} chart",
+        "content": "SQL query rows로 생성한 chart specification입니다.",
+        "metadata": {
+            "status": "succeeded",
+            "chart_type": chart["type"],
+            "encoding": chart["encoding"],
+            "trend_summary": chart.get("trend_summary", []),
+            "series_gaps": chart.get("series_gaps", []),
+            "series_coverage": chart.get("series_coverage", []),
+            "imputed_points": chart.get("imputed_points", []),
+        },
     }
     reflection_patch = _agent_reflection_patch(
         state,
         run,
         agent_output={**run, "chart": chart},
         evidence=[],
-        limitations=[],
+        limitations=limitations,
     )
     reasoning = _reasoning_entry(
         "visualization",
@@ -561,6 +739,8 @@ def _visualization_node(state: AgentState) -> dict[str, Any]:
     )
     return {
         "chart": chart,
+        "limitations": limitations,
+        "evidence": [*state.get("evidence", []), visualization_evidence],
         "agent_runs": [*state.get("agent_runs", []), run],
         **reflection_patch,
         "reasoning_state": [*state.get("reasoning_state", []), reasoning],
@@ -610,8 +790,71 @@ def _composer_node(state: AgentState) -> dict[str, Any]:
             "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
             "data": {
                 "answer": answer,
-                "execution_mode": "llm_chat_completions",
+                "execution_mode": (
+                    "deterministic_fallback"
+                    if state.get("reflection", {}).get("fallback_used")
+                    else "llm_chat_completions"
+                ),
                 "model": get_settings().openai_model,
+                "reasoning": reasoning,
+            },
+        },
+    }
+
+
+def _answer_supervisor_node(state: AgentState) -> dict[str, Any]:
+    answer = state.get("answer", "")
+    review = review_final_answer(
+        question=state["request"].message,
+        answer=answer,
+        plan=state["plan"],
+        evidence=state.get("evidence", []),
+        limitations=state.get("limitations", []),
+    )
+    revised = bool(review.get("correction_applied"))
+    if revised:
+        answer = str(review["corrected_answer"])
+
+    limitations = list(state.get("limitations", []))
+    if not review["approved"]:
+        for issue in review["issues"]:
+            if issue not in limitations:
+                limitations.append(issue)
+    termination_reason = state.get("termination_reason")
+    status = state.get("status", "succeeded")
+    if not review["approved"] and termination_reason != "human_review_required":
+        termination_reason = "answer_review_failed"
+        status = "failed"
+
+    reasoning = _reasoning_entry(
+        "answer_supervisor",
+        "최종 답변을 원 질문과 근거에 대조해 검증했습니다.",
+        {
+            "approved": review["approved"],
+            "revised": revised,
+            "issue_count": len(review["issues"]),
+        },
+    )
+    return {
+        "answer": answer,
+        "answer_review": review,
+        "limitations": limitations,
+        "status": status,
+        "termination_reason": termination_reason,
+        "reasoning_state": [*state.get("reasoning_state", []), reasoning],
+        "stream_event": {
+            "type": "node_completed",
+            "node": "answer_supervisor",
+            "message": "최종 답변과 사용자 질문의 정합성을 검증했습니다.",
+            "data": {
+                "approved": review["approved"],
+                "revised": revised,
+                "issues": review["issues"],
+                "execution_mode": (
+                    "deterministic_fallback"
+                    if review.get("fallback_used")
+                    else "llm_chat_completions"
+                ),
                 "reasoning": reasoning,
             },
         },
@@ -630,7 +873,11 @@ def _reflection_node(state: AgentState) -> dict[str, Any]:
         supervisor_reviews=state.get("supervisor_reviews", []),
         conversation_history=state.get("conversation_history", []),
     )
-    reflection["execution_mode"] = "llm_chat_completions"
+    reflection["execution_mode"] = (
+        "deterministic_fallback"
+        if reflection.get("fallback_used")
+        else "llm_chat_completions"
+    )
     reflection["model"] = get_settings().openai_model
     action = str(reflection.get("action") or "compose")
     retry_target = reflection.get("retry_target")
@@ -1007,7 +1254,12 @@ def _route_final_reflection(state: AgentState) -> str:
     return "composer"
 
 
-def _text2sql_query_type(planner_query_type: str) -> QueryType:
+def _text2sql_query_type(
+    planner_query_type: str, selected_sub_agents: list[str] | None = None
+) -> QueryType:
+    selected = set(selected_sub_agents or [])
+    if planner_query_type == "diagnosis" and "visualization" in selected:
+        return "trend"
     if planner_query_type in {"diagnosis", "impact"}:
         return "status"
     if planner_query_type in {
@@ -1042,6 +1294,7 @@ def build_agent_graph():
     builder.add_node("agent_supervisor", _agent_supervisor_node)
     builder.add_node("composer", _composer_node)
     builder.add_node("reflection", _reflection_node)
+    builder.add_node("answer_supervisor", _answer_supervisor_node)
     builder.add_edge(START, "planner")
     builder.add_edge("planner", "supervisor")
     builder.add_edge("supervisor", "dispatcher")
@@ -1077,7 +1330,8 @@ def build_agent_graph():
         _route_final_reflection,
         final_reflection_targets,
     )
-    builder.add_edge("composer", END)
+    builder.add_edge("composer", "answer_supervisor")
+    builder.add_edge("answer_supervisor", END)
     return builder.compile()
 
 
@@ -1110,4 +1364,5 @@ def initial_graph_state(
         "next_agent": None,
         "termination_reason": None,
         "reflection_decisions": [],
+        "answer_review": {},
     }

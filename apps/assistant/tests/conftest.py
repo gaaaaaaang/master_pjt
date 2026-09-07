@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import os
 from typing import Any
 
 import pytest
+
+os.environ.setdefault("APP_ENV", "test")
+
 from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
 
 
@@ -129,6 +133,16 @@ def fake_agent_chat_completions(monkeypatch):
         if schema_name == "fab_final_answer":
             summaries = input_data.get("tool_summaries") or []
             return {"answer": "\n\n".join(summaries) or "테스트 답변입니다."}
+        if schema_name == "fab_answer_supervisor_decision":
+            check = input_data["deterministic_check"]
+            question = input_data["question"]
+            answer = input_data["final_answer"]
+            return {
+                "approved": check["is_supported"],
+                "issues": check["warnings"],
+                "corrected_answer": None if check["is_supported"] else f"{question}\n{answer}",
+                "reason": "test final-answer review",
+            }
         raise AssertionError(f"Unexpected schema: {schema_name}")
 
     monkeypatch.setattr("app.agents.llm.AzureAgentClient.complete_json", complete_json)
