@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Chart } from './charts';
 import { Icon, Brand, Chip, CopyButton, AnswerText, DataTable, Drawer, Inspector, downloadRows } from './ui';
 import { consumeSse, requestForAttempt, restoreMessages, progressLabel, rowsFromResult } from './chat-model';
+import { answerReport } from './answer-report';
 import { restoreWorkspaceUi } from './session-ui';
 import { makePreview } from './preview';
 import './workspace.css';
@@ -169,7 +170,7 @@ function AssistantMessage({ message, busy, canRetry, onRetry, onInspect, onFeedb
       {result.status === 'needs_clarification' && <p className="next-action"><Icon name="chat" size={17}/>아래 입력창에 기준과 기간을 알려주시면 이어서 분석할게요.</p>}
     </>}
     {(message.events?.length > 0 || result) && <div className="answer-details"><button className="trace-trigger" onClick={() => onInspect('trace')}><span className={`trace-icon ${pending ? 'pending' : ''}`}><Icon name={pending ? 'clock' : 'layers'} size={15}/></span><span>{pending ? '실행 과정 확인' : '어떻게 분석했나요?'}<small>{agentCount > 0 ? `${agentCount}개 에이전트` : '분석 상세'}</small></span><Icon name="chevron" size={15}/></button>{result?.evidence?.length > 0 && <button className="evidence-trigger" onClick={() => onInspect('evidence')}><Icon name="book" size={16}/>근거 {result.evidence?.length || 0}<Icon name="chevron" size={14}/></button>}</div>}
-    {result && <div className="answer-actions"><CopyButton text={result.answer || ''} label="답변 복사" onNotice={onNotice}/><div className="feedback-actions"><button className="icon-button" aria-label="도움이 됐어요" aria-pressed={message.feedback === 'helpful'} disabled={!!message.feedback} onClick={() => onFeedback(true)}><Icon name="like" size={16}/></button><button className="icon-button" aria-label="아쉬워요" aria-pressed={message.feedback === 'unhelpful'} disabled={!!message.feedback} onClick={() => onFeedback(false)}><Icon name="like" size={16} style={{ transform: 'rotate(180deg)' }}/></button></div></div>}
+    {result && <div className="answer-actions"><CopyButton text={answerReport(message)} label="답변·근거 복사" onNotice={onNotice}/><div className="feedback-actions"><button className="icon-button" aria-label="도움이 됐어요" aria-pressed={message.feedback === 'helpful'} disabled={!!message.feedback} onClick={() => onFeedback(true)}><Icon name="like" size={16}/></button><button className="icon-button" aria-label="아쉬워요" aria-pressed={message.feedback === 'unhelpful'} disabled={!!message.feedback} onClick={() => onFeedback(false)}><Icon name="like" size={16} style={{ transform: 'rotate(180deg)' }}/></button></div></div>}
   </article>;
 }
 function ContextDrawer({ context, onSave, onClose }) {
