@@ -374,3 +374,16 @@ figure.chart{overflow:auto;padding-bottom:5px}
 .inline-limitations ul{font-size:11px}
 
 .status-chip.progress{color:#3182f6}
+
+.table-explorer{min-width:0}
+.table-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+.table-controls label{display:flex;align-items:center;gap:8px;background:#f6f8fb;border:1px solid #e7ebf0;border-radius:9px;padding:9px 11px;min-width:0;color:#8b95a1}
+.table-controls input{border:0;background:transparent;outline:none;width:100%;font-size:12px;min-width:0;color:#4e5968}
+.table-controls label:focus-within{outline:2px solid #3182f660}
+.table-controls>span{font-size:10px;color:#6b7684;white-space:nowrap}
+.data-table th button{display:flex;align-items:center;gap:12px;padding:0;font-size:inherit;text-align:left;min-height:24px;width:100%}
+.data-table th button span{margin-left:auto;color:#a5b2c4}
+.data-table th[aria-sort=ascending],.data-table th[aria-sort=descending]{color:#2469c7;background:#eff5ff}
+.table-empty{padding:24px 15px;font-size:12px;color:#6b7684;text-align:center}
+.table-order{margin-right:auto;font-size:10px}
+@media(max-width:760px){.table-controls input{font-size:16px}.table-controls{gap:8px}.table-controls>span{font-size:9px}}

@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { cellText, tableView } from './table-model';
 import { answerBlocks } from './answer-blocks';
 import { agentLabel, resultStatus, rowsFromResult, toCsv } from './chat-model';
 
@@ -38,8 +39,23 @@ export function AnswerText({ text = '' }) {
 }
 export function DataTable({ rows }) {
   const [page, setPage] = useState(0);
-  const fields = [...new Set(rows.flatMap(row => Object.keys(row)))];
-  return <><div className="data-table" tabIndex={0} role="region" aria-label="조회 결과 표"><table><thead><tr>{fields.map(key => <th scope="col" key={key}>{key}</th>)}</tr></thead><tbody>{rows.slice(page * 20, page * 20 + 20).map((row, i) => <tr key={i}>{fields.map(key => <td key={key}>{row[key] == null ? '—' : typeof row[key] === 'object' ? JSON.stringify(row[key]) : String(row[key])}</td>)}</tr>)}</tbody></table></div>{rows.length > 20 && <div className="pagination"><button disabled={!page} onClick={() => setPage(page - 1)}>이전</button><span>{page + 1} / {Math.ceil(rows.length / 20)}</span><button disabled={(page + 1) * 20 >= rows.length} onClick={() => setPage(page + 1)}>다음</button></div>}</>;
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState(null);
+  const fields = useMemo(() => [...new Set(rows.flatMap(row => Object.keys(row)))], [rows]);
+  const filtered = useMemo(() => tableView(rows, query, sort), [rows, query, sort]);
+  const pages = Math.max(1, Math.ceil(filtered.length / 20));
+  const currentPage = Math.min(page, pages - 1);
+  function changeSort(key) {
+    setSort(current => current?.key === key
+      ? current.direction === 'ascending' ? { key, direction: 'descending' } : null
+      : { key, direction: 'ascending' });
+    setPage(0);
+  }
+  return <section className="table-explorer" aria-label="데이터 탐색">
+    {rows.length > 20 && <div className="table-controls"><label><Icon name="search" size={16}/><input aria-label="조회 데이터 검색" placeholder="조회 결과에서 검색" value={query} onChange={event => { setQuery(event.target.value); setPage(0); }}/></label><span role="status">{filtered.length.toLocaleString()} / {rows.length.toLocaleString()}행</span></div>}
+    <div className="data-table" tabIndex={0} role="region" aria-label="조회 결과 표"><table><thead><tr>{fields.map(key => <th scope="col" key={key} aria-sort={sort?.key === key ? sort.direction : 'none'}><button type="button" onClick={() => changeSort(key)} aria-label={`${key} 정렬 변경`}>{key}<span aria-hidden="true">{sort?.key === key ? sort.direction === 'ascending' ? '↑' : '↓' : '↕'}</span></button></th>)}</tr></thead><tbody>{filtered.slice(currentPage * 20, currentPage * 20 + 20).map((row, i) => <tr key={i}>{fields.map(key => <td key={key} title={cellText(row[key])}>{row[key] == null ? '—' : cellText(row[key])}</td>)}</tr>)}</tbody></table>{!filtered.length && <p className="table-empty">일치하는 결과가 없어요. 다른 검색어를 입력해 주세요.</p>}</div>
+    {(rows.length > 20 || sort) && <div className="pagination"><span className="table-order">{sort ? `${sort.key} ${sort.direction === 'ascending' ? '오름차순' : '내림차순'}` : '원본 순서'}</span><button type="button" disabled={!currentPage} onClick={() => setPage(currentPage - 1)}>이전</button><span>{currentPage + 1} / {pages}</span><button type="button" disabled={currentPage + 1 >= pages} onClick={() => setPage(currentPage + 1)}>다음</button></div>}
+  </section>;
 }
 export function downloadRows(rows) {
   const url = URL.createObjectURL(new Blob([toCsv(rows)], { type: 'text/csv;charset=utf-8;' }));
@@ -71,7 +87,7 @@ export function Inspector({ message, initialTab = 'trace', onClose, onNotice }) 
         {Object.keys(result).length > 0 && <details className="raw-details"><summary>최종 응답 원본</summary><pre>{JSON.stringify(result, null, 2)}</pre></details>}
       </>}
       {tab === 'evidence' && <><h3>답변의 근거</h3>{!(result.evidence?.length) && <p className="empty-panel">이 답변에 첨부된 근거가 없어요.</p>}{(result.evidence || []).map((item, i) => <article className="evidence-card" key={i}><span className="source-kind">{item.source_type}</span><h4>{item.title}</h4><AnswerText text={item.content}/>{Object.keys(item.metadata || {}).length > 0 && <details className="raw-details"><summary>출처 상세</summary><pre>{JSON.stringify(item.metadata, null, 2)}</pre></details>}</article>)}{result.limitations?.length > 0 && <div className="limitations"><h4>해석할 때 확인해 주세요</h4><ul>{result.limitations.map((item, i) => <li key={i}>{item}</li>)}</ul></div>}</>}
-      {tab === 'data' && <><div className="section-heading"><h3>조회 데이터 <span className="count">{rows.length}행</span></h3>{rows.length > 0 && <button className="text-button" onClick={() => downloadRows(rows)}><Icon name="download" size={16}/>CSV 저장</button>}</div>{rows.length ? <><p className="muted small-text">서버가 반환한 차트 데이터 또는 조회 샘플이에요.</p><DataTable rows={rows}/></> : <p className="empty-panel">반환된 데이터가 없어요.</p>}{result.sql && <section className="sql-section"><div className="section-heading"><h3>실행 SQL</h3><CopyButton text={result.sql} onNotice={onNotice}/></div><pre>{result.sql}</pre></section>}</>}
+      {tab === 'data' && <><div className="section-heading"><h3>조회 데이터 <span className="count">{rows.length}행</span></h3>{rows.length > 0 && <button className="text-button" onClick={() => downloadRows(rows)}><Icon name="download" size={16}/>전체 CSV 저장</button>}</div>{rows.length ? <><p className="muted small-text">서버가 반환한 차트 데이터 또는 조회 샘플이에요.</p><DataTable rows={rows}/></> : <p className="empty-panel">반환된 데이터가 없어요.</p>}{result.sql && <section className="sql-section"><div className="section-heading"><h3>실행 SQL</h3><CopyButton text={result.sql} onNotice={onNotice}/></div><pre>{result.sql}</pre></section>}</>}
     </div>
   </Drawer>;
 }

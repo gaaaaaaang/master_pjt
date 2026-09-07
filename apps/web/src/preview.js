@@ -17,6 +17,24 @@ export const previewCases = {
   unavailable: { title: '현재 대기 시간 확인', question: 'FAB10 Dry_Etch 공정의 현재 대기 시간은 얼마야?', result: { status: 'data_unavailable', answer: '## 현재 대기 시간을 확인할 데이터가 없어요\n현재 연결된 데이터에는 실시간 대기 시간이 포함되어 있지 않아요.\n**조회 가능한 데이터부터 확인**하거나, 기준 시점이 있는 대기 시간 데이터를 연결해 주세요.', evidence: [], limitations: ['실시간 현황을 투입 계획이나 설비 설정값으로 대신 추정하지 않았어요.'] } },
   error: { title: '연결 오류', question: 'FAB10의 WIP 현황을 알려줘', result: null, status: 'failed', error: '서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.' },
 };
+previewCases.large = {
+  title: '긴 조회 결과 탐색',
+  question: '제품별 일간 투입 계획을 표로 확인하고 싶어',
+  result: {
+    status: 'succeeded',
+    answer: '## 조회 결과에서 필요한 값을 찾아보세요\n**65행의 예시 데이터**를 준비했어요. 데이터 탭에서 검색하고 열 제목을 눌러 정렬할 수 있어요.',
+    chart: {
+      type: 'line', title: '일별 투입 계획 · 디자인 예시',
+      encoding: { x: { field: 'date', title: '날짜' }, y: { field: 'count', title: '계획 건수' } },
+      rows: Array.from({ length: 65 }, (_, index) => ({
+        date: new Date(Date.UTC(2020, 0, index + 1)).toISOString().slice(0, 10),
+        product: `제품 ${index % 3 + 1}`,
+        count: 100 + (index * 17) % 120,
+      })),
+    },
+    evidence: [], limitations: ['디자인 검토용 예시이며 실제 운영 수치가 아니에요.'],
+  },
+};
 export function makePreview(key) {
   const item = previewCases[key] || previewCases.trend;
   const nodes = key === 'error' ? ['planner'] : key === 'trend' ? ['planner', 'supervisor', 'text2sql', 'visualization', 'reflection', 'composer'] : ['planner', 'text2sql', 'composer'];
