@@ -364,6 +364,31 @@ button:disabled {
   white-space: pre-wrap;
 }
 
+.feedback-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.feedback-actions button {
+  align-items: center;
+  background: transparent;
+  border: 1px solid #cfd7d1;
+  color: #52615b;
+  display: inline-flex;
+  height: 28px;
+  justify-content: center;
+  padding: 0;
+  width: 28px;
+}
+
+.feedback-actions button:hover,
+.feedback-actions button.selected {
+  background: #dfeae5;
+  border-color: #2e5f52;
+  color: #1f4b40;
+}
+
 .stream-title {
   align-items: center;
   display: flex;
@@ -503,6 +528,21 @@ button:disabled {
   fill: #26765b;
   stroke: white;
   stroke-width: 2;
+}
+
+.chart circle.imputed-point {
+  fill: #fff;
+  stroke: #26765b;
+  stroke-width: 3;
+}
+
+.chart-bar {
+  opacity: 0.9;
+  transition: opacity 140ms ease;
+}
+
+.chart-bar:hover {
+  opacity: 1;
 }
 
 .chart text {

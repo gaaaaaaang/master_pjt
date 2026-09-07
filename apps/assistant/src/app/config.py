@@ -1,6 +1,9 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+APP_ROOT = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
@@ -18,7 +21,9 @@ class Settings(BaseSettings):
     db_allowed_schemas: str = "fab10,fab11,fab12,fab13"
     vector_db_url: str | None = None
     vector_db_collection: str = "master_pjt"
-    rag_local_store_path: str = "apps/assistant/output/rag/master_pjt.jsonl"
+    rag_local_store_path: str = str(APP_ROOT / "output/rag/master_pjt.jsonl")
+    incident_case_store_path: str = str(APP_ROOT / "output/cases/incidents.jsonl")
+    assistant_state_store_path: str = str(APP_ROOT / "output/state/assistant.sqlite3")
     embedding_model: str = "text-embedding-3-large"
     embedding_dimension: int = 3072
     langsmith_tracing: bool = False

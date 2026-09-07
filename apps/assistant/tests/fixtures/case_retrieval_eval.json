@@ -1,0 +1,57 @@
+[
+  {
+    "id": "case_queue_time",
+    "query": "왜 fab10 Dry_Etch Queue Time이 늘었어?",
+    "relevant_case_ids": ["SIM-QT-001"]
+  },
+  {
+    "id": "case_bottleneck",
+    "query": "fab10 Dry_Etch 병목 원인 후보를 찾아줘",
+    "relevant_case_ids": ["SIM-BN-002"]
+  },
+  {
+    "id": "case_ontime_drop",
+    "query": "fab10 Product_3 ontime이 떨어진 이유를 찾아줘",
+    "relevant_case_ids": ["SIM-OTD-003"]
+  },
+  {
+    "id": "case_station_down",
+    "query": "fab10 DE_BE_11 down 비율이 높아진 원인은?",
+    "relevant_case_ids": ["SIM-DOWN-004"]
+  },
+  {
+    "id": "case_alarm_wip_paraphrase",
+    "query": "fab10 장비 알람 뒤 재공이 정체됐어 무엇을 확인해?",
+    "relevant_case_ids": ["SIM-DOWN-004"]
+  },
+  {
+    "id": "case_ontime_drop_paraphrase",
+    "query": "fab10 납기 준수율이 악화된 이유 후보는?",
+    "relevant_case_ids": ["SIM-OTD-003"]
+  },
+  {
+    "id": "case_queue_residence_paraphrase",
+    "query": "대기열 체류가 길어졌는데 비슷한 사례가 있어?",
+    "relevant_case_ids": ["SIM-QT-001"]
+  },
+  {
+    "id": "case_equipment_stopped_colloquial",
+    "query": "장비가 자꾸 멈춰서 재공이 밀린 유사 사례",
+    "relevant_case_ids": ["SIM-DOWN-004"]
+  },
+  {
+    "id": "case_process_blocked_colloquial",
+    "query": "공정이 막혀서 재공이 쌓인 원인 사례",
+    "relevant_case_ids": ["SIM-BN-002"]
+  },
+  {
+    "id": "case_delivery_cycle_colloquial",
+    "query": "납기 성능이 나빠지고 사이클이 길어진 사례",
+    "relevant_case_ids": ["SIM-OTD-003"]
+  },
+  {
+    "id": "case_negated_down_queue",
+    "query": "장비 down은 아니고 Queue Time이 증가한 유사 사례",
+    "relevant_case_ids": ["SIM-QT-001"]
+  }
+]

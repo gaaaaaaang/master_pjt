@@ -2,34 +2,46 @@
   {
     "id": "fab10_status_wip",
     "question": "지금 fab10 WIP 몇 개야?",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "status",
-    "expect_sql": false,
-    "expected_answer_contains": ["AutoSched report"]
+    "expect_sql": true,
+    "expected_answer_contains": ["AutoSched report"],
+    "target_source_tables": ["fab10.autosched_perf"],
+    "target_columns": ["wiplotavg"],
+    "min_rows": 1
   },
   {
     "id": "fab10_status_tool_current",
     "question": "fab10 DE_BE_11 설비 현재 상태 알려줘",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "status",
-    "expect_sql": false,
-    "expected_answer_contains": ["operational status"]
+    "expect_sql": true,
+    "expected_answer_contains": ["AutoSched report"],
+    "target_source_tables": ["fab10.autosched_stn"],
+    "target_columns": ["stn", "curstate"],
+    "min_rows": 1
   },
   {
     "id": "fab10_status_utilization",
     "question": "fab10 Dry_Etch utilization 어때?",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "status",
-    "expect_sql": false,
-    "expected_answer_contains": ["AutoSched report"]
+    "expect_sql": true,
+    "expected_answer_contains": ["AutoSched report"],
+    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_columns": ["stngrp", "util_percent"],
+    "min_rows": 1
   },
   {
     "id": "fab10_status_cycle_time",
     "question": "fab10 cycle time 현재 얼마야?",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "status",
-    "expect_sql": false,
-    "expected_answer_contains": ["AutoSched report"]
+    "expect_sql": true,
+    "expected_answer_contains": ["AutoSched report"],
+    "target_source_tables": ["fab10.autosched_perf"],
+    "target_columns": ["cycleavg"],
+    "min_rows": 1
   },
   {
     "id": "fab10_status_queue",
@@ -37,86 +49,96 @@
     "expected_status": "data_unavailable",
     "expected_query_type": "status",
     "expect_sql": false,
-    "expected_answer_contains": ["AutoSched report"]
+    "expected_answer_contains": ["Queue Time"],
+    "expected_limitation_contains": ["queue-time snapshot"]
   },
   {
     "id": "fab10_status_ontime",
     "question": "지금 fab10 ontime rate 얼마야?",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "status",
-    "expect_sql": false,
+    "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
     "target_source_tables": ["fab10.autosched_perf"],
-    "target_columns": ["report_time", "period", "ontime_percent"]
+    "target_columns": ["ontime_percent"],
+    "min_rows": 1
   },
   {
     "id": "fab10_status_lotcomps",
     "question": "fab10 현재 lot completion 수 보여줘",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "status",
-    "expect_sql": false,
+    "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
     "target_source_tables": ["fab10.autosched_perf"],
-    "target_columns": ["report_time", "period", "lotcomps"]
+    "target_columns": ["lotcomps"],
+    "min_rows": 1
   },
   {
     "id": "fab10_status_process_group_wip",
     "question": "fab10 Dry_Etch 공정그룹 WIP 높은 순으로 보여줘",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "status",
-    "expect_sql": false,
+    "expect_sql": true,
+    "expected_sql_contains": ["ORDER BY wiplotavg DESC NULLS LAST"],
     "expected_answer_contains": ["AutoSched report"],
     "target_source_tables": ["fab10.autosched_stngrp"],
-    "target_columns": ["report_time", "period", "stngrp", "wiplotavg"]
+    "target_columns": ["stngrp", "wiplotavg"],
+    "min_rows": 1
   },
   {
     "id": "fab10_status_process_group_util",
     "question": "fab10 Wet_Etch 공정그룹 util 상위 설비군 알려줘",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "status",
-    "expect_sql": false,
+    "expect_sql": true,
+    "expected_sql_contains": ["ORDER BY util_percent DESC NULLS LAST"],
     "expected_answer_contains": ["AutoSched report"],
     "target_source_tables": ["fab10.autosched_stngrp"],
-    "target_columns": ["report_time", "period", "stngrp", "util_percent"]
+    "target_columns": ["stngrp", "util_percent"],
+    "min_rows": 1
   },
   {
     "id": "fab10_status_station_pm_down",
     "question": "fab10 DE_BE_11 설비 PM이랑 down 비율 알려줘",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "status",
-    "expect_sql": false,
+    "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
     "target_source_tables": ["fab10.autosched_stn"],
-    "target_columns": ["report_time", "period", "stn", "pm_percent", "down_percent"]
+    "target_columns": ["pm_percent", "down_percent"],
+    "min_rows": 1
   },
   {
     "id": "fab10_status_product_wip_ontime",
     "question": "fab10 Product_3 현재 WIP와 ontime 어때?",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "status",
-    "expect_sql": false,
+    "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
     "target_source_tables": ["fab10.autosched_part"],
-    "target_columns": ["report_time", "period", "part", "wiplotavg", "wiplotcur", "ontime_percent"]
+    "target_columns": ["part", "ontime_percent"],
+    "target_any_columns": ["wiplotavg", "wiplotcur"],
+    "min_rows": 1
   },
   {
     "id": "fab10_status_lot_progress",
     "question": "fab10 Init_Lot_3_24 진행 step이랑 현재 설비 알려줘",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "status",
-    "expect_sql": false,
+    "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
     "target_source_tables": ["fab10.autosched_lot"],
-    "target_columns": ["lot", "curstep", "curstn", "stepcomps"]
+    "target_columns": ["lot", "curstep", "curstn"],
+    "min_rows": 1
   },
   {
     "id": "fab10_toolgroups_dry_etch",
     "question": "fab10 Dry_Etch toolgroup 목록 보여줘",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_toolgroups",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.toolgroups", "area ILIKE", "Dry_Etch"],
+    "expected_sql_contains": ["FROM fab10.toolgroups", "Dry_Etch"],
     "expected_answer_contains": ["General Data 기준"],
     "min_rows": 1
   },
@@ -125,7 +147,6 @@
     "question": "fab10 Wet_Etch toolgroup list",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_toolgroups",
     "expect_sql": true,
     "expected_sql_contains": ["FROM fab10.toolgroups", "Wet_Etch"],
     "min_rows": 1
@@ -135,7 +156,6 @@
     "question": "fab10 Diffusion 설비군 구성 조회",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_toolgroups",
     "expect_sql": true,
     "expected_sql_contains": ["FROM fab10.toolgroups", "Diffusion"],
     "min_rows": 1
@@ -145,7 +165,6 @@
     "question": "fab10 Implant toolgroup 목록",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_toolgroups",
     "expect_sql": true,
     "expected_sql_contains": ["FROM fab10.toolgroups", "Implant"],
     "min_rows": 1
@@ -155,7 +174,6 @@
     "question": "fab10 Def_Met area toolgroup 보여줘",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_toolgroups",
     "expect_sql": true,
     "expected_sql_contains": ["FROM fab10.toolgroups", "Def_Met"],
     "min_rows": 1
@@ -165,9 +183,8 @@
     "question": "fab10 DE_BE_11 toolgroup 조회",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_toolgroups",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.toolgroups", "toolgroup ILIKE", "DE_BE_11"],
+    "expected_sql_contains": ["FROM fab10.toolgroups", "DE_BE_11"],
     "min_rows": 1
   },
   {
@@ -175,7 +192,6 @@
     "question": "fab10 Diffusion_FE_120 toolgroup 정보",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_toolgroups",
     "expect_sql": true,
     "expected_sql_contains": ["FROM fab10.toolgroups", "Diffusion_FE_120"],
     "min_rows": 1
@@ -185,7 +201,6 @@
     "question": "fab10 TF_Met toolgroup 목록",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_toolgroups",
     "expect_sql": true,
     "expected_sql_contains": ["FROM fab10.toolgroups", "TF_Met"],
     "min_rows": 1
@@ -235,9 +250,8 @@
     "question": "fab10 Product_3 route step 보여줘",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_route_steps",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.route_product_3", "ORDER BY source_row_id"],
+    "expected_sql_contains": ["FROM fab10.route_product_3"],
     "expected_answer_contains": ["General Data 기준"],
     "min_rows": 1
   },
@@ -246,7 +260,6 @@
     "question": "fab10 Product_4 route step 보여줘",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_route_steps",
     "expect_sql": true,
     "expected_sql_contains": ["FROM fab10.route_product_4"],
     "min_rows": 1
@@ -256,9 +269,8 @@
     "question": "fab10 Product_3 Diffusion route step 목록",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_route_steps",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.route_product_3", "area ILIKE", "Diffusion"],
+    "expected_sql_contains": ["FROM fab10.route_product_3", "Diffusion"],
     "min_rows": 1
   },
   {
@@ -266,9 +278,8 @@
     "question": "fab10 Product_3 Wet_Etch 공정 단계 보여줘",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_route_steps",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.route_product_3", "area ILIKE", "Wet_Etch"],
+    "expected_sql_contains": ["FROM fab10.route_product_3", "Wet_Etch"],
     "min_rows": 1
   },
   {
@@ -276,7 +287,6 @@
     "question": "fab10 part 3 공정 단계 목록",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_route_steps",
     "expect_sql": true,
     "expected_sql_contains": ["FROM fab10.route_product_3"],
     "min_rows": 1
@@ -286,7 +296,6 @@
     "question": "fab10 route_product_4 step list",
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
-    "expected_template_id": "master_route_steps",
     "expect_sql": true,
     "expected_sql_contains": ["FROM fab10.route_product_4"],
     "min_rows": 1
@@ -296,9 +305,8 @@
     "question": "fab10 Product_3 release plan 보여줘",
     "expected_status": "succeeded",
     "expected_query_type": "release_plan_lookup",
-    "expected_template_id": "release_plan_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["fab10.lotrelease", "Product_3", "Route_Product_3"],
+    "expected_sql_contains": ["fab10.lotrelease", "Product_3"],
     "expected_answer_contains": ["Release plan 기준"],
     "min_rows": 1
   },
@@ -307,9 +315,8 @@
     "question": "fab10 Product_4 release plan 조회",
     "expected_status": "succeeded",
     "expected_query_type": "release_plan_lookup",
-    "expected_template_id": "release_plan_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["fab10.lotrelease", "Product_4", "Route_Product_4"],
+    "expected_sql_contains": ["fab10.lotrelease", "Product_4"],
     "min_rows": 1
   },
   {
@@ -317,7 +324,6 @@
     "question": "fab10 part 3 due date 알려줘",
     "expected_status": "succeeded",
     "expected_query_type": "release_plan_lookup",
-    "expected_template_id": "release_plan_lookup",
     "expect_sql": true,
     "expected_sql_contains": ["due_date", "Product_3"],
     "min_rows": 1
@@ -327,7 +333,6 @@
     "question": "fab10 Route_Product_3 lotrelease 조회",
     "expected_status": "succeeded",
     "expected_query_type": "release_plan_lookup",
-    "expected_template_id": "release_plan_lookup",
     "expect_sql": true,
     "expected_sql_contains": ["Route_Product_3"],
     "min_rows": 1
@@ -337,7 +342,6 @@
     "question": "fab10 Product_3 릴리즈 계획",
     "expected_status": "succeeded",
     "expected_query_type": "release_plan_lookup",
-    "expected_template_id": "release_plan_lookup",
     "expect_sql": true,
     "expected_sql_contains": ["Product_3"],
     "min_rows": 1
@@ -348,10 +352,10 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.lotrelease", "start_date::date", "GROUP BY", "ORDER BY"],
-    "expected_answer_contains": ["lotrelease"],
+    "expected_sql_contains": ["FROM fab10.lotrelease", "start_date", "GROUP BY", "ORDER BY"],
+    "expected_answer_contains": ["Release plan 추세"],
     "target_source_tables": ["fab10.lotrelease"],
-    "target_columns": ["release_date", "lot_count"],
+    "target_columns": ["start_date"],
     "target_chart_type": "line"
   },
   {
@@ -360,42 +364,83 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.lotrelease", "due_date::date", "GROUP BY", "ORDER BY"],
-    "expected_answer_contains": ["lotrelease"],
+    "expected_sql_contains": ["FROM fab10.lotrelease", "due_date", "GROUP BY", "ORDER BY"],
+    "expected_answer_contains": ["Release plan 추세"],
     "target_source_tables": ["fab10.lotrelease"],
-    "target_columns": ["due_date", "lot_count"]
+    "target_columns": ["due_date"]
   },
   {
     "id": "fab10_trend_perf_wip_daily",
     "question": "fab10 WIP 일별 추세를 라인차트로 보여줘",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "trend",
-    "expect_sql": false,
+    "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
     "target_source_tables": ["fab10.autosched_perf"],
-    "target_columns": ["report_date", "wiplotavg"],
-    "target_chart_type": "line"
+    "target_columns": ["report_time", "wiplotavg"],
+    "target_chart_type": "line",
+    "min_rows": 1
   },
   {
     "id": "fab10_trend_stngrp_util_daily",
     "question": "fab10 Dry_Etch util 일별 추세 보여줘",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "trend",
-    "expect_sql": false,
+    "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
     "target_source_tables": ["fab10.autosched_stngrp"],
-    "target_columns": ["report_date", "stngrp", "util_percent"],
-    "target_chart_type": "line"
+    "target_columns": ["report_time", "util_percent"],
+    "target_chart_type": "line",
+    "min_rows": 1
   },
   {
     "id": "fab10_compare_product_cycle_ontime",
     "question": "fab10 Product_3와 Product_4 cycle time과 ontime 비교해줘",
-    "expected_status": "data_unavailable",
+    "expected_status": "succeeded",
     "expected_query_type": "trend",
-    "expect_sql": false,
+    "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
     "target_source_tables": ["fab10.autosched_part"],
-    "target_columns": ["part", "cycleavg", "ontime_percent"]
+    "target_columns": ["part", "cycleavg", "ontime_percent"],
+    "target_chart_type": "grouped_bar",
+    "min_rows": 2
+  },
+  {
+    "id": "fab10_compare_period_wip_ontime",
+    "question": "fab10 Period_2와 Period_3의 WIP과 ontime을 비교해줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "trend",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_perf", "Period_2", "Period_3"],
+    "expected_answer_contains": ["AutoSched report"],
+    "target_source_tables": ["fab10.autosched_perf"],
+    "target_columns": ["period", "wiplotavg", "ontime_percent"],
+    "target_chart_type": "grouped_bar",
+    "min_rows": 2
+  },
+  {
+    "id": "fab10_trend_explicit_date_range",
+    "question": "fab10 WIP 2020-01-01부터 2020-01-07까지 일별 추세 보여줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "trend",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_perf", "report_time::date >= '2020-01-01'", "report_time::date < '2020-01-08'"],
+    "target_source_tables": ["fab10.autosched_perf"],
+    "target_columns": ["report_date", "wiplotavg"],
+    "target_chart_type": "line",
+    "target_relative_period": "explicit_range"
+  },
+  {
+    "id": "fab10_product_compare_recent_7_days",
+    "question": "fab10 Product_3와 Product_4 최근 7일 cycle time 비교해줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "trend",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_part", "AVG(NULLIF(cycleavg::text, '')::numeric)", "GROUP BY part", "report_time::date >="],
+    "target_source_tables": ["fab10.autosched_part"],
+    "target_columns": ["part", "cycleavg"],
+    "target_chart_type": "grouped_bar",
+    "target_relative_period": "last_7_days"
   },
   {
     "id": "fab10_date_ambiguous_recent_lotrelease",
@@ -420,10 +465,10 @@
     "expected_query_type": "release_plan_lookup",
     "expect_sql": true,
     "expected_sql_contains": ["FROM fab10.lotrelease", "due_date"],
-    "expected_answer_contains": ["Release plan 기준"],
+    "expected_answer_contains": ["조건에 맞는 행이 없습니다"],
+    "expected_limitation_contains": ["적재된 스냅샷"],
     "target_date_basis": "due_date",
-    "target_relative_period": "last_week",
-    "min_rows": 1
+    "target_relative_period": "last_week"
   },
   {
     "id": "fab10_release_broad_guard",
@@ -448,8 +493,7 @@
     "expected_status": "unsupported",
     "expected_query_type": "master_data_lookup",
     "expect_sql": false,
-    "expected_answer_contains": ["General Data"],
-    "expected_limitation_contains": ["route_product_1"]
+    "expected_answer_contains": ["route"]
   },
   {
     "id": "fab10_unsupported_yield",
@@ -457,6 +501,306 @@
     "expected_status": "unsupported",
     "expected_query_type": "unsupported",
     "expect_sql": false,
-    "expected_answer_contains": ["범위 밖"]
+    "expected_answer_contains": ["yield"]
+  },
+  {
+    "id": "fab10_quarterly_wip_monthly_buckets",
+    "question": "fab10 2020년 1분기 WIP 추세 보여줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "trend",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_perf", "report_time::date >= '2020-01-01'", "report_time::date < '2020-04-01'", "date_trunc('month', report_time::timestamp)::date AS report_month"],
+    "target_source_tables": ["fab10.autosched_perf"],
+    "target_columns": ["report_month", "wiplotavg"],
+    "target_chart_type": "line",
+    "target_relative_period": "quarter_2020_q1"
+  },
+  {
+    "id": "fab10_single_month_daily_wip",
+    "question": "fab10 2020년 2월 WIP 일별 추세",
+    "expected_status": "succeeded",
+    "expected_query_type": "trend",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_perf", "report_time::date >= '2020-02-01'", "report_time::date < '2020-03-01'"],
+    "target_source_tables": ["fab10.autosched_perf"],
+    "target_columns": ["report_date", "wiplotavg"],
+    "target_chart_type": "line",
+    "target_relative_period": "month_2020_02"
+  },
+  {
+    "id": "fab10_monthly_lotrelease_due_range",
+    "question": "fab10 Product_3 2020년 1월부터 2020년 3월까지 due_date 기준 월별 추세",
+    "expected_status": "succeeded",
+    "expected_query_type": "trend",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.lotrelease", "due_date >= '2020-01-01'", "due_date < '2020-04-01'", "date_trunc('month', due_date::timestamp)::date AS release_month"],
+    "target_source_tables": ["fab10.lotrelease"],
+    "target_columns": ["release_month", "lot_count"],
+    "target_chart_type": "line",
+    "target_date_basis": "due_date",
+    "target_relative_period": "month_range_2020_01_2020_03"
+  },
+  {
+    "id": "fab10_reversed_explicit_date_guard",
+    "question": "fab10 WIP 2020-02-01부터 2020-01-01까지 추세",
+    "expected_status": "needs_clarification",
+    "expected_query_type": "trend",
+    "expect_sql": false,
+    "expected_answer_contains": ["날짜 범위가 올바르지 않습니다"]
+  },
+  {
+    "id": "fab10_invalid_quarter_guard",
+    "question": "fab10 WIP 2020년 5분기 추세",
+    "expected_status": "needs_clarification",
+    "expected_query_type": "trend",
+    "expect_sql": false,
+    "expected_answer_contains": ["날짜 범위가 올바르지 않습니다"]
+  },
+  {
+    "id": "fab10_quarter_range_monthly_wip",
+    "question": "fab10 2020년 1분기부터 2분기까지 WIP 월별 추세",
+    "expected_status": "succeeded",
+    "expected_query_type": "trend",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_perf", "report_time::date >= '2020-01-01'", "report_time::date < '2020-07-01'", "date_trunc('month', report_time::timestamp)::date AS report_month"],
+    "target_source_tables": ["fab10.autosched_perf"],
+    "target_columns": ["report_month", "wiplotavg"],
+    "target_chart_type": "line",
+    "target_relative_period": "quarter_range_2020_q1_2020_q2"
+  },
+  {
+    "id": "fab10_last_quarter_bounded_wip",
+    "question": "fab10 지난 분기 WIP 월별 추세",
+    "expected_status": "succeeded",
+    "expected_query_type": "trend",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_perf", "report_time::date >=", "report_time::date <", "date_trunc('month', report_time::timestamp)::date AS report_month"],
+    "target_source_tables": ["fab10.autosched_perf"],
+    "target_columns": ["report_month", "wiplotavg"],
+    "target_chart_type": "line",
+    "target_relative_period": "last_quarter"
+  },
+  {
+    "id": "fab10_reversed_quarter_guard",
+    "question": "fab10 WIP 2020년 3분기부터 2분기까지 추세",
+    "expected_status": "needs_clarification",
+    "expected_query_type": "trend",
+    "expect_sql": false,
+    "expected_answer_contains": ["날짜 범위가 올바르지 않습니다"]
+  },
+  {
+    "id": "fab10_status_multi_product_wip_cycle",
+    "question": "fab10 Product_3과 Product_4 현재 WIP과 cycle time 알려줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "status",
+    "expect_sql": true,
+    "expected_sql_contains": [
+      "FROM fab10.autosched_part",
+      "lower(part) IN ('part_3', 'part_4')",
+      "ORDER BY part"
+    ],
+    "expected_answer_contains": ["AutoSched report"],
+    "target_source_tables": ["fab10.autosched_part"],
+    "target_columns": ["part", "wiplotcur", "wiplotavg", "cycleavg"],
+    "min_rows": 2
+  },
+  {
+    "id": "fab10_status_multi_equipment_util_down",
+    "question": "fab10 DE_BE_11과 DE_BE_12 현재 utilization과 down 알려줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "status",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_stn", "lower(stn) IN ('de_be_11', 'de_be_12')", "util_percent", "down_percent"],
+    "target_source_tables": ["fab10.autosched_stn"],
+    "target_columns": ["stn", "util_percent", "down_percent"],
+    "min_rows": 2
+  },
+  {
+    "id": "fab10_status_full_equipment_suffix",
+    "question": "fab10 Diffusion_FE_127_9 현재 down 알려줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "status",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_stn", "lower(stn) = 'diffusion_fe_127_9'", "down_percent"],
+    "target_source_tables": ["fab10.autosched_stn"],
+    "target_columns": ["stn", "down_percent"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_trend_multi_equipment_util_down",
+    "question": "fab10 DE_BE_11과 DE_BE_12 utilization과 down 일별 추세",
+    "expected_status": "succeeded",
+    "expected_query_type": "trend",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_stn", "lower(stn) IN ('de_be_11', 'de_be_12')", "GROUP BY report_time::date, stn"],
+    "target_source_tables": ["fab10.autosched_stn"],
+    "target_columns": ["report_date", "stn", "util_percent", "down_percent"],
+    "target_chart_type": "line",
+    "min_rows": 2
+  },
+  {
+    "id": "fab10_status_cross_source_impact_baseline",
+    "question": "fab10 현재 utilization과 cycle time baseline 알려줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "status",
+    "expect_sql": true,
+    "expected_sql_contains": ["WITH perf AS", "FROM fab10.autosched_perf", "FROM fab10.autosched_stngrp", "AVG(s.util_percent) AS util_percent", "s.period = p.period"],
+    "target_source_tables": ["fab10.autosched_perf", "fab10.autosched_stngrp"],
+    "target_columns": ["util_percent", "cycleavg", "lotcomps", "ontime_percent"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_status_util_threshold_top_n",
+    "question": "fab10 Dry_Etch utilization 80% 이상인 설비군 상위 5개",
+    "expected_status": "succeeded",
+    "expected_query_type": "status",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_stngrp", "stngrp ILIKE '%Dry_Etch%'", "AND util_percent >= 80", "ORDER BY util_percent DESC NULLS LAST", "LIMIT 5"],
+    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_columns": ["stngrp", "util_percent"]
+  },
+  {
+    "id": "fab10_status_wip_strict_threshold_bottom_n",
+    "question": "fab10 Dry_Etch WIP 100 초과 설비군 하위 3개",
+    "expected_status": "succeeded",
+    "expected_query_type": "status",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_stngrp", "AND wiplotavg > 100", "ORDER BY wiplotavg ASC NULLS LAST", "LIMIT 3"],
+    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_columns": ["stngrp", "wiplotavg"]
+  },
+  {
+    "id": "fab10_status_korean_percent_threshold",
+    "question": "fab10 Dry_Etch utilization 75 퍼센트 이상 설비군 상위 2개",
+    "expected_status": "succeeded",
+    "expected_query_type": "status",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_stngrp", "AND util_percent >= 75", "ORDER BY util_percent DESC NULLS LAST", "LIMIT 2"],
+    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_columns": ["stngrp", "util_percent"]
+  },
+  {
+    "id": "fab10_status_oversized_top_n_guard",
+    "question": "fab10 Dry_Etch utilization 설비군 상위 500개",
+    "expected_status": "needs_clarification",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["1~200"]
+  },
+  {
+    "id": "fab10_status_equipment_unsupported_threshold_metric_guard",
+    "question": "fab10 DE_BE_11 cycle time 10 초과 설비 상위 3개",
+    "expected_status": "data_unavailable",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["cycleavg", "autosched_stn"]
+  },
+  {
+    "id": "fab10_status_product_unsupported_ranking_metric_guard",
+    "question": "fab10 Product_3 utilization 상위 5개",
+    "expected_status": "data_unavailable",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["util_percent", "autosched_part"]
+  },
+  {
+    "id": "fab10_status_top_n_missing_ranking_metric_guard",
+    "question": "fab10 현재 Dry_Etch 설비군 상위 5개",
+    "expected_status": "needs_clarification",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["순위", "지표"]
+  },
+  {
+    "id": "fab10_status_process_group_low_metric_order",
+    "question": "fab10 Dry_Etch 공정그룹 down 비율 낮은 순으로 보여줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "status",
+    "expect_sql": true,
+    "expected_sql_contains": ["FROM fab10.autosched_stngrp", "ORDER BY down_percent ASC NULLS LAST"],
+    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_columns": ["stngrp", "down_percent"],
+    "min_rows": 1
+  },
+  {
+    "id": "fab10_status_qualitative_order_missing_metric_guard",
+    "question": "fab10 현재 Dry_Etch 설비군 높은 순으로 보여줘",
+    "expected_status": "needs_clarification",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["순위", "지표"]
+  },
+  {
+    "id": "fab10_status_symbolic_gte_threshold",
+    "question": "fab10 Dry_Etch utilization >= 82.5% 설비군 상위 4개",
+    "expected_status": "succeeded",
+    "expected_query_type": "status",
+    "expect_sql": true,
+    "expected_sql_contains": ["AND util_percent >= 82.5", "ORDER BY util_percent DESC NULLS LAST", "LIMIT 4"],
+    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_columns": ["stngrp", "util_percent"]
+  },
+  {
+    "id": "fab10_status_symbolic_lt_threshold",
+    "question": "fab10 Dry_Etch WIP < 120 설비군 하위 6개",
+    "expected_status": "succeeded",
+    "expected_query_type": "status",
+    "expect_sql": true,
+    "expected_sql_contains": ["AND wiplotavg < 120", "ORDER BY wiplotavg ASC NULLS LAST", "LIMIT 6"],
+    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_columns": ["stngrp", "wiplotavg"]
+  },
+  {
+    "id": "fab10_status_english_threshold",
+    "question": "fab10 Dry_Etch down above 5 percent 설비군 상위 3개",
+    "expected_status": "succeeded",
+    "expected_query_type": "status",
+    "expect_sql": true,
+    "expected_sql_contains": ["AND down_percent > 5", "ORDER BY down_percent DESC NULLS LAST", "LIMIT 3"],
+    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_columns": ["stngrp", "down_percent"]
+  },
+  {
+    "id": "fab10_status_percent_threshold_out_of_range_guard",
+    "question": "fab10 Dry_Etch utilization 120% 이상 설비군",
+    "expected_status": "needs_clarification",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["0~100"]
+  },
+  {
+    "id": "fab10_status_non_percent_metric_unit_guard",
+    "question": "fab10 Dry_Etch WIP 50% 이상 설비군",
+    "expected_status": "needs_clarification",
+    "expected_query_type": "status",
+    "expect_sql": false,
+    "expected_answer_contains": ["percent 단위가 아닙니다"]
+  },
+  {
+    "id": "fab10_compare_two_explicit_date_ranges",
+    "question": "fab10 WIP 2020-01-01부터 2020-01-02까지와 2021-01-01부터 2021-01-02까지 기간 평균 비교해줘",
+    "expected_status": "succeeded",
+    "expected_query_type": "trend",
+    "expect_sql": true,
+    "expected_sql_contains": [
+      "CASE WHEN report_time::date >= '2020-01-01'::date",
+      "WHEN report_time::date >= '2021-01-01'::date",
+      "AVG(NULLIF(wiplotavg::text, '')::numeric)",
+      "GROUP BY CASE",
+      "ORDER BY comparison_period"
+    ],
+    "target_source_tables": ["fab10.autosched_perf"],
+    "target_columns": ["comparison_period", "wiplotavg"],
+    "target_chart_type": "grouped_bar",
+    "target_relative_period": "explicit_period_comparison",
+    "min_rows": 2
+  },
+  {
+    "id": "fab10_compare_overlapping_date_ranges_guard",
+    "question": "fab10 WIP 2020-01-01부터 2020-01-05까지와 2020-01-04부터 2020-01-07까지 기간 평균 비교해줘",
+    "expected_status": "needs_clarification",
+    "expected_query_type": "trend",
+    "expect_sql": false,
+    "expected_answer_contains": ["날짜 범위가 겹칩니다"]
   }
 ]

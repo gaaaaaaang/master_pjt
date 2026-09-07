@@ -8,10 +8,13 @@ from app.agents.planner import AGENT_NAMES, PlannerDecision
 from app.agents.prompts import (
     AGENT_RECOVERY_PROMPT_VERSION,
     AGENT_RECOVERY_SYSTEM_PROMPT,
+    ANSWER_SUPERVISOR_PROMPT_VERSION,
+    ANSWER_SUPERVISOR_SYSTEM_PROMPT,
     SUPERVISOR_PROMPT_VERSION,
     SUPERVISOR_SYSTEM_PROMPT,
 )
 from app.schemas.chat import ChatRequest, Evidence
+from app.sub_agent.reflection import verify_response
 
 SupervisorStatus = Literal[
     "succeeded",
@@ -64,6 +67,18 @@ AGENT_RECOVERY_OUTPUT_SCHEMA = {
     "required": ["action", "alternate_agent", "reason", "planner_feedback", "limitations"],
 }
 
+ANSWER_SUPERVISOR_OUTPUT_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "approved": {"type": "boolean"},
+        "issues": {"type": "array", "items": {"type": "string"}},
+        "corrected_answer": {"type": ["string", "null"]},
+        "reason": {"type": "string"},
+    },
+    "required": ["approved", "issues", "corrected_answer", "reason"],
+}
+
 
 @dataclass(frozen=True)
 class AgentRun:
@@ -95,6 +110,7 @@ class SupervisorResult:
     reflection_decisions: list[dict[str, Any]] = field(default_factory=list)
     termination_reason: str | None = None
     reflection: dict[str, Any] = field(default_factory=dict)
+    answer_review: dict[str, Any] = field(default_factory=dict)
     prompt_version: str = SUPERVISOR_PROMPT_VERSION
     prompt_contract: str = SUPERVISOR_SYSTEM_PROMPT
 
@@ -106,13 +122,28 @@ def review_plan(
     llm_client: AzureAgentClient | None = None,
 ) -> tuple[PlannerDecision, dict[str, Any]]:
     """Review and authorize a Planner plan with an independent LLM call."""
-    output = (llm_client or AzureAgentClient()).complete_json(
-        system_prompt=SUPERVISOR_SYSTEM_PROMPT,
-        input_data={"question": question, "planner_decision": asdict(plan)},
-        output_schema=SUPERVISOR_OUTPUT_SCHEMA,
-        schema_name="fab_supervisor_decision",
+    try:
+        output = (llm_client or AzureAgentClient()).complete_json(
+            system_prompt=SUPERVISOR_SYSTEM_PROMPT,
+            input_data={"question": question, "planner_decision": asdict(plan)},
+            output_schema=SUPERVISOR_OUTPUT_SCHEMA,
+            schema_name="fab_supervisor_decision",
+        )
+    except RuntimeError as exc:
+        output = {
+            "proceed": plan.status == "ready",
+            "status": plan.status,
+            "selected_sub_agents": list(plan.selected_sub_agents),
+            "reason": f"Supervisor LLM unavailable; deterministic plan contract used: {exc}",
+            "answer": None,
+            "limitations": ["Supervisor LLM review was unavailable."],
+            "fallback_used": True,
+        }
+    selected = (
+        list(plan.selected_sub_agents)
+        if output["status"] == "ready" and output["proceed"]
+        else list(output["selected_sub_agents"])
     )
-    selected = list(output["selected_sub_agents"])
     selected_set = set(selected)
     reviewed = replace(
         plan,
@@ -136,20 +167,30 @@ def review_agent_result(
     llm_client: AzureAgentClient | None = None,
 ) -> dict[str, Any]:
     """Choose a bounded recovery action for one reflected agent result."""
-    output = (llm_client or AzureAgentClient()).complete_json(
-        system_prompt=AGENT_RECOVERY_SYSTEM_PROMPT,
-        input_data={
-            "planner_decision": asdict(plan),
-            "agent_reflection": reflection,
-            "retry_count": retry_count,
-            "retry_budget_remaining": retry_budget_remaining,
-            "replan_budget_remaining": replan_budget_remaining,
-            "alternate_budget_remaining": alternate_budget_remaining,
-            "allowed_alternate_agents": allowed_alternate_agents,
-        },
-        output_schema=AGENT_RECOVERY_OUTPUT_SCHEMA,
-        schema_name="fab_agent_recovery_decision",
-    )
+    try:
+        output = (llm_client or AzureAgentClient()).complete_json(
+            system_prompt=AGENT_RECOVERY_SYSTEM_PROMPT,
+            input_data={
+                "planner_decision": asdict(plan),
+                "agent_reflection": reflection,
+                "retry_count": retry_count,
+                "retry_budget_remaining": retry_budget_remaining,
+                "replan_budget_remaining": replan_budget_remaining,
+                "alternate_budget_remaining": alternate_budget_remaining,
+                "allowed_alternate_agents": allowed_alternate_agents,
+            },
+            output_schema=AGENT_RECOVERY_OUTPUT_SCHEMA,
+            schema_name="fab_agent_recovery_decision",
+        )
+    except RuntimeError as exc:
+        output = {
+            "action": "continue",
+            "alternate_agent": None,
+            "reason": f"Recovery LLM unavailable; bounded deterministic continue used: {exc}",
+            "planner_feedback": None,
+            "limitations": ["Recovery LLM review was unavailable."],
+            "fallback_used": True,
+        }
     action = str(output["action"])
     status = str(reflection.get("status") or "unknown")
     alternate = output.get("alternate_agent")
@@ -180,6 +221,77 @@ def review_agent_result(
             f"{output['reason']} {fallback_reason}" if fallback_reason else output["reason"]
         ),
         "prompt_version": AGENT_RECOVERY_PROMPT_VERSION,
+    }
+
+
+def review_final_answer(
+    *,
+    question: str,
+    answer: str,
+    plan: PlannerDecision,
+    evidence: list[dict[str, Any]],
+    limitations: list[str],
+    llm_client: AzureAgentClient | None = None,
+) -> dict[str, Any]:
+    """Review the composed answer against the original request and grounded evidence."""
+    deterministic = verify_response(
+        answer,
+        evidence=evidence,
+        limitations=limitations,
+        query_type=plan.query_type,
+        question=question,
+    )
+    try:
+        output = (llm_client or AzureAgentClient()).complete_json(
+            system_prompt=ANSWER_SUPERVISOR_SYSTEM_PROMPT,
+            input_data={
+                "question": question,
+                "planner_decision": asdict(plan),
+                "final_answer": answer,
+                "evidence": evidence,
+                "limitations": limitations,
+                "deterministic_check": deterministic,
+            },
+            output_schema=ANSWER_SUPERVISOR_OUTPUT_SCHEMA,
+            schema_name="fab_answer_supervisor_decision",
+        )
+    except RuntimeError as exc:
+        output = {
+            "approved": deterministic["is_supported"],
+            "issues": list(deterministic["warnings"]),
+            "corrected_answer": None,
+            "reason": f"Answer Supervisor LLM unavailable; deterministic check used: {exc}",
+            "fallback_used": True,
+        }
+    issues = list(dict.fromkeys([*deterministic["warnings"], *output["issues"]]))
+    original_approved = bool(output["approved"]) and not issues
+    approved = original_approved
+    corrected_answer = str(output.get("corrected_answer") or "").strip() or None
+    correction_check = None
+    correction_applied = False
+    if not approved and corrected_answer:
+        correction_check = verify_response(
+            corrected_answer,
+            evidence=evidence,
+            limitations=limitations,
+            query_type=plan.query_type,
+            question=question,
+        )
+        if correction_check["is_supported"]:
+            approved = True
+            issues = []
+            correction_applied = True
+
+    return {
+        **output,
+        "approved": approved,
+        "original_approved": original_approved,
+        "issues": issues,
+        "corrected_answer": corrected_answer,
+        "correction_applied": correction_applied,
+        "deterministic_check": deterministic,
+        "correction_check": correction_check,
+        "prompt_version": ANSWER_SUPERVISOR_PROMPT_VERSION,
     }
 
 
@@ -221,4 +333,5 @@ class Supervisor:
             reflection_decisions=state.get("reflection_decisions", []),
             termination_reason=state.get("termination_reason"),
             reflection=state.get("reflection", {}),
+            answer_review=state.get("answer_review", {}),
         )

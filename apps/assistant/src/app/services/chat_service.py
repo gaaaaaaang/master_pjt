@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 from app.agents.supervisor import Supervisor
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.services.conversation_memory import ConversationMemory, conversation_memory
@@ -28,6 +30,7 @@ class ChatService:
         )
         return ChatResponse(
             conversation_id=result.conversation_id,
+            status=result.status,
             query_type=result.query_type,
             answer=result.answer,
             conversation_history=updated_history,
@@ -37,6 +40,7 @@ class ChatService:
             chart=result.chart,
             confidence=result.confidence,
             limitations=result.limitations,
+            agent_runs=[asdict(run) for run in result.agent_runs],
             agent_reflections=result.agent_reflections,
             supervisor_reviews=result.supervisor_reviews,
             supervisor_decisions=result.supervisor_decisions,
@@ -45,4 +49,5 @@ class ChatService:
             reflection_decisions=result.reflection_decisions,
             termination_reason=result.termination_reason,
             reflection=result.reflection,
+            answer_review=result.answer_review,
         )

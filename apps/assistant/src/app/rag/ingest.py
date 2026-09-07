@@ -145,10 +145,9 @@ def _chunks_for_file(
     if not text:
         return []
     title = path.stem
-    base_metadata = _infer_metadata(path, text)
     chunks = []
     for index, content in enumerate(_split_text(text, chunk_target_chars, chunk_overlap_chars)):
-        metadata = {**base_metadata, "chunk_index": str(index)}
+        metadata = {**_infer_metadata(path, content), "chunk_index": str(index)}
         chunks.append(
             KnowledgeChunk(
                 chunk_id=_chunk_id(collection, knowledge_base, path, index, content),
@@ -222,24 +221,45 @@ def _split_text(text: str, target_chars: int, overlap_chars: int) -> list[str]:
 
 
 def _infer_metadata(path: Path, text: str) -> dict[str, str]:
-    lower = f"{path.name}\n{text[:2000]}".casefold()
+    lower = f"{path.name}\n{text}".casefold()
     metadata: dict[str, str] = {
         "source_document": path.name,
         "source_type": path.suffix.lower().lstrip("."),
     }
-    for issue_type in ("queue_time", "wip", "bottleneck", "breakdown", "pm", "yield"):
-        if issue_type.replace("_", " ") in lower or issue_type in lower:
-            metadata["issue_type"] = issue_type
-            break
+    explicit_issue_types = list(
+        dict.fromkeys(re.findall(r"issue_type\s+([a-z0-9_/-]+)", lower))
+    )
+    if explicit_issue_types:
+        metadata["issue_type"] = explicit_issue_types[0]
+        metadata["issue_types"] = ",".join(explicit_issue_types)
+    else:
+        for issue_type, terms in _ISSUE_METADATA_TERMS.items():
+            if any(term in lower for term in terms):
+                metadata["issue_type"] = issue_type
+                metadata["issue_types"] = issue_type
+                break
+    playbook_ids = list(dict.fromkeys(re.findall(r"\bpb-[a-z0-9-]+\b", lower)))
+    if playbook_ids:
+        metadata["playbook_ids"] = ",".join(playbook_ids)
     fab_match = re.search(r"\bfab(?:[-_ ]?)(1[0-3])\b", lower)
     if fab_match:
         metadata["fab_id"] = f"fab{fab_match.group(1)}"
     return metadata
 
 
+_ISSUE_METADATA_TERMS = {
+    "queue_time": ("queue time", "queue_time", "대기 시간", "대기시간"),
+    "bottleneck": ("bottleneck", "병목"),
+    "breakdown": ("breakdown", "equipment down", "장비 고장", "설비 고장"),
+    "pm": ("preventive maintenance", "pm 지연", "예방 정비", "예방정비"),
+    "yield": ("yield", "수율"),
+    "wip": ("wip", "재공"),
+}
+
+
 def _chunk_id(collection: str, knowledge_base: str, path: Path, index: int, content: str) -> str:
     digest = hashlib.sha256(
-        f"{collection}:{knowledge_base}:{path}:{index}:{content}".encode()
+        f"{collection}:{knowledge_base}:{path.name}:{index}:{content}".encode()
     ).hexdigest()
     return digest[:24]
 

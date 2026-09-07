@@ -4,15 +4,16 @@ import time
 from dataclasses import asdict
 from typing import Any
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 
 from app.agents.graph import build_agent_graph, initial_graph_state
 from app.config import get_settings
-from app.schemas.chat import ChatRequest, ChatResponse
+from app.schemas.chat import ChatRequest, ChatResponse, FeedbackRequest, FeedbackResponse
 from app.services.chat_service import ChatService
 from app.services.conversation_memory import conversation_memory
+from app.services.feedback_service import feedback_service
 
 router = APIRouter(tags=["chat"])
 service = ChatService()
@@ -156,6 +157,7 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                 "reflection_decisions": state.get("reflection_decisions", []),
                 "termination_reason": state.get("termination_reason"),
                 "reflection": state.get("reflection", {}),
+                "answer_review": state.get("answer_review", {}),
             }
             logger.info(
                 "stream.done conversation_id=%s status=%s query_type=%s sql=%s chart=%s",
@@ -231,12 +233,12 @@ def meta() -> dict[str, str]:
     }
 
 
-@router.post("/feedback")
-def feedback(payload: dict) -> dict[str, str]:
-    return {
-        "status": "accepted",
-        "message": "feedback persistence is a placeholder",
-    }
+@router.post("/feedback", response_model=FeedbackResponse)
+def feedback(payload: FeedbackRequest) -> FeedbackResponse:
+    try:
+        return feedback_service.record(payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="conversation_id was not found") from exc
 
 
 @router.post("/agent-trace")
@@ -303,9 +305,11 @@ def _trace_case(case: dict[str, Any]) -> dict[str, Any]:
         "termination_reason": result.termination_reason,
         "evidence": [item.model_dump() for item in result.evidence],
         "reflection": result.reflection,
+        "answer_review": result.answer_review,
         "prompt_versions": {
             "planner": result.plan.prompt_version if result.plan else None,
             "supervisor": result.prompt_version,
+            "answer_supervisor": result.answer_review.get("prompt_version"),
         },
     }
 

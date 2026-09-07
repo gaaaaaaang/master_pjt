@@ -99,6 +99,9 @@ def main() -> int:
     LOGGER.info("postgres_dsn=%s", mask_dsn(args.dsn))
 
     failures: list[str] = []
+    ex_failures: list[str] = []
+    em_failures: list[str] = []
+    intent_failures: list[str] = []
     summaries: list[dict[str, Any]] = []
     cases = load_cases(args.case_file, args.fab)
 
@@ -130,7 +133,11 @@ def main() -> int:
                 json.dumps(result.rows[0], ensure_ascii=False, default=str),
             )
 
-        failures.extend(validate_case(case, result))
+        validation = evaluate_case(case, result)
+        failures.extend(validation["all"])
+        ex_failures.extend(validation["ex"])
+        em_failures.extend(validation["em"])
+        intent_failures.extend(validation["intent"])
         summaries.append(
             {
                 "id": case["id"],
@@ -140,8 +147,18 @@ def main() -> int:
                 "row_count": result.row_count,
                 "has_sql": bool(result.sql),
                 "template_id": result.plan.template_id if result.plan else None,
+                "source_tables": result.plan.source_tables if result.plan else [],
+                "select_items": result.plan.select_items if result.plan else [],
+                "chart_intent": result.plan.chart_intent if result.plan else None,
+                "sql": result.sql,
                 "answer": result.answer,
                 "limitations": result.limitations,
+                "ex_ok": not validation["ex"],
+                "em_ok": not validation["em"],
+                "intent_ok": not validation["intent"],
+                "ex_failures": validation["ex"],
+                "em_failures": validation["em"],
+                "intent_failures": validation["intent"],
             }
         )
 
@@ -152,55 +169,160 @@ def main() -> int:
     else:
         LOGGER.info("smoke test passed")
 
+    LOGGER.warning(
+        "metric_summary cases=%s ex_pass=%s/%s em_pass=%s/%s intent_pass=%s/%s",
+        len(cases),
+        len(cases) - len({failure.split(': ', maxsplit=1)[0] for failure in ex_failures}),
+        len(cases),
+        len(cases) - len({failure.split(': ', maxsplit=1)[0] for failure in em_failures}),
+        len(cases),
+        len(cases) - len({failure.split(': ', maxsplit=1)[0] for failure in intent_failures}),
+        len(cases),
+    )
+
     if args.json:
-        print(json.dumps({"ok": not failures, "failures": failures, "cases": summaries}, ensure_ascii=False))
+        metrics = metric_counts(len(cases), ex_failures, em_failures, intent_failures)
+        print(
+            json.dumps(
+                {
+                    "ok": not failures,
+                    "metrics": metrics,
+                    "failures": failures,
+                    "ex_failures": ex_failures,
+                    "em_failures": em_failures,
+                    "intent_failures": intent_failures,
+                    "cases": summaries,
+                },
+                ensure_ascii=False,
+            )
+        )
 
     return 1 if failures else 0
 
 
-def validate_case(case: dict[str, Any], result: Any) -> list[str]:
-    failures: list[str] = []
+def evaluate_case(case: dict[str, Any], result: Any) -> dict[str, list[str]]:
+    ex_failures: list[str] = []
+    em_failures: list[str] = []
+    intent_failures: list[str] = []
     case_id = case["id"]
 
     if result.status != case["expected_status"]:
-        failures.append(
+        ex_failures.append(
             f"{case_id}: expected status={case['expected_status']}, got status={result.status}"
         )
 
     expected_query_type = case.get("expected_query_type")
     if expected_query_type and result.query_type != expected_query_type:
-        failures.append(
+        intent_failures.append(
             f"{case_id}: expected query_type={expected_query_type}, got query_type={result.query_type}"
         )
 
     expected_template_id = case.get("expected_template_id")
     actual_template_id = result.plan.template_id if result.plan else None
     if expected_template_id and actual_template_id != expected_template_id:
-        failures.append(
+        em_failures.append(
             f"{case_id}: expected template_id={expected_template_id}, got {actual_template_id}"
         )
 
     if bool(result.sql) != case["expect_sql"]:
-        failures.append(f"{case_id}: expected has_sql={case['expect_sql']}, got {bool(result.sql)}")
+        ex_failures.append(f"{case_id}: expected has_sql={case['expect_sql']}, got {bool(result.sql)}")
 
+    sql_lower = (result.sql or "").casefold()
     for fragment in case.get("expected_sql_contains", []):
-        if fragment not in (result.sql or ""):
-            failures.append(f"{case_id}: SQL did not contain expected fragment={fragment!r}")
+        if fragment.casefold() not in sql_lower:
+            em_failures.append(f"{case_id}: SQL did not contain expected fragment={fragment!r}")
 
     for fragment in case.get("expected_answer_contains", []):
-        if fragment not in result.answer:
-            failures.append(f"{case_id}: answer did not contain expected fragment={fragment!r}")
+        if fragment.casefold() not in result.answer.casefold():
+            em_failures.append(f"{case_id}: answer did not contain expected fragment={fragment!r}")
 
-    limitation_text = " ".join(result.limitations)
+    limitation_text = " ".join(result.limitations).casefold()
     for fragment in case.get("expected_limitation_contains", []):
-        if fragment not in limitation_text:
-            failures.append(f"{case_id}: limitations did not contain expected fragment={fragment!r}")
+        if fragment.casefold() not in limitation_text:
+            em_failures.append(f"{case_id}: limitations did not contain expected fragment={fragment!r}")
 
     min_rows = case.get("min_rows")
     if min_rows is not None and result.row_count < min_rows:
-        failures.append(f"{case_id}: expected at least {min_rows} row(s), got {result.row_count}")
+        ex_failures.append(f"{case_id}: expected at least {min_rows} row(s), got {result.row_count}")
 
-    return failures
+    actual_tables = set(result.plan.source_tables if result.plan else [])
+    for table in case.get("target_source_tables", []):
+        if table not in actual_tables and table not in (result.sql or ""):
+            intent_failures.append(f"{case_id}: expected source table={table}, got {sorted(actual_tables)}")
+
+    actual_columns = {column.casefold() for column in result.columns}
+    for column in case.get("target_columns", []):
+        normalized_column = column.casefold()
+        if normalized_column not in actual_columns and normalized_column not in sql_lower:
+            em_failures.append(
+                f"{case_id}: expected result column={column}, got {sorted(result.columns)}"
+            )
+    any_columns = [column.casefold() for column in case.get("target_any_columns", [])]
+    if any_columns and not any(
+        column in actual_columns or column in sql_lower for column in any_columns
+    ):
+        em_failures.append(
+            f"{case_id}: expected one result column from={any_columns}, got {sorted(result.columns)}"
+        )
+
+    expected_chart_type = case.get("target_chart_type")
+    actual_chart_type = (
+        result.plan.chart_intent.get("type")
+        if result.plan and result.plan.chart_intent
+        else None
+    )
+    if expected_chart_type and actual_chart_type != expected_chart_type:
+        em_failures.append(
+            f"{case_id}: expected chart type={expected_chart_type}, got {actual_chart_type}"
+        )
+
+    actual_slots = result.plan.slots if result.plan else {}
+    for fixture_key, slot_key in (
+        ("target_date_basis", "date_basis"),
+        ("target_relative_period", "relative_period"),
+    ):
+        expected_value = case.get(fixture_key)
+        actual_slot = actual_slots.get(slot_key)
+        actual_value = actual_slot.value if actual_slot else None
+        if expected_value and actual_value != expected_value:
+            em_failures.append(
+                f"{case_id}: expected {slot_key}={expected_value}, got {actual_value}"
+            )
+
+    return {
+        "all": [*ex_failures, *intent_failures, *em_failures],
+        "ex": ex_failures,
+        "em": em_failures,
+        "intent": intent_failures,
+    }
+
+
+def validate_case(case: dict[str, Any], result: Any) -> list[str]:
+    return evaluate_case(case, result)["all"]
+
+
+def metric_counts(
+    case_count: int,
+    ex_failures: list[str],
+    em_failures: list[str],
+    intent_failures: list[str],
+) -> dict[str, Any]:
+    def failed_case_ids(failures: list[str]) -> list[str]:
+        return sorted({failure.split(": ", maxsplit=1)[0] for failure in failures})
+
+    ex_failed = failed_case_ids(ex_failures)
+    em_failed = failed_case_ids(em_failures)
+    intent_failed = failed_case_ids(intent_failures)
+    return {
+        "case_count": case_count,
+        "ex": {"pass": case_count - len(ex_failed), "fail": len(ex_failed), "failed_case_ids": ex_failed},
+        "em": {"pass": case_count - len(em_failed), "fail": len(em_failed), "failed_case_ids": em_failed},
+        "intent": {
+            "pass": case_count - len(intent_failed),
+            "fail": len(intent_failed),
+            "failed_case_ids": intent_failed,
+        },
+    }
 
 
 def load_cases(case_file: Path | None, fab: str) -> list[dict[str, Any]]:
