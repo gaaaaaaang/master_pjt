@@ -94,7 +94,7 @@ reliability, retrieval_features, retrieval_ranks, retrieval_trace, retrieval_lim
 
 ## 추가 고도화: 원문 인용과 실제 chat 검증
 
-문서 전용 응답은 source_spans.v2를 사용한다. 모델은 원문 span ID를 선택하며 서버가 인용문,
+문서 전용 응답은 source_spans.v3를 사용한다. 모델은 원문 span ID를 선택하며 서버가 인용문,
 문서명, 페이지를 복원한다. 존재하지 않는 ID/인용/새 숫자는 거절한다. 생성 후 별도 모델 호출로
 각 주장과 조건·역할·불확실성 보존을 검토한다. 인용 존재 검증은 결정적 검사이지만 의미 검토는
 동일 모델 기반으로, 독립 전문가의 정답 보증이 아니다. 검증 실패는 failed, 근거 없음은
@@ -123,3 +123,17 @@ python apps/assistant/scripts/check_rag_http_live.py --live --output /tmp/rag_tc
 다른 목적지나 추가 전송 범위는 별도 확인이 필요하다. 추가 실행 기록과 실제 검증 범위는
 `docs/rag_extension_20260908.md`를 참조한다. SSE timeout/cancellation 이후 후속 node는 중단하지만
 이미 전송된 동기 HTTP 요청을 강제로 취소할 수 있다고 보장하지 않는다.
+
+문서의 알려진 Decision/Allowed When/Evidence 표는 조건·증거 행으로 복원한다.
+생성 후 검토는 주장 지원 여부와 질문 항목별 coverage를 별도로 기록한다. 같은 모델의
+검토가 complete라고 판단해도 실제 누락이 있을 수 있으므로 검색 적중률, 인용 정확성,
+답변 완전성을 각각 평가한다. 상세 실패·재시험은 rag_extension_20260908.md를 참고한다.
+
+저장된 평가 결과의 인용을 모델 호출 없이 canonical corpus와 대조할 수 있다:
+
+```bash
+python apps/assistant/scripts/audit_rag_citations.py --report apps/assistant/output/evals/rag_chat_coverage_final.json --corpus apps/assistant/output/rag/master_pjt_v2.jsonl --output /tmp/rag_citation_audit.json
+```
+
+SSE 종료 후에는 요청 ledger가 후속 모델 호출을 차단한다. 이미 전송된 API 요청은 완료될
+수 있으며, 해당 API 공급자에서 발생하는 사용량까지 취소되는 것은 아니다.

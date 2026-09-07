@@ -5,7 +5,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass, field
-from threading import Lock
+from threading import Event, Lock
 from time import perf_counter
 from typing import Any
 
@@ -14,6 +14,15 @@ from typing import Any
 class UsageLedger:
     calls: list[dict[str, Any]] = field(default_factory=list)
     _lock: Lock = field(default_factory=Lock, repr=False)
+    _cancelled: Event = field(default_factory=Event, repr=False)
+
+    def cancel(self) -> None:
+        """Prevent subsequent model calls; an already sent request may still finish."""
+        self._cancelled.set()
+
+    def ensure_active(self) -> None:
+        if self._cancelled.is_set():
+            raise RuntimeError("Request model calls were cancelled.")
 
     def append(self, record: dict[str, Any]) -> None:
         with self._lock:
@@ -50,6 +59,7 @@ def model_call(kind: str, model: str):
     if ledger is None:
         yield
         return
+    ledger.ensure_active()
     record = {
         "kind": kind,
         "model": model,

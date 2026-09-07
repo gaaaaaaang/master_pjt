@@ -111,6 +111,7 @@ def fake_agent_chat_completions(monkeypatch):
         if schema_name == "fab_grounded_review":
             return {
                 "complete": True,
+                "coverage": [{"requirement": "fixture question", "covered": True, "reason": "fixture"}],
                 "checks": [
                     {"claim_index": i, "supported": True, "reason": "fixture quote"}
                     for i in range(len(input_data["claims"]))

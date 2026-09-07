@@ -122,6 +122,7 @@ def test_post_generation_review_removes_unsupported_claims():
     )
     review = {
         "complete": False,
+        "coverage": [{"requirement": "Hold condition", "covered": True, "reason": "quote"}],
         "checks": [
             {"claim_index": 0, "supported": True, "reason": "원문 조건 일치"},
             {"claim_index": 1, "supported": False, "reason": "가능성을 확정 조건으로 바꿈"},
@@ -168,6 +169,17 @@ def test_long_unbroken_source_does_not_expand_to_one_span_per_character():
     assert all(len(quote["quote"]) == 1200 for quote in quotes.values())
 
 
+def test_numeric_validation_distinguishes_identifiers_formatting_and_signs():
+    from app.rag.grounding import numeric_literals
+    assert numeric_literals("SMT2020 CALTYPE P95") == set()
+    assert numeric_literals("1,000 1000 1e3") == {1000}
+    assert numeric_literals("-5도 +5도") == {-5, 5}
+    assert numeric_literals("15분 10mJ") == {15, 10}
+    assert numeric_literals(".5도 −.5도") == {0.5, -0.5}
+    with pytest.raises(ValueError):
+        numeric_literals("1e999999999999999999999999999")
+
+
 def test_compaction_keeps_document_evidence_once_without_debug_or_planner_prompt():
     evidence = [
         {"source_type": "planner_plan", "content": "pretend evidence"},
@@ -188,3 +200,44 @@ def test_compaction_keeps_document_evidence_once_without_debug_or_planner_prompt
     assert compact_summaries(
         ["RAG(incident) full repeated text", "SQL summary", "SQL summary"]
     ) == ["SQL summary"]
+
+
+def test_missing_decision_prerequisite_prevents_complete_answer_status():
+    review = {
+        "complete": True,
+        "checks": [{"claim_index": 0, "supported": True, "reason": "quote is supported"}],
+        "coverage": [{"requirement": "Required approval condition", "covered": False,
+                      "reason": "The answer omits the decision table prerequisite"}],
+    }
+    result = apply_review(answer(), review, SOURCES)
+    assert result.status == "partial"
+    assert result.citations
+    assert "일부 항목" in result.answer
+    review["coverage"] = []
+    with pytest.raises(ValueError, match="coverage"):
+        apply_review(answer(), review, SOURCES)
+
+
+def test_decision_table_rows_have_selectable_literal_evidence_and_conditions():
+    from app.rag.grounding import decision_rows
+    content = "Decision\nAllowed When\nEvidence\nDelay\nlow risk and approval\nrisk memo\nRAG note:"
+    rows = decision_rows(content)
+    assert rows[0]["allowed_when"] == "low risk and approval"
+    sources = deepcopy(SOURCES)
+    sources["chunk-a"].update(title="test", content=content)
+    documents, quotes = source_spans(sources)
+    row = documents[0]["decision_rows"][0]
+    assert row["required_evidence"] == "risk memo"
+    assert quotes[row["quote_id"]]["quote"] in content
+    assert decision_rows(content.replace("\nrisk memo", "")) == []
+    assert decision_rows(content.replace("Allowed When", "Unknown heading")) == []
+
+
+def test_reliability_disclaimer_describes_cited_sources_not_unused_candidates():
+    sources = deepcopy(SOURCES)
+    sources["chunk-b"] = deepcopy(sources["chunk-a"])
+    sources["chunk-a"]["reliability"] = "verified_sop"
+    result = render_grounded(answer(), sources)
+    assert "실제 사내 승인 SOP가 아닙니다" not in result.answer
+    sources["chunk-a"]["reliability"] = "simulation_reference"
+    assert "실제 사내 승인 SOP가 아닙니다" in render_grounded(answer(), sources).answer

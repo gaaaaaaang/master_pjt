@@ -46,3 +46,32 @@ async def test_concurrent_requests_do_not_share_usage_and_worker_threads_inherit
 
     await asyncio.gather(request(ledgers[0], 7), request(ledgers[1], 19))
     assert [ledger.snapshot()["reported_total_tokens"] for ledger in ledgers] == [7, 19]
+
+
+@pytest.mark.asyncio
+async def test_cancelled_stream_worker_finishes_current_call_but_cannot_start_next():
+    from threading import Event
+
+    ledger = UsageLedger()
+    started, release = Event(), Event()
+    calls = []
+
+    def worker():
+        with model_call("generate", "model"):
+            calls.append("generate")
+            started.set()
+            assert release.wait(timeout=2)
+        with model_call("review", "model"):
+            calls.append("review")
+
+    with usage_scope(ledger):
+        task = asyncio.create_task(asyncio.to_thread(worker))
+        assert await asyncio.to_thread(started.wait, 2)
+        ledger.cancel()
+        release.set()
+        with pytest.raises(RuntimeError, match="cancelled"):
+            await task
+    assert calls == ["generate"]
+    assert ledger.snapshot()["call_count"] == 1
+    with usage_scope(UsageLedger()), model_call("other_request", "model"):
+        pass

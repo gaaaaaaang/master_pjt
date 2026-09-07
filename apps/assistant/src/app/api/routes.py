@@ -210,6 +210,11 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                 ),
             )
 
+        finally:
+            # The sync worker may finish its current HTTP call after disconnect/timeout.
+            # Share cancellation with its context so it cannot start review/retry calls.
+            state["usage_ledger"].cancel()
+
     return StreamingResponse(
         event_source(),
         media_type="text/event-stream",

@@ -10,6 +10,7 @@ import re
 import unicodedata
 from copy import deepcopy
 from dataclasses import dataclass, field
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 import httpx
@@ -60,9 +61,19 @@ Do not infer who approves a decision from a generic owner field. Do not introduc
 numeric setting or threshold. Keep lot disposition and reroute in their original terms
 when the source does not define their meaning; disposition does not automatically mean scrap.
 Do not turn conditional release into a requirement that all risk be zero.
-The supplied documents are simulation references, not approved company SOP or live factory facts.
+Respect each source's reliability label. A simulation_reference is not approved company
+SOP or live factory facts. Do not promote unverified sources to approved procedures.
+Document lifecycle statuses are distinct from revision identifiers and change history;
+when version history is requested but absent, explicitly mark that part insufficient.
 For compound questions cover each requested part; mark partial if any requested part is missing.
 Prefer the specific procedure over generic role descriptions. Do not add unrelated background.
+For procedural decisions, combine applicable prose with decision-table rows: include each
+explicit approval, allowed-when condition and required record for the action asked about.
+Do not stop at the first matching prose sentence when a table adds another prerequisite.
+Do not infer that different approval roles are interchangeable or invent an approval hierarchy.
+Distinguish authorization evidence BEFORE an action from recovery/verification records AFTER
+it. When recovery records are asked for, include the procedure's post-action test/result records;
+an approval memo alone does not replace those records.
 Use insufficient with empty claims when the requested fact/number/approved SOP is absent,
 even if related procedures are present. Do not answer from your prior knowledge.
 """
@@ -72,6 +83,19 @@ REVIEW_SCHEMA = {
     "additionalProperties": False,
     "properties": {
         "complete": {"type": "boolean"},
+        "coverage": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "requirement": {"type": "string"},
+                    "covered": {"type": "boolean"},
+                    "reason": {"type": "string"},
+                },
+                "required": ["requirement", "covered", "reason"],
+            },
+        },
         "checks": {
             "type": "array",
             "items": {
@@ -86,7 +110,7 @@ REVIEW_SCHEMA = {
             },
         },
     },
-    "required": ["complete", "checks"],
+    "required": ["complete", "coverage", "checks"],
 }
 
 REVIEW_PROMPT = """Verify the proposed document answer AFTER it was written. Do not rewrite it.
@@ -97,7 +121,15 @@ a specific decision. Flag erroneous translations: lot disposition does not imply
 does not necessarily mean changing the process recipe. Simulation documents cannot confirm a
 current factory condition or actual root cause. Do not require zero risk when conditional release
 is permitted. Mark complete false if any requested question part lacks an answer from the supplied
-sources, or any proposed claim is unsupported. Keep each reason under one short sentence.
+sources, or any proposed claim is unsupported. Separately list coverage for each requested
+part, including applicable approval prerequisites, allowed-when conditions and required
+records in decision-table rows. Read the entire relevant procedure, not just the cited
+sentences: supported statements can still omit a required condition. Mark covered false
+for missing requirements even when every generated claim is individually true. Do not
+require unrelated procedures or background that the user did not ask for. Check temporal scope:
+a prerequisite/approval record does not cover a requested post-action recovery/test record.
+Do not invent a final approver or approval hierarchy from multiple explicit approval conditions.
+Keep each reason under one short sentence.
 """
 
 
@@ -108,7 +140,7 @@ class GroundedAnswer:
     citations: list[dict[str, Any]] = field(default_factory=list)
     validation: str = "verified_quotes"
     review: dict[str, Any] = field(default_factory=dict)
-    version: str = "source_spans.v2"
+    version: str = "source_spans.v3"
 
 
 def normalized(text: str) -> str:
@@ -118,6 +150,22 @@ def normalized(text: str) -> str:
     text = re.sub(r"(?m)^[ \t]*[-•][ \t]*\n(?=[ \t]*[A-Za-z가-힣])", "\n", text)
     text = text.translate(str.maketrans({"“": '"', "”": '"', "‘": '"', "’": '"', "'": '"'}))
     return " ".join(text.split())
+
+
+def numeric_literals(text: str) -> set[Decimal]:
+    # Do not read trailing digits of identifiers such as SMT2020 as a new parameter.
+    # Preserve signs; treat formatting-only changes (1,000 / 1000 / 1e3) equally.
+    text = text.replace("−", "-")
+    values = re.findall(
+        r"(?<![A-Za-z0-9_.])[-+]?(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?|\.\d+)"
+        r"(?:[eE][-+]?\d+)?",
+        text,
+    )
+    try:
+        return {Decimal(value.replace(",", "")) for value in values}
+    except InvalidOperation as exc:
+        raise ValueError("Invalid numeric literal in claim or quotation.") from exc
+
 
 
 def document_sources(evidence: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
@@ -140,6 +188,33 @@ def document_sources(evidence: list[dict[str, Any]]) -> dict[str, dict[str, Any]
             "reliability": metadata.get("reliability", "unverified"),
         }
     return sources
+
+
+def decision_rows(content: str) -> list[dict[str, str]]:
+    """Recover the known three-column PDF layout without guessing unknown tables.
+
+    These labels come from the document's literal header, not an inferred policy.
+    Ambiguous/partial rows are left as ordinary source text.
+    """
+    match = re.search(
+        r"(?m)^Decision\s*\nAllowed When\s*\nEvidence\s*\n(.*?)\nRAG note:",
+        content,
+        re.DOTALL,
+    )
+    if not match:
+        return []
+    cells = match[1].splitlines()
+    if not cells or len(cells) % 3 or any(not cell.strip() for cell in cells):
+        return []
+    return [
+        {
+            "decision": cells[i].strip(),
+            "allowed_when": cells[i + 1].strip(),
+            "required_evidence": cells[i + 2].strip(),
+            "quote": "\n".join(cells[i : i + 3]),
+        }
+        for i in range(0, len(cells), 3)
+    ]
 
 
 def source_spans(sources: dict[str, dict]) -> tuple[list[dict], dict[str, dict]]:
@@ -165,12 +240,20 @@ def source_spans(sources: dict[str, dict]) -> tuple[list[dict], dict[str, dict]]
                 qid = f"{cid}:{len(spans)}"
                 spans.append({"quote_id": qid, "quote": text})
                 quotes[qid] = {"chunk_id": cid, "quote": text}
+        decisions = []
+        for row in decision_rows(source["content"]):
+            qid = f"{cid}:decision:{len(decisions)}"
+            quote = row.pop("quote")
+            quotes[qid] = {"chunk_id": cid, "quote": quote}
+            spans.append({"quote_id": qid, "quote": quote})
+            decisions.append({**row, "quote_id": qid})
         documents.append(
             {
                 "chunk_id": cid,
                 "title": source["title"],
                 "reliability": source["reliability"],
                 "spans": spans,
+                "decision_rows": decisions,
             }
         )
     return documents, quotes
@@ -253,8 +336,8 @@ def render_grounded(output: dict, sources: dict[str, dict]) -> GroundedAnswer:
                 )
             labels.append(citation_keys[key])
         # Document Q&A must not manufacture a numeric threshold or parameter.
-        values = set(re.findall(r"(?<![A-Za-z])\d+(?:\.\d+)?", statement))
-        supported_values = set(re.findall(r"(?<![A-Za-z])\d+(?:\.\d+)?", " ".join(quotations)))
+        values = numeric_literals(statement)
+        supported_values = numeric_literals(" ".join(quotations))
         if values - supported_values:
             raise ValueError("Claim contains a number absent from its quotes.")
         if re.search(r"https?://|\[[0-9]+\]|\.(?:pdf|docx)(?![A-Za-z])", statement, re.IGNORECASE):
@@ -268,7 +351,10 @@ def render_grounded(output: dict, sources: dict[str, dict]) -> GroundedAnswer:
         references.append(f"[{citation['number']}] {citation['source_document']}{page}")
     if status == "partial":
         paragraphs.append("질문의 일부 항목은 문서 근거가 부족하여 확정할 수 없습니다.")
-    if any(source["reliability"] == "simulation_reference" for source in sources.values()):
+    if any(
+        sources[citation["chunk_id"]]["reliability"] == "simulation_reference"
+        for citation in citations
+    ):
         paragraphs.append(
             "이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다."
         )
@@ -278,10 +364,23 @@ def render_grounded(output: dict, sources: dict[str, dict]) -> GroundedAnswer:
 
 
 def apply_review(output: dict, review: dict, sources: dict[str, dict]) -> GroundedAnswer:
-    if not isinstance(review, dict) or set(review) != {"complete", "checks"}:
+    if not isinstance(review, dict) or set(review) != {"complete", "coverage", "checks"}:
         raise ValueError("Invalid grounding review.")
     if type(review["complete"]) is not bool or not isinstance(review["checks"], list):
         raise ValueError("Invalid grounding review fields.")
+    coverage = review["coverage"]
+    if not isinstance(coverage, list) or not coverage:
+        raise ValueError("Review must assess question coverage.")
+    for item in coverage:
+        if (
+            not isinstance(item, dict)
+            or set(item) != {"requirement", "covered", "reason"}
+            or not isinstance(item["requirement"], str)
+            or not item["requirement"].strip()
+            or type(item["covered"]) is not bool
+            or not isinstance(item["reason"], str)
+        ):
+            raise ValueError("Invalid review coverage item.")
     count = len(output["claims"])
     verdicts = {}
     for check in review["checks"]:
@@ -296,7 +395,12 @@ def apply_review(output: dict, review: dict, sources: dict[str, dict]) -> Ground
     if set(verdicts) != set(range(count)):
         raise ValueError("Review must check every claim.")
     retained = [claim for i, claim in enumerate(output["claims"]) if verdicts[i]]
-    complete = review["complete"] and len(retained) == count and output["status"] == "supported"
+    complete = (
+        review["complete"]
+        and all(item["covered"] for item in coverage)
+        and len(retained) == count
+        and output["status"] == "supported"
+    )
     result = render_grounded(
         {
             "status": "supported" if complete else "partial" if retained else "insufficient",
@@ -346,6 +450,10 @@ def compose_grounded(
                 "question": question,
                 "claims": output["claims"],
                 "sources": list(sources.values()),
+                "decision_tables": [
+                    {"chunk_id": doc["chunk_id"], "rows": doc["decision_rows"]}
+                    for doc in documents if doc["decision_rows"]
+                ],
             },
             output_schema=REVIEW_SCHEMA,
             schema_name="fab_grounded_review",

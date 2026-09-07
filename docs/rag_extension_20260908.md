@@ -74,3 +74,35 @@ batch가 호출되지 않았고, 클릭 후 원문 ‘납기 압박은 품질 ho
   이 범위 검증은 로컬 회귀 테스트로 확인했으며 실제 FAB별 사내 문서는 현재 corpus에 없다.
 - 현재 55청크 corpus를 다시 임베딩하지 않았다. 두 KB 복합 검색의 추가 3문항 API 승인은
   대기 중이며, 기존 승인된 평가 질문의 검증과 독립적인 개선은 계속 진행한다.
+
+## 07:18 추가 원문 대조와 완전성 보완
+
+- 최종 10문항 답변의 인용 38개를 canonical JSONL과 오프라인 대조했다.
+  chunk ID, 인용문(명시한 PDF 서식 정규화 적용), 문서명, 페이지 모두 일치했다.
+  `audit_rag_citations.py`와 `rag_citation_audit.json`으로 재현 가능하다.
+- **7/7 검색 및 모델 검토 통과는 7/7 완전한 정답을 뜻하지 않는다.** 원문을 직접 비교하니
+  PM 답변에서 표의 `low risk and manager approval / risk memo`가 빠졌는데 기존 모델
+  검토는 complete로 판단했다. coverage 항목만 추가한 재시험도 같은 누락을 놓쳤다
+  (`rag_pm_coverage_retest.json`). 이 실패를 삭제하지 않는다.
+- 알려진 PDF `Decision / Allowed When / Evidence` 3열 레이아웃을 명시적 조건·증거 행과
+  선택 가능한 원문 ID로 복원한다. 헤더/행 개수가 맞지 않는 표는 추측해 파싱하지 않는다.
+  표만 강조한 중간 재시험은 복구 후 qualification 기록을 누락했다
+  (`rag_pm_table_retest.json`). 승인 전 증거와 복구 후 시험 기록을 구분하도록 보완했다.
+- source_spans.v3는 주장별 지원 여부 외에 질문 항목별 coverage를 검토하고, 누락 항목이
+  있으면 complete=true라도 partial로 처리한다. 여전히 같은 LLM의 검토이며 누락을
+  완전히 탐지하는 장치는 아니다. 수치 리터럴은 식별자(SMT2020/P95), 쉼표/지수 표기,
+  부호와 소수점을 구분한다. 단위 관계나 숫자의 의미까지 증명하지는 않는다.
+- 저장 근거 재사용 2문항(`rag_coverage_table_final.json`) 후 전체 실제 SSE 2문항
+  `rag_chat_coverage_final.json`을 별도 실행했다. PM은 Engineer 승인, 낮은 위험도와
+  manager 승인 및 risk memo, PM 이후 qualification/dummy run 결과를 모두 포함했다.
+  PM 16.128초, KB 업데이트 19.363초. 두 답변의 인용 13개도 원본 대조 통과
+  (`rag_coverage_citation_audit.json`). 이 2문항은 이전 10문항 결과를 덮어쓰지 않는다.
+- KB 업데이트 답변은 문서에 있는 상태/검토 기준을 설명하지만, corpus에는 상세 revision
+  번호/변경 이력 정책이 없다. 상태 관리 설명을 완전한 버전 이력 정책 검증으로 해석하면 안 된다.
+- Queue time 문항의 초기 rubric에는 Operator 기록까지 있으나 실제 질문은 Scheduler 배정과
+  Engineer 품질 판단만 묻는다. 이 질문 밖 항목을 누락 오답으로 계산하지 않는다.
+- SSE 종료/timeout 시 공유 요청 ledger를 취소해, 이미 진행 중인 동기 HTTP가 끝난 뒤
+  같은 worker가 후속 review 등의 모델 호출을 시작하지 않게 했다. 이미 전송된 호출의
+  강제 중단은 보장하지 않는다. 실제 worker thread 회귀 테스트로 후속 호출 차단을 확인했다.
+
+검증: 추가 수정 후 전체 Python 테스트 189 passed(기존 의존성 deprecation 경고 2건), 변경 파일 Ruff 통과. 웹은 07:04 체크포인트 이후 변경하지 않았다.
