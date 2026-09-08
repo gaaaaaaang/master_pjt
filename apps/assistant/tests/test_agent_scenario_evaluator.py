@@ -13,7 +13,7 @@ def _result(**overrides):
         status="succeeded",
         query_type="trend",
         answer="fab10 Product_3 WIP 추세입니다.",
-        sql="SELECT report_time, wiplotcur FROM fab10.autosched_part",
+        sql="SELECT report_time, wiplotcur FROM fab10.autosched_part_fab10",
         chart={"type": "line"},
         plan=create_plan("fab10 Product_3 WIP 추세 보여줘"),
         agent_runs=[
@@ -32,7 +32,7 @@ def _result(**overrides):
                 content="rows",
                 metadata={
                     "status": "succeeded",
-                    "sql": "SELECT report_time, wiplotcur FROM fab10.autosched_part",
+                    "sql": "SELECT report_time, wiplotcur FROM fab10.autosched_part_fab10",
                     "row_count": 1,
                     "sample_rows": [{"wiplotcur": 12}],
                 },
@@ -69,14 +69,14 @@ def test_evaluate_result_checks_semantic_and_evidence_contracts() -> None:
         "expected_query_type": "trend",
         "expected_agents": ["text2sql", "visualization"],
         "expected_current_status": "succeeded",
-        "target_source_tables": ["fab10.autosched_part"],
+        "target_source_tables": ["fab10.autosched_part_fab10"],
         "target_columns": ["ontime_percent"],
         "target_evidence_types": ["text2sql_plan", "rag_chunk"],
         "target_date_basis": "due_date",
     }
     query_plan = {
         "slots": {"date_basis": {"value": "due_date"}},
-        "source_tables": ["fab10.autosched_part"],
+        "source_tables": ["fab10.autosched_part_fab10"],
     }
     result = _result(
         evidence=[

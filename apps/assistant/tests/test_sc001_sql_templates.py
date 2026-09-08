@@ -43,7 +43,7 @@ def test_sc001_templates_reject_unsupported_fab() -> None:
 
 
 def test_sc001_templates_escape_string_slots(executor: ReadOnlyQueryExecutor) -> None:
-    template = station_status("fab10", "DE_BE_11'; DROP TABLE fab10.toolgroups; SELECT '")
+    template = station_status("fab10", "DE_BE_11'; DROP TABLE fab10.toolgroups_fab10; SELECT '")
     assert "DROP TABLE" in template.sql
     assert executor.validate(template.sql)
 

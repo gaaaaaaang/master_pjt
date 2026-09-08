@@ -6,7 +6,8 @@ from typing import Any, Literal
 
 from app.agents.llm import AzureAgentClient
 from app.agents.prompts import PLANNER_PROMPT_VERSION, PLANNER_SYSTEM_PROMPT
-from app.sub_agent.text2sql import QuerySlot
+from app.db.fab_catalog import resolve_fab
+from app.sub_agent.text2sql import QuerySlot, is_explicit_master_lookup
 
 AgentName = Literal["text2sql", "rag", "impact", "case_search", "visualization"]
 PlanStatus = Literal["ready", "needs_clarification", "data_unavailable", "unsupported"]
@@ -17,6 +18,13 @@ QUERY_TYPES = {
     "impact", "trend", "knowledge_lookup", "unsupported",
 }
 RAG_KNOWLEDGE_BASES = {"incident_playbook", "process_basics"}
+SCHEMA_DISCOVERY_SLOTS = {
+    "table", "table_name", "table_names", "source_table", "source_tables", "target_table",
+    "physical_table", "schema", "schema_name", "database", "database_name", "column", "column_name",
+    "data_source", "data_source_type", "data_layer", "dataset", "table_or_data_layer",
+    "data_layer_or_table", "data_layer_or_table_name", "table_name_or_data_layer",
+    "테이블", "테이블명", "컬럼", "컬럼명", "스키마", "데이터_계층",
+}
 REQUIRED_AGENT_ROUTES: dict[str, list[AgentName]] = {
     "status": ["text2sql"],
     "master_data_lookup": ["text2sql"],
@@ -158,11 +166,39 @@ def create_plan(
             metric=metric,
             reason=str(exc),
         )
-    fab_id = output.get("fab_id") or fab
+    fab_resolution = resolve_fab(message, fab, conversation_history)
+    fab_id = fab_resolution.fab_id
+    if is_explicit_master_lookup(message) and output["query_type"] in {"status", "trend"}:
+        # A fresh explicit lookup must not inherit the previous metric/chart task.
+        output = {**output, "query_type": "master_data_lookup", "intent": message,
+                  "selected_sub_agents": ["text2sql"], "execution_steps": []}
+    # A language model has no current DB observation at planning time. Historical
+    # failures must not stop a fresh attempt after migrations or connection recovery.
+    database_route = "text2sql" in REQUIRED_AGENT_ROUTES.get(output["query_type"], [])
+    if database_route:
+        original_missing = output["missing_slots"]
+        remaining = [slot for slot in original_missing
+                     if re.sub(r"[\s-]+", "_", slot.strip().casefold()) not in SCHEMA_DISCOVERY_SLOTS
+                     and not (slot == "fab_id" and fab_id)]
+        if remaining != original_missing:
+            output = {**output, "missing_slots": remaining}
+            if output["status"] == "needs_clarification" and fab_id and not remaining:
+                # Physical storage selection belongs to the metadata-aware agent.
+                # Business ambiguities (metric/date/FAB etc.) still require clarification.
+                output = {**output, "status": "ready", "clarification_question": None, "limitations": []}
+    if (
+        output["status"] == "data_unavailable"
+        and output["query_type"] in REQUIRED_AGENT_ROUTES
+        and "text2sql" in REQUIRED_AGENT_ROUTES[output["query_type"]]
+        and fab_id
+        and not output["missing_slots"]
+    ):
+        output = {**output, "status": "ready", "limitations": [],
+                  "clarification_question": None}
     slots = {}
     if fab_id:
         slots["fab_id"] = QuerySlot(
-            str(fab_id).lower(), "llm_inference", 0.9, str(fab_id)
+            fab_id, fab_resolution.source, 0.9, fab_resolution.raw_text
         )
     if line:
         slots["line"] = QuerySlot(line, "request_context", 0.9, line)
@@ -217,7 +253,7 @@ def _create_deterministic_fallback_plan(
     reason: str,
 ) -> PlannerDecision:
     normalized = message.casefold().replace("-", "_")
-    fab_id = fab or _extract_fab(normalized)
+    fab_id = resolve_fab(message, fab).fab_id
     knowledge = any(
         term in normalized
         for term in ("뭐야", "무엇", "설명", "정의", "기초", "매뉴얼", "대응 절차", "sop")
@@ -351,8 +387,7 @@ def _create_deterministic_fallback_plan(
 
 
 def _extract_fab(normalized: str) -> str | None:
-    match = re.search(r"\bfab[\s_-]*(10|11|12|13)\b", normalized)
-    return f"fab{match.group(1)}" if match else None
+    return resolve_fab(normalized).fab_id
 
 
 def _normalize_agent_route(

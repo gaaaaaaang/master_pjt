@@ -1,0 +1,61 @@
+[
+  {
+    "id": "latest_fab12",
+    "category": "latest",
+    "question": "fab12 시뮬레이션 가장 최근 스냅샷의 전체 WIP 합계를 영역별 wip_lots 합산으로 구해줘.",
+    "reference_sql": "SELECT SUM(wip_lots) FROM fab12.live_process_snapshots_fab12 WHERE interval_end=(SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12)",
+    "ordered": false
+  },
+  {
+    "id": "area_mean_fab11",
+    "category": "mean",
+    "question": "fab11 시뮬레이션 전체 기간의 영역별 avg_queue_minutes 시간평균을 구해줘.",
+    "reference_sql": "SELECT area, AVG(avg_queue_minutes) FROM fab11.live_process_snapshots_fab11 GROUP BY area ORDER BY area",
+    "ordered": false
+  },
+  {
+    "id": "event_kind_fab13",
+    "category": "event_count",
+    "question": "fab13 live_process_events에서 전체 기간 event_kind별 이벤트 행 개수를 COUNT(detail_id)로 알려줘.",
+    "reference_sql": "SELECT event_kind, COUNT(detail_id) FROM fab13.live_process_events_fab13 GROUP BY event_kind ORDER BY event_kind",
+    "ordered": false
+  },
+  {
+    "id": "max_queue_fab10",
+    "category": "maximum",
+    "question": "fab10 live_process_events에서 영역별 queue_minutes 최댓값을 구해줘. 전체 기간 기준이야.",
+    "reference_sql": "SELECT area, MAX(queue_minutes) FROM fab10.live_process_events_fab10 GROUP BY area ORDER BY area",
+    "ordered": false
+  },
+  {
+    "id": "top_wip_fab13",
+    "category": "ranking",
+    "question": "fab13 시뮬레이션 최신 스냅샷에서 WIP가 가장 큰 영역 3개와 wip_lots를 내림차순으로 보여줘. 동률은 area 오름차순.",
+    "reference_sql": "SELECT area,wip_lots FROM fab13.live_process_snapshots_fab13 WHERE interval_end=(SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13) ORDER BY wip_lots DESC,area LIMIT 3",
+    "ordered": true,
+    "allowed_context_columns": [
+      "interval_end"
+    ]
+  },
+  {
+    "id": "rework_count_fab12",
+    "category": "filtered_count",
+    "question": "fab12 live_process_events 전체 기간에서 rework_flag가 true인 상세 이벤트 행 개수를 COUNT(detail_id)로 알려줘.",
+    "reference_sql": "SELECT COUNT(detail_id) FROM fab12.live_process_events_fab12 WHERE rework_flag=true",
+    "ordered": false
+  },
+  {
+    "id": "empty_area_fab11",
+    "category": "empty",
+    "question": "fab11 live_process_snapshots에서 area가 정확히 no_such_area인 행의 area와 wip_lots를 보여줘. 다른 영역으로 대체하지마.",
+    "reference_sql": "SELECT area,wip_lots FROM fab11.live_process_snapshots_fab11 WHERE area='no_such_area'",
+    "ordered": false
+  },
+  {
+    "id": "time_mean_fab11",
+    "category": "time_range",
+    "question": "fab11 live_process_snapshots에서 area가 etch이고 interval_end가 2026-09-06 00:00:00+09:00 이상 2026-09-07 00:00:00+09:00 미만인 avg_queue_minutes 시간평균을 구해줘.",
+    "reference_sql": "SELECT AVG(avg_queue_minutes) FROM fab11.live_process_snapshots_fab11 WHERE area='etch' AND interval_end>='2026-09-06 00:00:00+09:00'::timestamptz AND interval_end<'2026-09-07 00:00:00+09:00'::timestamptz",
+    "ordered": false
+  }
+]

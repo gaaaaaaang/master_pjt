@@ -452,6 +452,33 @@ Planner 승인 후에는 고정 agent chain을 순회하지 않고 `execution_st
 - Text2SQL sub-agent의 LangGraph state, node, prompt, validation, fallback 설계는
   `docs/text2sql_agent_design.md`를 기준으로 합니다.
 
+## FAB 물리 테이블명과 범위 결정 (2026-09-07)
+
+FAB 스키마는 유지하며 테이블은 `fab10.toolgroups_fab10`처럼 FAB 접미사를 사용한다.
+`app/db/fab_catalog.py`의 공통 패턴 `{fab}.{logical_table}_{fab}`을 SQL 작성 전에 바인딩한다.
+Text2SQL은 현재 질문의 FAB/팹/M 표기, 요청 FAB, 최근 사용자 대화 순서로 조회 범위를 정한다.
+복수/지원 밖/미지정 FAB은 clarification을 반환하며, 다른 FAB으로 자동 대체하지 않는다.
+LLM은 바인딩된 테이블/컬럼 context와 allowlist를 받고, 반환 근거의 테이블명은 SQL에서 추출한다.
+SQL template, loader 및 시뮬레이션 snapshot 적재도 새 물리 이름을 사용한다.
+공통 메타 DB `agent_meta.table_catalog`와 실제 PostgreSQL 구조를 결합해 기존 정적 목록 밖의
+snapshot/event 및 기타 업무 테이블까지 조회 후보로 제공한다. 실제 DB 메타를 사용하는 LLM 경로는
+후보 순위 → 구조화 의미 계획 → 코드 검증 → SQL 생성 → SQL-plan AST 대조 → 실행 순서로 동작한다.
+Planner/Supervisor는 과거 실패만으로 새 조회를 막지 않으며 실제 도구 결과로 가용성을 판단한다.
+복구의 `alternate_agent`는 specialist 교체로, 다른 테이블 접근 정책과 무관하다.
+
+## PANDA 기반 Text2SQL 고도화 (2026-09-07)
+
+- `db/semantic_metadata.py`: 코드 근거의 설명/동의어/지표 단위/집계 규칙/출처를 공통 메타와 결합한다. 업무 검토 완료 SSOT로 간주하지 않는다.
+- `db/schema_retrieval.py`: 관련성 및 제한된 검토 가중치로 양수 점수 후보를 최대 6개 선택한다. 명시 테이블·필수 후보·검증된 관계 이웃은 추가 보존하고, 관련성 근거가 없으면 전체를 제공한다. 실제 area 값의 작은 도메인을 제공하며 중복 설명과 순위 trace는 모델 입력에서 제거한다.
+- `sub_agent/semantic_plan.py`: 테이블/컬럼/조건/집계/조인/최신 기준/결과 grain을 SQL 전에 검증한다. SQLGlot AST로 실제 테이블, 출력 집계·차원 수, 그룹, 정적 조건, 최신 MAX 계약을 대조하고 계획 외 행 필터를 거절한다. CTE의 실제 사용 소스와 별칭 계보를 추적한다. 범용 SQL 동치 증명은 아니다.
+- 최신 범위는 `latest_scope=global|filtered`로 구별한다. 기본 시각 열은 메타의 `default_time_column`이며 명시 시각 열 요청이 우선한다. NULL 포함 행 수 `COUNT(*)`와 `COUNT(column)`을 구분한다. 영역 단위 breakdown 설정과 toolgroups를 연결할 때 설정 수는 `COUNT(DISTINCT source_row_id)`로 중복을 피한다. PM의 toolgroup 연결과는 다른 관계다.
+- 날짜 범위의 스냅샷 시작/종료 열 혼용과 명시 NULL 행 수 조건 누락을 계획 단계에서 검사한다. 행 개수 질문의 명확한 NULL 조건은 유일한 실제 컬럼에 바인딩하며, 모호한 출처·반대 조건은 거절한다. CTE 이후의 집계값 변형 및 선언한 지표 별칭의 역할 바뀜도 SQL 검증 대상이다.
+- `OpenAIText2SQLClient`: 실제 메타 경로에서 계획과 SQL을 별도 호출한다. 기존 deterministic fast path와 주입된 단순 테스트 client는 별도 경로다.
+- 후보 생성 최대 2회: 검증 실패는 같은 스키마에서 수정, 축소 스키마 지원 불가는 전체 스키마로 재탐색한다. `QueryPlan.generation_attempts`에 시도별 근거를 남긴다.
+- `scripts/evaluate_text2sql_semantics.py`: 별도 기준 SQL과 실제 결과를 비교한다. fixture/실행 시작 코드 SHA256, 전후 데이터 변화, 호출 시간/횟수/입력 문자 수, 조회 가능/negative 결과를 분리 기록한다. 복수 수치는 명시된 출력 순서 계약으로 값의 역할 바뀜을 감지한다. 임의 순서의 다중 측정값 의미 동치까지 추론하지는 않는다.
+
+작업 이력과 실제 검증 결과/남은 한계는 `docs/text2sql_hackathon_20260907.md`와 추가 일반화 평가 `docs/text2sql_generalization_20260908.md`를 참고한다. 자체 작성한 소규모 검증 결과와 LLM의 confidence 값은 일반 서비스 정확도의 통계적 보장이 아니다.
+
 ### RAG와 통합 그래프의 검증 경계 (2026-09-08)
 
 동적 dispatcher와 agent supervisor를 통해 RAG를 실행하며 검색 어댑터는 evidence, trace, limitations를 함께 반환한다. Incident 근거에는 선언된 issue와 질문의 정합성을 제공하고, 명시한 playbook ID는 해당 원문 조회를 유지한다. 문서 전용 Composer가 원문 span과 생성 후 주장을 검증한 경우 최종 supervisor는 검증 결과를 사용해 인용 연결을 보존한다. 실제 SQL/사례가 포함된 혼합 답변은 기존 최종 답변 검토를 수행하며 `not_applied_mixed_evidence`로 표시한다. SSE 최종 응답에는 대화 기록과 재시도 상태뿐 아니라 citations, grounding, model_usage가 포함되며 새 채팅 화면의 근거 탭에서 원문 인용을 확인할 수 있다.

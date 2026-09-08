@@ -101,7 +101,7 @@ def test_chat_stream_exposes_real_node_order_sql_and_chart(monkeypatch) -> None:
         sql="""
 SELECT start_date::date AS release_date,
        COUNT(*)::bigint AS lot_count
-FROM fab10.lotrelease
+FROM fab10.lotrelease_fab10
 WHERE route_name = 'Route_Product_3'
 GROUP BY start_date::date
 ORDER BY release_date ASC

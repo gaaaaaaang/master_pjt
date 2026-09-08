@@ -6,7 +6,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["wiplotavg"],
     "min_rows": 1
   },
@@ -17,7 +17,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_stn"],
+    "target_source_tables": ["fab10.autosched_stn_fab10"],
     "target_columns": ["stn", "curstate"],
     "min_rows": 1
   },
@@ -28,7 +28,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_source_tables": ["fab10.autosched_stngrp_fab10"],
     "target_columns": ["stngrp", "util_percent"],
     "min_rows": 1
   },
@@ -39,7 +39,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["cycleavg"],
     "min_rows": 1
   },
@@ -59,7 +59,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["ontime_percent"],
     "min_rows": 1
   },
@@ -70,7 +70,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["lotcomps"],
     "min_rows": 1
   },
@@ -82,7 +82,7 @@
     "expect_sql": true,
     "expected_sql_contains": ["ORDER BY wiplotavg DESC NULLS LAST"],
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_source_tables": ["fab10.autosched_stngrp_fab10"],
     "target_columns": ["stngrp", "wiplotavg"],
     "min_rows": 1
   },
@@ -94,7 +94,7 @@
     "expect_sql": true,
     "expected_sql_contains": ["ORDER BY util_percent DESC NULLS LAST"],
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_source_tables": ["fab10.autosched_stngrp_fab10"],
     "target_columns": ["stngrp", "util_percent"],
     "min_rows": 1
   },
@@ -105,7 +105,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_stn"],
+    "target_source_tables": ["fab10.autosched_stn_fab10"],
     "target_columns": ["pm_percent", "down_percent"],
     "min_rows": 1
   },
@@ -116,7 +116,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_part"],
+    "target_source_tables": ["fab10.autosched_part_fab10"],
     "target_columns": ["part", "ontime_percent"],
     "target_any_columns": ["wiplotavg", "wiplotcur"],
     "min_rows": 1
@@ -128,7 +128,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_lot"],
+    "target_source_tables": ["fab10.autosched_lot_fab10"],
     "target_columns": ["lot", "curstep", "curstn"],
     "min_rows": 1
   },
@@ -138,7 +138,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.toolgroups", "Dry_Etch"],
+    "expected_sql_contains": ["FROM fab10.toolgroups_fab10", "Dry_Etch"],
     "expected_answer_contains": ["General Data 기준"],
     "min_rows": 1
   },
@@ -148,7 +148,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.toolgroups", "Wet_Etch"],
+    "expected_sql_contains": ["FROM fab10.toolgroups_fab10", "Wet_Etch"],
     "min_rows": 1
   },
   {
@@ -157,7 +157,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.toolgroups", "Diffusion"],
+    "expected_sql_contains": ["FROM fab10.toolgroups_fab10", "Diffusion"],
     "min_rows": 1
   },
   {
@@ -166,7 +166,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.toolgroups", "Implant"],
+    "expected_sql_contains": ["FROM fab10.toolgroups_fab10", "Implant"],
     "min_rows": 1
   },
   {
@@ -175,7 +175,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.toolgroups", "Def_Met"],
+    "expected_sql_contains": ["FROM fab10.toolgroups_fab10", "Def_Met"],
     "min_rows": 1
   },
   {
@@ -184,7 +184,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.toolgroups", "DE_BE_11"],
+    "expected_sql_contains": ["FROM fab10.toolgroups_fab10", "DE_BE_11"],
     "min_rows": 1
   },
   {
@@ -193,7 +193,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.toolgroups", "Diffusion_FE_120"],
+    "expected_sql_contains": ["FROM fab10.toolgroups_fab10", "Diffusion_FE_120"],
     "min_rows": 1
   },
   {
@@ -202,7 +202,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.toolgroups", "TF_Met"],
+    "expected_sql_contains": ["FROM fab10.toolgroups_fab10", "TF_Met"],
     "min_rows": 1
   },
   {
@@ -211,7 +211,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.pm", "pm_event_name", "pm_type"],
+    "expected_sql_contains": ["FROM fab10.pm_fab10", "pm_event_name", "pm_type"],
     "expected_answer_contains": ["General Data 기준"],
     "min_rows": 1
   },
@@ -221,7 +221,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.pm", "mean"],
+    "expected_sql_contains": ["FROM fab10.pm_fab10", "mean"],
     "expected_answer_contains": ["General Data 기준"],
     "min_rows": 1
   },
@@ -231,7 +231,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.breakdown", "down_event_name", "mttf", "mttr"],
+    "expected_sql_contains": ["FROM fab10.breakdown_fab10", "down_event_name", "mttf", "mttr"],
     "expected_answer_contains": ["General Data 기준"],
     "min_rows": 1
   },
@@ -241,7 +241,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.breakdown", "type_name", "mttr"],
+    "expected_sql_contains": ["FROM fab10.breakdown_fab10", "type_name", "mttr"],
     "expected_answer_contains": ["General Data 기준"],
     "min_rows": 1
   },
@@ -251,7 +251,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.route_product_3"],
+    "expected_sql_contains": ["FROM fab10.route_product_3_fab10"],
     "expected_answer_contains": ["General Data 기준"],
     "min_rows": 1
   },
@@ -261,7 +261,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.route_product_4"],
+    "expected_sql_contains": ["FROM fab10.route_product_4_fab10"],
     "min_rows": 1
   },
   {
@@ -270,7 +270,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.route_product_3", "Diffusion"],
+    "expected_sql_contains": ["FROM fab10.route_product_3_fab10", "Diffusion"],
     "min_rows": 1
   },
   {
@@ -279,7 +279,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.route_product_3", "Wet_Etch"],
+    "expected_sql_contains": ["FROM fab10.route_product_3_fab10", "Wet_Etch"],
     "min_rows": 1
   },
   {
@@ -288,7 +288,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.route_product_3"],
+    "expected_sql_contains": ["FROM fab10.route_product_3_fab10"],
     "min_rows": 1
   },
   {
@@ -297,7 +297,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "master_data_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.route_product_4"],
+    "expected_sql_contains": ["FROM fab10.route_product_4_fab10"],
     "min_rows": 1
   },
   {
@@ -306,7 +306,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "release_plan_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["fab10.lotrelease", "Product_3"],
+    "expected_sql_contains": ["fab10.lotrelease_fab10", "Product_3"],
     "expected_answer_contains": ["Release plan 기준"],
     "min_rows": 1
   },
@@ -316,7 +316,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "release_plan_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["fab10.lotrelease", "Product_4"],
+    "expected_sql_contains": ["fab10.lotrelease_fab10", "Product_4"],
     "min_rows": 1
   },
   {
@@ -352,9 +352,9 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.lotrelease", "start_date", "GROUP BY", "ORDER BY"],
+    "expected_sql_contains": ["FROM fab10.lotrelease_fab10", "start_date", "GROUP BY", "ORDER BY"],
     "expected_answer_contains": ["Release plan 추세"],
-    "target_source_tables": ["fab10.lotrelease"],
+    "target_source_tables": ["fab10.lotrelease_fab10"],
     "target_columns": ["start_date"],
     "target_chart_type": "line"
   },
@@ -364,9 +364,9 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.lotrelease", "due_date", "GROUP BY", "ORDER BY"],
+    "expected_sql_contains": ["FROM fab10.lotrelease_fab10", "due_date", "GROUP BY", "ORDER BY"],
     "expected_answer_contains": ["Release plan 추세"],
-    "target_source_tables": ["fab10.lotrelease"],
+    "target_source_tables": ["fab10.lotrelease_fab10"],
     "target_columns": ["due_date"]
   },
   {
@@ -376,7 +376,7 @@
     "expected_query_type": "trend",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["report_time", "wiplotavg"],
     "target_chart_type": "line",
     "min_rows": 1
@@ -388,7 +388,7 @@
     "expected_query_type": "trend",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_source_tables": ["fab10.autosched_stngrp_fab10"],
     "target_columns": ["report_time", "util_percent"],
     "target_chart_type": "line",
     "min_rows": 1
@@ -400,7 +400,7 @@
     "expected_query_type": "trend",
     "expect_sql": true,
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_part"],
+    "target_source_tables": ["fab10.autosched_part_fab10"],
     "target_columns": ["part", "cycleavg", "ontime_percent"],
     "target_chart_type": "grouped_bar",
     "min_rows": 2
@@ -411,9 +411,9 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_perf", "Period_2", "Period_3"],
+    "expected_sql_contains": ["FROM fab10.autosched_perf_fab10", "Period_2", "Period_3"],
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["period", "wiplotavg", "ontime_percent"],
     "target_chart_type": "grouped_bar",
     "min_rows": 2
@@ -424,8 +424,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_perf", "report_time::date >= '2020-01-01'", "report_time::date < '2020-01-08'"],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "expected_sql_contains": ["FROM fab10.autosched_perf_fab10", "report_time::date >= '2020-01-01'", "report_time::date < '2020-01-08'"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["report_date", "wiplotavg"],
     "target_chart_type": "line",
     "target_relative_period": "explicit_range"
@@ -436,8 +436,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_part", "AVG(NULLIF(cycleavg::text, '')::numeric)", "GROUP BY part", "report_time::date >="],
-    "target_source_tables": ["fab10.autosched_part"],
+    "expected_sql_contains": ["FROM fab10.autosched_part_fab10", "AVG(NULLIF(cycleavg::text, '')::numeric)", "GROUP BY part", "report_time::date >="],
+    "target_source_tables": ["fab10.autosched_part_fab10"],
     "target_columns": ["part", "cycleavg"],
     "target_chart_type": "grouped_bar",
     "target_relative_period": "last_7_days"
@@ -464,7 +464,7 @@
     "expected_status": "succeeded",
     "expected_query_type": "release_plan_lookup",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.lotrelease", "due_date"],
+    "expected_sql_contains": ["FROM fab10.lotrelease_fab10", "due_date"],
     "expected_answer_contains": ["조건에 맞는 행이 없습니다"],
     "expected_limitation_contains": ["적재된 스냅샷"],
     "target_date_basis": "due_date",
@@ -509,8 +509,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_perf", "report_time::date >= '2020-01-01'", "report_time::date < '2020-04-01'", "date_trunc('month', report_time::timestamp)::date AS report_month"],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "expected_sql_contains": ["FROM fab10.autosched_perf_fab10", "report_time::date >= '2020-01-01'", "report_time::date < '2020-04-01'", "date_trunc('month', report_time::timestamp)::date AS report_month"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["report_month", "wiplotavg"],
     "target_chart_type": "line",
     "target_relative_period": "quarter_2020_q1"
@@ -521,8 +521,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_perf", "report_time::date >= '2020-02-01'", "report_time::date < '2020-03-01'"],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "expected_sql_contains": ["FROM fab10.autosched_perf_fab10", "report_time::date >= '2020-02-01'", "report_time::date < '2020-03-01'"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["report_date", "wiplotavg"],
     "target_chart_type": "line",
     "target_relative_period": "month_2020_02"
@@ -533,8 +533,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.lotrelease", "due_date >= '2020-01-01'", "due_date < '2020-04-01'", "date_trunc('month', due_date::timestamp)::date AS release_month"],
-    "target_source_tables": ["fab10.lotrelease"],
+    "expected_sql_contains": ["FROM fab10.lotrelease_fab10", "due_date >= '2020-01-01'", "due_date < '2020-04-01'", "date_trunc('month', due_date::timestamp)::date AS release_month"],
+    "target_source_tables": ["fab10.lotrelease_fab10"],
     "target_columns": ["release_month", "lot_count"],
     "target_chart_type": "line",
     "target_date_basis": "due_date",
@@ -562,8 +562,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_perf", "report_time::date >= '2020-01-01'", "report_time::date < '2020-07-01'", "date_trunc('month', report_time::timestamp)::date AS report_month"],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "expected_sql_contains": ["FROM fab10.autosched_perf_fab10", "report_time::date >= '2020-01-01'", "report_time::date < '2020-07-01'", "date_trunc('month', report_time::timestamp)::date AS report_month"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["report_month", "wiplotavg"],
     "target_chart_type": "line",
     "target_relative_period": "quarter_range_2020_q1_2020_q2"
@@ -574,8 +574,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_perf", "report_time::date >=", "report_time::date <", "date_trunc('month', report_time::timestamp)::date AS report_month"],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "expected_sql_contains": ["FROM fab10.autosched_perf_fab10", "report_time::date >=", "report_time::date <", "date_trunc('month', report_time::timestamp)::date AS report_month"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["report_month", "wiplotavg"],
     "target_chart_type": "line",
     "target_relative_period": "last_quarter"
@@ -595,12 +595,12 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_sql_contains": [
-      "FROM fab10.autosched_part",
+      "FROM fab10.autosched_part_fab10",
       "lower(part) IN ('part_3', 'part_4')",
       "ORDER BY part"
     ],
     "expected_answer_contains": ["AutoSched report"],
-    "target_source_tables": ["fab10.autosched_part"],
+    "target_source_tables": ["fab10.autosched_part_fab10"],
     "target_columns": ["part", "wiplotcur", "wiplotavg", "cycleavg"],
     "min_rows": 2
   },
@@ -610,8 +610,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "status",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_stn", "lower(stn) IN ('de_be_11', 'de_be_12')", "util_percent", "down_percent"],
-    "target_source_tables": ["fab10.autosched_stn"],
+    "expected_sql_contains": ["FROM fab10.autosched_stn_fab10", "lower(stn) IN ('de_be_11', 'de_be_12')", "util_percent", "down_percent"],
+    "target_source_tables": ["fab10.autosched_stn_fab10"],
     "target_columns": ["stn", "util_percent", "down_percent"],
     "min_rows": 2
   },
@@ -621,8 +621,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "status",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_stn", "lower(stn) = 'diffusion_fe_127_9'", "down_percent"],
-    "target_source_tables": ["fab10.autosched_stn"],
+    "expected_sql_contains": ["FROM fab10.autosched_stn_fab10", "lower(stn) = 'diffusion_fe_127_9'", "down_percent"],
+    "target_source_tables": ["fab10.autosched_stn_fab10"],
     "target_columns": ["stn", "down_percent"],
     "min_rows": 1
   },
@@ -632,8 +632,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "trend",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_stn", "lower(stn) IN ('de_be_11', 'de_be_12')", "GROUP BY report_time::date, stn"],
-    "target_source_tables": ["fab10.autosched_stn"],
+    "expected_sql_contains": ["FROM fab10.autosched_stn_fab10", "lower(stn) IN ('de_be_11', 'de_be_12')", "GROUP BY report_time::date, stn"],
+    "target_source_tables": ["fab10.autosched_stn_fab10"],
     "target_columns": ["report_date", "stn", "util_percent", "down_percent"],
     "target_chart_type": "line",
     "min_rows": 2
@@ -644,8 +644,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "status",
     "expect_sql": true,
-    "expected_sql_contains": ["WITH perf AS", "FROM fab10.autosched_perf", "FROM fab10.autosched_stngrp", "AVG(s.util_percent) AS util_percent", "s.period = p.period"],
-    "target_source_tables": ["fab10.autosched_perf", "fab10.autosched_stngrp"],
+    "expected_sql_contains": ["WITH perf AS", "FROM fab10.autosched_perf_fab10", "FROM fab10.autosched_stngrp_fab10", "AVG(s.util_percent) AS util_percent", "s.period = p.period"],
+    "target_source_tables": ["fab10.autosched_perf_fab10", "fab10.autosched_stngrp_fab10"],
     "target_columns": ["util_percent", "cycleavg", "lotcomps", "ontime_percent"],
     "min_rows": 1
   },
@@ -655,8 +655,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "status",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_stngrp", "stngrp ILIKE '%Dry_Etch%'", "AND util_percent >= 80", "ORDER BY util_percent DESC NULLS LAST", "LIMIT 5"],
-    "target_source_tables": ["fab10.autosched_stngrp"],
+    "expected_sql_contains": ["FROM fab10.autosched_stngrp_fab10", "stngrp ILIKE '%Dry_Etch%'", "AND util_percent >= 80", "ORDER BY util_percent DESC NULLS LAST", "LIMIT 5"],
+    "target_source_tables": ["fab10.autosched_stngrp_fab10"],
     "target_columns": ["stngrp", "util_percent"]
   },
   {
@@ -665,8 +665,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "status",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_stngrp", "AND wiplotavg > 100", "ORDER BY wiplotavg ASC NULLS LAST", "LIMIT 3"],
-    "target_source_tables": ["fab10.autosched_stngrp"],
+    "expected_sql_contains": ["FROM fab10.autosched_stngrp_fab10", "AND wiplotavg > 100", "ORDER BY wiplotavg ASC NULLS LAST", "LIMIT 3"],
+    "target_source_tables": ["fab10.autosched_stngrp_fab10"],
     "target_columns": ["stngrp", "wiplotavg"]
   },
   {
@@ -675,8 +675,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "status",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_stngrp", "AND util_percent >= 75", "ORDER BY util_percent DESC NULLS LAST", "LIMIT 2"],
-    "target_source_tables": ["fab10.autosched_stngrp"],
+    "expected_sql_contains": ["FROM fab10.autosched_stngrp_fab10", "AND util_percent >= 75", "ORDER BY util_percent DESC NULLS LAST", "LIMIT 2"],
+    "target_source_tables": ["fab10.autosched_stngrp_fab10"],
     "target_columns": ["stngrp", "util_percent"]
   },
   {
@@ -717,8 +717,8 @@
     "expected_status": "succeeded",
     "expected_query_type": "status",
     "expect_sql": true,
-    "expected_sql_contains": ["FROM fab10.autosched_stngrp", "ORDER BY down_percent ASC NULLS LAST"],
-    "target_source_tables": ["fab10.autosched_stngrp"],
+    "expected_sql_contains": ["FROM fab10.autosched_stngrp_fab10", "ORDER BY down_percent ASC NULLS LAST"],
+    "target_source_tables": ["fab10.autosched_stngrp_fab10"],
     "target_columns": ["stngrp", "down_percent"],
     "min_rows": 1
   },
@@ -737,7 +737,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_sql_contains": ["AND util_percent >= 82.5", "ORDER BY util_percent DESC NULLS LAST", "LIMIT 4"],
-    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_source_tables": ["fab10.autosched_stngrp_fab10"],
     "target_columns": ["stngrp", "util_percent"]
   },
   {
@@ -747,7 +747,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_sql_contains": ["AND wiplotavg < 120", "ORDER BY wiplotavg ASC NULLS LAST", "LIMIT 6"],
-    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_source_tables": ["fab10.autosched_stngrp_fab10"],
     "target_columns": ["stngrp", "wiplotavg"]
   },
   {
@@ -757,7 +757,7 @@
     "expected_query_type": "status",
     "expect_sql": true,
     "expected_sql_contains": ["AND down_percent > 5", "ORDER BY down_percent DESC NULLS LAST", "LIMIT 3"],
-    "target_source_tables": ["fab10.autosched_stngrp"],
+    "target_source_tables": ["fab10.autosched_stngrp_fab10"],
     "target_columns": ["stngrp", "down_percent"]
   },
   {
@@ -789,7 +789,7 @@
       "GROUP BY CASE",
       "ORDER BY comparison_period"
     ],
-    "target_source_tables": ["fab10.autosched_perf"],
+    "target_source_tables": ["fab10.autosched_perf_fab10"],
     "target_columns": ["comparison_period", "wiplotavg"],
     "target_chart_type": "grouped_bar",
     "target_relative_period": "explicit_period_comparison",

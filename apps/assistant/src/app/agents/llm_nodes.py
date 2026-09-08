@@ -212,7 +212,11 @@ def compose_with_llm(
             "procedure, recipe setting, approval, or current factory condition. If no relevant "
             "RAG chunks were found, say that the document evidence is unavailable."
                 "For diagnosis, distinguish observations from hypotheses and explicitly label simulated "
-                "reference cases; simulation-only evidence never confirms a root cause."
+                "reference cases; simulation-only evidence never confirms a root cause. "
+                "Current tool results override historical failures. An empty alternate-agent list "
+                "means no specialist replacement, not a restriction on database sources. Never "
+                "invent a permission policy. A missing table or failed query is not proof that "
+                "all database access is unavailable."
             ),
             input_data={
                 "question": question, "plan": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}}, "tool_summaries": compact_summaries(answer_parts),

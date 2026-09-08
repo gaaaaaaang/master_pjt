@@ -551,6 +551,19 @@ Local composite gate 실행:
 - 현재 LLM API key 인증 실패 시 Text2SQL은 `failed`로 종료하고 SQL을 생성하지 않는다.
 - Planner, Supervisor, Self-reflection, Composer는 모두 Azure Chat Completions를 호출한다.
 
+## Text2SQL 일반화 추가 검증 (2026-09-08)
+
+- [x] `fix/adv_t2s`에서 공통 FAB 메타 검색, 실제 area 도메인, SQL 이전 의미 계획 검증 보강.
+- [x] CTE 집계/최신 MAX 계보, NULL 행 집계, 매칭 조인의 설정 중복, 계획 외 필터, 지표 별칭 역할 검사.
+- [x] 날짜 범위의 기본 시간 열 및 명시 시작/종료 열 보존, 명확한 NULL 행 수 조건 바인딩.
+- [x] 수정 전 고정한 tuning 24개와 validation 16개를 분리 실행. 최초 별도 검증 14/16을 원본 보존하고, 발견된 2건 수정 후 별도 개발 회귀 5/5 확인.
+- [x] 전체 테스트 474개, 기존 실제 DB 회귀 79/79, 이번 라운드 저장 SQL/현재 계획/DB 재검증 43/43 확인.
+- [x] 실제 화면에서 요청 문맥 FAB10보다 질문의 FAB13 우선, NULL 행 864개 최종 답변 확인.
+- [x] 같은 UI 대화에서 NOT NULL 2592개 및 FAB12 기간 합계 443 확인. 상위 Planner의 불필요한 테이블명 재질문을 제거하고 동일 질문의 조회 복구 검증.
+- [ ] 업무 담당자의 지표/조인/시간 기준 SSOT 검토와 실제 사용자 질문 기반 외부 평가 확대. 현재 자체 작성 소규모 평가만으로 일반 정확도 100%를 보장하지 않는다.
+
+상세 변경·평가 계약·원본 실패·한계: `docs/text2sql_generalization_20260908.md`.
+
 ## 2026-09-08 RAG 통합 충돌 해결
 
 - [x] `feat/adv_integrate`의 대화 메모리, 동적 라우팅/재시도, 진단/영향 분석, 새 채팅 UI와 RAG 하이브리드 검색을 병합.

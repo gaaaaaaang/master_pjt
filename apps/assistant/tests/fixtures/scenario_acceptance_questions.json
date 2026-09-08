@@ -11,7 +11,7 @@
         "expected_agents": ["text2sql"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["AutoSched report"],
-        "target_source_tables": ["fab10.autosched_perf"],
+        "target_source_tables": ["fab10.autosched_perf_fab10"],
         "target_columns": ["report_time", "period", "wiplotavg"]
       },
       {
@@ -21,7 +21,7 @@
         "expected_agents": ["text2sql"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["AutoSched report"],
-        "target_source_tables": ["fab10.autosched_stngrp"],
+        "target_source_tables": ["fab10.autosched_stngrp_fab10"],
         "target_columns": ["report_time", "period", "stngrp", "util_percent"]
       },
       {
@@ -31,7 +31,7 @@
         "expected_agents": ["text2sql"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["AutoSched report"],
-        "target_source_tables": ["fab10.autosched_stn"],
+        "target_source_tables": ["fab10.autosched_stn_fab10"],
         "target_columns": ["report_time", "period", "stn", "curstate", "wiplotavg"]
       },
       {
@@ -41,7 +41,7 @@
         "expected_agents": ["text2sql"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["AutoSched report"],
-        "target_source_tables": ["fab10.autosched_part"],
+        "target_source_tables": ["fab10.autosched_part_fab10"],
         "target_columns": ["report_time", "period", "part", "wiplotcur", "cycleavg", "ontime_percent"]
       },
       {
@@ -51,7 +51,7 @@
         "expected_agents": ["text2sql"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["AutoSched report"],
-        "target_source_tables": ["fab10.autosched_lot"],
+        "target_source_tables": ["fab10.autosched_lot_fab10"],
         "target_columns": ["lot", "curstep", "curstn", "stepcomps"]
       }
     ]
@@ -68,7 +68,7 @@
         "expected_agents": ["text2sql", "rag", "case_search"],
         "expected_current_status": "data_unavailable",
         "expected_answer_contains": ["Queue Time"],
-        "target_source_tables": ["fab10.autosched_perf", "fab10.autosched_stngrp", "fab10.autosched_stn"],
+        "target_source_tables": ["fab10.autosched_perf_fab10", "fab10.autosched_stngrp_fab10", "fab10.autosched_stn_fab10"],
         "target_evidence_types": ["text2sql_plan", "rag_chunk", "similar_case", "diagnosis_synthesis"]
       },
       {
@@ -78,7 +78,7 @@
         "expected_agents": ["text2sql", "rag", "case_search"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["fab10", "Dry_Etch"],
-        "target_source_tables": ["fab10.autosched_stngrp", "fab10.autosched_stn"],
+        "target_source_tables": ["fab10.autosched_stngrp_fab10", "fab10.autosched_stn_fab10"],
         "target_columns": ["stngrp", "stn", "wiplotavg", "util_percent", "down_percent", "pm_percent"],
         "target_evidence_types": ["text2sql_plan", "rag_chunk", "similar_case", "diagnosis_synthesis"]
       },
@@ -89,7 +89,7 @@
         "expected_agents": ["text2sql", "rag", "case_search"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["fab10", "Product_3", "ontime"],
-        "target_source_tables": ["fab10.autosched_part", "fab10.autosched_lot"],
+        "target_source_tables": ["fab10.autosched_part_fab10", "fab10.autosched_lot_fab10"],
         "target_columns": ["part", "ontime_percent", "cycleavg", "duedate", "compdate"],
         "target_evidence_types": ["text2sql_plan", "rag_chunk", "similar_case", "diagnosis_synthesis"]
       },
@@ -100,7 +100,7 @@
         "expected_agents": ["text2sql", "rag", "case_search"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["fab10", "DE_BE_11", "down"],
-        "target_source_tables": ["fab10.autosched_stn", "fab10.breakdown"],
+        "target_source_tables": ["fab10.autosched_stn_fab10", "fab10.breakdown_fab10"],
         "target_columns": ["stn", "down_percent", "curstate", "mttf", "mttr"],
         "target_evidence_types": ["text2sql_plan", "rag_chunk", "similar_case", "diagnosis_synthesis"]
       }
@@ -127,7 +127,7 @@
         "expected_agents": ["text2sql", "impact"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["계산", "capacity"],
-        "target_source_tables": ["fab10.autosched_stngrp"],
+        "target_source_tables": ["fab10.autosched_stngrp_fab10"],
         "target_metrics": ["util_percent", "lotcomps", "capacity_delta"]
       },
       {
@@ -137,7 +137,7 @@
         "expected_agents": ["text2sql", "impact"],
         "expected_current_status": "data_unavailable",
         "expected_answer_contains": ["operational metric"],
-        "target_source_tables": ["fab10.autosched_stn", "fab10.autosched_perf"],
+        "target_source_tables": ["fab10.autosched_stn_fab10", "fab10.autosched_perf_fab10"],
         "target_metrics": ["down_percent", "lotcomps"]
       },
       {
@@ -147,7 +147,7 @@
         "expected_agents": ["text2sql", "impact"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["cycle", "납기 준수율"],
-        "target_source_tables": ["fab10.autosched_part"],
+        "target_source_tables": ["fab10.autosched_part_fab10"],
         "target_metrics": ["cycleavg", "ontime_percent"]
       },
       {
@@ -157,7 +157,7 @@
         "expected_agents": ["text2sql", "impact"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["fab10", "capacity", "cycle", "한계"],
-        "target_source_tables": ["fab10.autosched_perf", "fab10.autosched_stngrp"],
+        "target_source_tables": ["fab10.autosched_perf_fab10", "fab10.autosched_stngrp_fab10"],
         "target_metrics": ["util_percent", "cycleavg", "capacity_delta_percent", "projected_cycle_time"]
       }
     ]
@@ -173,7 +173,7 @@
         "expected_query_type": "trend",
         "expected_agents": ["text2sql", "visualization"],
         "expected_current_status": "succeeded",
-        "expected_sql_contains": ["FROM fab10.lotrelease", "start_date", "GROUP BY"],
+        "expected_sql_contains": ["FROM fab10.lotrelease_fab10", "start_date", "GROUP BY"],
         "target_chart_type": "line",
         "target_date_basis": "start_date"
       },
@@ -183,7 +183,7 @@
         "expected_query_type": "trend",
         "expected_agents": ["text2sql", "visualization"],
         "expected_current_status": "succeeded",
-        "expected_sql_contains": ["FROM fab10.lotrelease", "due_date", "GROUP BY"],
+        "expected_sql_contains": ["FROM fab10.lotrelease_fab10", "due_date", "GROUP BY"],
         "target_chart_type": "line",
         "target_date_basis": "due_date"
       },
@@ -194,7 +194,7 @@
         "expected_agents": ["text2sql", "visualization"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["AutoSched report"],
-        "target_source_tables": ["fab10.autosched_perf"],
+        "target_source_tables": ["fab10.autosched_perf_fab10"],
         "target_columns": ["report_time", "wiplotavg"],
         "target_chart_type": "line"
       },
@@ -205,7 +205,7 @@
         "expected_agents": ["text2sql", "visualization"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["AutoSched report"],
-        "target_source_tables": ["fab10.autosched_part"],
+        "target_source_tables": ["fab10.autosched_part_fab10"],
         "target_columns": ["part", "cycleavg", "ontime_percent"],
         "target_chart_type": "grouped_bar"
       },
@@ -216,7 +216,7 @@
         "expected_agents": ["text2sql", "visualization"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["AutoSched report"],
-        "target_source_tables": ["fab10.autosched_perf"],
+        "target_source_tables": ["fab10.autosched_perf_fab10"],
         "target_columns": ["period", "wiplotavg", "ontime_percent"],
         "target_chart_type": "grouped_bar"
       },
@@ -228,7 +228,7 @@
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["AutoSched report"],
         "expected_sql_contains": ["report_time::date >= '2020-01-01'", "report_time::date < '2020-01-08'"],
-        "target_source_tables": ["fab10.autosched_perf"],
+        "target_source_tables": ["fab10.autosched_perf_fab10"],
         "target_columns": ["report_date", "wiplotavg"],
         "target_chart_type": "line",
         "target_relative_period": "explicit_range"
@@ -241,7 +241,7 @@
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["AutoSched report"],
         "expected_sql_contains": ["AVG(NULLIF(cycleavg::text, '')::numeric)", "GROUP BY part", "report_time::date >="],
-        "target_source_tables": ["fab10.autosched_part"],
+        "target_source_tables": ["fab10.autosched_part_fab10"],
         "target_columns": ["part", "cycleavg"],
         "target_chart_type": "grouped_bar",
         "target_relative_period": "last_7_days"
@@ -253,7 +253,7 @@
         "expected_agents": ["text2sql", "visualization"],
         "expected_current_status": "succeeded",
         "expected_sql_contains": ["CASE WHEN report_time::date >= '2020-01-01'::date", "WHEN report_time::date >= '2021-01-01'::date", "GROUP BY CASE"],
-        "target_source_tables": ["fab10.autosched_perf"],
+        "target_source_tables": ["fab10.autosched_perf_fab10"],
         "target_columns": ["comparison_period", "wiplotavg"],
         "target_chart_type": "grouped_bar",
         "target_relative_period": "explicit_period_comparison"
@@ -265,8 +265,8 @@
         "expected_agents": ["text2sql", "visualization"],
         "expected_current_status": "succeeded",
         "expected_answer_contains": ["fab10", "DE_BE_11", "DE_BE_12", "utilization", "down"],
-        "expected_sql_contains": ["FROM fab10.autosched_stn", "lower(stn) IN ('de_be_11', 'de_be_12')", "GROUP BY report_time::date, stn"],
-        "target_source_tables": ["fab10.autosched_stn"],
+        "expected_sql_contains": ["FROM fab10.autosched_stn_fab10", "lower(stn) IN ('de_be_11', 'de_be_12')", "GROUP BY report_time::date, stn"],
+        "target_source_tables": ["fab10.autosched_stn_fab10"],
         "target_columns": ["report_date", "stn", "util_percent", "down_percent"],
         "target_chart_type": "line"
       },

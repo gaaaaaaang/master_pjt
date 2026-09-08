@@ -288,6 +288,7 @@ dependencies = [
     { name = "langgraph" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pydantic-settings" },
+    { name = "sqlglot" },
     { name = "streamlit" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -330,6 +331,7 @@ requires-dist = [
     { name = "python-docx", marker = "extra == 'rag'", specifier = ">=1.1,<2.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8,<1.0" },
     { name = "sqlalchemy", marker = "extra == 'data'", specifier = ">=2.0,<3.0" },
+    { name = "sqlglot", specifier = "==27.29.0" },
     { name = "streamlit", specifier = ">=1.37,<2.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.30,<1.0" },
 ]
@@ -2206,6 +2208,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/96/d7/8ac6ffa1e36169e762ef65bd835046abb2251b1bc17f8f6708e14ed8d31f/sqlalchemy-2.0.52-cp314-cp314-win_amd64.whl", hash = "sha256:a593db51b3bae75db17a5738ad5f992244b3a03863f83c28117ee482c6a3f76d", size = 2156718, upload-time = "2026-08-11T21:14:58.667Z" },
     { url = "https://files.pythonhosted.org/packages/dc/4b/e01a737eef378e734cc6394a82248a6ce13b167dfa36c731075ce9fc9c64/sqlalchemy-2.0.52-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:c1e61d08bdf4ee2f41024569e3400de7d6734ba498144766b11260936ccfa582", size = 2190344, upload-time = "2026-08-11T19:53:21.393Z" },
     { url = "https://files.pythonhosted.org/packages/b3/3f/3582293d1e185e71d19d7c731c3e2ee20ba21981c4a1115c0806c1f62120/sqlalchemy-2.0.52-py3-none-any.whl", hash = "sha256:3b81b8363a919ce53453591cdb93702e6bd54ade6c4fa2f468fc053baee5ed89", size = 1950700, upload-time = "2026-08-11T20:47:21.603Z" },
+]
+
+[[package]]
+name = "sqlglot"
+version = "27.29.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d1/50/766692a83468adb1bde9e09ea524a01719912f6bc4fdb47ec18368320f6e/sqlglot-27.29.0.tar.gz", hash = "sha256:2270899694663acef94fa93497971837e6fadd712f4a98b32aee1e980bc82722", size = 5503507, upload-time = "2025-10-29T13:50:24.594Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9b/70/20c1912bc0bfebf516d59d618209443b136c58a7cff141afa7cf30969988/sqlglot-27.29.0-py3-none-any.whl", hash = "sha256:9a5ea8ac61826a7763de10cad45a35f0aa9bfcf7b96ee74afb2314de9089e1cb", size = 526060, upload-time = "2025-10-29T13:50:22.061Z" },
 ]
 
 [[package]]

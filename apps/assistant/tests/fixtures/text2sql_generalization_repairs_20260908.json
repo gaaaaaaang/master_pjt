@@ -1,0 +1,18 @@
+[
+  {
+    "id": "repair_latest_marker",
+    "category": "snapshot_total",
+    "question": "fab10 시뮬레이션 최신 스냅샷의 공장 전체 대기 롯 수를 합산해줘. 합계 하나만.",
+    "reference_sql": "SELECT SUM(queue_lots) FROM fab10.live_process_snapshots_fab10 WHERE interval_end=(SELECT MAX(interval_end) FROM fab10.live_process_snapshots_fab10)",
+    "expected_fab": "fab10",
+    "ordered": false
+  },
+  {
+    "id": "repair_matching_settings",
+    "category": "join",
+    "question": "fab13에서 설비군과 매칭되는 breakdown 모델 설정의 행 수를 공정 영역별로 세줘. 영역과 설정 건수만.",
+    "reference_sql": "SELECT t.area, COUNT(DISTINCT b.source_row_id) FROM fab13.breakdown_fab13 b JOIN fab13.toolgroups_fab13 t ON b.type_name=t.area GROUP BY t.area",
+    "expected_fab": "fab13",
+    "ordered": false
+  }
+]

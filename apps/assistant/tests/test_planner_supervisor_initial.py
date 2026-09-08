@@ -59,7 +59,7 @@ def test_deterministic_composer_preserves_question_scope(monkeypatch) -> None:
             "content": "result",
             "metadata": {
                 "status": "succeeded",
-                "sql": "SELECT report_month, wiplotavg, ontime_percent FROM fab10.autosched_perf",
+                "sql": "SELECT report_month, wiplotavg, ontime_percent FROM fab10.autosched_perf_fab10",
                 "row_count": 1,
                 "sample_rows": [
                     {
@@ -109,7 +109,7 @@ def test_deterministic_composer_covers_multi_equipment_trend_series(monkeypatch)
             "source_type": "text2sql_plan",
             "metadata": {
                 "status": "succeeded",
-                "sql": "SELECT report_date, stn, util_percent, down_percent FROM fab10.autosched_stn",
+                "sql": "SELECT report_date, stn, util_percent, down_percent FROM fab10.autosched_stn_fab10",
                 "row_count": 4,
                 "sample_rows": rows,
             },
@@ -552,7 +552,7 @@ def test_answer_supervisor_rejects_omitted_request_terms_and_accepts_correction(
         evidence=[
             {
                 "source_type": "text2sql_plan",
-                "metadata": {"status": "succeeded", "sql": "SELECT wiplotcur FROM fab10.autosched_part"},
+                "metadata": {"status": "succeeded", "sql": "SELECT wiplotcur FROM fab10.autosched_part_fab10"},
             }
         ],
         limitations=[],
@@ -740,7 +740,7 @@ def test_supervisor_master_lookup_returns_planner_and_text2sql_evidence(monkeypa
             status="succeeded",
             query_type="master_data_lookup",
             answer="LLM이 read-only SQL을 생성했습니다.",
-            sql="SELECT area, toolgroup FROM fab10.toolgroups ORDER BY area, toolgroup LIMIT 50",
+            sql="SELECT area, toolgroup FROM fab10.toolgroups_fab10 ORDER BY area, toolgroup LIMIT 50",
             confidence=0.82,
             limitations=[
                 "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다."
@@ -750,7 +750,7 @@ def test_supervisor_master_lookup_returns_planner_and_text2sql_evidence(monkeypa
                 template_id=None,
                 fab_id="fab10",
                 data_source_type="model_master",
-                source_tables=["fab10.toolgroups"],
+                source_tables=["fab10.toolgroups_fab10"],
             ),
         ),
     )

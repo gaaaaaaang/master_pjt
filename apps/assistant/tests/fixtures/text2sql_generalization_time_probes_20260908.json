@@ -1,0 +1,45 @@
+[
+  {
+    "id": "time_default_end",
+    "category": "development_time_basis_counterexample",
+    "question": "fab13 시뮬레이션 스냅샷 중 2026-09-07 00:00 UTC 이상 06:00 UTC 미만 구간을 조회해줘. 결과는 interval_end, 해당 시점 전체 lot_starts 합계 순서로만 출력하고 시각 오름차순으로 정렬해줘.",
+    "expected_fab": "fab13",
+    "ordered": true,
+    "ordered_columns": true,
+    "reference_sql": "SELECT interval_end, SUM(lot_starts) AS total_starts FROM fab13.live_process_snapshots_fab13 WHERE interval_end>='2026-09-07 00:00:00+00' AND interval_end<'2026-09-07 06:00:00+00' GROUP BY interval_end ORDER BY interval_end"
+  },
+  {
+    "id": "time_explicit_start",
+    "category": "development_time_basis_counterexample",
+    "question": "fab13 시뮬레이션 스냅샷 중 interval_start가 2026-09-07 00:00 UTC 이상 06:00 UTC 미만인 행을 조회해줘. 결과는 interval_end, 해당 시점 전체 lot_starts 합계 순서로만 출력하고 시각 오름차순으로 정렬해줘.",
+    "expected_fab": "fab13",
+    "ordered": true,
+    "ordered_columns": true,
+    "reference_sql": "SELECT interval_end, SUM(lot_starts) AS total_starts FROM fab13.live_process_snapshots_fab13 WHERE interval_start>='2026-09-07 00:00:00+00' AND interval_start<'2026-09-07 06:00:00+00' GROUP BY interval_end ORDER BY interval_end"
+  },
+  {
+    "id": "time_fully_contained",
+    "category": "development_time_basis_counterexample",
+    "question": "fab13 시뮬레이션 스냅샷 중 interval_start는 2026-09-07 00:00 UTC 이상이고 interval_end는 06:00 UTC 미만인, 완전히 포함되는 구간만 조회해줘. 결과는 interval_end, 해당 시점 전체 lot_starts 합계 순서로만 출력하고 시각 오름차순으로 정렬해줘.",
+    "expected_fab": "fab13",
+    "ordered": true,
+    "ordered_columns": true,
+    "reference_sql": "SELECT interval_end, SUM(lot_starts) AS total_starts FROM fab13.live_process_snapshots_fab13 WHERE interval_start>='2026-09-07 00:00:00+00' AND interval_end<'2026-09-07 06:00:00+00' GROUP BY interval_end ORDER BY interval_end"
+  },
+  {
+    "id": "time_validation_v04_regression",
+    "category": "seen_validation_case_development_regression",
+    "question": "fab12 시뮬레이션 스냅샷 중 2026-09-07 00:00 UTC 이상 06:00 UTC 미만의 lot_starts 합계 하나만 구해줘.",
+    "reference_sql": "SELECT SUM(lot_starts) FROM fab12.live_process_snapshots_fab12 WHERE interval_end>='2026-09-07 00:00+00' AND interval_end<'2026-09-07 06:00+00'",
+    "expected_fab": "fab12",
+    "ordered": false
+  },
+  {
+    "id": "null_validation_v12_regression",
+    "category": "seen_validation_case_development_regression",
+    "question": "fab13 시뮬레이션 전체 상세 이벤트에서 equipment_id가 NULL이 아닌 행 개수만 알려줘.",
+    "reference_sql": "SELECT COUNT(*) FROM fab13.live_process_events_fab13 WHERE equipment_id IS NOT NULL",
+    "expected_fab": "fab13",
+    "ordered": false
+  }
+]
