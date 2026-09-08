@@ -123,7 +123,11 @@ def compose_with_llm(
                 "present, data basis, and material limitations. Follow reflection instructions. Do not "
                 "refer to internal evidence objects; present their values directly to the user. "
                 "For diagnosis, distinguish observations from hypotheses and explicitly label simulated "
-                "reference cases; simulation-only evidence never confirms a root cause."
+                "reference cases; simulation-only evidence never confirms a root cause. "
+                "Current tool results override historical failures. An empty alternate-agent list "
+                "means no specialist replacement, not a restriction on database sources. Never "
+                "invent a permission policy. A missing table or failed query is not proof that "
+                "all database access is unavailable."
             ),
             input_data={
                 "question": question, "plan": asdict(plan), "tool_summaries": answer_parts,

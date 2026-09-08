@@ -2,7 +2,7 @@
   {
     "id": "grounded_verified_analogy",
     "evidence": [
-      {"source_type":"text2sql_plan","title":"station observation","metadata":{"status":"succeeded","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}],"sql":"SELECT stn, down_percent FROM fab10.autosched_stn"}},
+      {"source_type":"text2sql_plan","title":"station observation","metadata":{"status":"succeeded","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}],"sql":"SELECT stn, down_percent FROM fab10.autosched_stn_fab10"}},
       {"source_type":"rag_chunk","title":"equipment playbook","content":"장비 고장 점검 지침","metadata":{"source_document":"playbook.md","issue_types":"equipment_down"}},
       {"source_type":"similar_case","title":"INC-001","content":"verified incident","metadata":{"case_id":"INC-001","case_type":"verified","source":"incident-system","issue_type":"station_down","verification":{"incident_at":"2026-08-31T14:00:00+09:00","verified_at":"2026-09-01T09:00:00+09:00","verified_by":"fab-incident-review-board","evidence_refs":["INCIDENT-001","EVENT-LOG-001"]}}}
     ],
@@ -30,7 +30,7 @@
   {
     "id": "empty_sql_is_not_observation",
     "evidence": [
-      {"source_type":"text2sql_plan","title":"empty query","metadata":{"status":"succeeded","row_count":0,"columns":[],"sample_rows":[],"sql":"SELECT * FROM fab10.autosched_perf WHERE FALSE"}}
+      {"source_type":"text2sql_plan","title":"empty query","metadata":{"status":"succeeded","row_count":0,"columns":[],"sample_rows":[],"sql":"SELECT * FROM fab10.autosched_perf_fab10 WHERE FALSE"}}
     ],
     "expected_candidate_issue_types": [],
     "expected_corroboration_level": "none",
@@ -68,7 +68,7 @@
   {
     "id": "operational_observation_without_retrieval",
     "evidence": [
-      {"source_type":"text2sql_plan","title":"wip observation","metadata":{"status":"succeeded","row_count":1,"columns":["location","wiplot"],"sample_rows":[{"location":"Dry_Etch","wiplot":150}],"sql":"SELECT location, wiplot FROM fab10.autosched_wip"}}
+      {"source_type":"text2sql_plan","title":"wip observation","metadata":{"status":"succeeded","row_count":1,"columns":["location","wiplot"],"sample_rows":[{"location":"Dry_Etch","wiplot":150}],"sql":"SELECT location, wiplot FROM fab10.autosched_wip_fab10"}}
     ],
     "expected_candidate_issue_types": [],
     "expected_corroboration_level": "none",
@@ -95,7 +95,7 @@
   {
     "id": "verified_cross_source_candidate_is_prioritized",
     "evidence": [
-      {"source_type":"text2sql_plan","title":"down observation","metadata":{"status":"succeeded","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}],"sql":"SELECT stn, down_percent FROM fab10.autosched_stn"}},
+      {"source_type":"text2sql_plan","title":"down observation","metadata":{"status":"succeeded","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}],"sql":"SELECT stn, down_percent FROM fab10.autosched_stn_fab10"}},
       {"source_type":"rag_chunk","title":"queue playbook","content":"queue 점검 지침","metadata":{"source_document":"queue.md","issue_types":"queue_time","score":9.0}},
       {"source_type":"rag_chunk","title":"down playbook","content":"down 점검 지침","metadata":{"source_document":"down.md","issue_types":"equipment_down","score":1.0}},
       {"source_type":"similar_case","title":"INC-DOWN","content":"verified down incident","metadata":{"case_id":"INC-DOWN","case_type":"verified","source":"incident-system","issue_type":"equipment_down","score":0.1,"verification":{"incident_at":"2026-08-31T14:00:00+09:00","verified_at":"2026-09-01T09:00:00+09:00","verified_by":"fab-incident-review-board","evidence_refs":["INCIDENT-DOWN","EVENT-LOG-DOWN"]}}},

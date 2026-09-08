@@ -7,7 +7,7 @@ CREATE SCHEMA IF NOT EXISTS "fab11";
 CREATE SCHEMA IF NOT EXISTS "fab12";
 CREATE SCHEMA IF NOT EXISTS "fab13";
 
-CREATE TABLE IF NOT EXISTS "fab10"."lotrelease_variable_due_dates" (
+CREATE TABLE IF NOT EXISTS "fab10"."lotrelease_variable_due_dates_fab10" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -19,10 +19,10 @@ CREATE TABLE IF NOT EXISTS "fab10"."lotrelease_variable_due_dates" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab10"."lotrelease_variable_due_dates" IS
+COMMENT ON TABLE "fab10"."lotrelease_variable_due_dates_fab10" IS
     'Compatibility table. Source workbook does not include this SMT2020 worksheet for fab10.';
 
-CREATE TABLE IF NOT EXISTS "fab10"."lotrelease_engineering" (
+CREATE TABLE IF NOT EXISTS "fab10"."lotrelease_engineering_fab10" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -33,10 +33,10 @@ CREATE TABLE IF NOT EXISTS "fab10"."lotrelease_engineering" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab10"."lotrelease_engineering" IS
+COMMENT ON TABLE "fab10"."lotrelease_engineering_fab10" IS
     'Compatibility table. Source workbook does not include this SMT2020 worksheet for fab10.';
 
-CREATE TABLE IF NOT EXISTS "fab11"."lotrelease_engineering" (
+CREATE TABLE IF NOT EXISTS "fab11"."lotrelease_engineering_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -47,10 +47,10 @@ CREATE TABLE IF NOT EXISTS "fab11"."lotrelease_engineering" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab11"."lotrelease_engineering" IS
+COMMENT ON TABLE "fab11"."lotrelease_engineering_fab11" IS
     'Compatibility table. Source workbook does not include this SMT2020 worksheet for fab11.';
 
-CREATE TABLE IF NOT EXISTS "fab12"."lotrelease_variable_due_dates" (
+CREATE TABLE IF NOT EXISTS "fab12"."lotrelease_variable_due_dates_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -62,5 +62,5 @@ CREATE TABLE IF NOT EXISTS "fab12"."lotrelease_variable_due_dates" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab12"."lotrelease_variable_due_dates" IS
+COMMENT ON TABLE "fab12"."lotrelease_variable_due_dates_fab12" IS
     'Compatibility table. Source workbook does not include this SMT2020 worksheet for fab12.';

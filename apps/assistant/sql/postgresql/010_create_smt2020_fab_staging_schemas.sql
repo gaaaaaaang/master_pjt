@@ -5,7 +5,7 @@
 -- dataset 1 -> fab10: apps/assistant/data/smt2020/General Data/dataset 1/SMT_2020_Model_Data_-_HVLM.xlsx
 CREATE SCHEMA IF NOT EXISTS "fab10";
 
-CREATE TABLE IF NOT EXISTS "fab10"."toolgroups" (
+CREATE TABLE IF NOT EXISTS "fab10"."toolgroups_fab10" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "area" TEXT,
     "toolgroup" TEXT,
@@ -25,9 +25,9 @@ CREATE TABLE IF NOT EXISTS "fab10"."toolgroups" (
     "ranking_3" TEXT,
     "tool_wake_up_ranking" TEXT
 );
-COMMENT ON TABLE "fab10"."toolgroups" IS 'SMT2020 General Data sheet: Toolgroups; header row: 1';
+COMMENT ON TABLE "fab10"."toolgroups_fab10" IS 'SMT2020 General Data sheet: Toolgroups; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab10"."pm" (
+CREATE TABLE IF NOT EXISTS "fab10"."pm_fab10" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "pm_event_name" TEXT,
     "pm_event_valid_for_type" TEXT,
@@ -43,9 +43,9 @@ CREATE TABLE IF NOT EXISTS "fab10"."pm" (
     "foa" NUMERIC,
     "foa_units" TEXT
 );
-COMMENT ON TABLE "fab10"."pm" IS 'SMT2020 General Data sheet: PM; header row: 1';
+COMMENT ON TABLE "fab10"."pm_fab10" IS 'SMT2020 General Data sheet: PM; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab10"."breakdown" (
+CREATE TABLE IF NOT EXISTS "fab10"."breakdown_fab10" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "down_event_name" TEXT,
     "down_event_valid_for_type" TEXT,
@@ -61,9 +61,9 @@ CREATE TABLE IF NOT EXISTS "fab10"."breakdown" (
     "foa" INTEGER,
     "foa_units" TEXT
 );
-COMMENT ON TABLE "fab10"."breakdown" IS 'SMT2020 General Data sheet: Breakdown; header row: 1';
+COMMENT ON TABLE "fab10"."breakdown_fab10" IS 'SMT2020 General Data sheet: Breakdown; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab10"."route_product_3" (
+CREATE TABLE IF NOT EXISTS "fab10"."route_product_3_fab10" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -94,9 +94,9 @@ CREATE TABLE IF NOT EXISTS "fab10"."route_product_3" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab10"."route_product_3" IS 'SMT2020 General Data sheet: Route_Product_3; header row: 1';
+COMMENT ON TABLE "fab10"."route_product_3_fab10" IS 'SMT2020 General Data sheet: Route_Product_3; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab10"."route_product_4" (
+CREATE TABLE IF NOT EXISTS "fab10"."route_product_4_fab10" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -127,9 +127,9 @@ CREATE TABLE IF NOT EXISTS "fab10"."route_product_4" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab10"."route_product_4" IS 'SMT2020 General Data sheet: Route_Product_4; header row: 1';
+COMMENT ON TABLE "fab10"."route_product_4_fab10" IS 'SMT2020 General Data sheet: Route_Product_4; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab10"."lotrelease" (
+CREATE TABLE IF NOT EXISTS "fab10"."lotrelease_fab10" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -145,9 +145,9 @@ CREATE TABLE IF NOT EXISTS "fab10"."lotrelease" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab10"."lotrelease" IS 'SMT2020 General Data sheet: Lotrelease; header row: 1';
+COMMENT ON TABLE "fab10"."lotrelease_fab10" IS 'SMT2020 General Data sheet: Lotrelease; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab10"."setups" (
+CREATE TABLE IF NOT EXISTS "fab10"."setups_fab10" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "setup_group_name" TEXT,
     "current_setup" TEXT,
@@ -156,9 +156,9 @@ CREATE TABLE IF NOT EXISTS "fab10"."setups" (
     "st_units" TEXT,
     "minmal_number_of_runs" INTEGER
 );
-COMMENT ON TABLE "fab10"."setups" IS 'SMT2020 General Data sheet: Setups; header row: 1';
+COMMENT ON TABLE "fab10"."setups_fab10" IS 'SMT2020 General Data sheet: Setups; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab10"."setup_matrix_implant_gas" (
+CREATE TABLE IF NOT EXISTS "fab10"."setup_matrix_implant_gas_fab10" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "col_001" TEXT,
     "product_route" TEXT,
@@ -181,9 +181,9 @@ CREATE TABLE IF NOT EXISTS "fab10"."setup_matrix_implant_gas" (
     "su128_2_6" INTEGER,
     "su128_1_6" INTEGER
 );
-COMMENT ON TABLE "fab10"."setup_matrix_implant_gas" IS 'SMT2020 General Data sheet: Setup_Matrix_Implant_Gas; header row: 7';
+COMMENT ON TABLE "fab10"."setup_matrix_implant_gas_fab10" IS 'SMT2020 General Data sheet: Setup_Matrix_Implant_Gas; header row: 7';
 
-CREATE TABLE IF NOT EXISTS "fab10"."transport" (
+CREATE TABLE IF NOT EXISTS "fab10"."transport_fab10" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "from_location" TEXT,
     "to_location" TEXT,
@@ -192,12 +192,12 @@ CREATE TABLE IF NOT EXISTS "fab10"."transport" (
     "offset" NUMERIC,
     "tt_units" TEXT
 );
-COMMENT ON TABLE "fab10"."transport" IS 'SMT2020 General Data sheet: Transport; header row: 1';
+COMMENT ON TABLE "fab10"."transport_fab10" IS 'SMT2020 General Data sheet: Transport; header row: 1';
 
 -- dataset 2 -> fab11: apps/assistant/data/smt2020/General Data/dataset 2/SMT_2020_Model_Data_-_LVHM.xlsx
 CREATE SCHEMA IF NOT EXISTS "fab11";
 
-CREATE TABLE IF NOT EXISTS "fab11"."toolgroups" (
+CREATE TABLE IF NOT EXISTS "fab11"."toolgroups_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "area" TEXT,
     "toolgroup" TEXT,
@@ -217,9 +217,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."toolgroups" (
     "ranking_3" TEXT,
     "tool_wake_up_ranking" TEXT
 );
-COMMENT ON TABLE "fab11"."toolgroups" IS 'SMT2020 General Data sheet: Toolgroups; header row: 1';
+COMMENT ON TABLE "fab11"."toolgroups_fab11" IS 'SMT2020 General Data sheet: Toolgroups; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."pm" (
+CREATE TABLE IF NOT EXISTS "fab11"."pm_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "pm_event_name" TEXT,
     "pm_event_valid_for_type" TEXT,
@@ -235,9 +235,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."pm" (
     "foa" NUMERIC,
     "foa_units" TEXT
 );
-COMMENT ON TABLE "fab11"."pm" IS 'SMT2020 General Data sheet: PM; header row: 1';
+COMMENT ON TABLE "fab11"."pm_fab11" IS 'SMT2020 General Data sheet: PM; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."breakdown" (
+CREATE TABLE IF NOT EXISTS "fab11"."breakdown_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "down_event_name" TEXT,
     "down_event_valid_for_type" TEXT,
@@ -253,9 +253,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."breakdown" (
     "foa" INTEGER,
     "foa_units" TEXT
 );
-COMMENT ON TABLE "fab11"."breakdown" IS 'SMT2020 General Data sheet: Breakdown; header row: 1';
+COMMENT ON TABLE "fab11"."breakdown_fab11" IS 'SMT2020 General Data sheet: Breakdown; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."setups" (
+CREATE TABLE IF NOT EXISTS "fab11"."setups_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "setup_group_name" TEXT,
     "current_setup" TEXT,
@@ -264,9 +264,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."setups" (
     "st_units" TEXT,
     "minmal_number_of_runs" INTEGER
 );
-COMMENT ON TABLE "fab11"."setups" IS 'SMT2020 General Data sheet: Setups; header row: 1';
+COMMENT ON TABLE "fab11"."setups_fab11" IS 'SMT2020 General Data sheet: Setups; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."transport" (
+CREATE TABLE IF NOT EXISTS "fab11"."transport_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "from_location" TEXT,
     "to_location" TEXT,
@@ -275,9 +275,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."transport" (
     "offset" NUMERIC,
     "tt_units" TEXT
 );
-COMMENT ON TABLE "fab11"."transport" IS 'SMT2020 General Data sheet: Transport; header row: 1';
+COMMENT ON TABLE "fab11"."transport_fab11" IS 'SMT2020 General Data sheet: Transport; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."lotrelease" (
+CREATE TABLE IF NOT EXISTS "fab11"."lotrelease_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -293,9 +293,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."lotrelease" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab11"."lotrelease" IS 'SMT2020 General Data sheet: Lotrelease; header row: 1';
+COMMENT ON TABLE "fab11"."lotrelease_fab11" IS 'SMT2020 General Data sheet: Lotrelease; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."lotrelease_variable_due_dates" (
+CREATE TABLE IF NOT EXISTS "fab11"."lotrelease_variable_due_dates_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -307,9 +307,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."lotrelease_variable_due_dates" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab11"."lotrelease_variable_due_dates" IS 'SMT2020 General Data sheet: Lotrelease - variable due dates; header row: 1';
+COMMENT ON TABLE "fab11"."lotrelease_variable_due_dates_fab11" IS 'SMT2020 General Data sheet: Lotrelease - variable due dates; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."route_product_1" (
+CREATE TABLE IF NOT EXISTS "fab11"."route_product_1_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -340,9 +340,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."route_product_1" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab11"."route_product_1" IS 'SMT2020 General Data sheet: Route_Product_1; header row: 1';
+COMMENT ON TABLE "fab11"."route_product_1_fab11" IS 'SMT2020 General Data sheet: Route_Product_1; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."route_product_2" (
+CREATE TABLE IF NOT EXISTS "fab11"."route_product_2_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -373,9 +373,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."route_product_2" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab11"."route_product_2" IS 'SMT2020 General Data sheet: Route_Product_2; header row: 1';
+COMMENT ON TABLE "fab11"."route_product_2_fab11" IS 'SMT2020 General Data sheet: Route_Product_2; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."route_product_3" (
+CREATE TABLE IF NOT EXISTS "fab11"."route_product_3_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -406,9 +406,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."route_product_3" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab11"."route_product_3" IS 'SMT2020 General Data sheet: Route_Product_3; header row: 1';
+COMMENT ON TABLE "fab11"."route_product_3_fab11" IS 'SMT2020 General Data sheet: Route_Product_3; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."route_product_4" (
+CREATE TABLE IF NOT EXISTS "fab11"."route_product_4_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -439,9 +439,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."route_product_4" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab11"."route_product_4" IS 'SMT2020 General Data sheet: Route_Product_4; header row: 1';
+COMMENT ON TABLE "fab11"."route_product_4_fab11" IS 'SMT2020 General Data sheet: Route_Product_4; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."route_product_5" (
+CREATE TABLE IF NOT EXISTS "fab11"."route_product_5_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -472,9 +472,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."route_product_5" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab11"."route_product_5" IS 'SMT2020 General Data sheet: Route_Product_5; header row: 1';
+COMMENT ON TABLE "fab11"."route_product_5_fab11" IS 'SMT2020 General Data sheet: Route_Product_5; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."route_product_6" (
+CREATE TABLE IF NOT EXISTS "fab11"."route_product_6_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -505,9 +505,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."route_product_6" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab11"."route_product_6" IS 'SMT2020 General Data sheet: Route_Product_6; header row: 1';
+COMMENT ON TABLE "fab11"."route_product_6_fab11" IS 'SMT2020 General Data sheet: Route_Product_6; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."route_product_7" (
+CREATE TABLE IF NOT EXISTS "fab11"."route_product_7_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -538,9 +538,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."route_product_7" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab11"."route_product_7" IS 'SMT2020 General Data sheet: Route_Product_7; header row: 1';
+COMMENT ON TABLE "fab11"."route_product_7_fab11" IS 'SMT2020 General Data sheet: Route_Product_7; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."route_product_8" (
+CREATE TABLE IF NOT EXISTS "fab11"."route_product_8_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -571,9 +571,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."route_product_8" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab11"."route_product_8" IS 'SMT2020 General Data sheet: Route_Product_8; header row: 1';
+COMMENT ON TABLE "fab11"."route_product_8_fab11" IS 'SMT2020 General Data sheet: Route_Product_8; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."route_product_9" (
+CREATE TABLE IF NOT EXISTS "fab11"."route_product_9_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -604,9 +604,9 @@ CREATE TABLE IF NOT EXISTS "fab11"."route_product_9" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab11"."route_product_9" IS 'SMT2020 General Data sheet: Route_Product_9; header row: 1';
+COMMENT ON TABLE "fab11"."route_product_9_fab11" IS 'SMT2020 General Data sheet: Route_Product_9; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab11"."route_product_10" (
+CREATE TABLE IF NOT EXISTS "fab11"."route_product_10_fab11" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -637,12 +637,12 @@ CREATE TABLE IF NOT EXISTS "fab11"."route_product_10" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab11"."route_product_10" IS 'SMT2020 General Data sheet: Route_Product_10; header row: 1';
+COMMENT ON TABLE "fab11"."route_product_10_fab11" IS 'SMT2020 General Data sheet: Route_Product_10; header row: 1';
 
 -- dataset 3 -> fab12: apps/assistant/data/smt2020/General Data/dataset 3/SMT_2020_Model_Data_-_HVLM_E.xlsx
 CREATE SCHEMA IF NOT EXISTS "fab12";
 
-CREATE TABLE IF NOT EXISTS "fab12"."toolgroups" (
+CREATE TABLE IF NOT EXISTS "fab12"."toolgroups_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "area" TEXT,
     "toolgroup" TEXT,
@@ -662,9 +662,9 @@ CREATE TABLE IF NOT EXISTS "fab12"."toolgroups" (
     "ranking_3" TEXT,
     "tool_wake_up_ranking" TEXT
 );
-COMMENT ON TABLE "fab12"."toolgroups" IS 'SMT2020 General Data sheet: Toolgroups; header row: 1';
+COMMENT ON TABLE "fab12"."toolgroups_fab12" IS 'SMT2020 General Data sheet: Toolgroups; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab12"."pm" (
+CREATE TABLE IF NOT EXISTS "fab12"."pm_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "pm_event_name" TEXT,
     "pm_event_valid_for_type" TEXT,
@@ -680,9 +680,9 @@ CREATE TABLE IF NOT EXISTS "fab12"."pm" (
     "foa" NUMERIC,
     "foa_units" TEXT
 );
-COMMENT ON TABLE "fab12"."pm" IS 'SMT2020 General Data sheet: PM; header row: 1';
+COMMENT ON TABLE "fab12"."pm_fab12" IS 'SMT2020 General Data sheet: PM; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab12"."breakdown" (
+CREATE TABLE IF NOT EXISTS "fab12"."breakdown_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "down_event_name" TEXT,
     "down_event_valid_for_type" TEXT,
@@ -698,9 +698,9 @@ CREATE TABLE IF NOT EXISTS "fab12"."breakdown" (
     "foa" INTEGER,
     "foa_units" TEXT
 );
-COMMENT ON TABLE "fab12"."breakdown" IS 'SMT2020 General Data sheet: Breakdown; header row: 1';
+COMMENT ON TABLE "fab12"."breakdown_fab12" IS 'SMT2020 General Data sheet: Breakdown; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab12"."route_product_e3" (
+CREATE TABLE IF NOT EXISTS "fab12"."route_product_e3_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -731,9 +731,9 @@ CREATE TABLE IF NOT EXISTS "fab12"."route_product_e3" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab12"."route_product_e3" IS 'SMT2020 General Data sheet: Route_Product_E3; header row: 1';
+COMMENT ON TABLE "fab12"."route_product_e3_fab12" IS 'SMT2020 General Data sheet: Route_Product_E3; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab12"."route_product_3" (
+CREATE TABLE IF NOT EXISTS "fab12"."route_product_3_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -764,9 +764,9 @@ CREATE TABLE IF NOT EXISTS "fab12"."route_product_3" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab12"."route_product_3" IS 'SMT2020 General Data sheet: Route_Product_3; header row: 1';
+COMMENT ON TABLE "fab12"."route_product_3_fab12" IS 'SMT2020 General Data sheet: Route_Product_3; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab12"."route_product_4" (
+CREATE TABLE IF NOT EXISTS "fab12"."route_product_4_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -797,9 +797,9 @@ CREATE TABLE IF NOT EXISTS "fab12"."route_product_4" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab12"."route_product_4" IS 'SMT2020 General Data sheet: Route_Product_4; header row: 1';
+COMMENT ON TABLE "fab12"."route_product_4_fab12" IS 'SMT2020 General Data sheet: Route_Product_4; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab12"."lotrelease" (
+CREATE TABLE IF NOT EXISTS "fab12"."lotrelease_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -815,9 +815,9 @@ CREATE TABLE IF NOT EXISTS "fab12"."lotrelease" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab12"."lotrelease" IS 'SMT2020 General Data sheet: Lotrelease; header row: 1';
+COMMENT ON TABLE "fab12"."lotrelease_fab12" IS 'SMT2020 General Data sheet: Lotrelease; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab12"."lotrelease_engineering" (
+CREATE TABLE IF NOT EXISTS "fab12"."lotrelease_engineering_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -828,9 +828,9 @@ CREATE TABLE IF NOT EXISTS "fab12"."lotrelease_engineering" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab12"."lotrelease_engineering" IS 'SMT2020 General Data sheet: Lotrelease Engineering; header row: 1';
+COMMENT ON TABLE "fab12"."lotrelease_engineering_fab12" IS 'SMT2020 General Data sheet: Lotrelease Engineering; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab12"."setups" (
+CREATE TABLE IF NOT EXISTS "fab12"."setups_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "setup_group_name" TEXT,
     "current_setup" TEXT,
@@ -839,9 +839,9 @@ CREATE TABLE IF NOT EXISTS "fab12"."setups" (
     "st_units" TEXT,
     "minmal_number_of_runs" INTEGER
 );
-COMMENT ON TABLE "fab12"."setups" IS 'SMT2020 General Data sheet: Setups; header row: 1';
+COMMENT ON TABLE "fab12"."setups_fab12" IS 'SMT2020 General Data sheet: Setups; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab12"."setup_matrix_implant_gas" (
+CREATE TABLE IF NOT EXISTS "fab12"."setup_matrix_implant_gas_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "col_001" TEXT,
     "product_route" TEXT,
@@ -864,9 +864,9 @@ CREATE TABLE IF NOT EXISTS "fab12"."setup_matrix_implant_gas" (
     "su128_2_6" INTEGER,
     "su128_1_6" INTEGER
 );
-COMMENT ON TABLE "fab12"."setup_matrix_implant_gas" IS 'SMT2020 General Data sheet: Setup_Matrix_Implant_Gas; header row: 7';
+COMMENT ON TABLE "fab12"."setup_matrix_implant_gas_fab12" IS 'SMT2020 General Data sheet: Setup_Matrix_Implant_Gas; header row: 7';
 
-CREATE TABLE IF NOT EXISTS "fab12"."transport" (
+CREATE TABLE IF NOT EXISTS "fab12"."transport_fab12" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "from_location" TEXT,
     "to_location" TEXT,
@@ -875,12 +875,12 @@ CREATE TABLE IF NOT EXISTS "fab12"."transport" (
     "offset" NUMERIC,
     "tt_units" TEXT
 );
-COMMENT ON TABLE "fab12"."transport" IS 'SMT2020 General Data sheet: Transport; header row: 1';
+COMMENT ON TABLE "fab12"."transport_fab12" IS 'SMT2020 General Data sheet: Transport; header row: 1';
 
 -- dataset 4 -> fab13: apps/assistant/data/smt2020/General Data/dataset 4/SMT_2020_Model_Data_-_LVHM_E.xlsx
 CREATE SCHEMA IF NOT EXISTS "fab13";
 
-CREATE TABLE IF NOT EXISTS "fab13"."toolgroups" (
+CREATE TABLE IF NOT EXISTS "fab13"."toolgroups_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "area" TEXT,
     "toolgroup" TEXT,
@@ -900,9 +900,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."toolgroups" (
     "ranking_3" TEXT,
     "tool_wake_up_ranking" TEXT
 );
-COMMENT ON TABLE "fab13"."toolgroups" IS 'SMT2020 General Data sheet: Toolgroups; header row: 1';
+COMMENT ON TABLE "fab13"."toolgroups_fab13" IS 'SMT2020 General Data sheet: Toolgroups; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."pm" (
+CREATE TABLE IF NOT EXISTS "fab13"."pm_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "pm_event_name" TEXT,
     "pm_event_valid_for_type" TEXT,
@@ -918,9 +918,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."pm" (
     "foa" NUMERIC,
     "foa_units" TEXT
 );
-COMMENT ON TABLE "fab13"."pm" IS 'SMT2020 General Data sheet: PM; header row: 1';
+COMMENT ON TABLE "fab13"."pm_fab13" IS 'SMT2020 General Data sheet: PM; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."breakdown" (
+CREATE TABLE IF NOT EXISTS "fab13"."breakdown_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "down_event_name" TEXT,
     "down_event_valid_for_type" TEXT,
@@ -936,9 +936,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."breakdown" (
     "foa" INTEGER,
     "foa_units" TEXT
 );
-COMMENT ON TABLE "fab13"."breakdown" IS 'SMT2020 General Data sheet: Breakdown; header row: 1';
+COMMENT ON TABLE "fab13"."breakdown_fab13" IS 'SMT2020 General Data sheet: Breakdown; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."setups" (
+CREATE TABLE IF NOT EXISTS "fab13"."setups_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "setup_group_name" TEXT,
     "current_setup" TEXT,
@@ -947,9 +947,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."setups" (
     "st_units" TEXT,
     "minmal_number_of_runs" INTEGER
 );
-COMMENT ON TABLE "fab13"."setups" IS 'SMT2020 General Data sheet: Setups; header row: 1';
+COMMENT ON TABLE "fab13"."setups_fab13" IS 'SMT2020 General Data sheet: Setups; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."transport" (
+CREATE TABLE IF NOT EXISTS "fab13"."transport_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "from_location" TEXT,
     "to_location" TEXT,
@@ -958,9 +958,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."transport" (
     "offset" NUMERIC,
     "tt_units" TEXT
 );
-COMMENT ON TABLE "fab13"."transport" IS 'SMT2020 General Data sheet: Transport; header row: 1';
+COMMENT ON TABLE "fab13"."transport_fab13" IS 'SMT2020 General Data sheet: Transport; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."lotrelease" (
+CREATE TABLE IF NOT EXISTS "fab13"."lotrelease_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -976,9 +976,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."lotrelease" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab13"."lotrelease" IS 'SMT2020 General Data sheet: Lotrelease; header row: 1';
+COMMENT ON TABLE "fab13"."lotrelease_fab13" IS 'SMT2020 General Data sheet: Lotrelease; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."lotrelease_variable_due_dates" (
+CREATE TABLE IF NOT EXISTS "fab13"."lotrelease_variable_due_dates_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -990,9 +990,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."lotrelease_variable_due_dates" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab13"."lotrelease_variable_due_dates" IS 'SMT2020 General Data sheet: Lotrelease - variable due dates; header row: 1';
+COMMENT ON TABLE "fab13"."lotrelease_variable_due_dates_fab13" IS 'SMT2020 General Data sheet: Lotrelease - variable due dates; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."lotrelease_engineering" (
+CREATE TABLE IF NOT EXISTS "fab13"."lotrelease_engineering_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "product_name" TEXT,
     "route_name" TEXT,
@@ -1003,9 +1003,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."lotrelease_engineering" (
     "due_date" TIMESTAMP,
     "release_scenario" TEXT
 );
-COMMENT ON TABLE "fab13"."lotrelease_engineering" IS 'SMT2020 General Data sheet: Lotrelease - Engineering; header row: 1';
+COMMENT ON TABLE "fab13"."lotrelease_engineering_fab13" IS 'SMT2020 General Data sheet: Lotrelease - Engineering; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_e1" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_e1_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1036,9 +1036,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_e1" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_e1" IS 'SMT2020 General Data sheet: Route_Product_E1; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_e1_fab13" IS 'SMT2020 General Data sheet: Route_Product_E1; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_e2" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_e2_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1069,9 +1069,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_e2" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_e2" IS 'SMT2020 General Data sheet: Route_Product_E2; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_e2_fab13" IS 'SMT2020 General Data sheet: Route_Product_E2; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_e3" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_e3_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1102,9 +1102,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_e3" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_e3" IS 'SMT2020 General Data sheet: Route_Product_E3; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_e3_fab13" IS 'SMT2020 General Data sheet: Route_Product_E3; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_1" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_1_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1135,9 +1135,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_1" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_1" IS 'SMT2020 General Data sheet: Route_Product_1; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_1_fab13" IS 'SMT2020 General Data sheet: Route_Product_1; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_2" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_2_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1168,9 +1168,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_2" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_2" IS 'SMT2020 General Data sheet: Route_Product_2; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_2_fab13" IS 'SMT2020 General Data sheet: Route_Product_2; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_3" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_3_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1201,9 +1201,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_3" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_3" IS 'SMT2020 General Data sheet: Route_Product_3; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_3_fab13" IS 'SMT2020 General Data sheet: Route_Product_3; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_4" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_4_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1234,9 +1234,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_4" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_4" IS 'SMT2020 General Data sheet: Route_Product_4; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_4_fab13" IS 'SMT2020 General Data sheet: Route_Product_4; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_5" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_5_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1267,9 +1267,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_5" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_5" IS 'SMT2020 General Data sheet: Route_Product_5; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_5_fab13" IS 'SMT2020 General Data sheet: Route_Product_5; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_6" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_6_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1300,9 +1300,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_6" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_6" IS 'SMT2020 General Data sheet: Route_Product_6; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_6_fab13" IS 'SMT2020 General Data sheet: Route_Product_6; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_7" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_7_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1333,9 +1333,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_7" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_7" IS 'SMT2020 General Data sheet: Route_Product_7; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_7_fab13" IS 'SMT2020 General Data sheet: Route_Product_7; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_8" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_8_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1366,9 +1366,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_8" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_8" IS 'SMT2020 General Data sheet: Route_Product_8; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_8_fab13" IS 'SMT2020 General Data sheet: Route_Product_8; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_9" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_9_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1399,9 +1399,9 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_9" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_9" IS 'SMT2020 General Data sheet: Route_Product_9; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_9_fab13" IS 'SMT2020 General Data sheet: Route_Product_9; header row: 1';
 
-CREATE TABLE IF NOT EXISTS "fab13"."route_product_10" (
+CREATE TABLE IF NOT EXISTS "fab13"."route_product_10_fab13" (
     source_row_id BIGSERIAL PRIMARY KEY,
     "route" TEXT,
     "step" TEXT,
@@ -1432,4 +1432,4 @@ CREATE TABLE IF NOT EXISTS "fab13"."route_product_10" (
     "cqt" INTEGER,
     "cqtunits" TEXT
 );
-COMMENT ON TABLE "fab13"."route_product_10" IS 'SMT2020 General Data sheet: Route_Product_10; header row: 1';
+COMMENT ON TABLE "fab13"."route_product_10_fab13" IS 'SMT2020 General Data sheet: Route_Product_10; header row: 1';

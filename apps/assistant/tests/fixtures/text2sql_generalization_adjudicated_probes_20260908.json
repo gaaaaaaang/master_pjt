@@ -1,0 +1,16 @@
+[
+  {
+    "id": "a01",
+    "category": "area_settings_join_adjudicated",
+    "question": "fab13 모델 breakdown의 down_event_valid_for_type이 area인 고장 설정을 toolgroups 영역과 연결해서 영역별 설정 개수를 보여줘. 같은 설정이 여러 장비군과 매칭돼도 source_row_id별 한 번만 세고, 실제 일어난 고장 건수라고 해석하지 마.",
+    "expected_fab": "fab13",
+    "reference_sql": "SELECT t.area, COUNT(DISTINCT b.source_row_id) AS settings FROM fab13.breakdown_fab13 b JOIN fab13.toolgroups_fab13 t ON b.type_name=t.area WHERE b.down_event_valid_for_type='area' GROUP BY t.area"
+  },
+  {
+    "id": "a02",
+    "category": "explicit_interval_basis",
+    "question": "fab10 시뮬레이션에서 interval_end가 2026-09-07 00:00 UTC 이상 12:00 UTC 미만인 행들의 lot_completions 합계 하나만 알려줘.",
+    "expected_fab": "fab10",
+    "reference_sql": "SELECT SUM(lot_completions) FROM fab10.live_process_snapshots_fab10 WHERE interval_end >= '2026-09-07 00:00:00+00' AND interval_end < '2026-09-07 12:00:00+00'"
+  }
+]

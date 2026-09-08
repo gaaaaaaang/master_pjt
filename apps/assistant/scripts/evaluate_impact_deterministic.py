@@ -17,22 +17,22 @@ BASELINES: dict[str, dict[str, Any]] = {
     "sc003_queue_time_output_impact": {
         "rows": [{"cycleavg": 12.0, "lotcomps": 1000}],
         "columns": ["cycleavg", "lotcomps"],
-        "source_tables": ["fab10.autosched_perf"],
+        "source_tables": ["fab10.autosched_perf_fab10"],
     },
     "sc003_util_drop_capacity_impact": {
         "rows": [{"util_percent": 80.0, "lotcomps": 1000}],
         "columns": ["util_percent", "lotcomps"],
-        "source_tables": ["fab10.autosched_stngrp"],
+        "source_tables": ["fab10.autosched_stngrp_fab10"],
     },
     "sc003_station_down_output_impact": {
         "rows": [{"down_percent": 4.0, "lotcomps": 1000}],
         "columns": ["down_percent", "lotcomps"],
-        "source_tables": ["fab10.autosched_stn", "fab10.autosched_perf"],
+        "source_tables": ["fab10.autosched_stn_fab10", "fab10.autosched_perf_fab10"],
     },
     "sc003_product_cycle_time_impact": {
         "rows": [{"cycleavg": 10.0, "ontime_percent": 90.0}],
         "columns": ["cycleavg", "ontime_percent"],
-        "source_tables": ["fab10.autosched_part"],
+        "source_tables": ["fab10.autosched_part_fab10"],
     },
     "sc003_compound_util_cycle_impact": {
         "rows": [
@@ -44,7 +44,7 @@ BASELINES: dict[str, dict[str, Any]] = {
             }
         ],
         "columns": ["util_percent", "cycleavg", "lotcomps", "ontime_percent"],
-        "source_tables": ["fab10.autosched_perf", "fab10.autosched_stngrp"],
+        "source_tables": ["fab10.autosched_perf_fab10", "fab10.autosched_stngrp_fab10"],
     },
 }
 

@@ -1,0 +1,141 @@
+[
+  {
+    "id": "v01",
+    "category": "snapshot_total",
+    "question": "fab13 시뮬레이션 가장 최근 스냅샷에 있는 영역들의 queue_lots 총합만 구해줘.",
+    "reference_sql": "SELECT SUM(queue_lots) FROM fab13.live_process_snapshots_fab13 WHERE interval_end=(SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13)",
+    "expected_fab": "fab13",
+    "ordered": false
+  },
+  {
+    "id": "v02",
+    "category": "snapshot_filter",
+    "question": "fab12 시뮬레이션의 최근 스냅샷에서 cmp 영역의 wip_lots 값만.",
+    "reference_sql": "SELECT wip_lots FROM fab12.live_process_snapshots_fab12 WHERE area='cmp' AND interval_end=(SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12)",
+    "expected_fab": "fab12",
+    "ordered": false
+  },
+  {
+    "id": "v03",
+    "category": "time_range",
+    "question": "fab11 시뮬레이션에서 interval_end가 2026-09-06 00:00 UTC 이상 2026-09-07 00:00 UTC 미만인 상세 이벤트 행 수만 세줘.",
+    "reference_sql": "SELECT COUNT(*) FROM fab11.live_process_events_fab11 WHERE interval_end>='2026-09-06 00:00+00' AND interval_end<'2026-09-07 00:00+00'",
+    "expected_fab": "fab11",
+    "ordered": false
+  },
+  {
+    "id": "v04",
+    "category": "flow_total",
+    "question": "fab12 시뮬레이션 스냅샷 중 2026-09-07 00:00 UTC 이상 06:00 UTC 미만의 lot_starts 합계 하나만 구해줘.",
+    "reference_sql": "SELECT SUM(lot_starts) FROM fab12.live_process_snapshots_fab12 WHERE interval_end>='2026-09-07 00:00+00' AND interval_end<'2026-09-07 06:00+00'",
+    "expected_fab": "fab12",
+    "ordered": false
+  },
+  {
+    "id": "v05",
+    "category": "boolean",
+    "question": "fab11 시뮬레이션의 전체 상세 이벤트에서 rework_flag=true인 행 수를 알려줘. 건수 한 값만.",
+    "reference_sql": "SELECT COUNT(*) FROM fab11.live_process_events_fab11 WHERE rework_flag=true",
+    "expected_fab": "fab11",
+    "ordered": false
+  },
+  {
+    "id": "v06",
+    "category": "model_count",
+    "question": "fab10 toolgroups 모델에 정의된 영역별 설비 대수의 산술 평균을 구해줘. 영역과 평균만. 현재 가동 상태가 아니야.",
+    "reference_sql": "SELECT area,AVG(number_of_tools) FROM fab10.toolgroups_fab10 GROUP BY area",
+    "expected_fab": "fab10",
+    "ordered": false
+  },
+  {
+    "id": "v07",
+    "category": "join",
+    "question": "fab12 PM 모델 설정 중 설비군과 연결되는 설정 행 건수를 영역별로 보여줘. 영역과 설정 건수만 반환해줘.",
+    "reference_sql": "SELECT t.area,COUNT(p.source_row_id) FROM fab12.pm_fab12 p JOIN fab12.toolgroups_fab12 t ON p.type_name=t.toolgroup GROUP BY t.area",
+    "expected_fab": "fab12",
+    "ordered": false
+  },
+  {
+    "id": "v08",
+    "category": "multiple_measures",
+    "question": "fab11 시뮬레이션 최신 스냅샷의 공장 전체 queue_lots 합계, wip_lots 합계를 이 순서로 두 값만 반환해줘.",
+    "reference_sql": "SELECT SUM(queue_lots),SUM(wip_lots) AS wip_total FROM fab11.live_process_snapshots_fab11 WHERE interval_end=(SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11)",
+    "expected_fab": "fab11",
+    "ordered": false,
+    "ordered_columns": true
+  },
+  {
+    "id": "v09",
+    "category": "ranking",
+    "question": "fab10 시뮬레이션 최신 스냅샷에서 재공이 적은 영역 2개. wip_lots 오름차순, 동률 area 오름차순으로 영역과 재공 수만 보여줘.",
+    "reference_sql": "SELECT area,wip_lots FROM fab10.live_process_snapshots_fab10 WHERE interval_end=(SELECT MAX(interval_end) FROM fab10.live_process_snapshots_fab10) ORDER BY wip_lots ASC,area ASC LIMIT 2",
+    "expected_fab": "fab10",
+    "ordered": true
+  },
+  {
+    "id": "v10",
+    "category": "aggregate_ranking",
+    "question": "fab13 시뮬레이션 전체 상세 이벤트에서 영역별 평균 wafers가 높은 상위 3개. 평균 내림차순, 동률은 area 오름차순. 영역과 평균만.",
+    "reference_sql": "SELECT area,AVG(wafers) AS mean_wafers FROM fab13.live_process_events_fab13 GROUP BY area ORDER BY mean_wafers DESC,area ASC LIMIT 3",
+    "expected_fab": "fab13",
+    "ordered": true
+  },
+  {
+    "id": "v11",
+    "category": "context",
+    "question": "같은 팹의 시뮬레이션 최신 스냅샷 행 개수만 알려줘.",
+    "reference_sql": "SELECT COUNT(*) FROM fab13.live_process_snapshots_fab13 WHERE interval_end=(SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13)",
+    "expected_fab": "fab13",
+    "ordered": false,
+    "context": {
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "fab13 시뮬레이션 상태 알려줘"
+        }
+      ]
+    }
+  },
+  {
+    "id": "v12",
+    "category": "null",
+    "question": "fab13 시뮬레이션 전체 상세 이벤트에서 equipment_id가 NULL이 아닌 행 개수만 알려줘.",
+    "reference_sql": "SELECT COUNT(*) FROM fab13.live_process_events_fab13 WHERE equipment_id IS NOT NULL",
+    "expected_fab": "fab13",
+    "ordered": false
+  },
+  {
+    "id": "v13",
+    "category": "distinct",
+    "question": "fab12 시뮬레이션 전체 상세 이벤트의 서로 다른 route_step 개수만.",
+    "reference_sql": "SELECT COUNT(DISTINCT route_step) FROM fab12.live_process_events_fab12",
+    "expected_fab": "fab12",
+    "ordered": false
+  },
+  {
+    "id": "v14",
+    "category": "multi_filter",
+    "question": "fab11 시뮬레이션 전체 상세 이벤트에서 queue_minutes가 10 이상 60 미만이고 area가 photo인 행 개수만.",
+    "reference_sql": "SELECT COUNT(*) FROM fab11.live_process_events_fab11 WHERE queue_minutes>=10 AND queue_minutes<60 AND area='photo'",
+    "expected_fab": "fab11",
+    "ordered": false
+  },
+  {
+    "id": "v15",
+    "category": "clarification",
+    "question": "fab88의 시뮬레이션 대기시간 알려줘.",
+    "expected_statuses": [
+      "needs_clarification"
+    ]
+  },
+  {
+    "id": "v16",
+    "category": "unavailable_measurement",
+    "question": "fab12의 실제 실측 검사 데이터에서 wafer 불량 원인별 건수를 보여줘. 합성 시뮬레이션이나 모델 설정을 실제 검사 데이터로 대신하지 마.",
+    "expected_statuses": [
+      "unsupported",
+      "needs_clarification",
+      "data_unavailable"
+    ]
+  }
+]

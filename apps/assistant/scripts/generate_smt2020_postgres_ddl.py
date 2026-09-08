@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import re
+import sys
 from collections import Counter
+from collections.abc import Iterable
 from datetime import date, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Iterable
 
 from openpyxl import load_workbook
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from app.db.fab_catalog import physical_table_name
 
 APP_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -101,7 +104,7 @@ def table_ddl(schema_name: str, sheet_name: str, ws) -> str:
         pg_type = infer_pg_type(sample_column_values(ws, header_row, idx))
         columns.append(f"    {ident(column_name)} {pg_type}")
 
-    table_name = snake(sheet_name, "sheet")
+    table_name = physical_table_name(schema_name, snake(sheet_name, "sheet"))
     ddl = [
         f"CREATE TABLE IF NOT EXISTS {ident(schema_name)}.{ident(table_name)} (",
         ",\n".join(columns),

@@ -139,6 +139,17 @@ def review_plan(
             "limitations": ["Supervisor LLM review was unavailable."],
             "fallback_used": True,
         }
+    if (
+        plan.status == "ready"
+        and "text2sql" in plan.selected_sub_agents
+        and output["status"] == "data_unavailable"
+    ):
+        output = {
+            **output, "proceed": True, "status": "ready",
+            "selected_sub_agents": list(plan.selected_sub_agents), "answer": None,
+            "limitations": [],
+            "reason": "현재 DB 가용성은 Text2SQL의 새 조회 결과로 확인합니다.",
+        }
     selected = (
         list(plan.selected_sub_agents)
         if output["status"] == "ready" and output["proceed"]

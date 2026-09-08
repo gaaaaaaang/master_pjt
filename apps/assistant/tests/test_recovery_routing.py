@@ -97,7 +97,7 @@ def test_recovery_retries_same_agent_once(monkeypatch) -> None:
             status="succeeded",
             query_type="master_data_lookup",
             answer="Toolgroup rows were retrieved.",
-            sql="SELECT toolgroup FROM fab10.toolgroups LIMIT 20",
+            sql="SELECT toolgroup FROM fab10.toolgroups_fab10 LIMIT 20",
             plan=QueryPlan(
                 query_type="master_data_lookup",
                 template_id=None,
@@ -140,7 +140,7 @@ def test_recovery_replans_once_with_execution_feedback(monkeypatch) -> None:
             status="succeeded",
             query_type="master_data_lookup",
             answer="The revised plan succeeded.",
-            sql="SELECT toolgroup FROM fab10.toolgroups LIMIT 20",
+            sql="SELECT toolgroup FROM fab10.toolgroups_fab10 LIMIT 20",
             plan=QueryPlan(
                 query_type="master_data_lookup",
                 template_id=None,
@@ -169,7 +169,7 @@ def test_recovery_routes_to_compatible_alternate_agent(monkeypatch) -> None:
             status="succeeded",
             query_type="status",
             answer="Queue Time trend rows were retrieved.",
-            sql="SELECT queue_time FROM fab10.autosched_status LIMIT 20",
+            sql="SELECT queue_time FROM fab10.autosched_status_fab10 LIMIT 20",
             plan=QueryPlan(query_type="status", template_id=None, fab_id="fab10"),
         ),
     )
@@ -229,7 +229,7 @@ def test_dispatcher_follows_planner_execution_step_order(monkeypatch) -> None:
             status="succeeded",
             query_type="master_data_lookup",
             answer="Toolgroups retrieved.",
-            sql="SELECT toolgroup FROM fab10.toolgroups LIMIT 20",
+            sql="SELECT toolgroup FROM fab10.toolgroups_fab10 LIMIT 20",
         ),
     )
 
@@ -255,7 +255,7 @@ def test_compound_diagnosis_trend_executes_visualization_with_trend_rows(monkeyp
         status="succeeded",
         query_type="trend",
         answer="WIP trend rows",
-        sql="SELECT report_date, stngrp, wiplotavg FROM fab10.autosched_stngrp",
+        sql="SELECT report_date, stngrp, wiplotavg FROM fab10.autosched_stngrp_fab10",
         rows=[
             {"report_date": "2020-01-03", "stngrp": "Dry_Etch", "wiplotavg": 12},
             {"report_date": "2020-01-01", "stngrp": "Dry_Etch", "wiplotavg": 10},
@@ -324,7 +324,7 @@ def test_compound_diagnosis_impact_executes_calculation_from_status_baseline(mon
         status="succeeded",
         query_type="status",
         answer="utilization baseline",
-        sql="SELECT util_percent FROM fab10.autosched_stngrp",
+        sql="SELECT util_percent FROM fab10.autosched_stngrp_fab10",
         rows=[{"util_percent": 80.0}],
         columns=["util_percent"],
         row_count=1,
@@ -464,7 +464,7 @@ def test_final_reflection_retry_target_stops_after_agent_budget(monkeypatch) -> 
             status="succeeded",
             query_type="master_data_lookup",
             answer="Toolgroups retrieved.",
-            sql="SELECT toolgroup FROM fab10.toolgroups LIMIT 20",
+            sql="SELECT toolgroup FROM fab10.toolgroups_fab10 LIMIT 20",
         )
 
     monkeypatch.setattr("app.agents.graph.answer_question", answer_question)
@@ -500,7 +500,7 @@ def test_final_reflection_can_replan_then_compose(monkeypatch) -> None:
             status="succeeded",
             query_type="master_data_lookup",
             answer="Toolgroups retrieved.",
-            sql="SELECT toolgroup FROM fab10.toolgroups LIMIT 20",
+            sql="SELECT toolgroup FROM fab10.toolgroups_fab10 LIMIT 20",
         ),
     )
 

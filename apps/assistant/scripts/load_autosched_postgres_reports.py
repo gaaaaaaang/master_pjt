@@ -5,12 +5,16 @@ import csv
 import io
 import re
 import subprocess
+import sys
 import tempfile
 from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from app.db.fab_catalog import physical_table_name
 
 APP_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -234,14 +238,14 @@ def table_ddl(schema_name: str, report: ReportRows, *, recreate: bool = False) -
     columns.extend(f"    {ident(column)} {column_type(column)}" for column in report.columns)
     lines = []
     if recreate:
-        lines.append(f"DROP TABLE IF EXISTS {ident(schema_name)}.{ident(report.table_name)};")
+        lines.append(f"DROP TABLE IF EXISTS {ident(schema_name)}.{ident(physical_table_name(schema_name, report.table_name))};")
     lines.extend(
         [
-            f"CREATE TABLE IF NOT EXISTS {ident(schema_name)}.{ident(report.table_name)} (",
+            f"CREATE TABLE IF NOT EXISTS {ident(schema_name)}.{ident(physical_table_name(schema_name, report.table_name))} (",
             ",\n".join(columns),
             ");",
             (
-                f"COMMENT ON TABLE {ident(schema_name)}.{ident(report.table_name)} IS "
+                f"COMMENT ON TABLE {ident(schema_name)}.{ident(physical_table_name(schema_name, report.table_name))} IS "
                 f"{sql_quote(f'SMT2020 AutoSched report: {report.report_file}')};"
             ),
         ]
@@ -273,7 +277,7 @@ def copy_columns(report: ReportRows) -> list[str]:
 def copy_csv(args: argparse.Namespace, schema_name: str, report: ReportRows, csv_path: Path) -> None:
     column_sql = ", ".join(ident(column) for column in copy_columns(report))
     copy_sql = (
-        f"\\copy {ident(schema_name)}.{ident(report.table_name)} ({column_sql}) "
+        f"\\copy {ident(schema_name)}.{ident(physical_table_name(schema_name, report.table_name))} ({column_sql}) "
         "FROM STDIN WITH (FORMAT csv, NULL '')"
     )
     subprocess.run([*psql_base(args), "-c", copy_sql], input=csv_path.read_bytes(), check=True)
@@ -302,7 +306,7 @@ def load_dataset_reports(
             if not args.no_truncate:
                 run_sql(
                     args,
-                    f"TRUNCATE TABLE {ident(schema_name)}.{ident(report.table_name)} RESTART IDENTITY;",
+                    f"TRUNCATE TABLE {ident(schema_name)}.{ident(physical_table_name(schema_name, report.table_name))} RESTART IDENTITY;",
                 )
             csv_path = tmp / f"{schema_name}__{report.table_name}.csv"
             row_count = export_report_csv(report, csv_path)

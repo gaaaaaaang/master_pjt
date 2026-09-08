@@ -9,10 +9,10 @@ from typing import Any
 from uuid import uuid4
 
 from app.config import get_settings
+from app.db.fab_catalog import resolve_fab
 from app.schemas.chat import ChatRequest
 from app.services.state_store import AssistantStateStore
 
-FAB_PATTERN = re.compile(r"\bfab[\s_-]*(\d+)\b", re.IGNORECASE)
 PRODUCT_PATTERN = re.compile(
     r"(?<![A-Za-z0-9_])(?:product|part)[-_ ]?([eE]?\d+)(?![A-Za-z0-9_])",
     re.IGNORECASE,
@@ -246,8 +246,7 @@ class ConversationMemory:
 
 
 def _parse_fab(content: str) -> str | None:
-    match = FAB_PATTERN.search(content)
-    return f"fab{match.group(1)}" if match else None
+    return resolve_fab(content).fab_id
 
 
 def _parse_process(content: str) -> str | None:
