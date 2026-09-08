@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Any
 
 import pytest
 
 os.environ.setdefault("APP_ENV", "test")
+# Keep evaluation corpus stable if an optional SDK loads a developer dotenv on import.
+os.environ["RAG_LOCAL_STORE_PATH"] = str(Path(__file__).resolve().parents[1] / "output/rag/master_pjt_v2.jsonl")
 
 from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
 
@@ -130,6 +133,26 @@ def fake_agent_chat_completions(monkeypatch):
                 "retry_target": None,
                 "reason": "test reflection accepted",
             }
+        if schema_name == "fab_grounded_review":
+            return {
+                "complete": True,
+                "coverage": [{"requirement": "fixture question", "covered": True, "reason": "fixture"}],
+                "checks": [
+                    {"claim_index": i, "supported": True, "reason": "fixture quote"}
+                    for i in range(len(input_data["claims"]))
+                ],
+            }
+        if schema_name == "fab_grounded_answer":
+            source = input_data["sources"][0]["spans"][0]
+            return {
+                "status": "supported",
+                "claims": [
+                    {
+                        "text": source["quote"],
+                        "sources": [{"quote_id": source["quote_id"]}],
+                    }
+                ],
+            }
         if schema_name == "fab_final_answer":
             summaries = input_data.get("tool_summaries") or []
             return {"answer": "\n\n".join(summaries) or "테스트 답변입니다."}
@@ -146,6 +169,7 @@ def fake_agent_chat_completions(monkeypatch):
         raise AssertionError(f"Unexpected schema: {schema_name}")
 
     monkeypatch.setattr("app.agents.llm.AzureAgentClient.complete_json", complete_json)
+
     def answer_question(message, **kwargs):
         planner = _planner_output(message)
         query_type = planner["query_type"]

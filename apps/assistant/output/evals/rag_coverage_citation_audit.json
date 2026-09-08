@@ -1,0 +1,21 @@
+{
+  "audit": "canonical_source_fidelity.v1",
+  "scope": "Literal quotation and source metadata; not semantic correctness or completeness.",
+  "input_report": "apps/assistant/output/evals/rag_chat_coverage_final.json",
+  "report_sha256": "94845a3b48d8675875ed88cb2a44b599e4013993aecf447e699cd66910fc2ea8",
+  "corpus_sha256": "5cd581ec05cf94505e16ec00177d917b094c3e4461784f9da2bb1222e5cf9dca",
+  "cases": [
+    {
+      "id": "ext_pm_approval",
+      "citations": 6,
+      "issues": []
+    },
+    {
+      "id": "ext_knowledge_update",
+      "citations": 7,
+      "issues": []
+    }
+  ],
+  "total_citations": 13,
+  "passed": true
+}

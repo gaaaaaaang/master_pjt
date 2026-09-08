@@ -1,0 +1,713 @@
+{
+  "scope": "Real FastAPI routes via in-process ASGI; real LLM and Milvus; no deployed-server/load test.",
+  "git_head": "382c56b025eb0e02e96c4a7d6053d8a82c349bfd",
+  "fixture_sha256": "258e03ec26e36543f8d5beea6d8127f5e9dfbbb0f5c066ebd1cd68df2c645801",
+  "mode": "chat",
+  "cases": [
+    {
+      "id": "ext_hold_deadline",
+      "query": "납기가 급하면 품질 영향이 의심되는 lot을 Hold에서 풀어도 되나? 매뉴얼의 보류 조건과 해제 조건을 비교해줘.",
+      "seconds": 20.228,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [
+        "PB-HL-001",
+        "PB-HL-002"
+      ],
+      "missing_units": [],
+      "complete_retrieval": true,
+      "rag_count": 5,
+      "review_rubric": "납기만으로 해제 불가; 원인 분석 및 disposition 승인. 확정된 품질 영향만 Hold한다는 표현 금지.",
+      "final": {
+        "conversation_id": "dd385e3f-295c-4b6e-a4a1-2531844624dc",
+        "status": "succeeded",
+        "query_type": "knowledge_lookup",
+        "answer": "납기 압박은 품질 hold 해제의 단독 사유가 될 수 없다. [1]\n\n품질 hold lot을 단순 납기 사유로 override release하지 않는다. [2]\n\n품질 영향 가능성이 있고 원인 범위가 확정되지 않은 경우 hold한다. [3]\n\n품질 영향이 확정되기 전까지 무리한 release를 금지한다. [4]\n\n원인 분석이 완료되고 lot disposition이 승인된다(해제 조건). [5]\n\n재검, 리워크, 평가, qualification 결과가 pass일 때 release 가능(필요 시). [6]\n\n원인 범위가 특정되고 remeasure 또는 engineering disposition이 완료돼야 복구 가능. [7]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.13\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.18\n[3] semiconductor_fab_incident_response_playbook_kr.pdf, p.13\n[4] semiconductor_fab_incident_response_playbook_kr.pdf, p.11\n[5] semiconductor_fab_incident_response_playbook_kr.pdf, p.14\n[6] semiconductor_fab_incident_response_playbook_kr.pdf, p.14\n[7] semiconductor_fab_incident_response_playbook_kr.pdf, p.11",
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "To compare the documented Hold and Release conditions for lots suspected of quality impact and determine if early release due to deadlines is allowed, according to the manual.",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve and compare documented Hold and Release conditions from the manual for lots suspected of quality impact",
+                  "required": true,
+                  "reason": "The user requests a policy comparison from the manual, not a data query or incident diagnosis."
+                }
+              ],
+              "slots": {},
+              "model_usage": {
+                "call_count": 1,
+                "failed_calls": 0,
+                "reported_total_tokens": 879,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 726,
+                    "output_tokens": 153,
+                    "total_tokens": 879,
+                    "seconds": 1.882
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "13. Lot Hold 판단",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n13. Lot Hold 판단\n13 / 25\n13. Lot Hold 판단\nWhen to Hold a Lot\nplaybook_id\nPB-HL-001\nissue_type\nlot_hold\ntrigger\nquality or process risk\nowner\nEngineer\ndecision\nhold\ntags\nhold,containment\n이슈 감지\n품질 영향?\n납기 영향?\nLOT HOLD\n조건부 진행\n재스케줄\n모니터링\nHold 조건\n-\n품질 영향 가능성이 있고 원인 범위가 확정되지 않은 경우 hold한다.\n-\n공정 spec 위반, 장비 alarm 후 처리 lot, material 의심 lot, recipe mismatch lot은 우선 hold 후보가 된다.\n-\n납기 압박은 품질 hold 해제의 단독 사유가 될 수 없다.\n필수 기록\n-\nhold reason, affected operation, suspect tool, suspect time window, owner, expected next review time을 기록한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "12",
+              "concepts": [
+                "lot_hold",
+                "lot_release",
+                "recovery"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "lot_hold",
+              "page_number": 13,
+              "playbook_ids": [
+                "PB-HL-001"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "13. Lot Hold 판단",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.6567297577857971,
+              "score": 3.1164,
+              "retrieval_features": {
+                "term_coverage": 0.4375,
+                "concept_matches": [
+                  "lot_hold"
+                ],
+                "focus_matches": [
+                  "lot_hold"
+                ],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.032787,
+                "relevance_grade": 3,
+                "relevance_reason": "납기 압박만으로 hold 해제는 안 된다고 명확히 제시하며, 보류(Hold) 및 해제 조건을 구체적으로 설명한다."
+              },
+              "retrieval_ranks": {
+                "0": 1,
+                "1": 1
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "4456402d14afcca1262205d0",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf"
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "18. Dispatching Rule Override",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n18. Dispatching Rule Override\n18 / 25\n18. Dispatching Rule Override\n자동 규칙을 임시 변경하는 경우\nplaybook_id\nPB-SC-001\nissue_type\ndispatch_override\ntrigger\nrule conflict\nowner\nScheduler\ndecision\nmanual override\ntags\ndispatch,schedule\n허용 조건\n-\nSuperHotLotFIRST, reservation, least setup time 같은 규칙이 품질 또는 납기 목표와 충돌할 때 임시 override를 검토한다.\n-\noverride는 시작 시각, 종료 조건, 영향 lot, 승인자를 반드시 남긴다.\n금지 조건\n-\n품질 hold lot을 단순 납기 사유로 override release하지 않는다.\n-\n대체 tool qualification이 불명확한 상태에서 dispatch만 변경하지 않는다.\nOverride Case\nApprover\nEnd Condition\nHot lot queue\nScheduler\nhot lot passes bottleneck\nQuality containment\nEngineer\ndisposition complete\nTool recovery\nEngineer\nqual pass\nMaterial limit\nManager\nshortage cleared\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "17",
+              "concepts": [
+                "bottleneck",
+                "dispatch",
+                "hot_lot",
+                "recovery",
+                "setup"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "dispatch_override",
+              "page_number": 18,
+              "playbook_ids": [
+                "PB-SC-001"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "18. Dispatching Rule Override",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.4570334255695343,
+              "score": 3.0,
+              "retrieval_features": {
+                "term_coverage": 0.375,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.030536,
+                "relevance_grade": 3,
+                "relevance_reason": "품질 hold lot은 단순 납기 사유로 해제 불가함을 분명히 명시하여 요청에 직접적으로 답함."
+              },
+              "retrieval_ranks": {
+                "0": 5,
+                "1": 6
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "4fd61e7115454c5005988769",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf"
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "14. Lot Release 판단",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n14. Lot Release 판단\n14 / 25\n14. Lot Release 판단\nRelease from Hold\nplaybook_id\nPB-HL-002\nissue_type\nlot_release\ntrigger\nreview complete\nowner\nEngineer\ndecision\nrelease\ntags\nrelease,disposition\nRelease 조건\n-\n원인 분석이 완료되고 lot disposition이 승인된다.\n-\n필요 시 re-measure, rework, engineering evaluation, qualification 결과가 pass여야 한다.\n-\nrelease 후 downstream 공정의 queue time과 timelink 위반 여부를 Scheduler가 확인한다.\nRelease 유형\n-\nnormal release는 추가 제약 없이 진행한다.\n-\nconditional release는 특정 operation 또는 toolgroup 사용 조건을 붙인다.\n-\nengineering release는 추적 대상 lot으로 지정해 모니터링한다.\nRelease Type\nCondition\nFollow-up\nNormal\nrisk cleared\nstandard dispatch\nConditional\nlimited risk\nrestricted route\nEngineering\nneeds observation\nenhanced tracking\nReject\nrisk remains\ncontinue hold\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "13",
+              "concepts": [
+                "dispatch",
+                "lot_release",
+                "queue_time",
+                "recovery",
+                "rework"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "lot_release",
+              "page_number": 14,
+              "playbook_ids": [
+                "PB-HL-002"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "14. Lot Release 판단",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.56275475025177,
+              "score": 3.0,
+              "retrieval_features": {
+                "term_coverage": 0.1875,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.028787,
+                "relevance_grade": 3,
+                "relevance_reason": "release(해제) 조건과 유형을 구체적으로 제시해 보류 조건과 명확히 비교할 수 있다."
+              },
+              "retrieval_ranks": {
+                "0": 19,
+                "1": 2
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "a8da225ce8c69f5a646c038b",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf"
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "05. 공통 대응 프로세스",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n05. 공통 대응 프로세스\n5 / 25\n05. 공통 대응 프로세스\nDetect - Classify - Contain - Recover - Learn\nplaybook_id\nPB-GEN-004\nissue_type\nall\nseverity\nS1-S4\nfirst_action\nlog event\nowner\nOperator\ntags\nworkflow\nEvent Log\nSeverity\nContainment\nSchedule Fix\nRecovery Check\nRCA Update\n기본 절차\n-\n모든 돌발상황은 발생 시각, fab, area, toolgroup, lot, product, 현재 step을 먼저 기록한다.\n-\n품질 영향 가능성이 있으면 lot을 즉시 격리하거나 hold 후보로 전환한다.\n-\n납기 영향 가능성이 있으면 Scheduler가 대체 toolgroup과 dispatching rule 변경 가능성을 검토한다.\n-\n복구 후에는 RCA와 prevention rule 업데이트를 완료해야 한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "4",
+              "concepts": [
+                "dispatch",
+                "lot_hold",
+                "rca",
+                "recovery"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "all",
+              "page_number": 5,
+              "playbook_ids": [
+                "PB-GEN-004"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "05. 공통 대응 프로세스",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.39446741342544556,
+              "score": 2.0604,
+              "retrieval_features": {
+                "term_coverage": 0.375,
+                "concept_matches": [
+                  "lot_hold"
+                ],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.028612,
+                "relevance_grade": 2,
+                "relevance_reason": "품질 영향 의심시 hold 후보로 명시하지만 해제 조건은 상세히 다루지 않는다."
+              },
+              "retrieval_ranks": {
+                "0": 4,
+                "1": 17
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "448e9fe7c0a26836a9eb0b32",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf"
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "11. 수율 저하 대응",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n11. 수율 저하 대응\n11 / 25\n11. 수율 저하 대응\nYield Drop / Fail Rate Increase\nplaybook_id\nPB-YD-001\nissue_type\nyield_drop\ntrigger\nfail rate high\nowner\nEngineer\ndecision\nhold / RCA\ntags\nyield,secom\nFail Signal\nCommonality\nHold Scope\nRCA\nDisposition\nPrevent\n감지 조건\n-\n검사 결과 fail rate가 평소 기준보다 높거나 SECOM류 sensor feature가 이상 패턴을 보인다.\n-\n동일 product, recipe, tool, chamber, material batch에서 fail이 집중된다.\n즉시 조치\n-\n영향 lot을 hold candidate로 묶고 commonality analysis를 수행한다.\n-\n최근 recipe 변경, PM 이력, material lot, tool alarm, operator intervention을 확인한다.\n-\n품질 영향이 확정되기 전까지 무리한 release를 금지한다.\n복구 조건\n-\n원인 범위가 특정되고 재검 또는 engineering disposition이 완료됨.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "10",
+              "concepts": [
+                "pm",
+                "rca",
+                "recovery",
+                "yield"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "yield_drop",
+              "page_number": 11,
+              "playbook_ids": [
+                "PB-YD-001"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "11. 수율 저하 대응",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.4644621014595032,
+              "score": 2.0,
+              "retrieval_features": {
+                "term_coverage": 0.375,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.031258,
+                "relevance_grade": 2,
+                "relevance_reason": "원인 특정·disposition 전 무리한 release를 금지하라 명시하나, 해제 조건을 명확히 비교·정리하지 않는다."
+              },
+              "retrieval_ranks": {
+                "0": 3,
+                "1": 5
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "d10adf524831c6774d823097",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf"
+            }
+          }
+        ],
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "Manual guidance only; actual factory decisions may involve additional approval or risk assessment not documented in the manual.",
+          "검색 문서는 시뮬레이션 참조 자료이며 실제 사내 SOP가 아닙니다."
+        ],
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "4456402d14afcca1262205d0",
+            "quote": "납기 압박은 품질 hold 해제의 단독 사유가 될 수 없다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 13
+          },
+          {
+            "number": 2,
+            "chunk_id": "4fd61e7115454c5005988769",
+            "quote": "품질 hold lot을 단순 납기 사유로 override release하지 않는다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 18
+          },
+          {
+            "number": 3,
+            "chunk_id": "4456402d14afcca1262205d0",
+            "quote": "품질 영향 가능성이 있고 원인 범위가 확정되지 않은 경우 hold한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 13
+          },
+          {
+            "number": 4,
+            "chunk_id": "d10adf524831c6774d823097",
+            "quote": "품질 영향이 확정되기 전까지 무리한 release를 금지한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 11
+          },
+          {
+            "number": 5,
+            "chunk_id": "a8da225ce8c69f5a646c038b",
+            "quote": "원인 분석이 완료되고 lot disposition이 승인된다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 14
+          },
+          {
+            "number": 6,
+            "chunk_id": "a8da225ce8c69f5a646c038b",
+            "quote": "필요 시 re-measure, rework, engineering evaluation, qualification 결과가 pass여야 한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 14
+          },
+          {
+            "number": 7,
+            "chunk_id": "d10adf524831c6774d823097",
+            "quote": "원인 범위가 특정되고 재검 또는 engineering disposition이 완료됨.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 11
+          }
+        ]
+      },
+      "events": []
+    },
+    {
+      "id": "ext_autosched_attach",
+      "query": "SMT2020 AutoSched에서 attach.txt의 CALNAME, CALTYPE, RESTYPE, RESNAME은 무엇을 연결하는가?",
+      "seconds": 18.447,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [
+        "CALNAME",
+        "CALTYPE",
+        "RESNAME",
+        "RESTYPE"
+      ],
+      "missing_units": [],
+      "complete_retrieval": true,
+      "rag_count": 3,
+      "review_rubric": "downtime event scheduled/unscheduled를 tools 그룹에 연결; simulation 설명.",
+      "final": {
+        "conversation_id": "e4d71af7-73fe-44c0-b06a-44dcb5286cd6",
+        "status": "succeeded",
+        "query_type": "knowledge_lookup",
+        "answer": "attach.txt의 CALNAME은 다운타임 이벤트의 이름을 의미하며, 이는 downcal.txt와 pmcal.txt에서 기술된 내용을 참조한다. [1]\n\nCALTYPE은 다운 이벤트(예: down, pm) 종류를 나타내며, 각 CALNAME과 함께 연결된다. [2]\n\nRESTYPE은 리소스 타입(예: stnfam 등)을 지정하며, 어떤 장비군/그룹에 적용되는지를 결정한다. [3] [4]\n\nRESNAME은 해당 리소스의 이름으로, 실제 tool group(장비 그룹)의 명칭이 들어간다. [4]\n\n즉, attach.txt 파일은 CALNAME, CALTYPE(예: down/pms 유형), RESTYPE(장비군 타입), RESNAME(구체적 그룹명칭)을 조합하여 각 다운타임 이벤트와 필요한 장비(툴 그룹)를 연결한다. [2] [3] [4]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] SMT_2020_AutoSched_AP_documentation.pdf, p.7\n[2] SMT_2020_AutoSched_AP_documentation.pdf, p.6\n[3] SMT_2020_AutoSched_AP_documentation.pdf, p.6\n[4] SMT_2020_AutoSched_AP_documentation.pdf, p.8",
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "Explain what CALNAME, CALTYPE, RESTYPE, RESNAME connect in attach.txt for SMT2020 AutoSched.",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "process_basics",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve and explain the meaning and connections of CALNAME, CALTYPE, RESTYPE, RESNAME in attach.txt for SMT2020 AutoSched from process_basics.",
+                  "required": true,
+                  "reason": "The question asks for documentation-level concept explanation, without needing fab-specific or database evidence."
+                }
+              ],
+              "slots": {},
+              "model_usage": {
+                "call_count": 1,
+                "failed_calls": 0,
+                "reported_total_tokens": 881,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 717,
+                    "output_tokens": 164,
+                    "total_tokens": 881,
+                    "seconds": 2.103
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "3. Additional Features",
+            "content": "5 \n \nIn addition, a due date (DUE) is given. For each lot released during a repeat cycle, a due date will be \nset based on the current release time and the offset DUE – START. Moreover, orders can be declared \n(ORDER) by assigning at least one lot to them, multiple lots are possible. \nMoreover, lots can be released individually, i.e. without the repeat functionality. For instance, this is \nused to start with initial WIP (“WIP.txt”) . Here the column CURSTEP refers to the current step of t he \nlot. \n \nFigure 4 - route_3.txt part I \n \nFigure 5 - order.txt \n3. Additional Features \nUsed files: options.def, external definition files \n \nThe simulation models have several features that will be described next with the related files necessary \nfor their implementation . Activating s ome of these features requires adding the “semiconductor \nextension” which is located in the directory of AutoSched AP. It enables further functions, actions or \naction lists, and rules . There are additional entries in the options file (cf. Figure 1), e.g. \nACTIONLIST_FILES in line 24 for the additional action lists and the location of the corresponding file . \nFor more information, the AutoSched AP Help needs to be consulted. \n3.1. Tools Availability \nThe file attach.txt (see Figure 6) is used to connect each downtime event (unscheduled or scheduled) \nrepresented by the name (CALNAME) with the CALTYPE (here down or pm) to a group of tools. The \nlatter is defined by the resource type (RESTYPE) and its name (RESNAME).",
+            "metadata": {
+              "chunk_index": "8",
+              "concepts": [
+                "pm",
+                "wip"
+              ],
+              "document_version": "beae355e55aac815f4bec5091caf4930c87932a05be4da27f5c88b710502f63a",
+              "ingestion_version": "structure.v2",
+              "issue_type": "wip",
+              "page_number": 6,
+              "playbook_ids": [],
+              "reliability": "simulation_reference",
+              "section_title": "3. Additional Features",
+              "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.4529311954975128,
+              "score": 3.0733,
+              "retrieval_features": {
+                "term_coverage": 0.7,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.032522,
+                "relevance_grade": 3,
+                "relevance_reason": "attach.txt의 CALNAME, CALTYPE, RESTYPE, RESNAME이 무엇을 연결하는지 구체적으로 설명함."
+              },
+              "retrieval_ranks": {
+                "0": 1,
+                "1": 2
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "1debf89e0a2e7fd6e4b9b0d6",
+              "collection": "master_pjt",
+              "knowledge_base": "process_basics",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/data/smt2020/AutoSched/SMT_2020_AutoSched_AP_documentation.pdf"
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "SMT_2020_AutoSched_AP_documentation",
+            "content": "7 \n \nIn addition, in the file “attach.txt” the distribution of the first TTF is defined. In the column FOADIST, \nthe distribution type is stated (here exponentially distributed). The mean of the first TTF (FOA) and the \ntime units are needed (FOAUNITS). \n \nFigure 7 - downcal.txt \n3.1.2. Scheduled Down Times: Preventive Maintenance (PM) \nUsed files: pmcal.txt, attach.txt \nThe representation of PMs works almost in the same way as for breakdowns (cf. Figure 8). Here, two \ntypes for the Mean Time Between PM (MTBPM) values are distinguished (PMCALTYPE). The PM is time-\nbased for diffusion, lithography, and metrology represented by mtbm_by_cal to consider the calendar \ntime. For all other tool groups, the PM is counter-based by applying mtbpm_by_pieces, i.e., a PM must \nbe executed after processing a prescribed numb er of wafers. Hence, the corresponding numbers and \nunits are needed in the columns MTBPM and MTBPMUNITS. Note that no special probability \ndistribution is defined for MTBPM (the default is constant). However, the time -based PMs are \npractically launched as Mean Time Before PM, so that the PM duration itself is included in the MTBPM \nvalue. \nA continuous uniform distribution is used to represent the TTR value that requires values for the two \nparameters MTTR and MTTR2 (mean and offset) and the time unit (MTTRUNITS). For instance, each \n30 days a monthly PM and each 91 days a quarterly PM is modeled for the station family \nDefMet_BE_33 in the lines 2 and 3. In attach.txt file, line 13, a monthly PM is allocated to the station \nfamily (RESTYPE = stnfam). Moreover, counter-based PMs are also applied for each station family, i.e., \nthe used RESTYPE is stnfam and the RESNAME is the name of the tool group (see file “attach.txt” or \nFigure 6, line 92). The prescribed number of wafers is valid for each individual tool of the tool group. \nThe distribution of the first PM for the tools of a tool group is defined in the column FOADIST (see file \n“attach.txt”). The constant distribution means that the first PM for the tools of a tool set is evenly \ndistributed based on the value in the column FOA. For example, a FOA value of 80 days with four tools \nlead to PMs for to ol 1, 2, 3, and 4 at the following days: 20, 40, 60, and 80. For counter -based PMs it \nworks in the same way, but FOAUNITS are not necessary.",
+            "metadata": {
+              "chunk_index": "10",
+              "concepts": [
+                "lithography",
+                "pm"
+              ],
+              "document_version": "beae355e55aac815f4bec5091caf4930c87932a05be4da27f5c88b710502f63a",
+              "ingestion_version": "structure.v2",
+              "issue_type": "breakdown",
+              "page_number": 8,
+              "playbook_ids": [],
+              "reliability": "simulation_reference",
+              "section_title": "SMT_2020_AutoSched_AP_documentation",
+              "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.3866848349571228,
+              "score": 2.0632,
+              "retrieval_features": {
+                "term_coverage": 0.5,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.031514,
+                "relevance_grade": 2,
+                "relevance_reason": "attach.txt에서 RESTYPE과 RESNAME 사용 예시, 배경 정보를 일부 제공함."
+              },
+              "retrieval_ranks": {
+                "0": 2,
+                "1": 5
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "a79e6c7f4dba523160c536e0",
+              "collection": "master_pjt",
+              "knowledge_base": "process_basics",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/data/smt2020/AutoSched/SMT_2020_AutoSched_AP_documentation.pdf"
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "SMT_2020_AutoSched_AP_documentation",
+            "content": "6 \n \nNote that CALNAME stands for the name of the down time event as described in the files downcal.txt \nand pmcal.txt. For instance, the scenario BREAK_Def_Met specified in the file downcal.txt (cf. Figure \n7, line 2) defines a breakdown type valid for all tools of the station group Def_Met (cf. Figure 6, line 2). \nThis station group includes several station families (tool groups) and tools. \n \nFigure 6 - attach.txt \n3.1.1. Unscheduled Down Times: Breakdowns \nUsed files: downcal.txt, attach.txt \nBreakdowns are described in downcal.txt, i.e. different down scenarios with their probability \ndistributions of the corresponding Time To Failure (TTF) and Time To Repair (TTR) values are collected \n(see Figure 7). \nFor every station group (area) a down scenario is defined which can be identified by i ts name \n(DOWNCALNAME). Breakdowns are triggered based on calendars (mttf_by_cal in column \nDOWNCALTYPE), and the tool usage has no impact on their occurrence. Each breakdo wn type is \ncharacterized by the probability distributions of its TTF and TTR values. T he distribution type is given \n(MTTFDIST and MTTRDIST, here both exponential ly distributed ). The mean of TTR and TTF (MTTF, \nMTTR) and their time units are needed (MTTFUNITS and MTTRUNITS, here in minutes).",
+            "metadata": {
+              "chunk_index": "9",
+              "concepts": [
+                "equipment_down"
+              ],
+              "document_version": "beae355e55aac815f4bec5091caf4930c87932a05be4da27f5c88b710502f63a",
+              "ingestion_version": "structure.v2",
+              "issue_type": "breakdown",
+              "page_number": 7,
+              "playbook_ids": [],
+              "reliability": "simulation_reference",
+              "section_title": "SMT_2020_AutoSched_AP_documentation",
+              "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.51702880859375,
+              "score": 2.0532,
+              "retrieval_features": {
+                "term_coverage": 0.4,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.032266,
+                "relevance_grade": 2,
+                "relevance_reason": "CALNAME과 downtime event 연계에 대해 부분적으로 언급함."
+              },
+              "retrieval_ranks": {
+                "0": 3,
+                "1": 1
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "ca687929dd50e8b1ceb76a88",
+              "collection": "master_pjt",
+              "knowledge_base": "process_basics",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/data/smt2020/AutoSched/SMT_2020_AutoSched_AP_documentation.pdf"
+            }
+          }
+        ],
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "Answer relies on available process documentation for SMT2020 AutoSched; deeper details may require developer or system-specific resources.",
+          "검색 문서는 시뮬레이션 참조 자료이며 실제 사내 SOP가 아닙니다."
+        ],
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "ca687929dd50e8b1ceb76a88",
+            "quote": "6 Note that CALNAME stands for the name of the down time event as described in the files downcal.txt and pmcal.txt.",
+            "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+            "page_number": 7
+          },
+          {
+            "number": 2,
+            "chunk_id": "1debf89e0a2e7fd6e4b9b0d6",
+            "quote": "Tools Availability The file attach.txt (see Figure 6) is used to connect each downtime event (unscheduled or scheduled) represented by the name (CALNAME) with the CALTYPE (here down or pm) to a group of tools.",
+            "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+            "page_number": 6
+          },
+          {
+            "number": 3,
+            "chunk_id": "1debf89e0a2e7fd6e4b9b0d6",
+            "quote": "The latter is defined by the resource type (RESTYPE) and its name (RESNAME).",
+            "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+            "page_number": 6
+          },
+          {
+            "number": 4,
+            "chunk_id": "a79e6c7f4dba523160c536e0",
+            "quote": "Moreover, counter-based PMs are also applied for each station family, i.e., the used RESTYPE is stnfam and the RESNAME is the name of the tool group (see file \"attach.txt\" or Figure 6, line 92).",
+            "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+            "page_number": 8
+          }
+        ]
+      },
+      "events": []
+    },
+    {
+      "id": "ext_unknown_euv",
+      "query": "3nm EUV 공정 레지스트 노광량의 승인된 최적값을 mJ/cm2로 알려줘.",
+      "seconds": 12.18,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [],
+      "missing_units": [],
+      "complete_retrieval": false,
+      "rag_count": 0,
+      "review_rubric": "corpus에 없음. 수치 답변 보류.",
+      "final": {
+        "conversation_id": "0fab2e9b-06e1-4fff-989a-d9361178b219",
+        "status": "data_unavailable",
+        "query_type": "knowledge_lookup",
+        "answer": "질문에 답할 수 있는 문서 근거를 찾지 못했습니다. 구체적인 절차나 수치를 확정할 수 없습니다.",
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "Find the approved optimal dose value (in mJ/cm2) for the resist exposure of 3nm EUV process.",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "process_basics",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve the approved optimal exposure dose value for 3nm EUV resist in mJ/cm2 from process_basics (semiconductor reference documentation).",
+                  "required": true,
+                  "reason": "This is a request for documented optimal parameter, not a live status or numeric evidence from a database."
+                }
+              ],
+              "slots": {},
+              "model_usage": {
+                "call_count": 1,
+                "failed_calls": 0,
+                "reported_total_tokens": 890,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 716,
+                    "output_tokens": 174,
+                    "total_tokens": 890,
+                    "seconds": 2.18
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "Exact values may differ by fab, manufacturer, and resist material.",
+          "If optimal values are confidential or not documented in reference sources, only typical ranges may be provided.",
+          "Exact optimal values may differ by fab, manufacturer, and resist material. If optimal values are confidential or not documented in reference sources, only typical ranges may be provided.",
+          "질문을 뒷받침하는 문서 근거를 찾지 못했습니다.",
+          "질문에 답할 수 있는 문서 근거를 찾지 못했습니다. 구체적인 절차나 수치를 확정할 수 없습니다."
+        ],
+        "citations": []
+      },
+      "events": []
+    }
+  ],
+  "artifact_format": "compact.v1",
+  "omitted_debug_fields": "Duplicate final events, repeated per-evidence retrieval traces, intermediate usage call lists and prompt_contract; final evidence, per-run trace, outcomes and final usage remain."
+}

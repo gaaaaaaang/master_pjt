@@ -478,3 +478,7 @@ Planner/Supervisor는 과거 실패만으로 새 조회를 막지 않으며 실�
 - `scripts/evaluate_text2sql_semantics.py`: 별도 기준 SQL과 실제 결과를 비교한다. fixture/실행 시작 코드 SHA256, 전후 데이터 변화, 호출 시간/횟수/입력 문자 수, 조회 가능/negative 결과를 분리 기록한다. 복수 수치는 명시된 출력 순서 계약으로 값의 역할 바뀜을 감지한다. 임의 순서의 다중 측정값 의미 동치까지 추론하지는 않는다.
 
 작업 이력과 실제 검증 결과/남은 한계는 `docs/text2sql_hackathon_20260907.md`와 추가 일반화 평가 `docs/text2sql_generalization_20260908.md`를 참고한다. 자체 작성한 소규모 검증 결과와 LLM의 confidence 값은 일반 서비스 정확도의 통계적 보장이 아니다.
+
+### RAG와 통합 그래프의 검증 경계 (2026-09-08)
+
+동적 dispatcher와 agent supervisor를 통해 RAG를 실행하며 검색 어댑터는 evidence, trace, limitations를 함께 반환한다. Incident 근거에는 선언된 issue와 질문의 정합성을 제공하고, 명시한 playbook ID는 해당 원문 조회를 유지한다. 문서 전용 Composer가 원문 span과 생성 후 주장을 검증한 경우 최종 supervisor는 검증 결과를 사용해 인용 연결을 보존한다. 실제 SQL/사례가 포함된 혼합 답변은 기존 최종 답변 검토를 수행하며 `not_applied_mixed_evidence`로 표시한다. SSE 최종 응답에는 대화 기록과 재시도 상태뿐 아니라 citations, grounding, model_usage가 포함되며 새 채팅 화면의 근거 탭에서 원문 인용을 확인할 수 있다.

@@ -1,0 +1,5 @@
+[
+  {"id":"cross_pm","split":"cross_kb_frozen","query":"AutoSched의 PM 이벤트 연결 방식과 대응 매뉴얼의 PM 연기 승인 조건을 함께 설명해줘.","knowledge_base":null,"expected_markers":["CALTYPE","PB-EQ-002"],"review":"SMT2020 attach.txt downtime/tool group 연결과 PM 연기 Engineer 승인 조건을 모두 인용. 시뮬레이션 자료임을 유지."},
+  {"id":"cross_wip_hold","split":"cross_kb_frozen","query":"SMT2020의 WIP.txt에서 CURSTEP이 뜻하는 내용과 Lot Hold 필수 기록을 같이 정리해줘.","knowledge_base":null,"expected_markers":["CURSTEP","PB-HL-001"],"review":"CURSTEP current step 의미와 Hold reason/operation/tool/time window/owner/next review 기록을 모두 인용."},
+  {"id":"model_pm_only","split":"cross_kb_frozen","query":"AutoSched의 PM 이벤트가 attach.txt에서 toolgroup에 연결되는 방식은?","knowledge_base":"process_basics","expected_markers":["CALTYPE"],"review":"PM이라는 단어 때문에 사고 매뉴얼만 검색하면 안 됨. AutoSched 모델 문서에 근거."}
+]

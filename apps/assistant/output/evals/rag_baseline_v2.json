@@ -1,0 +1,576 @@
+{
+  "evaluation_version": "evidence_units.v2",
+  "top_k": 3,
+  "case_count": 28,
+  "metrics": {
+    "hit_rate": 0.72,
+    "recall_at_k": 0.7,
+    "mrr": 0.56,
+    "ndcg": 0.5757115704285749,
+    "complete_evidence_rate": 0.68,
+    "abstention_accuracy": 0.0,
+    "answerable_count": 25,
+    "unanswerable_count": 3
+  },
+  "by_split": {
+    "development": {
+      "hit_rate": 0.6875,
+      "recall_at_k": 0.65625,
+      "mrr": 0.4791666666666667,
+      "ndcg": 0.4932993287946483,
+      "complete_evidence_rate": 0.625,
+      "abstention_accuracy": 0.0,
+      "answerable_count": 16,
+      "unanswerable_count": 2
+    },
+    "holdout": {
+      "hit_rate": 0.7777777777777778,
+      "recall_at_k": 0.7777777777777778,
+      "mrr": 0.7037037037037037,
+      "ndcg": 0.7222222222222222,
+      "complete_evidence_rate": 0.7777777777777778,
+      "abstention_accuracy": 0.0,
+      "answerable_count": 9,
+      "unanswerable_count": 1
+    }
+  },
+  "cases": [
+    {
+      "id": "equipment",
+      "split": "holdout",
+      "query": "설비 고장이 발생했을 때 초기 대응 절차는?",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 0.3333333333333333,
+      "ndcg": 0.5,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "ab5252402161179e209dee31",
+        "d7082b559b831804e0b5883f",
+        "ff203b59cb86f0140d0b15fd"
+      ],
+      "latency_ms": 2.759
+    },
+    {
+      "id": "equipment_en",
+      "split": "development",
+      "query": "equipment breakdown containment procedure",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 0.3333333333333333,
+      "ndcg": 0.5,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "ab5252402161179e209dee31",
+        "54989a4a1855c012bf99730a",
+        "ff203b59cb86f0140d0b15fd"
+      ],
+      "latency_ms": 1.296
+    },
+    {
+      "id": "pm",
+      "split": "development",
+      "query": "예방정비 일정이 지연되었을 때 어떻게 대응해?",
+      "answerable": true,
+      "hit": false,
+      "coverage": 0.0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0.0,
+      "abstained": false,
+      "missing_units": [
+        "PB-EQ-002"
+      ],
+      "chunks": [
+        "52a87d0a6b5442306d246905"
+      ],
+      "latency_ms": 1.222
+    },
+    {
+      "id": "bottleneck",
+      "split": "holdout",
+      "query": "병목 공정에 WIP가 쌓이고 대기시간이 늘었어",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "d7082b559b831804e0b5883f",
+        "5f2761959e1b1a71f03bd70f",
+        "ff203b59cb86f0140d0b15fd"
+      ],
+      "latency_ms": 1.142
+    },
+    {
+      "id": "upstream",
+      "split": "development",
+      "query": "병목의 전후 공정 영향은 어떻게 확인해?",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "0deff53e0f1931fb8789dc91"
+      ],
+      "latency_ms": 1.221
+    },
+    {
+      "id": "yield",
+      "split": "development",
+      "query": "수율이 저하됐을 때 조사 순서와 담당자는?",
+      "answerable": true,
+      "hit": false,
+      "coverage": 0.0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0.0,
+      "abstained": false,
+      "missing_units": [
+        "PB-YD-001"
+      ],
+      "chunks": [
+        "52a87d0a6b5442306d246905"
+      ],
+      "latency_ms": 1.221
+    },
+    {
+      "id": "spc",
+      "split": "holdout",
+      "query": "SPC 관리한계 이탈 알람에 어떻게 대응해?",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "54989a4a1855c012bf99730a",
+        "6da62569536aaa0f9e48ee66"
+      ],
+      "latency_ms": 1.246
+    },
+    {
+      "id": "hold",
+      "split": "development",
+      "query": "Lot Hold 격리와 추적 절차 알려줘",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 0.5,
+      "ndcg": 0.6309297535714575,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "cad78e6786a47d5dd196a875",
+        "54989a4a1855c012bf99730a",
+        "5f2761959e1b1a71f03bd70f"
+      ],
+      "latency_ms": 1.09
+    },
+    {
+      "id": "release",
+      "split": "development",
+      "query": "보류된 로트를 해제하기 전에 확인할 조건은?",
+      "answerable": true,
+      "hit": false,
+      "coverage": 0.0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0.0,
+      "abstained": false,
+      "missing_units": [
+        "PB-HL-002"
+      ],
+      "chunks": [
+        "52a87d0a6b5442306d246905"
+      ],
+      "latency_ms": 1.209
+    },
+    {
+      "id": "material",
+      "split": "holdout",
+      "query": "자재 부족으로 투입이 지연될 때 대처 방법",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "cad78e6786a47d5dd196a875",
+        "0deff53e0f1931fb8789dc91",
+        "52a87d0a6b5442306d246905"
+      ],
+      "latency_ms": 1.039
+    },
+    {
+      "id": "hot",
+      "split": "development",
+      "query": "긴급 오더와 Hot Lot 우선순위 판단",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "5f2761959e1b1a71f03bd70f",
+        "ab5252402161179e209dee31",
+        "cad78e6786a47d5dd196a875"
+      ],
+      "latency_ms": 1.21
+    },
+    {
+      "id": "qtime",
+      "split": "development",
+      "query": "Queue Time limit 초과 위험 시 확인 항목",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "5f2761959e1b1a71f03bd70f",
+        "273fda714287bbe512103876",
+        "feeea32a008b18298bf7d491"
+      ],
+      "latency_ms": 1.217
+    },
+    {
+      "id": "dispatch",
+      "split": "holdout",
+      "query": "Dispatching Rule Override 승인 절차",
+      "answerable": true,
+      "hit": false,
+      "coverage": 0.0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0.0,
+      "abstained": false,
+      "missing_units": [
+        "PB-SC-001"
+      ],
+      "chunks": [
+        "ab5252402161179e209dee31",
+        "5f2761959e1b1a71f03bd70f",
+        "d7082b559b831804e0b5883f"
+      ],
+      "latency_ms": 1.181
+    },
+    {
+      "id": "alternate",
+      "split": "development",
+      "query": "대체 설비를 사용하기 전 확인할 내용",
+      "answerable": true,
+      "hit": false,
+      "coverage": 0.0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0.0,
+      "abstained": false,
+      "missing_units": [
+        "PB-ALT-001"
+      ],
+      "chunks": [
+        "cad78e6786a47d5dd196a875",
+        "d7082b559b831804e0b5883f",
+        "ff203b59cb86f0140d0b15fd"
+      ],
+      "latency_ms": 1.103
+    },
+    {
+      "id": "rca",
+      "split": "development",
+      "query": "RCA 재발방지 분석은 어떤 순서로 해?",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "273fda714287bbe512103876",
+        "54989a4a1855c012bf99730a",
+        "0deff53e0f1931fb8789dc91"
+      ],
+      "latency_ms": 1.227
+    },
+    {
+      "id": "recovery",
+      "split": "holdout",
+      "query": "Recovery Checklist 복구 완료 판단 기준",
+      "answerable": true,
+      "hit": false,
+      "coverage": 0.0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0.0,
+      "abstained": false,
+      "missing_units": [
+        "PB-RCV-001"
+      ],
+      "chunks": [
+        "273fda714287bbe512103876",
+        "5f2761959e1b1a71f03bd70f",
+        "cad78e6786a47d5dd196a875"
+      ],
+      "latency_ms": 1.171
+    },
+    {
+      "id": "communication",
+      "split": "development",
+      "query": "상황 보고와 escalation 커뮤니케이션",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 0.3333333333333333,
+      "ndcg": 0.5,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "ab5252402161179e209dee31",
+        "ff203b59cb86f0140d0b15fd",
+        "feeea32a008b18298bf7d491"
+      ],
+      "latency_ms": 1.091
+    },
+    {
+      "id": "kb_update",
+      "split": "development",
+      "query": "사건 대응 후 지식베이스 갱신 방법",
+      "answerable": true,
+      "hit": false,
+      "coverage": 0.0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0.0,
+      "abstained": false,
+      "missing_units": [
+        "PB-KB-001"
+      ],
+      "chunks": [
+        "54989a4a1855c012bf99730a",
+        "5f2761959e1b1a71f03bd70f",
+        "cad78e6786a47d5dd196a875"
+      ],
+      "latency_ms": 1.07
+    },
+    {
+      "id": "exact",
+      "split": "holdout",
+      "query": "PB-QT-001",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "5f2761959e1b1a71f03bd70f",
+        "54989a4a1855c012bf99730a",
+        "cad78e6786a47d5dd196a875"
+      ],
+      "latency_ms": 1.079
+    },
+    {
+      "id": "multi",
+      "split": "development",
+      "query": "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+      "answerable": true,
+      "hit": true,
+      "coverage": 0.5,
+      "complete": false,
+      "rr": 0.5,
+      "ndcg": 0.38685280723454163,
+      "abstained": false,
+      "missing_units": [
+        "PB-HL-001"
+      ],
+      "chunks": [
+        "ab5252402161179e209dee31",
+        "ff203b59cb86f0140d0b15fd",
+        "feeea32a008b18298bf7d491"
+      ],
+      "latency_ms": 1.121
+    },
+    {
+      "id": "batch",
+      "split": "development",
+      "query": "AutoSched Batching BATCHMIN BATCHMAX 설정",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 0.5,
+      "ndcg": 0.6309297535714575,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "2700ac302a9b5c3b4708e945",
+        "d7f8adce8aa5c118819c19d1",
+        "faace4bb5e553479e3dc8dcd"
+      ],
+      "latency_ms": 2.138
+    },
+    {
+      "id": "rework",
+      "split": "holdout",
+      "query": "AutoSched REWORK RWKSTEP RWKTYPE 설정",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "6639138c66c328ed66f6b609",
+        "1b391fe0ebfd767b2760028f",
+        "2700ac302a9b5c3b4708e945"
+      ],
+      "latency_ms": 2.057
+    },
+    {
+      "id": "transport",
+      "split": "development",
+      "query": "fromto.txt transportation time 설정",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 0.5,
+      "ndcg": 0.6309297535714575,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "fe182cafe794597dfce1974d",
+        "5d8bcef23a101beaf220ef10",
+        "ab852f897f0674b14c46c7bc"
+      ],
+      "latency_ms": 2.104
+    },
+    {
+      "id": "setup",
+      "split": "development",
+      "query": "setupgrp.txt setup.txt 설정 방법",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 0.6131471927654584,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "99578590c7a13f7bbcad6208",
+        "6221162742b67e11e83cd16a",
+        "137f9040946099a10e78c3f8"
+      ],
+      "latency_ms": 2.227
+    },
+    {
+      "id": "release_model",
+      "split": "holdout",
+      "query": "order.txt lot release DUE REPEAT 설정",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "686b3980c0eeb7b2cd6eacd2",
+        "c92293753ddbd7dcc92c8196",
+        "2700ac302a9b5c3b4708e945"
+      ],
+      "latency_ms": 2.113
+    },
+    {
+      "id": "unknown_weather",
+      "split": "development",
+      "query": "내일 서울 날씨와 우산 추천",
+      "answerable": false,
+      "hit": false,
+      "coverage": 0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "2700ac302a9b5c3b4708e945"
+      ],
+      "latency_ms": 1.994
+    },
+    {
+      "id": "unknown_recipe",
+      "split": "development",
+      "query": "최신 EUV 레지스트의 최적 노광량 숫자를 알려줘",
+      "answerable": false,
+      "hit": false,
+      "coverage": 0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "2700ac302a9b5c3b4708e945"
+      ],
+      "latency_ms": 1.974
+    },
+    {
+      "id": "unknown_sport",
+      "split": "holdout",
+      "query": "야구 경기 결과와 선수 순위",
+      "answerable": false,
+      "hit": false,
+      "coverage": 0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "52a87d0a6b5442306d246905"
+      ],
+      "latency_ms": 1.204
+    }
+  ],
+  "backend": "local_offline",
+  "baseline_ref": "94eba81",
+  "fixture_digest": "e71c1198735f46560c00249418565ece03bbf24b4abc9a2be33e99624e785924",
+  "corpus_digest": "d24af2db4c0d48406b3c17c8b4c1a7f3b5833f15555d74f9e5a9b9c8c38f0ff3"
+}

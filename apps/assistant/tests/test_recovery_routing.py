@@ -2,6 +2,7 @@ from app.agents.graph import _impact_node
 from app.agents.planner import ExecutionStep, PlannerDecision
 from app.agents.supervisor import Supervisor
 from app.schemas.chat import ChatRequest, Evidence
+from app.sub_agent.rag import EvidenceResult
 from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
 
 
@@ -20,22 +21,12 @@ def _patch_compound_graph(monkeypatch, plan: PlannerDecision, result: Text2SQLRe
     monkeypatch.setattr("app.agents.graph.create_plan", lambda *args, **kwargs: plan)
     monkeypatch.setattr(
         "app.agents.graph.review_plan",
-        lambda current_plan, question: (current_plan, {"reason": "approved"}),
+        lambda current_plan, question: (current_plan, {"reason": "approved", "proceed": True}),
     )
     monkeypatch.setattr("app.agents.graph.answer_question", lambda *args, **kwargs: result)
     monkeypatch.setattr(
-        "app.agents.graph.retrieve_knowledge",
-        lambda *args, **kwargs: [
-            Evidence(
-                source_type="rag_chunk",
-                title="WIP playbook",
-                content="WIP 증가 원인 후보 점검",
-                metadata={
-                    "knowledge_base": "incident_playbook",
-                    "issue_types": "wip",
-                },
-            )
-        ],
+        "app.agents.graph.retrieve_evidence",
+        lambda *args, **kwargs: EvidenceResult([Evidence(source_type='rag_chunk', title='WIP playbook', content='WIP 증가 원인 후보 점검', metadata={'knowledge_base': 'incident_playbook', 'issue_types': 'wip'})], {}, []),
     )
     monkeypatch.setattr(
         "app.agents.graph.find_similar_cases",
@@ -174,8 +165,8 @@ def test_recovery_routes_to_compatible_alternate_agent(monkeypatch) -> None:
         ),
     )
     monkeypatch.setattr(
-        "app.agents.graph.retrieve_knowledge",
-        lambda *args, **kwargs: (_ for _ in ()).throw(NotImplementedError("RAG unavailable")),
+        "app.agents.graph.retrieve_evidence",
+        lambda *args, **kwargs: EvidenceResult((_ for _ in ()).throw(NotImplementedError('RAG unavailable')), {}, []),
     )
     monkeypatch.setattr(
         "app.agents.graph.find_similar_cases",
@@ -215,13 +206,11 @@ def test_dispatcher_follows_planner_execution_step_order(monkeypatch) -> None:
     monkeypatch.setattr("app.agents.graph.create_plan", lambda *args, **kwargs: plan)
     monkeypatch.setattr(
         "app.agents.graph.review_plan",
-        lambda current_plan, question: (current_plan, {"reason": "approved"}),
+        lambda current_plan, question: (current_plan, {"reason": "approved", "proceed": True}),
     )
     monkeypatch.setattr(
-        "app.agents.graph.retrieve_knowledge",
-        lambda *args, **kwargs: [
-            Evidence(source_type="rag_chunk", title="context", content="toolgroup context")
-        ],
+        "app.agents.graph.retrieve_evidence",
+        lambda *args, **kwargs: EvidenceResult([Evidence(source_type='rag_chunk', title='context', content='toolgroup context')], {}, []),
     )
     monkeypatch.setattr(
         "app.agents.graph.answer_question",
@@ -408,7 +397,7 @@ def test_diagnosis_continues_other_evidence_sources_when_required_sql_fails(
     monkeypatch.setattr("app.agents.graph.create_plan", lambda *args, **kwargs: plan)
     monkeypatch.setattr(
         "app.agents.graph.review_plan",
-        lambda current_plan, question: (current_plan, {"reason": "approved"}),
+        lambda current_plan, question: (current_plan, {"reason": "approved", "proceed": True}),
     )
     monkeypatch.setattr(
         "app.agents.graph.answer_question",
@@ -420,15 +409,8 @@ def test_diagnosis_continues_other_evidence_sources_when_required_sql_fails(
         ),
     )
     monkeypatch.setattr(
-        "app.agents.graph.retrieve_knowledge",
-        lambda *args, **kwargs: [
-            Evidence(
-                source_type="rag_chunk",
-                title="Queue review",
-                content="Review WIP, utilization, and downtime as hypotheses.",
-                metadata={"knowledge_base": "incident_playbook"},
-            )
-        ],
+        "app.agents.graph.retrieve_evidence",
+        lambda *args, **kwargs: EvidenceResult([Evidence(source_type='rag_chunk', title='Queue review', content='Review WIP, utilization, and downtime as hypotheses.', metadata={'knowledge_base': 'incident_playbook'})], {}, []),
     )
     monkeypatch.setattr(
         "app.agents.graph.find_similar_cases",
