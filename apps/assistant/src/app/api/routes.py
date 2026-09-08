@@ -12,8 +12,10 @@ from fastapi.responses import StreamingResponse
 
 from app.agents.graph import build_agent_graph, initial_graph_state
 from app.config import get_settings
-from app.schemas.chat import ChatRequest, ChatResponse
+from app.schemas.chat import ChatRequest, ChatResponse, FeedbackRequest, FeedbackResponse
 from app.services.chat_service import ChatService
+from app.services.conversation_memory import conversation_memory
+from app.services.feedback_service import feedback_service
 
 router = APIRouter(tags=["chat"])
 service = ChatService()
@@ -83,9 +85,9 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
 
     async def event_source():
         graph = build_agent_graph()
-        state = initial_graph_state(request)
+        prepared, history = conversation_memory.prepare_request(request)
+        state = initial_graph_state(prepared, conversation_history=history)
         started_at = time.monotonic()
-        retry_budget = 0
         yield _sse(
             "trace",
             _with_stream_telemetry(
@@ -95,7 +97,7 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                     "message": "질문을 접수했습니다.",
                     "data": {
                         "conversation_id": state["conversation_id"],
-                        "retry_budget_remaining": retry_budget,
+                        "retry_budget_remaining": state["retry_budget_remaining"],
                         "timeout_seconds": get_settings().stream_timeout_seconds,
                     },
                 },
@@ -125,7 +127,7 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                                     "data": {
                                         "conversation_id": state["conversation_id"],
                                         "reason": "client_disconnected",
-                                        "retry_budget_remaining": retry_budget,
+                                        "retry_budget_remaining": state.get("retry_budget_remaining", 0),
                                     },
                                 },
                                 started_at,
@@ -139,7 +141,7 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                         if event := patch.get("stream_event"):
                             _log_stream_event(event)
                             event_data = event.setdefault("data", {})
-                            event_data["retry_budget_remaining"] = retry_budget
+                            event_data["retry_budget_remaining"] = state.get("retry_budget_remaining", 0)
                             yield _sse("trace", _with_stream_telemetry(event, started_at))
 
             final = {
@@ -152,12 +154,22 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                 "confidence": state.get("confidence"),
                 "limitations": state.get("limitations", []),
                 "evidence": state.get("evidence", []),
+                "conversation_history": state.get("conversation_history", []),
+                "reasoning_state": state.get("reasoning_state", []),
                 "plan": asdict(state["plan"]),
                 "agent_runs": state.get("agent_runs", []),
+                "agent_reflections": state.get("agent_reflections", []),
+                "supervisor_reviews": state.get("supervisor_reviews", []),
+                "supervisor_decisions": state.get("supervisor_decisions", []),
+                "retry_counts": state.get("retry_counts", {}),
+                "replan_count": state.get("replan_count", 0),
+                "reflection_decisions": state.get("reflection_decisions", []),
+                "termination_reason": state.get("termination_reason"),
                 "reflection": state.get("reflection", {}),
                 "citations": state.get("citations", []),
                 "grounding": state.get("grounding", {}),
                 "model_usage": state.get("model_usage", {}),
+                "answer_review": state.get("answer_review", {}),
             }
             logger.info(
                 "stream.done conversation_id=%s status=%s query_type=%s sql=%s chart=%s",
@@ -167,6 +179,18 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                 final["sql"],
                 bool(final["chart"]),
             )
+            final_history = conversation_memory.append_exchange(
+                conversation_id=state["conversation_id"],
+                request=prepared,
+                answer=str(state.get("answer") or ""),
+                metadata={
+                    "query_type": final["query_type"],
+                    "status": final["status"],
+                    "sql": final["sql"],
+                    "limitations": final["limitations"],
+                },
+            )
+            final["conversation_history"] = final_history
             yield _sse(
                 "final",
                 _with_stream_telemetry(
@@ -176,7 +200,9 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                         "message": "전체 실행을 완료했습니다.",
                         "data": {
                             **final,
-                            "retry_budget_remaining": retry_budget,
+                            "retry_budget_remaining": state.get(
+                                "retry_budget_remaining", 0
+                            ),
                         },
                     },
                     started_at,
@@ -203,7 +229,9 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                             "error_type": type(exc).__name__,
                             "model_usage": state["usage_ledger"].snapshot(),
                             "conversation_id": state["conversation_id"],
-                            "retry_budget_remaining": retry_budget,
+                            "retry_budget_remaining": state.get(
+                                "retry_budget_remaining", 0
+                            ),
                         },
                     },
                     started_at,
@@ -231,12 +259,12 @@ def meta() -> dict[str, str]:
     }
 
 
-@router.post("/feedback")
-def feedback(payload: dict) -> dict[str, str]:
-    return {
-        "status": "accepted",
-        "message": "feedback persistence is a placeholder",
-    }
+@router.post("/feedback", response_model=FeedbackResponse)
+def feedback(payload: FeedbackRequest) -> FeedbackResponse:
+    try:
+        return feedback_service.record(payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="conversation_id was not found") from exc
 
 
 @router.post("/agent-trace")
@@ -293,14 +321,24 @@ def _trace_case(case: dict[str, Any]) -> dict[str, Any]:
         "limitations": result.limitations,
         "plan": plan,
         "agent_runs": agent_runs,
+        "reasoning_state": result.reasoning_state,
+        "agent_reflections": result.agent_reflections,
+        "supervisor_reviews": result.supervisor_reviews,
+        "supervisor_decisions": result.supervisor_decisions,
+        "retry_counts": result.retry_counts,
+        "replan_count": result.replan_count,
+        "reflection_decisions": result.reflection_decisions,
+        "termination_reason": result.termination_reason,
         "evidence": [item.model_dump() for item in result.evidence],
         "reflection": result.reflection,
         "citations": result.citations,
         "grounding": result.grounding,
         "model_usage": result.model_usage,
+        "answer_review": result.answer_review,
         "prompt_versions": {
             "planner": result.plan.prompt_version if result.plan else None,
             "supervisor": result.prompt_version,
+            "answer_supervisor": result.answer_review.get("prompt_version"),
         },
     }
 

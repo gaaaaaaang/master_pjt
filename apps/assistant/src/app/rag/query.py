@@ -7,10 +7,10 @@ from dataclasses import dataclass, replace
 from functools import lru_cache
 
 # Versioned domain vocabulary: aliases describe terminology, never causal relations.
-VOCABULARY_VERSION = "fab.v2"
+VOCABULARY_VERSION = "fab.v3"
 ALIASES = {
     "equipment_down": (
-        "설비 고장",
+        "설비 고장", "장비가 멈", "장비가 자꾸 멈", "장비 알람", "장비가 갑자기 멈", "unexpected shutdown",
         "장비 고장",
         "설비고장",
         "장비고장",
@@ -24,12 +24,12 @@ ALIASES = {
         "예방 보전",
         "예방정비",
         "예방 정비",
-        "정기 점검",
+        "정기 점검", "정기점검",
         "preventive maintenance",
         "pm",
     ),
-    "bottleneck": ("병목", "bottleneck"),
-    "queue_time": ("대기시간", "대기 시간", "queue time", "queue_time", "q-time", "qtime"),
+    "bottleneck": ("병목", "bottleneck", "공정이 막혀"),
+    "queue_time": ("대기열 체류", "대기열", "체류", "대기시간", "대기 시간", "queue time", "queue_time", "q-time", "qtime"),
     "wip": ("재공", "재공품", "wip"),
     "yield": ("수율", "yield", "불량률", "pass/fail 비율"),
     "spc": ("관리도", "control chart", "관리한계", "관리 한계", "spc", "out-of-control"),

@@ -1,0 +1,78 @@
+[
+  {
+    "id": "followup_process_status",
+    "turns": [
+      {
+        "message": "fab10 Dry_Etch utilization 보여줘",
+        "expected_query_type": "status",
+        "expected_agents": ["text2sql"],
+        "expected_status": "succeeded"
+      },
+      {
+        "message": "그 공정 WIP도 보여줘",
+        "expected_query_type": "status",
+        "expected_agents": ["text2sql"],
+        "expected_status": "succeeded",
+        "expected_context": {"fab": "fab10", "process": "Dry_Etch"}
+      }
+    ]
+  },
+  {
+    "id": "followup_product_comparison",
+    "turns": [
+      {
+        "message": "fab10 Product_3 현재 cycle time과 ontime 보여줘",
+        "expected_query_type": "status",
+        "expected_agents": ["text2sql"],
+        "expected_status": "succeeded"
+      },
+      {
+        "message": "Product_4와 비교해줘",
+        "expected_query_type": "trend",
+        "expected_agents": ["text2sql", "visualization"],
+        "expected_status": "succeeded",
+        "expected_context": {"fab": "fab10", "product": "Product_3"}
+      }
+    ]
+  },
+  {
+    "id": "followup_release_date_basis",
+    "turns": [
+      {
+        "message": "fab10 Product_3 lotrelease 일별 추세 보여줘",
+        "expected_query_type": "trend",
+        "expected_agents": [],
+        "expected_status": "needs_clarification"
+      },
+      {
+        "message": "due_date 기준으로 보여줘",
+        "expected_query_type": "trend",
+        "expected_agents": ["text2sql", "visualization"],
+        "expected_status": "succeeded",
+        "expected_context": {
+          "fab": "fab10",
+          "product": "Product_3",
+          "date_basis": "due_date"
+        }
+      }
+    ]
+  },
+  {
+    "id": "followup_equipment_diagnosis",
+    "turns": [
+      {
+        "message": "fab10 DE_BE_11 down 비율 알려줘",
+        "expected_query_type": "status",
+        "expected_agents": ["text2sql"],
+        "expected_status": "succeeded"
+      },
+      {
+        "message": "왜 높아졌는지 유사 사례와 같이 설명해줘",
+        "expected_query_type": "diagnosis",
+        "expected_agents": ["text2sql", "rag", "case_search"],
+        "expected_status": "succeeded",
+        "expected_context": {"fab": "fab10", "equipment": "DE_BE_11"}
+      }
+    ]
+  }
+]

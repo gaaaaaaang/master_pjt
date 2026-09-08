@@ -1,0 +1,211 @@
+[
+  {
+    "id": "grounded_verified_analogy",
+    "evidence": [
+      {"source_type":"text2sql_plan","title":"station observation","metadata":{"status":"succeeded","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}],"sql":"SELECT stn, down_percent FROM fab10.autosched_stn"}},
+      {"source_type":"rag_chunk","title":"equipment playbook","content":"장비 고장 점검 지침","metadata":{"source_document":"playbook.md","issue_types":"equipment_down"}},
+      {"source_type":"similar_case","title":"INC-001","content":"verified incident","metadata":{"case_id":"INC-001","case_type":"verified","source":"incident-system","issue_type":"station_down","verification":{"incident_at":"2026-08-31T14:00:00+09:00","verified_at":"2026-09-01T09:00:00+09:00","verified_by":"fab-incident-review-board","evidence_refs":["INCIDENT-001","EVENT-LOG-001"]}}}
+    ],
+    "expected_candidate_issue_types": ["equipment_down"],
+    "expected_corroboration_level": "verified_analogy",
+    "expected_source_coverage": {"operational_sql":true,"incident_playbook":true,"similar_cases":true},
+    "expected_missing_evidence": [],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":0,"case_without_diagnostic_issue":0},
+    "expected_content_contains": ["원인 후보", "확정할 수 없습니다"]
+  },
+  {
+    "id": "simulated_sources_stay_calibrated",
+    "evidence": [
+      {"source_type":"rag_chunk","title":"simulation playbook","content":"시뮬레이션 RAG 참고용","metadata":{"issue_types":"queue_time,references"}},
+      {"source_type":"similar_case","title":"SIM-001","content":"simulation","metadata":{"case_id":"SIM-001","case_type":"simulated_reference","source":"synthetic-corpus","issue_type":"station_down"}}
+    ],
+    "expected_candidate_issue_types": ["equipment_down", "queue_time"],
+    "expected_corroboration_level": "simulated_reference_only",
+    "expected_source_coverage": {"operational_sql":false,"incident_playbook":true,"similar_cases":true},
+    "expected_missing_evidence": ["operational_sql_observation"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":0,"case_without_diagnostic_issue":0},
+    "expected_required_verification": ["verified_incident_match"],
+    "expected_content_contains": ["시뮬레이션 참고 사례", "실제 FAB SOP가 아닙니다"]
+  },
+  {
+    "id": "empty_sql_is_not_observation",
+    "evidence": [
+      {"source_type":"text2sql_plan","title":"empty query","metadata":{"status":"succeeded","row_count":0,"columns":[],"sample_rows":[],"sql":"SELECT * FROM fab10.autosched_perf WHERE FALSE"}}
+    ],
+    "expected_candidate_issue_types": [],
+    "expected_corroboration_level": "none",
+    "expected_source_coverage": {"operational_sql":false,"incident_playbook":false,"similar_cases":false},
+    "expected_missing_evidence": ["operational_sql_observation", "incident_playbook_candidate", "similar_incident"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":0,"case_without_diagnostic_issue":0},
+    "expected_content_contains": ["부족한 근거", "실제 원인을 확정할 수 없습니다"]
+  },
+  {
+    "id": "structure_tags_are_filtered",
+    "evidence": [
+      {"source_type":"rag_chunk","title":"document structure","content":"reference section","metadata":{"issue_types":"references,communication,all"}},
+      {"source_type":"similar_case","title":"INC-STRUCTURE","content":"reference","metadata":{"case_id":"INC-STRUCTURE","case_type":"verified","source":"incident-system","issue_type":"communication","verification":{"incident_at":"2026-08-31T14:00:00+09:00","verified_at":"2026-09-01T09:00:00+09:00","verified_by":"fab-incident-review-board","evidence_refs":["INCIDENT-STRUCTURE"]}}}
+    ],
+    "expected_candidate_issue_types": [],
+    "expected_corroboration_level": "none",
+    "expected_source_coverage": {"operational_sql":false,"incident_playbook":false,"similar_cases":false},
+    "expected_missing_evidence": ["operational_sql_observation", "incident_playbook_candidate", "similar_incident"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":1,"rag_issue_mismatch":0,"case_without_diagnostic_issue":1},
+    "expected_content_contains": ["원인 후보를 제시하거나 실제 원인을 확정할 수 없습니다"]
+  },
+  {
+    "id": "synthetic_verified_label_is_downgraded",
+    "evidence": [
+      {"source_type":"similar_case","title":"SYN-001","content":"generated case","metadata":{"case_id":"SYN-001","case_type":"verified","source":"synthetic-evaluation-corpus-v1","issue_type":"station_down","verification":{"incident_at":"2026-08-31T14:00:00+09:00","verified_at":"2026-09-01T09:00:00+09:00","verified_by":"test-reviewer","evidence_refs":["SYNTHETIC-001"]}}}
+    ],
+    "expected_candidate_issue_types": ["equipment_down"],
+    "expected_corroboration_level": "unverified_reference_only",
+    "expected_source_coverage": {"operational_sql":false,"incident_playbook":false,"similar_cases":true},
+    "expected_missing_evidence": ["operational_sql_observation", "incident_playbook_candidate"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":0,"case_without_diagnostic_issue":0},
+    "expected_required_verification": ["verified_incident_match"],
+    "expected_content_contains": ["원인 후보", "출처가 검증 기준을 충족하지 않아", "검증 사례로 사용할 수 없습니다"]
+  },
+  {
+    "id": "operational_observation_without_retrieval",
+    "evidence": [
+      {"source_type":"text2sql_plan","title":"wip observation","metadata":{"status":"succeeded","row_count":1,"columns":["location","wiplot"],"sample_rows":[{"location":"Dry_Etch","wiplot":150}],"sql":"SELECT location, wiplot FROM fab10.autosched_wip"}}
+    ],
+    "expected_candidate_issue_types": [],
+    "expected_corroboration_level": "none",
+    "expected_source_coverage": {"operational_sql":true,"incident_playbook":false,"similar_cases":false},
+    "expected_missing_evidence": ["incident_playbook_candidate", "similar_incident"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":0,"case_without_diagnostic_issue":0},
+    "expected_content_contains": ["관측 데이터 1건", "원인 후보를 제시하거나 실제 원인을 확정할 수 없습니다"]
+  },
+  {
+    "id": "playbook_candidate_without_observation_or_case",
+    "evidence": [
+      {"source_type":"rag_chunk","title":"PM playbook","content":"PM 지연 시 가용성과 backlog를 점검한다.","metadata":{"source_document":"playbook.md","issue_types":"pm_delay"}}
+    ],
+    "expected_candidate_issue_types": ["pm_delay"],
+    "expected_corroboration_level": "none",
+    "expected_source_coverage": {"operational_sql":false,"incident_playbook":true,"similar_cases":false},
+    "expected_missing_evidence": ["operational_sql_observation", "similar_incident"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":0,"case_without_diagnostic_issue":0},
+    "expected_ranked_candidate_issue_types": ["pm_delay"],
+    "expected_evidence_consistency": "single_hypothesis",
+    "expected_top_support_level": "weak_candidate",
+    "expected_content_contains": ["원인 후보", "확정할 수 없습니다"]
+  },
+  {
+    "id": "verified_cross_source_candidate_is_prioritized",
+    "evidence": [
+      {"source_type":"text2sql_plan","title":"down observation","metadata":{"status":"succeeded","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}],"sql":"SELECT stn, down_percent FROM fab10.autosched_stn"}},
+      {"source_type":"rag_chunk","title":"queue playbook","content":"queue 점검 지침","metadata":{"source_document":"queue.md","issue_types":"queue_time","score":9.0}},
+      {"source_type":"rag_chunk","title":"down playbook","content":"down 점검 지침","metadata":{"source_document":"down.md","issue_types":"equipment_down","score":1.0}},
+      {"source_type":"similar_case","title":"INC-DOWN","content":"verified down incident","metadata":{"case_id":"INC-DOWN","case_type":"verified","source":"incident-system","issue_type":"equipment_down","score":0.1,"verification":{"incident_at":"2026-08-31T14:00:00+09:00","verified_at":"2026-09-01T09:00:00+09:00","verified_by":"fab-incident-review-board","evidence_refs":["INCIDENT-DOWN","EVENT-LOG-DOWN"]}}},
+      {"source_type":"similar_case","title":"SIM-QUEUE","content":"simulated queue incident","metadata":{"case_id":"SIM-QUEUE","case_type":"simulated_reference","source":"synthetic-corpus","issue_type":"queue_time","score":10.0}}
+    ],
+    "expected_candidate_issue_types": ["equipment_down", "queue_time"],
+    "expected_corroboration_level": "verified_analogy",
+    "expected_source_coverage": {"operational_sql":true,"incident_playbook":true,"similar_cases":true},
+    "expected_missing_evidence": [],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":0,"case_without_diagnostic_issue":0},
+    "expected_ranked_candidate_issue_types": ["equipment_down", "queue_time"],
+    "expected_evidence_consistency": "partially_aligned",
+    "expected_top_support_level": "strong_candidate",
+    "expected_content_contains": ["우선 검증 후보는 equipment_down", "우선순위는 잠정적"]
+  },
+  {
+    "id": "taxonomy_filter_runs_before_top_k",
+    "evidence": [
+      {"source_type":"rag_chunk","title":"invalid 1","content":"structure","metadata":{"issue_types":"references"}},
+      {"source_type":"rag_chunk","title":"invalid 2","content":"structure","metadata":{"issue_types":"communication"}},
+      {"source_type":"rag_chunk","title":"invalid 3","content":"structure","metadata":{"issue_types":"all"}},
+      {"source_type":"rag_chunk","title":"valid","content":"PM delay guide","metadata":{"issue_types":"pm_delay"}},
+      {"source_type":"similar_case","title":"invalid case 1","content":"structure","metadata":{"case_id":"INVALID-1","case_type":"verified","source":"incident-system","issue_type":"communication"}},
+      {"source_type":"similar_case","title":"invalid case 2","content":"structure","metadata":{"case_id":"INVALID-2","case_type":"verified","source":"incident-system","issue_type":"references"}},
+      {"source_type":"similar_case","title":"invalid case 3","content":"structure","metadata":{"case_id":"INVALID-3","case_type":"verified","source":"incident-system","issue_type":"all"}},
+      {"source_type":"similar_case","title":"valid case","content":"verified down incident","metadata":{"case_id":"INC-VALID","case_type":"verified","source":"incident-system","issue_type":"equipment_down","verification":{"incident_at":"2026-08-31T14:00:00+09:00","verified_at":"2026-09-01T09:00:00+09:00","verified_by":"fab-incident-review-board","evidence_refs":["INCIDENT-VALID"]}}}
+    ],
+    "expected_candidate_issue_types": ["equipment_down", "pm_delay"],
+    "expected_corroboration_level": "verified_analogy",
+    "expected_source_coverage": {"operational_sql":false,"incident_playbook":true,"similar_cases":true},
+    "expected_missing_evidence": ["operational_sql_observation"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":3,"rag_issue_mismatch":0,"case_without_diagnostic_issue":3},
+    "expected_ranked_candidate_issue_types": ["equipment_down", "pm_delay"],
+    "expected_evidence_consistency": "competing_hypotheses",
+    "expected_top_support_level": "moderate_candidate",
+    "expected_content_contains": ["우선 검증 후보는 equipment_down", "우선순위는 잠정적"]
+  },
+  {
+    "id": "self_declared_verified_without_review_is_downgraded",
+    "evidence": [
+      {"source_type":"similar_case","title":"INC-NO-REVIEW","content":"unreviewed incident label","metadata":{"case_id":"INC-NO-REVIEW","case_type":"verified","source":"incident-system","issue_type":"equipment_down"}}
+    ],
+    "expected_candidate_issue_types": ["equipment_down"],
+    "expected_corroboration_level": "unverified_reference_only",
+    "expected_source_coverage": {"operational_sql":false,"incident_playbook":false,"similar_cases":true},
+    "expected_missing_evidence": ["operational_sql_observation", "incident_playbook_candidate"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":0,"case_without_diagnostic_issue":0},
+    "expected_required_verification": ["verified_incident_match"],
+    "expected_content_contains": ["출처가 검증 기준을 충족하지 않아", "검증 사례로 사용할 수 없습니다"]
+  },
+  {
+    "id": "compound_rag_chunk_uses_query_matched_issue",
+    "evidence": [
+      {"source_type":"rag_chunk","title":"hot lot and queue playbooks","content":"issue_type hot_lot; issue_type queue_time_risk","metadata":{"source_document":"playbook.md","issue_type":"hot_lot","declared_issue_types":["hot_lot","queue_time_risk"],"query_issue_intents":["queue_time"],"matched_issue_types":["queue_time_risk"],"issue_aligned":true}}
+    ],
+    "expected_candidate_issue_types": ["queue_time_risk"],
+    "expected_corroboration_level": "none",
+    "expected_source_coverage": {"operational_sql":false,"incident_playbook":true,"similar_cases":false},
+    "expected_missing_evidence": ["operational_sql_observation", "similar_incident"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":0,"case_without_diagnostic_issue":0},
+    "expected_ranked_candidate_issue_types": ["queue_time_risk"],
+    "expected_evidence_consistency": "single_hypothesis",
+    "expected_top_support_level": "weak_candidate",
+    "expected_content_contains": ["우선 검증 후보는 queue_time_risk"]
+  },
+  {
+    "id": "rag_issue_mismatch_is_ineligible",
+    "evidence": [
+      {"source_type":"rag_chunk","title":"mismatched playbook","content":"equipment down guide","metadata":{"issue_types":"equipment_down","issue_aligned":false}}
+    ],
+    "expected_candidate_issue_types": [],
+    "expected_corroboration_level": "none",
+    "expected_source_coverage": {"operational_sql":false,"incident_playbook":false,"similar_cases":false},
+    "expected_missing_evidence": ["operational_sql_observation", "incident_playbook_candidate", "similar_incident"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":1,"case_without_diagnostic_issue":0},
+    "expected_ranked_candidate_issue_types": [],
+    "expected_evidence_consistency": "insufficient",
+    "expected_content_contains": ["원인 후보를 제시하거나 실제 원인을 확정할 수 없습니다"]
+  },
+  {
+    "id": "verified_cases_with_distinct_causes_are_conflicting",
+    "evidence": [
+      {"source_type":"similar_case","title":"INC-DOWN-A","content":"verified breakdown case","metadata":{"case_id":"INC-DOWN-A","case_type":"verified","source":"incident-system","issue_type":"equipment_down","cause":"breakdown","verification":{"incident_at":"2026-08-30T14:00:00+09:00","verified_at":"2026-09-01T09:00:00+09:00","verified_by":"fab-incident-review-board","evidence_refs":["EVENT-A"]}}},
+      {"source_type":"similar_case","title":"INC-DOWN-B","content":"verified PM work error case","metadata":{"case_id":"INC-DOWN-B","case_type":"verified","source":"incident-system","issue_type":"equipment_down","cause":"PM 작업 오류","verification":{"incident_at":"2026-09-01T14:00:00+09:00","verified_at":"2026-09-02T09:00:00+09:00","verified_by":"fab-incident-review-board","evidence_refs":["EVENT-B"]}}}
+    ],
+    "expected_candidate_issue_types": ["equipment_down"],
+    "expected_corroboration_level": "verified_analogy",
+    "expected_source_coverage": {"operational_sql":false,"incident_playbook":false,"similar_cases":true},
+    "expected_missing_evidence": ["operational_sql_observation", "incident_playbook_candidate"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":0,"case_without_diagnostic_issue":0},
+    "expected_required_verification": ["resolve_verified_case_conflict"],
+    "expected_ranked_candidate_issue_types": ["equipment_down"],
+    "expected_evidence_consistency": "verified_case_conflict",
+    "expected_top_support_level": "conflicting_candidate",
+    "expected_content_contains": ["검증 사례 간 기록된 원인이 달라", "시간 정렬된 event log"]
+  },
+  {
+    "id": "verified_case_outside_question_period_is_historical",
+    "evidence": [
+      {"source_type":"similar_case","title":"INC-HISTORICAL","content":"verified historical down case","metadata":{"case_id":"INC-HISTORICAL","case_type":"verified","source":"incident-system","issue_type":"equipment_down","cause":"breakdown","temporal_alignment":"historical_outside_requested_period","verification":{"incident_at":"2025-01-10T14:00:00+09:00","verified_at":"2025-01-11T09:00:00+09:00","verified_by":"fab-incident-review-board","evidence_refs":["EVENT-HISTORICAL"]}}}
+    ],
+    "expected_candidate_issue_types": ["equipment_down"],
+    "expected_corroboration_level": "verified_historical_only",
+    "expected_source_coverage": {"operational_sql":false,"incident_playbook":false,"similar_cases":true},
+    "expected_missing_evidence": ["operational_sql_observation", "incident_playbook_candidate"],
+    "expected_excluded_evidence": {"rag_without_diagnostic_issue":0,"rag_issue_mismatch":0,"case_without_diagnostic_issue":0},
+    "expected_required_verification": ["time_aligned_incident_match"],
+    "expected_ranked_candidate_issue_types": ["equipment_down"],
+    "expected_evidence_consistency": "single_hypothesis",
+    "expected_top_support_level": "weak_candidate",
+    "expected_content_contains": ["질문 기간 밖의 과거 사례", "현재 건의 시간 정합 근거가 아닙니다"]
+  }
+]

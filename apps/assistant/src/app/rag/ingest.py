@@ -281,22 +281,37 @@ def _split_text(text: str, target_chars: int, overlap_chars: int) -> list[str]:
 
 
 def _infer_metadata(path: Path, text: str) -> dict[str, str]:
-    lower = f"{path.name}\n{text[:2000]}".casefold()
+    lower = f"{path.name}\n{text}".casefold()
     metadata: dict[str, str] = {
         "source_document": path.name,
         "source_type": path.suffix.lower().lstrip("."),
     }
-    for issue_type in ("queue_time", "wip", "bottleneck", "breakdown", "pm", "yield"):
-        if issue_type.replace("_", " ") in lower or issue_type in lower:
-            metadata["issue_type"] = issue_type
-            break
-    explicit_issue = re.search(r"(?m)^issue_type\s*\n([a-z][a-z0-9_]*)\s*$", text)
-    if explicit_issue:
-        metadata["issue_type"] = explicit_issue.group(1)
+    explicit_issue_types = list(
+        dict.fromkeys(re.findall(r"issue_type\s+([a-z0-9_/-]+)", lower))
+    )
+    if explicit_issue_types:
+        metadata["issue_type"] = explicit_issue_types[0]
+        metadata["issue_types"] = ",".join(explicit_issue_types)
+    else:
+        for issue_type, terms in _ISSUE_METADATA_TERMS.items():
+            if any(term in lower for term in terms):
+                metadata["issue_type"] = issue_type
+                metadata["issue_types"] = issue_type
+                break
     fab_match = re.search(r"\bfab(?:[-_ ]?)(1[0-3])\b", lower)
     if fab_match:
         metadata["fab_id"] = f"fab{fab_match.group(1)}"
     return metadata
+
+
+_ISSUE_METADATA_TERMS = {
+    "queue_time": ("queue time", "queue_time", "대기 시간", "대기시간"),
+    "bottleneck": ("bottleneck", "병목"),
+    "breakdown": ("breakdown", "equipment down", "장비 고장", "설비 고장"),
+    "pm": ("preventive maintenance", "pm 지연", "예방 정비", "예방정비"),
+    "yield": ("yield", "수율"),
+    "wip": ("wip", "재공"),
+}
 
 
 def _chunk_id(collection: str, knowledge_base: str, path: Path, index: int, content: str) -> str:

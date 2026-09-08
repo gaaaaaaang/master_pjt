@@ -121,6 +121,7 @@ def _rerank(plan: QueryPlan, chunk: Chunk, fusion_score: float) -> tuple[float, 
         word in title.casefold()
         for word in ("목차", "contents", "예시 레코드", "문서 스키마", "문서 목적", "데이터 소스")
     )
+    noise = noise or bool(re.search(r"\.{5,}", content))
     # This is a transparent feature reranker, not a trained neural relevance model.
     score = (
         fusion_score

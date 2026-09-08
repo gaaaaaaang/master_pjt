@@ -10,6 +10,7 @@ __pycache__/
 apps/assistant/data/processed/
 apps/assistant/data/chroma/
 logs/
+apps/assistant/output/state/
 .DS_Store
 
 apps/assistant/data/smt2020/*

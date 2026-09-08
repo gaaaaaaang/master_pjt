@@ -49,3 +49,25 @@ uv run pytest
 
 - `apps/assistant/tests/fixtures/text2sql_fab10_eval.json`: fab10 Text2SQL 대표 질문 세트
 - `apps/assistant/tests/fixtures/scenario_acceptance_questions.json`: SC-001~SC-004 acceptance 질문 세트
+
+## 사용자 화면 개선 실험 (`fix/frontend_adv`)
+
+React 기본 경로 `/`는 결과 중심 FAB 채팅 화면입니다. 기존 에이전트 평가 화면은 `/trace`에 있습니다.
+기존 Streamlit 화면은 별도로 유지되며 React에 자동 이관되지 않습니다.
+
+```sh
+cd apps/web
+npm install
+npm run dev -- --port 5175
+npm test
+npm run build
+```
+
+- 채팅: `http://127.0.0.1:5175/`
+- 디자인 예시: `http://127.0.0.1:5175/?preview=trend` (실제 운영 수치 아님)
+- 예시 선택기에서 조건 확인, 데이터 없음, 연결 오류 화면을 비교할 수 있습니다.
+- 기본 개발 proxy는 `http://127.0.0.1:8000`을 사용합니다. `FAB_API_TARGET`으로 바꿀 수 있습니다.
+- 운영 배포에는 `/api`·`/health` reverse proxy 또는 `VITE_API_BASE` 설정이 필요합니다.
+- 대화 기록은 현재 탭의 세션 동안 저장됩니다. 분석 범위는 대화마다 설정할 수 있습니다.
+
+디자인 판단, 검증 내용, 남은 제한은 [프런트엔드 검토 기록](docs/frontend_adv_review.md)을 참고하세요.

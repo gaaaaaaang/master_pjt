@@ -26,6 +26,37 @@ def test_status_chat_works_in_mock_mode() -> None:
     body = response.json()
     assert body["query_type"] == "status"
     assert "OPENAI_API_KEY" in " ".join(body["limitations"])
+    assert body["agent_reflections"][0]["agent_name"] == "text2sql"
+    assert body["supervisor_reviews"][0]["agent_name"] == "text2sql"
+
+
+def test_feedback_persists_for_existing_conversation() -> None:
+    chat_response = client.post("/api/chat", json={"message": "지금 fab10 WIP 몇 개야?"})
+    conversation_id = chat_response.json()["conversation_id"]
+
+    response = client.post(
+        "/api/feedback",
+        json={
+            "conversation_id": conversation_id,
+            "helpful": False,
+            "comment": "기준 기간 설명이 더 필요합니다.",
+            "trace_id": "health-test-trace",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "accepted"
+    assert response.json()["feedback_id"]
+
+
+def test_feedback_rejects_unknown_conversation() -> None:
+    response = client.post(
+        "/api/feedback",
+        json={"conversation_id": "missing-conversation", "helpful": True},
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "conversation_id was not found"
 
 
 def test_meta_reflects_shell_stack() -> None:
@@ -91,7 +122,7 @@ ORDER BY release_date ASC
                 "y": "lot_count",
                 "x_title": "Release date",
                 "y_title": "Lot release count",
-                "series": "Route_Product_3",
+                "series": None,
             },
         ),
     )
@@ -115,7 +146,11 @@ ORDER BY release_date ASC
     )
     monkeypatch.setattr(
         "app.agents.graph.compose_with_llm",
-        lambda **kwargs: "Route_Product_3 release plan 집계 결과입니다.",
+        lambda **kwargs: (
+            "Route_Product_3의 start_date 기준 라인차트에서 2018-01-01에 "
+            "3건이 조회됐습니다. 관측치가 1개뿐이므로 lot_count 추세를 "
+            "판단할 수 없습니다."
+        ),
     )
 
     response = client.post("/api/chat/stream", json={"message": question})
@@ -131,10 +166,14 @@ ORDER BY release_date ASC
         "input",
         "planner",
         "supervisor",
+        "dispatcher",
         "text2sql",
+        "dispatcher",
         "visualization",
+        "dispatcher",
         "reflection",
         "composer",
+        "answer_supervisor",
         "supervisor",
     ]
     text2sql_event = next(payload for payload in payloads if payload["node"] == "text2sql")
@@ -145,10 +184,32 @@ ORDER BY release_date ASC
     assert all("elapsed_ms" in payload["data"] for payload in payloads)
     assert all("retry_budget_remaining" in payload["data"] for payload in payloads)
     assert "GROUP BY start_date::date" in text2sql_event["data"]["sql"]
+    assert text2sql_event["data"]["status"] == "succeeded"
+    assert text2sql_event["data"]["reasoning"]["node"] == "text2sql"
     final = payloads[-1]["data"]
     assert final["status"] == "succeeded"
     assert final["chart"]["type"] == "line"
+    assert [item["node"] for item in final["reasoning_state"]] == [
+        "planner",
+        "supervisor",
+        "dispatcher",
+        "text2sql",
+        "dispatcher",
+        "visualization",
+        "dispatcher",
+        "reflection",
+        "composer",
+        "answer_supervisor",
+    ]
     assert final["chart"]["rows"] == [{"release_date": "2018-01-01", "lot_count": 3}]
+    assert final["chart"]["trend_summary"] == []
+    assert final["chart"]["series_coverage"][0]["assessment"] == "insufficient"
+    assert any("관측치가 1개" in limitation for limitation in final["limitations"])
+    assert [item["agent_name"] for item in final["agent_reflections"]] == [
+        "text2sql",
+        "visualization",
+    ]
+    assert final["supervisor_reviews"] == []
 
 
 def test_chat_stream_returns_error_event_with_telemetry(monkeypatch) -> None:

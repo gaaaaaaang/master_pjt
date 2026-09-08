@@ -60,23 +60,29 @@ class AzureAgentClient:
                 },
             },
         }
-        with httpx.Client(timeout=self.timeout_seconds) as client:
-            response = client.post(
-                url,
-                headers={"api-key": self.api_key, "Content-Type": "application/json"},
-                json=payload,
-            )
-            try:
+        try:
+            with httpx.Client(timeout=self.timeout_seconds) as client:
+                response = client.post(
+                    url,
+                    headers={"api-key": self.api_key, "Content-Type": "application/json"},
+                    json=payload,
+                )
                 response.raise_for_status()
-            except httpx.HTTPStatusError as exc:
-                detail = response.text.strip()
-                if len(detail) > 1000:
-                    detail = f"{detail[:1000]}..."
-                raise RuntimeError(
-                    f"LLM API returned HTTP {response.status_code}: {detail or 'empty response body'}"
-                ) from exc
+        except httpx.HTTPStatusError as exc:
+            detail = exc.response.text.strip()
+            if len(detail) > 1000:
+                detail = f"{detail[:1000]}..."
+            raise RuntimeError(
+                f"LLM API returned HTTP {exc.response.status_code}: "
+                f"{detail or 'empty response body'}"
+            ) from exc
+        except httpx.HTTPError as exc:
+            raise RuntimeError(f"LLM API request failed: {exc}") from exc
 
-        body = response.json()
+        try:
+            body = response.json()
+        except ValueError as exc:
+            raise RuntimeError("LLM API returned a non-JSON response.") from exc
         reported_usage(body.get("usage"))
         try:
             content = body["choices"][0]["message"]["content"]
@@ -87,4 +93,7 @@ class AzureAgentClient:
                 str(item.get("text", "")) if isinstance(item, dict) else str(item)
                 for item in content
             )
-        return json.loads(str(content))
+        try:
+            return json.loads(str(content))
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("LLM response content was not valid JSON.") from exc

@@ -303,6 +303,92 @@ button:disabled {
   padding: 16px;
 }
 
+.chat-panel {
+  background: white;
+  border: 1px solid #dbe0dc;
+  margin-bottom: 18px;
+  padding: 16px;
+}
+
+.chat-title {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.chat-title h3 {
+  margin: 0;
+}
+
+.chat-title span {
+  color: #66736e;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.message-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.message {
+  border: 1px solid #dbe0dc;
+  max-width: 82%;
+  padding: 10px 12px;
+}
+
+.message.user {
+  background: #e9f2ef;
+  justify-self: end;
+}
+
+.message.assistant {
+  background: #f7f8f5;
+  justify-self: start;
+}
+
+.message small {
+  color: #66736e;
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.message p {
+  color: #24322d;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.feedback-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.feedback-actions button {
+  align-items: center;
+  background: transparent;
+  border: 1px solid #cfd7d1;
+  color: #52615b;
+  display: inline-flex;
+  height: 28px;
+  justify-content: center;
+  padding: 0;
+  width: 28px;
+}
+
+.feedback-actions button:hover,
+.feedback-actions button.selected {
+  background: #dfeae5;
+  border-color: #2e5f52;
+  color: #1f4b40;
+}
+
 .stream-title {
   align-items: center;
   display: flex;
@@ -346,6 +432,11 @@ button:disabled {
   margin-top: 3px;
 }
 
+.stream-row .reasoning {
+  color: #9bd7b7;
+  font-size: 0.78rem;
+}
+
 .stream-dot {
   background: #7a8a82;
   border-radius: 50%;
@@ -368,6 +459,36 @@ button:disabled {
   border-top: 1px solid #dbe0dc;
   margin: 18px 0 0;
   padding-top: 16px;
+}
+
+.reasoning-panel {
+  background: white;
+  border: 1px solid #dbe0dc;
+  margin-bottom: 18px;
+  padding: 16px;
+}
+
+.reasoning-list {
+  display: grid;
+  gap: 8px;
+}
+
+.reasoning-row {
+  border-left: 3px solid #2e5f52;
+  padding: 8px 0 8px 10px;
+}
+
+.reasoning-row strong {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.reasoning-row p {
+  color: #394640;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  margin-top: 4px;
 }
 
 .chart figcaption {
@@ -407,6 +528,21 @@ button:disabled {
   fill: #26765b;
   stroke: white;
   stroke-width: 2;
+}
+
+.chart circle.imputed-point {
+  fill: #fff;
+  stroke: #26765b;
+  stroke-width: 3;
+}
+
+.chart-bar {
+  opacity: 0.9;
+  transition: opacity 140ms ease;
+}
+
+.chart-bar:hover {
+  opacity: 1;
 }
 
 .chart text {
