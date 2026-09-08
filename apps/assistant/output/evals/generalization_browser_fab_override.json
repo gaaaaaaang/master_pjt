@@ -1,0 +1,18 @@
+{
+  "kind": "observed browser end-to-end verification",
+  "observed_at": "2026-09-07T22:22:48.190662+00:00",
+  "url": "http://localhost:8501/",
+  "request_context_fab": "fab10",
+  "question": "fab13 시뮬레이션 live_process_events에서 lot_id가 NULL인 행의 개수 하나만 알려줘.",
+  "observed_plan_fab": "fab13",
+  "observed_fab_source": "explicit_user",
+  "observed_status": "succeeded",
+  "observed_sql": "SELECT COUNT(*) AS row_count FROM fab13.live_process_events_fab13 WHERE fab_id = 'fab13' AND lot_id IS NULL;",
+  "observed_rows": [
+    {
+      "row_count": 864
+    }
+  ],
+  "observed_final_answer": "fab13 시뮬레이션 live_process_events 테이블에서 lot_id가 NULL인 행의 개수는 864개입니다. 이 값은 시뮬레이션 데이터 기준이며, 실제 공정 데이터와 다를 수 있습니다.",
+  "observed_run_completed": true
+}
