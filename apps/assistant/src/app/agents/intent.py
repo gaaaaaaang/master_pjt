@@ -10,6 +10,7 @@ import re
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
+from app.db.fab_catalog import mentioned_fabs, resolve_fab
 from app.sub_agent.text2sql import QuerySlot, extract_query_slots
 
 
@@ -48,22 +49,14 @@ def analyze_request(question: str, **context: Any) -> IntentAnalysis:
             )
         },
     )
-    # The DB parser only accepts supported FABs. Keep unsupported/compound requests
-    # visible instead of silently falling back to a different FAB from the UI.
-    fabs = []
-    for match in re.finditer(
-        r"(?<![A-Za-z0-9])(?:fab|팹)[\s_-]*(\d+)(?![A-Za-z0-9])|(?<![A-Za-z0-9])(\d+)\s*팹",
-        question,
-        re.IGNORECASE,
-    ):
-        suffix = question[match.end() :]
-        if re.match(
-            r"\s*(?:이|가|은|는|을|를|에서)?\s*(?:말고|아니라|아니고|아닌|제외|빼고)", suffix
-        ):
-            continue
-        value = f"fab{match.group(1) or match.group(2)}"
-        if value not in fabs:
-            fabs.append(value)
+    resolution = resolve_fab(question, context.get("fab"), context.get("conversation_history"))
+    slots.pop("fab_id", None)
+    if resolution.fab_id:
+        slots["fab_id"] = QuerySlot(
+            resolution.fab_id, resolution.source,
+            1.0 if resolution.source == "explicit_user" else 0.9, resolution.raw_text,
+        )
+    fabs = mentioned_fabs(question)
     missing: list[str] = []
     clarification = None
     if fabs:

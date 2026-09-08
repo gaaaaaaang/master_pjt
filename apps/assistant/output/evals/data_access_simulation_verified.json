@@ -1,0 +1,1067 @@
+{
+  "conversation_id": "simulation-access-verification-20260907",
+  "status": "succeeded",
+  "query_type": "trend",
+  "answer": "아래는 FAB11의 시뮬레이션 live_process_snapshots 테이블에서 집계된 WIP(평균 LOT 수) 추이입니다. 이 결과는 시뮬레이션 데이터에 기반하며 실제 공장 상태와는 차이가 있을 수 있음을 반드시 유의해 주세요.\n\n- 조회 구간: 2026-09-04 15:00부터 2026-09-07 10:00까지 시뮬레이션 스냅샷 기준, 총 18개 시간 지점\n- 시작 시점(2026-09-04 15:00): WIP 평균 LOT 수 196.67\n- 종료 시점(2026-09-07 10:00): WIP 평균 LOT 수 181.67\n- 전체 변동: 시뮬레이션 기간 동안 약 7.63% 감소(절대값 -15)\n- 최대값: 310.83(2026-09-06 22:00)\n\n시간별 일부 데이터 예시:\n| 시간                      | WIP 평균 LOT 수 |\n|---------------------------|-----------------|\n| 2026-09-04 15:00          | 196.67          |\n| 2026-09-06 06:00          | 220.33          |\n| 2026-09-06 22:00          | 310.83          |\n| 2026-09-07 10:00          | 181.67          |\n\n또한 전체 18개 지점의 데이터는 선그래프 형태로 시각화되어 시간별 추이와 변동을 직관적으로 확인할 수 있습니다.\n\n제한사항 및 유의사항:\n- 본 데이터는 실제 FAB11의 실측값이 아닌 시뮬레이션 스냅샷 데이터입니다.\n- 집계 단위(시간/행)는 시뮬레이션 기록 특성에 따라 달라질 수 있습니다.\n- 실제 공장 상태와 오차가 반드시 존재할 수 있습니다.\n\n문의하신 WIP 트렌드는 위와 같으니, 실제 상황 해석 시 참고하시기 바랍니다.",
+  "conversation_history": [
+    {
+      "role": "user",
+      "content": "fab11 시뮬레이션 live_process_snapshots에서 WIP 추이를 보여줘",
+      "metadata": {
+        "fab": "fab11",
+        "line": null,
+        "process": null,
+        "product": null,
+        "route": null,
+        "equipment": null,
+        "date_basis": null,
+        "metric": "wiplotavg"
+      }
+    },
+    {
+      "role": "assistant",
+      "content": "아래는 FAB11 시뮬레이션 live_process_snapshots에서 조회된 WIP(평균 LOT 수) 추이입니다. 2026-09-04 15:00부터 2026-09-07 10:00까지 총 18개 시점의 시뮬레이션 데이터가 포함되어 있으며, 실제 공장 실측값이 아닌 시뮬레이션 결과임을 반드시 참고해주세요.\n\n시간별 Lot 평균(WIP) 변동은 다음과 같습니다:\n- 시작: 2026-09-04 15:00, WIP 평균 196.67\n- 종료: 2026-09-07 10:00, WIP 평균 181.67\n- WIP 최대: 310.83(2026-09-06 22:00)\n- 전체 추이: 중간 변동은 있으나 첫 데이터 대비 약 7.6% 감소 (절대값 -15)\n\n시간대별 예시:\n| 시간                       | WIP 평균 LOT 수 |\n|----------------------------|-----------------|\n| 2026-09-04 15:00           | 196.67          |\n| 2026-09-06 06:00           | 220.33          |\n| 2026-09-06 22:00           | 310.83          |\n| 2026-09-07 10:00           | 181.67          |\n\n전체 추이 그래프는 선그래프로 시각화되었습니다 (X축: 시간, Y축: WIP 평균 LOT 수).\n\n제한사항:\n- 본 결과는 시뮬레이션 스냅샷 데이터에 기반하며 실제 공정 데이터와 오차가 존재할 수 있습니다.\n- 집계 단위(시간, 행)는 시뮬레이션 설계에 따라 상이할 수 있습니다.\n\n요청하신 WIP 트렌드는 위와 같이 변화하며, 실제 FAB11의 라이브 상태와 혼동하지 않도록 유의하세요.",
+      "metadata": {
+        "query_type": "trend",
+        "status": "failed",
+        "sql": "SELECT interval_start AS x, AVG(wip_lots) AS wiplotavg FROM fab11.live_process_snapshots_fab11 GROUP BY interval_start ORDER BY interval_start ASC",
+        "limitations": [
+          "Result reflects only simulated data, not real observed WIP",
+          "Granularity and periods depend on available simulation records in live_process_snapshots",
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "wiplotavg은 wip_lots의 시간별 평균으로 계산됨.",
+          "실제 factory 데이터가 아닌 시뮬레이션 스냅샷 데이터임.",
+          "이 결과는 실제 FAB11의 라이브 WIP가 아니라 시뮬레이션 스냅샷 데이터에 기반합니다.",
+          "집계 단위(시간, 행)는 시뮬레이션 설계에 따라 상이할 수 있습니다.",
+          "실제 공정 상태와 오차가 존재할 수 있습니다.",
+          "Trend answer contains numeric claims absent from grounded inputs and results: 00, 10, 00,, 196.67, 181.67, 310.83, 22, 7.6, 06, 220.33",
+          "일부 수치 및 변동 분석(예: 시작/종료값, 최대값, 감소율 등)이 grounded numeric evidence 없이 구체적으로 표기되어 있습니다.",
+          "예시 시간/값 및 표 형태가 evidence에 있는 sample_rows와 정확히 일치하지 않습니다.",
+          "답변에서 사용된 7.6% 감소, 절대값 -15 등은 evidence trend_summary에 근거하지만, 일부 값 표기는 grounding이 부족합니다."
+        ]
+      }
+    },
+    {
+      "role": "user",
+      "content": "fab11 시뮬레이션 live_process_snapshots에서 WIP 추이를 보여줘",
+      "metadata": {
+        "fab": "fab11",
+        "line": null,
+        "process": null,
+        "product": null,
+        "route": null,
+        "equipment": null,
+        "date_basis": null,
+        "metric": "wiplotavg"
+      }
+    },
+    {
+      "role": "assistant",
+      "content": "아래는 FAB11의 시뮬레이션 live_process_snapshots 테이블에서 집계된 WIP(평균 LOT 수) 추이입니다. 이 결과는 시뮬레이션 데이터에 기반하며 실제 공장 상태와는 차이가 있을 수 있음을 반드시 유의해 주세요.\n\n- 조회 구간: 2026-09-04 15:00부터 2026-09-07 10:00까지 시뮬레이션 스냅샷 기준, 총 18개 시간 지점\n- 시작 시점(2026-09-04 15:00): WIP 평균 LOT 수 196.67\n- 종료 시점(2026-09-07 10:00): WIP 평균 LOT 수 181.67\n- 전체 변동: 시뮬레이션 기간 동안 약 7.63% 감소(절대값 -15)\n- 최대값: 310.83(2026-09-06 22:00)\n\n시간별 일부 데이터 예시:\n| 시간                      | WIP 평균 LOT 수 |\n|---------------------------|-----------------|\n| 2026-09-04 15:00          | 196.67          |\n| 2026-09-06 06:00          | 220.33          |\n| 2026-09-06 22:00          | 310.83          |\n| 2026-09-07 10:00          | 181.67          |\n\n또한 전체 18개 지점의 데이터는 선그래프 형태로 시각화되어 시간별 추이와 변동을 직관적으로 확인할 수 있습니다.\n\n제한사항 및 유의사항:\n- 본 데이터는 실제 FAB11의 실측값이 아닌 시뮬레이션 스냅샷 데이터입니다.\n- 집계 단위(시간/행)는 시뮬레이션 기록 특성에 따라 달라질 수 있습니다.\n- 실제 공장 상태와 오차가 반드시 존재할 수 있습니다.\n\n문의하신 WIP 트렌드는 위와 같으니, 실제 상황 해석 시 참고하시기 바랍니다.",
+      "metadata": {
+        "query_type": "trend",
+        "status": "succeeded",
+        "sql": "SELECT interval_start AS x, AVG(wip_lots) AS wiplotavg FROM fab11.live_process_snapshots_fab11 GROUP BY interval_start ORDER BY interval_start ASC LIMIT 200",
+        "limitations": [
+          "실제 WIP가 아니라 시뮬레이션 스냅샷 데이터임을 반드시 안내해야 함",
+          "시간/행 단위 등 집계 주기는 시뮬레이션 시스템 레코드에 따라 달라질 수 있음",
+          "실제 공장 상태와 오차가 존재할 수 있음",
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "본 결과는 시뮬레이션 데이터에 기반합니다. 실제 공장 실측값이 아닙니다.",
+          "시간별 집계 단위(period/granularity)는 simulation snapshot 기록에 따라 다를 수 있습니다.",
+          "wip_lots 값은 시뮬레이션 결과로 실제 FAB11 상태와 차이가 있을 수 있습니다.",
+          "모든 데이터는 FAB11의 시뮬레이션 live_process_snapshots 테이블에서 생성된 시뮬레이션 결과에 한정됨 (실제 공장 관측치 아님)",
+          "세부 값(예: 시작/종료, 최대치, 감소율 등)은 모두 evidence에 있는 쿼리 결과 및 trend_summary에 근거해야 하며 임의 수치 보충 불가",
+          "집계 단위(시간/행)는 시뮬레이션 스냅샷 레코드에 따라 변동될 수 있음",
+          "시각화 결과 및 표기 수치는 evidence 시트 및 trend_summary에서 실제 반환된 값만 사용할 것"
+        ]
+      }
+    }
+  ],
+  "reasoning_state": [
+    {
+      "node": "planner",
+      "summary": "trend로 분류하고 2개 실행 단계를 만들었습니다.",
+      "details": {
+        "history_turns": 2,
+        "execution_feedback_count": 0,
+        "selected_sub_agents": [
+          "text2sql",
+          "visualization"
+        ],
+        "missing_slots": []
+      }
+    },
+    {
+      "node": "supervisor",
+      "summary": "계획 상태가 ready라서 실행을 승인했습니다.",
+      "details": {
+        "status": "ready",
+        "halted": false,
+        "selected_sub_agents": [
+          "text2sql",
+          "visualization"
+        ],
+        "reason": "The plan is fully specified and ready for execution: 1) Aggregate average WIP (wiplotavg) per time interval from fab11's live_process_snapshots table, 2) Generate a trend (line graph) visualization. All scope and slot requirements are satisfied. Limitations noted for later presentation."
+      }
+    },
+    {
+      "node": "dispatcher",
+      "summary": "계획 cursor 0의 다음 agent로 text2sql를 선택했습니다.",
+      "details": {
+        "cursor": 0,
+        "next_agent": "text2sql",
+        "total_steps": 2
+      }
+    },
+    {
+      "node": "text2sql",
+      "summary": "trend 질의를 succeeded 상태로 처리했습니다.",
+      "details": {
+        "fab": "fab11",
+        "required": true,
+        "row_count": 18,
+        "has_sql": true,
+        "feedback_count": 0
+      }
+    },
+    {
+      "node": "dispatcher",
+      "summary": "계획 cursor 1의 다음 agent로 visualization를 선택했습니다.",
+      "details": {
+        "cursor": 1,
+        "next_agent": "visualization",
+        "total_steps": 2
+      }
+    },
+    {
+      "node": "visualization",
+      "summary": "18개 row와 chart intent를 사용해 line chart를 만들었습니다.",
+      "details": {
+        "row_count": 18,
+        "chart_type": "line",
+        "encoding": {
+          "x": {
+            "field": "x",
+            "title": "시간"
+          },
+          "y": {
+            "field": "wiplotavg",
+            "title": "WIP 평균 LOT 수",
+            "domain": [
+              0,
+              310.8333333333333
+            ]
+          }
+        }
+      }
+    },
+    {
+      "node": "dispatcher",
+      "summary": "계획된 실행 단계를 모두 소진해 최종 reflection으로 이동합니다.",
+      "details": {
+        "cursor": 2,
+        "total_steps": 2
+      }
+    },
+    {
+      "node": "reflection",
+      "summary": "최종 검증 결과: 최종 답변 작성.",
+      "details": {
+        "is_supported": true,
+        "warning_count": 4,
+        "retry_target": null,
+        "termination_reason": "completed"
+      }
+    },
+    {
+      "node": "composer",
+      "summary": "수집된 tool summary, evidence, limitation, reflection을 기준으로 최종 답변을 작성했습니다.",
+      "details": {
+        "answer_part_count": 1,
+        "evidence_count": 3,
+        "limitation_count": 12
+      }
+    },
+    {
+      "node": "answer_supervisor",
+      "summary": "최종 답변을 원 질문과 근거에 대조해 검증했습니다.",
+      "details": {
+        "approved": true,
+        "revised": false,
+        "issue_count": 0
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "source_type": "planner_plan",
+      "title": "Planner plan",
+      "content": "FAB11의 시뮬레이션 live_process_snapshots 데이터에서 WIP(평균 LOT 수) 추이 시각화",
+      "metadata": {
+        "execution_mode": "llm_chat_completions",
+        "model": "gpt-4.1",
+        "status": "ready",
+        "query_type": "trend",
+        "selected_sub_agents": [
+          "text2sql",
+          "visualization"
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [],
+        "execution_steps": [
+          {
+            "agent": "text2sql",
+            "action": "fab11의 live_process_snapshots 테이블에서 시간별 wip_lots 평균(wiplotavg)을 집계 및 정렬",
+            "required": true,
+            "reason": "시뮬레이션 WIP 추이의 원본 데이터 숫자 확보"
+          },
+          {
+            "agent": "visualization",
+            "action": "시간(wip_lots 집계 단위)에 따른 평균 LOT 수(wiplotavg) 선그래프 생성 및 제공",
+            "required": true,
+            "reason": "트렌드 형태로 사용자가 변화를 직관적으로 확인할 수 있도록 시각화"
+          }
+        ],
+        "slots": {
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 0.9,
+            "raw_text": "fab11 시뮬레이션 live_process_snapshots에서 WIP 추이를 보여줘"
+          },
+          "metric": {
+            "value": "wiplotavg",
+            "source": "request_context",
+            "confidence": 0.9,
+            "raw_text": "wiplotavg"
+          }
+        }
+      }
+    },
+    {
+      "source_type": "text2sql_plan",
+      "title": "Text2SQL query and result",
+      "content": "시뮬레이션 공정 데이터 기준으로 18개 행을 조회했습니다.",
+      "metadata": {
+        "status": "succeeded",
+        "query_type": "trend",
+        "row_count": 18,
+        "columns": [
+          "x",
+          "wiplotavg"
+        ],
+        "sample_rows": [
+          {
+            "x": "2026-09-04T15:00:00Z",
+            "wiplotavg": "196.6666666666666667"
+          },
+          {
+            "x": "2026-09-04T20:00:00Z",
+            "wiplotavg": "178.0000000000000000"
+          },
+          {
+            "x": "2026-09-04T22:00:00Z",
+            "wiplotavg": "203.3333333333333333"
+          },
+          {
+            "x": "2026-09-06T00:00:00Z",
+            "wiplotavg": "168.3333333333333333"
+          },
+          {
+            "x": "2026-09-06T02:00:00Z",
+            "wiplotavg": "167.6666666666666667"
+          },
+          {
+            "x": "2026-09-06T04:00:00Z",
+            "wiplotavg": "179.3333333333333333"
+          },
+          {
+            "x": "2026-09-06T06:00:00Z",
+            "wiplotavg": "220.3333333333333333"
+          },
+          {
+            "x": "2026-09-06T08:00:00Z",
+            "wiplotavg": "179.8333333333333333"
+          },
+          {
+            "x": "2026-09-06T10:00:00Z",
+            "wiplotavg": "191.3333333333333333"
+          },
+          {
+            "x": "2026-09-06T12:00:00Z",
+            "wiplotavg": "178.5000000000000000"
+          },
+          {
+            "x": "2026-09-06T14:00:00Z",
+            "wiplotavg": "157.8333333333333333"
+          },
+          {
+            "x": "2026-09-06T22:00:00Z",
+            "wiplotavg": "310.8333333333333333"
+          },
+          {
+            "x": "2026-09-07T00:00:00Z",
+            "wiplotavg": "165.8333333333333333"
+          },
+          {
+            "x": "2026-09-07T02:00:00Z",
+            "wiplotavg": "166.0000000000000000"
+          },
+          {
+            "x": "2026-09-07T04:00:00Z",
+            "wiplotavg": "147.0000000000000000"
+          },
+          {
+            "x": "2026-09-07T06:00:00Z",
+            "wiplotavg": "203.8333333333333333"
+          },
+          {
+            "x": "2026-09-07T08:00:00Z",
+            "wiplotavg": "188.8333333333333333"
+          },
+          {
+            "x": "2026-09-07T10:00:00Z",
+            "wiplotavg": "181.6666666666666667"
+          }
+        ],
+        "query_plan": {
+          "query_type": "trend",
+          "template_id": null,
+          "fab_id": "fab11",
+          "data_source_type": "simulation_snapshot",
+          "slots": {
+            "metric": {
+              "value": "wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "wiplotavg"
+            },
+            "metrics": {
+              "value": "wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "wiplotavg"
+            },
+            "fab_id": {
+              "value": "fab11",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab11 시뮬레이션 live_process_snapshots에서 WIP 추이를 보여줘"
+            }
+          },
+          "limitations": [
+            "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+            "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+            "본 결과는 시뮬레이션 데이터에 기반합니다. 실제 공장 실측값이 아닙니다.",
+            "시간별 집계 단위(period/granularity)는 simulation snapshot 기록에 따라 다를 수 있습니다.",
+            "wip_lots 값은 시뮬레이션 결과로 실제 FAB11 상태와 차이가 있을 수 있습니다."
+          ],
+          "source_tables": [
+            "fab11.live_process_snapshots_fab11"
+          ],
+          "select_items": [
+            "interval_start AS x",
+            "AVG(wip_lots) AS wiplotavg"
+          ],
+          "filters": [],
+          "group_by": [
+            "interval_start"
+          ],
+          "order_by": [
+            "interval_start ASC"
+          ],
+          "aggregation": "AVG(wip_lots)",
+          "expected_result_shape": "time_series",
+          "chart_intent": {
+            "type": "line",
+            "x": "x",
+            "y": "wiplotavg",
+            "x_title": "시간",
+            "y_title": "WIP 평균 LOT 수",
+            "series": null,
+            "missing_policy": "gap"
+          }
+        },
+        "sql": "SELECT interval_start AS x, AVG(wip_lots) AS wiplotavg FROM fab11.live_process_snapshots_fab11 GROUP BY interval_start ORDER BY interval_start ASC LIMIT 200"
+      }
+    },
+    {
+      "source_type": "visualization_spec",
+      "title": "line chart",
+      "content": "SQL query rows로 생성한 chart specification입니다.",
+      "metadata": {
+        "status": "succeeded",
+        "chart_type": "line",
+        "encoding": {
+          "x": {
+            "field": "x",
+            "title": "시간"
+          },
+          "y": {
+            "field": "wiplotavg",
+            "title": "WIP 평균 LOT 수",
+            "domain": [
+              0,
+              310.8333333333333
+            ]
+          }
+        },
+        "trend_summary": [
+          {
+            "series": "wiplotavg",
+            "start_x": "2026-09-04T15:00:00Z",
+            "end_x": "2026-09-07T10:00:00Z",
+            "start_value": 196.6667,
+            "end_value": 181.6667,
+            "absolute_delta": -15,
+            "percent_delta": -7.6271
+          }
+        ],
+        "series_gaps": [],
+        "series_coverage": [
+          {
+            "series": "wiplotavg",
+            "point_count": 18,
+            "axis_point_count": 18,
+            "coverage_rate": 1.0,
+            "assessment": "complete"
+          }
+        ],
+        "imputed_points": []
+      }
+    }
+  ],
+  "sql": "SELECT interval_start AS x, AVG(wip_lots) AS wiplotavg FROM fab11.live_process_snapshots_fab11 GROUP BY interval_start ORDER BY interval_start ASC LIMIT 200",
+  "chart": {
+    "title": "fab11 시뮬레이션 live_process_snapshots에서 WIP 추이를 보여줘",
+    "type": "line",
+    "encoding": {
+      "x": {
+        "field": "x",
+        "title": "시간"
+      },
+      "y": {
+        "field": "wiplotavg",
+        "title": "WIP 평균 LOT 수",
+        "domain": [
+          0,
+          310.8333333333333
+        ]
+      }
+    },
+    "series": null,
+    "rows": [
+      {
+        "x": "2026-09-04T15:00:00Z",
+        "wiplotavg": 196.66666666666666
+      },
+      {
+        "x": "2026-09-04T20:00:00Z",
+        "wiplotavg": 178
+      },
+      {
+        "x": "2026-09-04T22:00:00Z",
+        "wiplotavg": 203.33333333333334
+      },
+      {
+        "x": "2026-09-06T00:00:00Z",
+        "wiplotavg": 168.33333333333334
+      },
+      {
+        "x": "2026-09-06T02:00:00Z",
+        "wiplotavg": 167.66666666666666
+      },
+      {
+        "x": "2026-09-06T04:00:00Z",
+        "wiplotavg": 179.33333333333334
+      },
+      {
+        "x": "2026-09-06T06:00:00Z",
+        "wiplotavg": 220.33333333333334
+      },
+      {
+        "x": "2026-09-06T08:00:00Z",
+        "wiplotavg": 179.83333333333334
+      },
+      {
+        "x": "2026-09-06T10:00:00Z",
+        "wiplotavg": 191.33333333333334
+      },
+      {
+        "x": "2026-09-06T12:00:00Z",
+        "wiplotavg": 178.5
+      },
+      {
+        "x": "2026-09-06T14:00:00Z",
+        "wiplotavg": 157.83333333333334
+      },
+      {
+        "x": "2026-09-06T22:00:00Z",
+        "wiplotavg": 310.8333333333333
+      },
+      {
+        "x": "2026-09-07T00:00:00Z",
+        "wiplotavg": 165.83333333333334
+      },
+      {
+        "x": "2026-09-07T02:00:00Z",
+        "wiplotavg": 166
+      },
+      {
+        "x": "2026-09-07T04:00:00Z",
+        "wiplotavg": 147
+      },
+      {
+        "x": "2026-09-07T06:00:00Z",
+        "wiplotavg": 203.83333333333334
+      },
+      {
+        "x": "2026-09-07T08:00:00Z",
+        "wiplotavg": 188.83333333333334
+      },
+      {
+        "x": "2026-09-07T10:00:00Z",
+        "wiplotavg": 181.66666666666666
+      }
+    ],
+    "trend_summary": [
+      {
+        "series": "wiplotavg",
+        "start_x": "2026-09-04T15:00:00Z",
+        "end_x": "2026-09-07T10:00:00Z",
+        "start_value": 196.6667,
+        "end_value": 181.6667,
+        "absolute_delta": -15,
+        "percent_delta": -7.6271
+      }
+    ],
+    "series_gaps": [],
+    "series_coverage": [
+      {
+        "series": "wiplotavg",
+        "point_count": 18,
+        "axis_point_count": 18,
+        "coverage_rate": 1.0,
+        "assessment": "complete"
+      }
+    ],
+    "imputed_points": []
+  },
+  "confidence": 0.97,
+  "limitations": [
+    "실제 WIP가 아니라 시뮬레이션 스냅샷 데이터임을 반드시 안내해야 함",
+    "시간/행 단위 등 집계 주기는 시뮬레이션 시스템 레코드에 따라 달라질 수 있음",
+    "실제 공장 상태와 오차가 존재할 수 있음",
+    "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+    "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+    "본 결과는 시뮬레이션 데이터에 기반합니다. 실제 공장 실측값이 아닙니다.",
+    "시간별 집계 단위(period/granularity)는 simulation snapshot 기록에 따라 다를 수 있습니다.",
+    "wip_lots 값은 시뮬레이션 결과로 실제 FAB11 상태와 차이가 있을 수 있습니다.",
+    "모든 데이터는 FAB11의 시뮬레이션 live_process_snapshots 테이블에서 생성된 시뮬레이션 결과에 한정됨 (실제 공장 관측치 아님)",
+    "세부 값(예: 시작/종료, 최대치, 감소율 등)은 모두 evidence에 있는 쿼리 결과 및 trend_summary에 근거해야 하며 임의 수치 보충 불가",
+    "집계 단위(시간/행)는 시뮬레이션 스냅샷 레코드에 따라 변동될 수 있음",
+    "시각화 결과 및 표기 수치는 evidence 시트 및 trend_summary에서 실제 반환된 값만 사용할 것"
+  ],
+  "agent_runs": [
+    {
+      "agent": "text2sql",
+      "status": "succeeded",
+      "summary": "시뮬레이션 공정 데이터 기준으로 18개 행을 조회했습니다.",
+      "metadata": {
+        "row_count": 18
+      }
+    },
+    {
+      "agent": "visualization",
+      "status": "succeeded",
+      "summary": "line chart를 생성했습니다.",
+      "metadata": {
+        "encoding": {
+          "x": {
+            "field": "x",
+            "title": "시간"
+          },
+          "y": {
+            "field": "wiplotavg",
+            "title": "WIP 평균 LOT 수",
+            "domain": [
+              0,
+              310.8333333333333
+            ]
+          }
+        },
+        "series_gap_count": 0,
+        "insufficient_series_count": 0
+      }
+    }
+  ],
+  "agent_reflections": [
+    {
+      "agent_name": "text2sql",
+      "agent_intent": "fab11의 live_process_snapshots 테이블에서 시간별 wip_lots 평균(wiplotavg)을 집계 및 정렬 (시뮬레이션 WIP 추이의 원본 데이터 숫자 확보)",
+      "planner_intent": "FAB11의 시뮬레이션 live_process_snapshots 데이터에서 WIP(평균 LOT 수) 추이 시각화",
+      "query_type": "trend",
+      "required": true,
+      "status": "succeeded",
+      "success_criteria": [
+        "Complete planner action: fab11의 live_process_snapshots 테이블에서 시간별 wip_lots 평균(wiplotavg)을 집계 및 정렬",
+        "Return a succeeded status with read-only SQL.",
+        "Record query/result evidence and limitations."
+      ],
+      "agent_output": {
+        "agent": "text2sql",
+        "status": "succeeded",
+        "summary": "시뮬레이션 공정 데이터 기준으로 18개 행을 조회했습니다.",
+        "metadata": {
+          "row_count": 18
+        },
+        "sql": "SELECT interval_start AS x, AVG(wip_lots) AS wiplotavg FROM fab11.live_process_snapshots_fab11 GROUP BY interval_start ORDER BY interval_start ASC LIMIT 200",
+        "row_count": 18,
+        "columns": [
+          "x",
+          "wiplotavg"
+        ]
+      },
+      "decision": "pass",
+      "recommended_action": "continue",
+      "reason": "Agent output satisfies the declared success criteria.",
+      "warnings": [],
+      "evidence_count": 1,
+      "limitation_count": 5
+    },
+    {
+      "agent_name": "visualization",
+      "agent_intent": "시간(wip_lots 집계 단위)에 따른 평균 LOT 수(wiplotavg) 선그래프 생성 및 제공 (트렌드 형태로 사용자가 변화를 직관적으로 확인할 수 있도록 시각화)",
+      "planner_intent": "FAB11의 시뮬레이션 live_process_snapshots 데이터에서 WIP(평균 LOT 수) 추이 시각화",
+      "query_type": "trend",
+      "required": true,
+      "status": "succeeded",
+      "success_criteria": [
+        "Complete planner action: 시간(wip_lots 집계 단위)에 따른 평균 LOT 수(wiplotavg) 선그래프 생성 및 제공",
+        "Return a chart specification backed by query rows."
+      ],
+      "agent_output": {
+        "agent": "visualization",
+        "status": "succeeded",
+        "summary": "line chart를 생성했습니다.",
+        "metadata": {
+          "encoding": {
+            "x": {
+              "field": "x",
+              "title": "시간"
+            },
+            "y": {
+              "field": "wiplotavg",
+              "title": "WIP 평균 LOT 수",
+              "domain": [
+                0,
+                310.8333333333333
+              ]
+            }
+          },
+          "series_gap_count": 0,
+          "insufficient_series_count": 0
+        },
+        "chart": {
+          "title": "fab11 시뮬레이션 live_process_snapshots에서 WIP 추이를 보여줘",
+          "type": "line",
+          "encoding": {
+            "x": {
+              "field": "x",
+              "title": "시간"
+            },
+            "y": {
+              "field": "wiplotavg",
+              "title": "WIP 평균 LOT 수",
+              "domain": [
+                0,
+                310.8333333333333
+              ]
+            }
+          },
+          "series": null,
+          "rows": [
+            {
+              "x": "2026-09-04T15:00:00Z",
+              "wiplotavg": 196.66666666666666
+            },
+            {
+              "x": "2026-09-04T20:00:00Z",
+              "wiplotavg": 178
+            },
+            {
+              "x": "2026-09-04T22:00:00Z",
+              "wiplotavg": 203.33333333333334
+            },
+            {
+              "x": "2026-09-06T00:00:00Z",
+              "wiplotavg": 168.33333333333334
+            },
+            {
+              "x": "2026-09-06T02:00:00Z",
+              "wiplotavg": 167.66666666666666
+            },
+            {
+              "x": "2026-09-06T04:00:00Z",
+              "wiplotavg": 179.33333333333334
+            },
+            {
+              "x": "2026-09-06T06:00:00Z",
+              "wiplotavg": 220.33333333333334
+            },
+            {
+              "x": "2026-09-06T08:00:00Z",
+              "wiplotavg": 179.83333333333334
+            },
+            {
+              "x": "2026-09-06T10:00:00Z",
+              "wiplotavg": 191.33333333333334
+            },
+            {
+              "x": "2026-09-06T12:00:00Z",
+              "wiplotavg": 178.5
+            },
+            {
+              "x": "2026-09-06T14:00:00Z",
+              "wiplotavg": 157.83333333333334
+            },
+            {
+              "x": "2026-09-06T22:00:00Z",
+              "wiplotavg": 310.8333333333333
+            },
+            {
+              "x": "2026-09-07T00:00:00Z",
+              "wiplotavg": 165.83333333333334
+            },
+            {
+              "x": "2026-09-07T02:00:00Z",
+              "wiplotavg": 166
+            },
+            {
+              "x": "2026-09-07T04:00:00Z",
+              "wiplotavg": 147
+            },
+            {
+              "x": "2026-09-07T06:00:00Z",
+              "wiplotavg": 203.83333333333334
+            },
+            {
+              "x": "2026-09-07T08:00:00Z",
+              "wiplotavg": 188.83333333333334
+            },
+            {
+              "x": "2026-09-07T10:00:00Z",
+              "wiplotavg": 181.66666666666666
+            }
+          ],
+          "trend_summary": [
+            {
+              "series": "wiplotavg",
+              "start_x": "2026-09-04T15:00:00Z",
+              "end_x": "2026-09-07T10:00:00Z",
+              "start_value": 196.6667,
+              "end_value": 181.6667,
+              "absolute_delta": -15,
+              "percent_delta": -7.6271
+            }
+          ],
+          "series_gaps": [],
+          "series_coverage": [
+            {
+              "series": "wiplotavg",
+              "point_count": 18,
+              "axis_point_count": 18,
+              "coverage_rate": 1.0,
+              "assessment": "complete"
+            }
+          ],
+          "imputed_points": []
+        }
+      },
+      "decision": "pass",
+      "recommended_action": "continue",
+      "reason": "Agent output satisfies the declared success criteria.",
+      "warnings": [],
+      "evidence_count": 0,
+      "limitation_count": 8
+    }
+  ],
+  "supervisor_reviews": [],
+  "supervisor_decisions": [],
+  "retry_counts": {},
+  "replan_count": 0,
+  "reflection_decisions": [
+    {
+      "action": "compose",
+      "retry_target": null,
+      "reason": "답변은 evidence(시뮬레이션 스냅샷에서 집계된 18개 행의 wiplotavg, trend_summary, 시각화 사양)에 기반하며 각각의 수치와 트렌드 해석(감소폭, 최대치, 구간 등)은 적절히 grounding됨. 감소율 및 절대 변화량 모두 trend_summary에 명시되어 있음. 단, 실제 데이터 아님을 반드시 명확히 해야 하며, 결과/표기 숫자가 evidence와 정확히 부합해야 한다는 점을 강하게 알릴 필요 있음.",
+      "retry_budget_remaining": 2,
+      "replan_budget_remaining": 1,
+      "termination_reason": "completed"
+    }
+  ],
+  "termination_reason": "completed",
+  "reflection": {
+    "is_supported": true,
+    "warnings": [
+      "모든 데이터는 FAB11의 시뮬레이션 live_process_snapshots 테이블에서 생성된 시뮬레이션 결과에 한정됨 (실제 공장 관측치 아님)",
+      "세부 값(예: 시작/종료, 최대치, 감소율 등)은 모두 evidence에 있는 쿼리 결과 및 trend_summary에 근거해야 하며 임의 수치 보충 불가",
+      "집계 단위(시간/행)는 시뮬레이션 스냅샷 레코드에 따라 변동될 수 있음",
+      "시각화 결과 및 표기 수치는 evidence 시트 및 trend_summary에서 실제 반환된 값만 사용할 것"
+    ],
+    "composer_instructions": [
+      "시뮬레이션 공정 데이터(18개 시간 지점 wiplotavg)를 기반으로 결과 요약, 실제 WIP가 아님을 명확히 알릴 것",
+      "trend_summary와 시각화 evidence에서 제공된 start, end, 최대값, delta 등만 사용",
+      "모든 표와 숫자값은 evidence 내 sample_rows 및 trend_summary와 일치하도록 복사",
+      "누락된 값 임의 보충 또는 실시간 데이터와 혼동되는 문구 금지",
+      "그래프 설명, 제한사항 명확히 표기(시뮬레이션 데이터임 강조)"
+    ],
+    "action": "compose",
+    "retry_target": null,
+    "reason": "답변은 evidence(시뮬레이션 스냅샷에서 집계된 18개 행의 wiplotavg, trend_summary, 시각화 사양)에 기반하며 각각의 수치와 트렌드 해석(감소폭, 최대치, 구간 등)은 적절히 grounding됨. 감소율 및 절대 변화량 모두 trend_summary에 명시되어 있음. 단, 실제 데이터 아님을 반드시 명확히 해야 하며, 결과/표기 숫자가 evidence와 정확히 부합해야 한다는 점을 강하게 알릴 필요 있음.",
+    "evidence_count": 3,
+    "limitation_count": 8,
+    "deterministic_warnings": [],
+    "agent_reflections": [
+      {
+        "agent_name": "text2sql",
+        "agent_intent": "fab11의 live_process_snapshots 테이블에서 시간별 wip_lots 평균(wiplotavg)을 집계 및 정렬 (시뮬레이션 WIP 추이의 원본 데이터 숫자 확보)",
+        "planner_intent": "FAB11의 시뮬레이션 live_process_snapshots 데이터에서 WIP(평균 LOT 수) 추이 시각화",
+        "query_type": "trend",
+        "required": true,
+        "status": "succeeded",
+        "success_criteria": [
+          "Complete planner action: fab11의 live_process_snapshots 테이블에서 시간별 wip_lots 평균(wiplotavg)을 집계 및 정렬",
+          "Return a succeeded status with read-only SQL.",
+          "Record query/result evidence and limitations."
+        ],
+        "agent_output": {
+          "agent": "text2sql",
+          "status": "succeeded",
+          "summary": "시뮬레이션 공정 데이터 기준으로 18개 행을 조회했습니다.",
+          "metadata": {
+            "row_count": 18
+          },
+          "sql": "SELECT interval_start AS x, AVG(wip_lots) AS wiplotavg FROM fab11.live_process_snapshots_fab11 GROUP BY interval_start ORDER BY interval_start ASC LIMIT 200",
+          "row_count": 18,
+          "columns": [
+            "x",
+            "wiplotavg"
+          ]
+        },
+        "decision": "pass",
+        "recommended_action": "continue",
+        "reason": "Agent output satisfies the declared success criteria.",
+        "warnings": [],
+        "evidence_count": 1,
+        "limitation_count": 5
+      },
+      {
+        "agent_name": "visualization",
+        "agent_intent": "시간(wip_lots 집계 단위)에 따른 평균 LOT 수(wiplotavg) 선그래프 생성 및 제공 (트렌드 형태로 사용자가 변화를 직관적으로 확인할 수 있도록 시각화)",
+        "planner_intent": "FAB11의 시뮬레이션 live_process_snapshots 데이터에서 WIP(평균 LOT 수) 추이 시각화",
+        "query_type": "trend",
+        "required": true,
+        "status": "succeeded",
+        "success_criteria": [
+          "Complete planner action: 시간(wip_lots 집계 단위)에 따른 평균 LOT 수(wiplotavg) 선그래프 생성 및 제공",
+          "Return a chart specification backed by query rows."
+        ],
+        "agent_output": {
+          "agent": "visualization",
+          "status": "succeeded",
+          "summary": "line chart를 생성했습니다.",
+          "metadata": {
+            "encoding": {
+              "x": {
+                "field": "x",
+                "title": "시간"
+              },
+              "y": {
+                "field": "wiplotavg",
+                "title": "WIP 평균 LOT 수",
+                "domain": [
+                  0,
+                  310.8333333333333
+                ]
+              }
+            },
+            "series_gap_count": 0,
+            "insufficient_series_count": 0
+          },
+          "chart": {
+            "title": "fab11 시뮬레이션 live_process_snapshots에서 WIP 추이를 보여줘",
+            "type": "line",
+            "encoding": {
+              "x": {
+                "field": "x",
+                "title": "시간"
+              },
+              "y": {
+                "field": "wiplotavg",
+                "title": "WIP 평균 LOT 수",
+                "domain": [
+                  0,
+                  310.8333333333333
+                ]
+              }
+            },
+            "series": null,
+            "rows": [
+              {
+                "x": "2026-09-04T15:00:00Z",
+                "wiplotavg": 196.66666666666666
+              },
+              {
+                "x": "2026-09-04T20:00:00Z",
+                "wiplotavg": 178
+              },
+              {
+                "x": "2026-09-04T22:00:00Z",
+                "wiplotavg": 203.33333333333334
+              },
+              {
+                "x": "2026-09-06T00:00:00Z",
+                "wiplotavg": 168.33333333333334
+              },
+              {
+                "x": "2026-09-06T02:00:00Z",
+                "wiplotavg": 167.66666666666666
+              },
+              {
+                "x": "2026-09-06T04:00:00Z",
+                "wiplotavg": 179.33333333333334
+              },
+              {
+                "x": "2026-09-06T06:00:00Z",
+                "wiplotavg": 220.33333333333334
+              },
+              {
+                "x": "2026-09-06T08:00:00Z",
+                "wiplotavg": 179.83333333333334
+              },
+              {
+                "x": "2026-09-06T10:00:00Z",
+                "wiplotavg": 191.33333333333334
+              },
+              {
+                "x": "2026-09-06T12:00:00Z",
+                "wiplotavg": 178.5
+              },
+              {
+                "x": "2026-09-06T14:00:00Z",
+                "wiplotavg": 157.83333333333334
+              },
+              {
+                "x": "2026-09-06T22:00:00Z",
+                "wiplotavg": 310.8333333333333
+              },
+              {
+                "x": "2026-09-07T00:00:00Z",
+                "wiplotavg": 165.83333333333334
+              },
+              {
+                "x": "2026-09-07T02:00:00Z",
+                "wiplotavg": 166
+              },
+              {
+                "x": "2026-09-07T04:00:00Z",
+                "wiplotavg": 147
+              },
+              {
+                "x": "2026-09-07T06:00:00Z",
+                "wiplotavg": 203.83333333333334
+              },
+              {
+                "x": "2026-09-07T08:00:00Z",
+                "wiplotavg": 188.83333333333334
+              },
+              {
+                "x": "2026-09-07T10:00:00Z",
+                "wiplotavg": 181.66666666666666
+              }
+            ],
+            "trend_summary": [
+              {
+                "series": "wiplotavg",
+                "start_x": "2026-09-04T15:00:00Z",
+                "end_x": "2026-09-07T10:00:00Z",
+                "start_value": 196.6667,
+                "end_value": 181.6667,
+                "absolute_delta": -15,
+                "percent_delta": -7.6271
+              }
+            ],
+            "series_gaps": [],
+            "series_coverage": [
+              {
+                "series": "wiplotavg",
+                "point_count": 18,
+                "axis_point_count": 18,
+                "coverage_rate": 1.0,
+                "assessment": "complete"
+              }
+            ],
+            "imputed_points": []
+          }
+        },
+        "decision": "pass",
+        "recommended_action": "continue",
+        "reason": "Agent output satisfies the declared success criteria.",
+        "warnings": [],
+        "evidence_count": 0,
+        "limitation_count": 8
+      }
+    ],
+    "supervisor_reviews": [],
+    "execution_mode": "llm_chat_completions",
+    "model": "gpt-4.1"
+  },
+  "answer_review": {
+    "approved": true,
+    "issues": [],
+    "corrected_answer": null,
+    "reason": "The final answer fulfills the user's request by presenting the FAB11 simulated WIP trend from the 'live_process_snapshots' table, specifying the metric (wiplotavg), time range, and actual numeric results with proper rounding. The visualization and trend summary are based solely on returned evidence rows. All requested identifiers, metric, comparison targets, and date basis are included. The answer appropriately warns that this is simulation data and not measured factory WIP. All required limitations and provenance requirements are stated, making this answer complete and directly evidence-backed.",
+    "original_approved": true,
+    "correction_applied": false,
+    "deterministic_check": {
+      "is_supported": true,
+      "warnings": [],
+      "evidence_count": 3,
+      "limitation_count": 12,
+      "missing_identifiers": [],
+      "missing_metrics": [],
+      "missing_dates": [],
+      "missing_facets": [],
+      "missing_selection_constraints": [],
+      "missing_result_metrics": [],
+      "missing_result_targets": [],
+      "unsupported_numeric_claims": [],
+      "missing_impact_estimates": [],
+      "impact_direction_conflicts": [],
+      "missing_mixed_impact_dimensions": [],
+      "trend_direction_conflicts": [],
+      "missing_trend_series": [],
+      "missing_comparison_periods": [],
+      "missing_verified_case_citations": [],
+      "undisclosed_verified_case_conflict": false,
+      "undisclosed_historical_case": false,
+      "undisclosed_series_gaps": [],
+      "undisclosed_insufficient_trends": [],
+      "undisclosed_imputed_points": [],
+      "chart_claim_grounded": true,
+      "quality_dimensions": {
+        "question_alignment": true,
+        "evidence_grounding": true,
+        "limitation_visibility": true,
+        "provenance_calibration": true
+      },
+      "quality_score": 1.0
+    },
+    "correction_check": null,
+    "prompt_version": "answer-supervisor.v2"
+  }
+}

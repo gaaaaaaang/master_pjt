@@ -90,9 +90,7 @@ def test_agent_trace_batch_scores_default_cases() -> None:
 
 
 def test_chat_stream_exposes_real_node_order_sql_and_chart(monkeypatch) -> None:
-    question = (
-        "fab10의 lotrelease 테이블에서 route_product_3 건수를 start_date 기준으로 라인차트로 그려줘."
-    )
+    question = "fab10의 lotrelease 테이블에서 route_product_3 건수를 start_date 기준으로 라인차트로 그려줘."
     executed = Text2SQLResult(
         status="succeeded",
         query_type="trend",
@@ -103,7 +101,7 @@ def test_chat_stream_exposes_real_node_order_sql_and_chart(monkeypatch) -> None:
         sql="""
 SELECT start_date::date AS release_date,
        COUNT(*)::bigint AS lot_count
-FROM fab10.lotrelease
+FROM fab10.lotrelease_fab10
 WHERE route_name = 'Route_Product_3'
 GROUP BY start_date::date
 ORDER BY release_date ASC
@@ -133,7 +131,7 @@ ORDER BY release_date ASC
         "app.agents.graph.review_plan",
         lambda plan, question: (
             plan,
-            {"reason": "test", "selected_sub_agents": plan.selected_sub_agents},
+            {"reason": "test", "proceed": True, "selected_sub_agents": plan.selected_sub_agents},
         ),
     )
     monkeypatch.setattr(
@@ -220,7 +218,7 @@ ORDER BY release_date ASC
 
 def test_chat_stream_returns_error_event_with_telemetry(monkeypatch) -> None:
     class BrokenGraph:
-        def stream(self, state, stream_mode, config=None):
+        async def astream(self, state, stream_mode, config=None):
             del state, stream_mode, config
             raise RuntimeError("test stream failure")
             yield
@@ -237,6 +235,46 @@ def test_chat_stream_returns_error_event_with_telemetry(monkeypatch) -> None:
     ]
     assert [payload["type"] for payload in payloads] == ["run_started", "run_failed"]
     assert payloads[-1]["node"] == "supervisor"
-    assert payloads[-1]["data"]["error"] == "test stream failure"
+    assert payloads[-1]["data"]["error_type"] == "RuntimeError"
+    assert "test stream failure" not in response.text
     assert "elapsed_ms" in payloads[-1]["data"]
     assert "retry_budget_remaining" in payloads[-1]["data"]
+
+
+def test_chat_stream_timeout_interrupts_pending_async_node(monkeypatch):
+    import asyncio
+    from types import SimpleNamespace
+
+    cancelled = []
+
+    class SlowGraph:
+        async def astream(self, state, stream_mode, config=None):
+            try:
+                await asyncio.sleep(30)
+            finally:
+                cancelled.append(True)
+            yield {}
+
+    monkeypatch.setattr("app.api.routes.build_agent_graph", lambda: SlowGraph())
+    monkeypatch.setattr(
+        "app.api.routes.get_settings", lambda: SimpleNamespace(stream_timeout_seconds=0.02)
+    )
+    response = client.post("/api/chat/stream", json={"message": "manual"})
+    payloads = [
+        json.loads(line[6:]) for line in response.text.splitlines() if line.startswith("data: ")
+    ]
+    assert payloads[-1]["data"]["error_type"] == "TimeoutError"
+    assert cancelled == [True]
+
+
+def test_chat_api_provider_failure_is_explicit_and_redacts_error_body(monkeypatch):
+    import httpx
+
+    def fail(request):
+        raise httpx.ReadTimeout("private upstream detail")
+
+    monkeypatch.setattr("app.api.routes.service.ask", fail)
+    response = client.post("/api/chat", json={"message": "manual"})
+    assert response.status_code == 504
+    assert response.json()["detail"]["error_type"] == "ReadTimeout"
+    assert "private upstream detail" not in response.text

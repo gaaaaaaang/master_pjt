@@ -7,6 +7,7 @@ from dataclasses import asdict
 from typing import Any
 
 from app.agents.planner import PlannerDecision
+from app.db.fab_catalog import FAB_MENTION
 
 
 def requirement_coverage(
@@ -117,7 +118,8 @@ def scoped_retrieval_query(query: str, context: dict[str, Any] | None) -> str:
     resolved_fab = str(scope.get("fab_id", {}).get("value") or "")
     if resolved_fab:
         query = re.sub(
-            r"(?<![A-Za-z0-9])(?:fab|팹)[\s_-]*\d+(?![A-Za-z0-9])|(?<![A-Za-z0-9])\d+\s*팹",
+            "(?:" + FAB_MENTION.pattern + ")"
+            + r"(?:\s*(?:이|가|은|는|을|를|에서)?\s*(?:말고|아니라|아니고|아닌|제외|빼고))?",
             " ",
             query,
             flags=re.IGNORECASE,

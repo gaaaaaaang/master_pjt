@@ -1,0 +1,1453 @@
+{
+  "kind": "generalization_targeted_repairs",
+  "started_at": "2026-09-08T07:06:33.253381+09:00",
+  "source_sha256": {
+    "src/app/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/app/agents/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/app/agents/composer.py": "a8a39f3f953eedaf60e5fd0f3ed38155eb47530172e8eb74b700cc3b179c5a8c",
+    "src/app/agents/graph.py": "c00647ff5c0ff9d71d4efc559510cedb0365474c9f91345e0a702b794800b0e4",
+    "src/app/agents/llm.py": "ac2e76578da17e4e43bc3ed5921a85386a4859c0ec172e1a5e9d5981ba6047ac",
+    "src/app/agents/llm_nodes.py": "9b44e16b9a403e5846ae9c4c3a0b0cecbbb7e0babf8b5b8036df18415ac6082e",
+    "src/app/agents/planner.py": "d09dcdcc6c6a9976f002e8b68d3903d28f9f99ccdb61cb1e33976a63f2685ff3",
+    "src/app/agents/prompts.py": "b0e68a90e75b804738b09dcc150a4431219dc13d3de855d071a02ea8d77d39a2",
+    "src/app/agents/supervisor.py": "242d64d0e94c616d9a097be27a43afee4abf818bc278b852461e7c704a692649",
+    "src/app/api/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/app/api/routes.py": "1f599d100d5e42431f96dd9d696fa68ff4de0fd1bdc6bc130f02f7a5dbdc7546",
+    "src/app/config.py": "86f47018761c494161a602ff9a1ed4de933f96ba3f0e6321b67443666a3606bf",
+    "src/app/data/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/app/data/ingest_smt2020.py": "7e42b2411a58bfea4e4629a96dc8c73de8bb91df2f64937b01243b907c32d1cc",
+    "src/app/db/__init__.py": "a89d591b670cf0225df007901d616033a73ff4b298243d3eba237c77896d71a8",
+    "src/app/db/fab_catalog.py": "36dd9c0b978063e70d155ba00dc0b3a1b73cd4b44ba46a7ee7dac3783ce3bd31",
+    "src/app/db/metadata_catalog.py": "cd43308774df0d14a926ca05fc30b66c4d6ab563c5c36cfcff64593e7c923e0e",
+    "src/app/db/read_only.py": "740f327a02e303240ee19b445f2287bec34e4c0d2410342846e9ac52e3481337",
+    "src/app/db/schema_retrieval.py": "d314a268a453b14075491e55e8834056bfabb481e3978f74174c10e6408f1100",
+    "src/app/db/semantic_metadata.py": "cb7e204b0ac12792b9b6864e6633c744b0614cb32630bcc485810834e96dcf5b",
+    "src/app/main.py": "c67fbd0011ec65bb7f62f737ba762876c8848090e737ef352571a73dbccfc46f",
+    "src/app/rag/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/app/rag/embeddings.py": "ee03cb4e364b0f358fadeeb17b93d215e8ad48d609e3abfbe33b1502b190f228",
+    "src/app/rag/ingest.py": "2200be5995046a06785303ad1fc5032e7228f2b4edcdc621614c2b0051b300bc",
+    "src/app/rag/milvus_store.py": "008a435410a03e0cad4572d26a09d60aaef4d1640465db0418c2052cbc99dc53",
+    "src/app/schemas/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/app/schemas/chat.py": "3bb9301cfeab817812de1c4ec62bc15f500cce0d3e1e14e56a6e00fe73346004",
+    "src/app/services/__init__.py": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/app/services/chat_service.py": "039947f4f943c539a04c9adb4f53373890fb48a84a34ca98842117de3e6fc0de",
+    "src/app/services/conversation_memory.py": "f441ecaf8cda687a1f3a47739d2a1ff36719a617e4e4b07ed633054d4b81a323",
+    "src/app/services/feedback_service.py": "1ea81df3945683f3a9dc0cd13d7af0bc2b467fb9e11eaf645c8d54e029043c39",
+    "src/app/services/state_store.py": "2a434ab1326237b37ff455c5529ba66d6f3ce3f95c8e9809842aaa17342ef45d",
+    "src/app/sub_agent/__init__.py": "94a7efb5c179bcbc223c6d7ccbe0db865ea01e1183d9a7abc205710c44e71aae",
+    "src/app/sub_agent/case_search.py": "886c53e12af068f33ff79cf6a2259c6bea7220f3f25340db8fdfcd14f73188c4",
+    "src/app/sub_agent/diagnosis.py": "12f581e47334edafd3538e5533c8b106d8c4cef28d0c359d05048963dfff2f00",
+    "src/app/sub_agent/impact.py": "e396acf3e9b98d733f964c666d1fc9d55b90f807c89abe40ddd00c57b9d1f3e8",
+    "src/app/sub_agent/issue_intent.py": "898efd7104115ad44b34dad7d4f2837ecc2396653d6b263be7629cb9cc7d123c",
+    "src/app/sub_agent/rag.py": "abcc311a370082331aecbf2eb6eafa4bc77d3dc322044701aa8068e371fa3dba",
+    "src/app/sub_agent/reflection.py": "57747c4c553fb15da7ee51bf1e6d622d77bcee5fac3c509e213079b340dc939a",
+    "src/app/sub_agent/semantic_plan.py": "c81533774fff27ebd748b25a5fa1cac356dc24a542dca284c3b0170002655ed2",
+    "src/app/sub_agent/sql_templates.py": "e864eedad48ee4edf8a42a417008b459a7e56cc8a9f9b8f9d2fd0a3c3426626d",
+    "src/app/sub_agent/text2sql.py": "a4db562fdeb7c185ca3322a5308aebe211d352a0dd228521ff6e7d2260222ca6",
+    "src/app/sub_agent/visualization.py": "67475e4b09ca880cb9101f927509a7f3a3266685c8f30f0d7aca91c18809ae33"
+  },
+  "evaluator_sha256": "72385a396fd4f1b6cabb73bd3883f96da8fbd130fff4880a74b12fc5c8fc7a29",
+  "planned_cases": 2,
+  "completed": true,
+  "fixture_sha256": "648547504ab084a7a7df2a73135a76ccc56ea9d293b368bf3b35b1bc62d304a6",
+  "summary": {
+    "answerable": {
+      "cases": 2,
+      "passed": 2
+    },
+    "negative": {
+      "cases": 0,
+      "passed": 0
+    },
+    "rate_limited_ids": [],
+    "unstable_reference_ids": []
+  },
+  "cases": 2,
+  "passed": 2,
+  "results": [
+    {
+      "id": "repair_latest_marker",
+      "question": "fab10 시뮬레이션 최신 스냅샷의 공장 전체 대기 롯 수를 합산해줘. 합계 하나만.",
+      "category": "snapshot_total",
+      "reference_sql": "SELECT SUM(queue_lots) FROM fab10.live_process_snapshots_fab10 WHERE interval_end=(SELECT MAX(interval_end) FROM fab10.live_process_snapshots_fab10)",
+      "reference_rows": [
+        {
+          "sum": 217
+        }
+      ],
+      "answerable": true,
+      "correct_fab": true,
+      "reference_stable": true,
+      "strict_result_matches_reference": true,
+      "result_matches_reference": true,
+      "ignored_context_columns": [],
+      "passed": true,
+      "seconds": 5.931,
+      "llm_calls": [
+        {
+          "schema": "fab_semantic_plan",
+          "seconds": 3.461,
+          "input_characters": 22012
+        },
+        {
+          "schema": "fab_text2sql_direct_sql",
+          "seconds": 2.38,
+          "input_characters": 21131
+        }
+      ],
+      "result": {
+        "status": "succeeded",
+        "query_type": "unsupported",
+        "answer": "시뮬레이션 공정 데이터 기준으로 1개 행을 조회했습니다.",
+        "sql": "SELECT SUM(queue_lots) AS total_queue_lots\nFROM fab10.live_process_snapshots_fab10\nWHERE fab_id = 'fab10'\n  AND interval_end = (SELECT MAX(interval_end) FROM fab10.live_process_snapshots_fab10 WHERE fab_id = 'fab10')",
+        "rows": [
+          {
+            "total_queue_lots": 217
+          }
+        ],
+        "columns": [
+          "total_queue_lots"
+        ],
+        "row_count": 1,
+        "confidence": 1.0,
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "공장 전체 대기 LOT 수 합계는 여러 area 행의 queue_lots을 최신 interval_end에서 SUM한 값.",
+          "단일 FAB, 단일 최신 스냅샷만 집계. toolgroup/area/equipment_id 별로 쪼개지 않음."
+        ],
+        "plan": {
+          "query_type": "unsupported",
+          "template_id": null,
+          "fab_id": "fab10",
+          "data_source_type": "simulation_snapshot",
+          "slots": {
+            "fab_id": {
+              "value": "fab10",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10 시뮬레이션 최신 스냅샷의 공장 전체 대기 롯 수를 합산해줘. 합계 하나만."
+            }
+          },
+          "limitations": [
+            "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+            "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+            "공장 전체 대기 LOT 수 합계는 여러 area 행의 queue_lots을 최신 interval_end에서 SUM한 값.",
+            "단일 FAB, 단일 최신 스냅샷만 집계. toolgroup/area/equipment_id 별로 쪼개지 않음."
+          ],
+          "source_tables": [
+            "fab10.live_process_snapshots_fab10",
+            "fab10.live_process_snapshots_fab10"
+          ],
+          "select_items": [
+            "SUM(queue_lots) AS total_queue_lots"
+          ],
+          "filters": [
+            {
+              "field": "fab_id",
+              "operator": "=",
+              "value": "fab10"
+            },
+            {
+              "field": "interval_end",
+              "operator": "=",
+              "value": "(SELECT MAX(interval_end) FROM fab10.live_process_snapshots_fab10 WHERE fab_id = 'fab10')"
+            }
+          ],
+          "group_by": [],
+          "order_by": [],
+          "aggregation": "SUM(queue_lots)",
+          "expected_result_shape": "single_row_single_column",
+          "chart_intent": null,
+          "semantic_plan": {
+            "supported": true,
+            "reason": "합성 시뮬레이션 스냅샷에서, 공정 영역별(Area) 대기 LOT(queue_lots)의 최신(interval_end 기준) 스냅샷을 SUM하면 전체 공장 대기 LOT 수가 맞음. 요청은 단일 FAB( fab10 )의 최신 시뮬레이션 스냅샷의 전 영역 대기 LOT 합계 하나만 요청함.",
+            "tables": [
+              "fab10.live_process_snapshots_fab10"
+            ],
+            "projections": [],
+            "aggregates": [
+              {
+                "source": {
+                  "table": "fab10.live_process_snapshots_fab10",
+                  "column": "queue_lots"
+                },
+                "function": "sum",
+                "alias": "total_queue_lots"
+              }
+            ],
+            "group_by": [],
+            "filters": [
+              {
+                "source": {
+                  "table": "fab10.live_process_snapshots_fab10",
+                  "column": "fab_id"
+                },
+                "operator": "eq",
+                "values": [
+                  "fab10"
+                ]
+              }
+            ],
+            "joins": [],
+            "latest_by": [
+              {
+                "table": "fab10.live_process_snapshots_fab10",
+                "column": "interval_end"
+              }
+            ],
+            "time_basis": "interval_end (default_time_column as snapshot end time; latest snapshot only)",
+            "result_grain": "factory-total at latest simulation snapshot (SUM across distinct areas at latest interval_end)",
+            "limitations": [
+              "공장 전체 대기 LOT 수 합계는 여러 area 행의 queue_lots을 최신 interval_end에서 SUM한 값.",
+              "단일 FAB, 단일 최신 스냅샷만 집계. toolgroup/area/equipment_id 별로 쪼개지 않음."
+            ],
+            "order_by": [],
+            "result_limit": null,
+            "latest_scope": "global"
+          },
+          "grounding": {
+            "version": "metadata-ranking-v2",
+            "total_tables": 21,
+            "selected_tables": 3,
+            "total_columns": 396,
+            "selected_columns": 66,
+            "broadened_no_match": false,
+            "ranking": [
+              {
+                "table_ref": "fab10.live_process_snapshots_fab10",
+                "score": 40.0,
+                "reasons": [
+                  "aliases:시뮬레이션,스냅샷",
+                  "description:대기,시뮬레이션",
+                  "request_slots"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab10.live_process_events_fab10",
+                "score": 26.0,
+                "reasons": [
+                  "description:대기",
+                  "request_slots"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab10.autosched_perf_fab10",
+                "score": 6.0,
+                "reasons": [
+                  "aliases:공장 전체"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab10.autosched_lot_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.autosched_order_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.autosched_part_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.autosched_semi_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.autosched_stn_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.autosched_stnfam_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.autosched_stngrp_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.breakdown_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.lotrelease_engineering_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.lotrelease_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.lotrelease_variable_due_dates_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.pm_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.route_product_3_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.route_product_4_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.setup_matrix_implant_gas_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.setups_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.toolgroups_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab10.transport_fab10",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              }
+            ]
+          },
+          "generation_attempts": [
+            {
+              "attempt": 1,
+              "action": "focused_generation",
+              "status": "succeeded",
+              "sql": "SELECT SUM(queue_lots) AS total_queue_lots\nFROM fab10.live_process_snapshots_fab10\nWHERE fab_id = 'fab10'\n  AND interval_end = (SELECT MAX(interval_end) FROM fab10.live_process_snapshots_fab10 WHERE fab_id = 'fab10')",
+              "issues": [
+                "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+                "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+                "공장 전체 대기 LOT 수 합계는 여러 area 행의 queue_lots을 최신 interval_end에서 SUM한 값.",
+                "단일 FAB, 단일 최신 스냅샷만 집계. toolgroup/area/equipment_id 별로 쪼개지 않음."
+              ],
+              "tables": [
+                "fab10.live_process_snapshots_fab10",
+                "fab10.live_process_events_fab10",
+                "fab10.autosched_perf_fab10"
+              ],
+              "semantic_plan": {
+                "supported": true,
+                "reason": "합성 시뮬레이션 스냅샷에서, 공정 영역별(Area) 대기 LOT(queue_lots)의 최신(interval_end 기준) 스냅샷을 SUM하면 전체 공장 대기 LOT 수가 맞음. 요청은 단일 FAB( fab10 )의 최신 시뮬레이션 스냅샷의 전 영역 대기 LOT 합계 하나만 요청함.",
+                "tables": [
+                  "fab10.live_process_snapshots_fab10"
+                ],
+                "projections": [],
+                "aggregates": [
+                  {
+                    "source": {
+                      "table": "fab10.live_process_snapshots_fab10",
+                      "column": "queue_lots"
+                    },
+                    "function": "sum",
+                    "alias": "total_queue_lots"
+                  },
+                  {
+                    "source": {
+                      "table": "fab10.live_process_snapshots_fab10",
+                      "column": "interval_end"
+                    },
+                    "function": "max",
+                    "alias": "latest_snapshot_time"
+                  }
+                ],
+                "group_by": [],
+                "filters": [
+                  {
+                    "source": {
+                      "table": "fab10.live_process_snapshots_fab10",
+                      "column": "fab_id"
+                    },
+                    "operator": "eq",
+                    "values": [
+                      "fab10"
+                    ]
+                  }
+                ],
+                "joins": [],
+                "latest_by": [
+                  {
+                    "table": "fab10.live_process_snapshots_fab10",
+                    "column": "interval_end"
+                  }
+                ],
+                "time_basis": "interval_end (default_time_column as snapshot end time; latest snapshot only)",
+                "result_grain": "factory-total at latest simulation snapshot (SUM across distinct areas at latest interval_end)",
+                "limitations": [
+                  "공장 전체 대기 LOT 수 합계는 여러 area 행의 queue_lots을 최신 interval_end에서 SUM한 값.",
+                  "단일 FAB, 단일 최신 스냅샷만 집계. toolgroup/area/equipment_id 별로 쪼개지 않음."
+                ],
+                "order_by": [],
+                "result_limit": null,
+                "latest_scope": "global"
+              },
+              "grounding": {
+                "version": "metadata-ranking-v2",
+                "total_tables": 21,
+                "selected_tables": 3,
+                "total_columns": 396,
+                "selected_columns": 66,
+                "broadened_no_match": false,
+                "ranking": [
+                  {
+                    "table_ref": "fab10.live_process_snapshots_fab10",
+                    "score": 40.0,
+                    "reasons": [
+                      "aliases:시뮬레이션,스냅샷",
+                      "description:대기,시뮬레이션",
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab10.live_process_events_fab10",
+                    "score": 26.0,
+                    "reasons": [
+                      "description:대기",
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab10.autosched_perf_fab10",
+                    "score": 6.0,
+                    "reasons": [
+                      "aliases:공장 전체"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab10.autosched_lot_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.autosched_order_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.autosched_part_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.autosched_semi_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.autosched_stn_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.autosched_stnfam_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.autosched_stngrp_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.breakdown_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.lotrelease_engineering_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.lotrelease_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.lotrelease_variable_due_dates_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.pm_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.route_product_3_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.route_product_4_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.setup_matrix_implant_gas_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.setups_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.toolgroups_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab10.transport_fab10",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "repair_matching_settings",
+      "question": "fab13에서 설비군과 매칭되는 breakdown 모델 설정의 행 수를 공정 영역별로 세줘. 영역과 설정 건수만.",
+      "category": "join",
+      "reference_sql": "SELECT t.area, COUNT(DISTINCT b.source_row_id) FROM fab13.breakdown_fab13 b JOIN fab13.toolgroups_fab13 t ON b.type_name=t.area GROUP BY t.area",
+      "reference_rows": [
+        {
+          "area": "Def_Met",
+          "count": 1
+        },
+        {
+          "area": "Dielectric",
+          "count": 1
+        },
+        {
+          "area": "Diffusion",
+          "count": 1
+        },
+        {
+          "area": "Dry_Etch",
+          "count": 1
+        },
+        {
+          "area": "Implant",
+          "count": 1
+        },
+        {
+          "area": "Litho",
+          "count": 1
+        },
+        {
+          "area": "Litho_Met",
+          "count": 1
+        },
+        {
+          "area": "Planar",
+          "count": 1
+        },
+        {
+          "area": "TF",
+          "count": 1
+        },
+        {
+          "area": "TF_Met",
+          "count": 1
+        },
+        {
+          "area": "Wet_Etch",
+          "count": 1
+        }
+      ],
+      "answerable": true,
+      "correct_fab": true,
+      "reference_stable": true,
+      "strict_result_matches_reference": true,
+      "result_matches_reference": true,
+      "ignored_context_columns": [],
+      "passed": true,
+      "seconds": 8.737,
+      "llm_calls": [
+        {
+          "schema": "fab_semantic_plan",
+          "seconds": 3.849,
+          "input_characters": 21038
+        },
+        {
+          "schema": "fab_semantic_plan",
+          "seconds": 2.553,
+          "input_characters": 21313
+        },
+        {
+          "schema": "fab_text2sql_direct_sql",
+          "seconds": 2.257,
+          "input_characters": 20239
+        }
+      ],
+      "result": {
+        "status": "succeeded",
+        "query_type": "status",
+        "answer": "AutoSched report 기준으로 11개 상태 행을 조회했습니다.",
+        "sql": "SELECT b.type_name AS area, COUNT(DISTINCT b.source_row_id) AS setting_count FROM fab13.breakdown_fab13 b INNER JOIN fab13.toolgroups_fab13 tg ON b.type_name = tg.area GROUP BY b.type_name",
+        "rows": [
+          {
+            "area": "Def_Met",
+            "setting_count": 1
+          },
+          {
+            "area": "Dielectric",
+            "setting_count": 1
+          },
+          {
+            "area": "Diffusion",
+            "setting_count": 1
+          },
+          {
+            "area": "Dry_Etch",
+            "setting_count": 1
+          },
+          {
+            "area": "Implant",
+            "setting_count": 1
+          },
+          {
+            "area": "Litho",
+            "setting_count": 1
+          },
+          {
+            "area": "Litho_Met",
+            "setting_count": 1
+          },
+          {
+            "area": "Planar",
+            "setting_count": 1
+          },
+          {
+            "area": "TF",
+            "setting_count": 1
+          },
+          {
+            "area": "TF_Met",
+            "setting_count": 1
+          },
+          {
+            "area": "Wet_Etch",
+            "setting_count": 1
+          }
+        ],
+        "columns": [
+          "area",
+          "setting_count"
+        ],
+        "row_count": 11,
+        "confidence": 0.98,
+        "limitations": [
+          "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다.",
+          "live/current factory state로 해석하면 안 됩니다.",
+          "단순 영역별 breakdown 설정 집계. 영역(type_name)은 모델 toolgroups.area와 정확히 일치하는 값만 포함. COUNT(DISTINCT breakdown.source_row_id)는 복제된 행을 제외한 실제 설정 건수."
+        ],
+        "plan": {
+          "query_type": "status",
+          "template_id": null,
+          "fab_id": "fab13",
+          "data_source_type": "model_master",
+          "slots": {
+            "metric": {
+              "value": "down_percent",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "down_percent"
+            },
+            "metrics": {
+              "value": "down_percent",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "down_percent"
+            },
+            "master_domain": {
+              "value": "breakdown",
+              "source": "parser",
+              "confidence": 0.8,
+              "raw_text": "breakdown"
+            },
+            "fab_id": {
+              "value": "fab13",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab13에서 설비군과 매칭되는 breakdown 모델 설정의 행 수를 공정 영역별로 세줘. 영역과 설정 건수만."
+            }
+          },
+          "limitations": [
+            "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다.",
+            "live/current factory state로 해석하면 안 됩니다.",
+            "단순 영역별 breakdown 설정 집계. 영역(type_name)은 모델 toolgroups.area와 정확히 일치하는 값만 포함. COUNT(DISTINCT breakdown.source_row_id)는 복제된 행을 제외한 실제 설정 건수."
+          ],
+          "source_tables": [
+            "fab13.breakdown_fab13",
+            "fab13.toolgroups_fab13"
+          ],
+          "select_items": [
+            "b.type_name AS area",
+            "COUNT(DISTINCT b.source_row_id) AS setting_count"
+          ],
+          "filters": [],
+          "group_by": [
+            "b.type_name"
+          ],
+          "order_by": [],
+          "aggregation": "COUNT(DISTINCT breakdown.source_row_id) per area",
+          "expected_result_shape": "one row per area with area, setting_count columns",
+          "chart_intent": null,
+          "semantic_plan": {
+            "supported": true,
+            "reason": "",
+            "tables": [
+              "fab13.breakdown_fab13",
+              "fab13.toolgroups_fab13"
+            ],
+            "projections": [
+              {
+                "table": "fab13.breakdown_fab13",
+                "column": "type_name"
+              }
+            ],
+            "aggregates": [
+              {
+                "source": {
+                  "table": "fab13.breakdown_fab13",
+                  "column": "source_row_id"
+                },
+                "function": "count_distinct",
+                "alias": "setting_count"
+              }
+            ],
+            "group_by": [
+              {
+                "table": "fab13.breakdown_fab13",
+                "column": "type_name"
+              }
+            ],
+            "filters": [],
+            "joins": [
+              {
+                "left": {
+                  "table": "fab13.breakdown_fab13",
+                  "column": "type_name"
+                },
+                "right": {
+                  "table": "fab13.toolgroups_fab13",
+                  "column": "area"
+                },
+                "kind": "inner"
+              }
+            ],
+            "latest_by": [],
+            "time_basis": "none",
+            "result_grain": "one row per area (breakdown.type_name)",
+            "limitations": [
+              "단순 영역별 breakdown 설정 집계. 영역(type_name)은 모델 toolgroups.area와 정확히 일치하는 값만 포함. COUNT(DISTINCT breakdown.source_row_id)는 복제된 행을 제외한 실제 설정 건수."
+            ],
+            "order_by": [],
+            "result_limit": null,
+            "latest_scope": "global"
+          },
+          "grounding": {
+            "version": "metadata-ranking-v2",
+            "total_tables": 23,
+            "selected_tables": 3,
+            "total_columns": 516,
+            "selected_columns": 57,
+            "broadened_no_match": false,
+            "ranking": [
+              {
+                "table_ref": "fab13.breakdown_fab13",
+                "score": 232.0,
+                "reasons": [
+                  "explicit_table",
+                  "aliases:breakdown",
+                  "description:breakdown",
+                  "request_slots"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab13.toolgroups_fab13",
+                "score": 6.0,
+                "reasons": [
+                  "aliases:설비군"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab13.live_process_snapshots_fab13",
+                "score": 2.0,
+                "reasons": [
+                  "description:공정"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab13.live_process_events_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.lotrelease_engineering_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.lotrelease_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.lotrelease_variable_due_dates_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.pm_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_10_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_1_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_2_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_3_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_4_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_5_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_6_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_7_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_8_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_9_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_e1_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_e2_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_e3_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.setups_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.transport_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              }
+            ]
+          },
+          "generation_attempts": [
+            {
+              "attempt": 1,
+              "action": "focused_generation",
+              "status": "unsupported",
+              "sql": null,
+              "issues": [
+                "Unknown plan column: fab13.toolgroups_fab13.fab"
+              ],
+              "tables": [
+                "fab13.breakdown_fab13",
+                "fab13.toolgroups_fab13",
+                "fab13.live_process_snapshots_fab13"
+              ],
+              "semantic_plan": {
+                "supported": true,
+                "reason": "Count breakdown model settings matching toolgroups, grouped by process area; preserve distinct setting identity and avoid fanout. Only output area and setting count as requested.",
+                "tables": [
+                  "fab13.breakdown_fab13",
+                  "fab13.toolgroups_fab13"
+                ],
+                "projections": [
+                  {
+                    "table": "fab13.breakdown_fab13",
+                    "column": "type_name"
+                  }
+                ],
+                "aggregates": [
+                  {
+                    "source": {
+                      "table": "fab13.breakdown_fab13",
+                      "column": "source_row_id"
+                    },
+                    "function": "count_distinct",
+                    "alias": "setting_count"
+                  }
+                ],
+                "group_by": [
+                  {
+                    "table": "fab13.breakdown_fab13",
+                    "column": "type_name"
+                  }
+                ],
+                "filters": [
+                  {
+                    "source": {
+                      "table": "fab13.breakdown_fab13",
+                      "column": "type_name"
+                    },
+                    "operator": "in",
+                    "values": []
+                  },
+                  {
+                    "source": {
+                      "table": "fab13.toolgroups_fab13",
+                      "column": "fab"
+                    },
+                    "operator": "eq",
+                    "values": [
+                      "fab13"
+                    ]
+                  }
+                ],
+                "joins": [
+                  {
+                    "left": {
+                      "table": "fab13.breakdown_fab13",
+                      "column": "type_name"
+                    },
+                    "right": {
+                      "table": "fab13.toolgroups_fab13",
+                      "column": "area"
+                    },
+                    "kind": "inner"
+                  }
+                ],
+                "latest_by": [],
+                "time_basis": "none (model master data, no observable timestamp)",
+                "result_grain": "one row per type_name (area), preserving area/settings matching",
+                "limitations": [
+                  "Area identifies toolgroups.area for matching; does not multiply settings by toolgroup count.",
+                  "Settings counted are those breakdown.type_name matching an existing toolgroups.area in fab13.",
+                  "Down_event_valid_for_type, down_type, toolgroup columns are not included."
+                ],
+                "order_by": [],
+                "result_limit": null,
+                "latest_scope": "global"
+              },
+              "grounding": {
+                "version": "metadata-ranking-v2",
+                "total_tables": 23,
+                "selected_tables": 3,
+                "total_columns": 516,
+                "selected_columns": 57,
+                "broadened_no_match": false,
+                "ranking": [
+                  {
+                    "table_ref": "fab13.breakdown_fab13",
+                    "score": 232.0,
+                    "reasons": [
+                      "explicit_table",
+                      "aliases:breakdown",
+                      "description:breakdown",
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.toolgroups_fab13",
+                    "score": 6.0,
+                    "reasons": [
+                      "aliases:설비군"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.live_process_snapshots_fab13",
+                    "score": 2.0,
+                    "reasons": [
+                      "description:공정"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.live_process_events_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.lotrelease_engineering_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.lotrelease_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.lotrelease_variable_due_dates_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.pm_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_10_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_1_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_2_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_3_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_4_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_5_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_6_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_7_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_8_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_9_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_e1_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_e2_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_e3_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.setups_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.transport_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  }
+                ]
+              }
+            },
+            {
+              "attempt": 2,
+              "action": "validation_repair",
+              "status": "succeeded",
+              "sql": "SELECT b.type_name AS area, COUNT(DISTINCT b.source_row_id) AS setting_count FROM fab13.breakdown_fab13 b INNER JOIN fab13.toolgroups_fab13 tg ON b.type_name = tg.area GROUP BY b.type_name",
+              "issues": [
+                "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다.",
+                "live/current factory state로 해석하면 안 됩니다.",
+                "단순 영역별 breakdown 설정 집계. 영역(type_name)은 모델 toolgroups.area와 정확히 일치하는 값만 포함. COUNT(DISTINCT breakdown.source_row_id)는 복제된 행을 제외한 실제 설정 건수."
+              ],
+              "tables": [
+                "fab13.breakdown_fab13",
+                "fab13.toolgroups_fab13",
+                "fab13.live_process_snapshots_fab13"
+              ],
+              "semantic_plan": {
+                "supported": true,
+                "reason": "",
+                "tables": [
+                  "fab13.breakdown_fab13",
+                  "fab13.toolgroups_fab13"
+                ],
+                "projections": [
+                  {
+                    "table": "fab13.breakdown_fab13",
+                    "column": "type_name"
+                  }
+                ],
+                "aggregates": [
+                  {
+                    "source": {
+                      "table": "fab13.breakdown_fab13",
+                      "column": "source_row_id"
+                    },
+                    "function": "count_distinct",
+                    "alias": "setting_count"
+                  }
+                ],
+                "group_by": [
+                  {
+                    "table": "fab13.breakdown_fab13",
+                    "column": "type_name"
+                  }
+                ],
+                "filters": [],
+                "joins": [
+                  {
+                    "left": {
+                      "table": "fab13.breakdown_fab13",
+                      "column": "type_name"
+                    },
+                    "right": {
+                      "table": "fab13.toolgroups_fab13",
+                      "column": "area"
+                    },
+                    "kind": "inner"
+                  }
+                ],
+                "latest_by": [],
+                "time_basis": "none",
+                "result_grain": "one row per area (breakdown.type_name)",
+                "limitations": [
+                  "단순 영역별 breakdown 설정 집계. 영역(type_name)은 모델 toolgroups.area와 정확히 일치하는 값만 포함. COUNT(DISTINCT breakdown.source_row_id)는 복제된 행을 제외한 실제 설정 건수."
+                ],
+                "order_by": [],
+                "result_limit": null,
+                "latest_scope": "global"
+              },
+              "grounding": {
+                "version": "metadata-ranking-v2",
+                "total_tables": 23,
+                "selected_tables": 3,
+                "total_columns": 516,
+                "selected_columns": 57,
+                "broadened_no_match": false,
+                "ranking": [
+                  {
+                    "table_ref": "fab13.breakdown_fab13",
+                    "score": 232.0,
+                    "reasons": [
+                      "explicit_table",
+                      "aliases:breakdown",
+                      "description:breakdown",
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.toolgroups_fab13",
+                    "score": 6.0,
+                    "reasons": [
+                      "aliases:설비군"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.live_process_snapshots_fab13",
+                    "score": 2.0,
+                    "reasons": [
+                      "description:공정"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.live_process_events_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.lotrelease_engineering_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.lotrelease_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.lotrelease_variable_due_dates_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.pm_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_10_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_1_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_2_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_3_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_4_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_5_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_6_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_7_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_8_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_9_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_e1_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_e2_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_e3_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.setups_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.transport_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

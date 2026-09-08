@@ -1,0 +1,301 @@
+[
+  {
+    "id": "q01",
+    "query": "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-EQ-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q02",
+    "query": "tool status가 DOWN으로 바뀌고 start rate가 0이 되었어",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-EQ-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q03",
+    "query": "PM due가 지났는데 생산을 계속해도 되는지 판단 기준",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-EQ-002"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q04",
+    "query": "정기 보전 미실시 때문에 장비 가용성이 나빠졌어",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-EQ-002"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q05",
+    "query": "특정 toolgroup 앞에 재공이 몰리는 상황 대응",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-BN-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q06",
+    "query": "downstream starvation과 upstream accumulation 확인",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-BN-002"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q07",
+    "query": "pass/fail 비율이 갑자기 나빠지면 무엇부터 확인하나",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-YD-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q08",
+    "query": "불량률 급증과 수율 저하 대응",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-YD-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q09",
+    "query": "관리도에서 이상 신호가 발생했어",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-QA-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q10",
+    "query": "out-of-control signal investigation checklist",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-QA-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q11",
+    "query": "납기 압박만으로 품질 보류를 풀 수 있는지",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-HL-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q12",
+    "query": "suspect time window와 affected operation 기록은 어떤 매뉴얼이야",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-HL-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q13",
+    "query": "conditional release와 engineering release 차이",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-HL-002"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q14",
+    "query": "hold 해제 후 downstream timelink를 누가 점검해",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-HL-002"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q15",
+    "query": "소모품 재고가 바닥나 생산 투입이 막혔어",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-MT-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q16",
+    "query": "material shortage 대응 역할과 승인",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-MT-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q17",
+    "query": "rush order가 들어왔을 때 기존 주문 납기를 어떻게 고려해",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-HOT-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q18",
+    "query": "핫랏 우선 처리가 다른 로트에 미치는 영향 검토",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-HOT-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q19",
+    "query": "공정 사이 timelink 제한 시간이 곧 만료돼",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-QT-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q20",
+    "query": "큐타임 초과 위험 대응",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-QT-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q21",
+    "query": "스케줄링 규칙을 임시 변경할 때 승인과 복귀 조건",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-SC-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q22",
+    "query": "dispatch rule override rollback",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-SC-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q23",
+    "query": "다른 장비로 우회하기 전 qualification 점검",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-ALT-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q24",
+    "query": "alternative tool assignment compatibility",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-ALT-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q25",
+    "query": "5 Why 분석으로 사건 재발을 예방하려면",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-RCA-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q26",
+    "query": "복구 후 모니터링과 종료 체크리스트",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-RCV-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q27",
+    "query": "사건 보고 주기와 에스컬레이션 담당",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-COM-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q28",
+    "query": "사건 종료 뒤 플레이북에 새 판단 기준을 추가하려면",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-KB-001"
+    ],
+    "split": "challenge",
+    "requires_all": false
+  },
+  {
+    "id": "q29",
+    "query": "설비 고장 대응과 수율 저하 조사를 함께 정리",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [
+      "PB-EQ-001",
+      "PB-YD-001"
+    ],
+    "split": "challenge",
+    "requires_all": true
+  },
+  {
+    "id": "q30",
+    "query": "실제 사내 승인된 SOP의 장비 고장 대응 절차",
+    "knowledge_base": "incident_playbook",
+    "expected_markers": [],
+    "split": "challenge",
+    "requires_all": false
+  }
+]

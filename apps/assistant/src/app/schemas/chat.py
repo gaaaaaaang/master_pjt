@@ -35,6 +35,9 @@ class ChatResponse(BaseModel):
     chart: dict[str, Any] | None = None
     confidence: float | None = None
     limitations: list[str] = Field(default_factory=list)
+    citations: list[dict[str, Any]] = Field(default_factory=list)
+    grounding: dict[str, Any] = Field(default_factory=dict)
+    model_usage: dict[str, Any] = Field(default_factory=dict)
 
     agent_runs: list[dict[str, Any]] = Field(default_factory=list)
     agent_reflections: list[dict[str, Any]] = Field(default_factory=list)

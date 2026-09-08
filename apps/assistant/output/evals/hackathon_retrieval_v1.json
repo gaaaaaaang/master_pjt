@@ -1,0 +1,1765 @@
+[
+  {
+    "fab": "fab10",
+    "question": "Dry_Etch 예방정비 목록",
+    "expected": "pm",
+    "top1": "fab10.pm_fab10",
+    "hit6": true,
+    "column_reduction": 0.707,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 21,
+      "selected_tables": 6,
+      "total_columns": 396,
+      "selected_columns": 116,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab10.pm_fab10",
+          "score": 6.0,
+          "reasons": [
+            "aliases:예방정비"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_lot_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_order_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_part_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_perf_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_semi_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_stn_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stnfam_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stngrp_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.breakdown_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.live_process_events_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.live_process_snapshots_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_engineering_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_variable_due_dates_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_3_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_4_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setup_matrix_implant_gas_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.toolgroups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.transport_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "fab": "fab10",
+    "question": "설비군 목록과 설비 대수",
+    "expected": "toolgroups",
+    "top1": "fab10.toolgroups_fab10",
+    "hit6": true,
+    "column_reduction": 0.689,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 21,
+      "selected_tables": 6,
+      "total_columns": 396,
+      "selected_columns": 123,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab10.toolgroups_fab10",
+          "score": 12.0,
+          "reasons": [
+            "aliases:설비군,설비 대수"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.live_process_events_fab10",
+          "score": 2.0,
+          "reasons": [
+            "description:설비"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_lot_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_order_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_part_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_perf_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_semi_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stn_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stnfam_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stngrp_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.breakdown_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.live_process_snapshots_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_engineering_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_variable_due_dates_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.pm_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_3_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_4_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setup_matrix_implant_gas_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.transport_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "fab": "fab11",
+    "question": "시뮬레이션 수율 추이",
+    "expected": "live_process_snapshots",
+    "top1": "fab11.live_process_snapshots_fab11",
+    "hit6": true,
+    "column_reduction": 0.783,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 20,
+      "selected_tables": 6,
+      "total_columns": 429,
+      "selected_columns": 93,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab11.live_process_snapshots_fab11",
+          "score": 16.0,
+          "reasons": [
+            "aliases:시뮬레이션,수율",
+            "description:수율,시뮬레이션"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.breakdown_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.live_process_events_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.lotrelease_engineering_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.lotrelease_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.lotrelease_variable_due_dates_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.pm_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_10_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_1_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_2_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_3_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_4_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_5_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_6_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_7_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_8_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_9_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.setups_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.toolgroups_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.transport_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "fab": "fab13",
+    "question": "상세 이벤트 재작업 목록",
+    "expected": "live_process_events",
+    "top1": "fab13.live_process_events_fab13",
+    "hit6": true,
+    "column_reduction": 0.82,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 23,
+      "selected_tables": 6,
+      "total_columns": 516,
+      "selected_columns": 93,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab13.live_process_events_fab13",
+          "score": 18.0,
+          "reasons": [
+            "aliases:상세 이벤트,재작업",
+            "description:상세,이벤트,재작업"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab13.breakdown_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab13.live_process_snapshots_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab13.lotrelease_engineering_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab13.lotrelease_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab13.lotrelease_variable_due_dates_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab13.pm_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_10_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_1_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_2_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_3_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_4_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_5_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_6_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_7_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_8_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_9_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_e1_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_e2_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.route_product_e3_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.setups_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.toolgroups_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab13.transport_fab13",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "fab": "fab10",
+    "question": "제품 WIP 보고서",
+    "expected": "autosched_part",
+    "top1": "fab10.autosched_part_fab10",
+    "hit6": true,
+    "column_reduction": 0.679,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 21,
+      "selected_tables": 6,
+      "total_columns": 396,
+      "selected_columns": 127,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab10.autosched_part_fab10",
+          "score": 6.0,
+          "reasons": [
+            "aliases:제품 WIP"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.live_process_snapshots_fab10",
+          "score": 2.0,
+          "reasons": [
+            "description:wip"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_lot_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_order_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_perf_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_semi_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_stn_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stnfam_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stngrp_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.breakdown_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.live_process_events_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_engineering_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_variable_due_dates_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.pm_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_3_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_4_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setup_matrix_implant_gas_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.toolgroups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.transport_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "fab": "fab10",
+    "question": "전체 WIP 성능 보고서",
+    "expected": "autosched_perf",
+    "top1": "fab10.autosched_perf_fab10",
+    "hit6": true,
+    "column_reduction": 0.679,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 21,
+      "selected_tables": 6,
+      "total_columns": 396,
+      "selected_columns": 127,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab10.autosched_perf_fab10",
+          "score": 12.0,
+          "reasons": [
+            "aliases:전체 WIP,성능 보고서"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.live_process_snapshots_fab10",
+          "score": 2.0,
+          "reasons": [
+            "description:wip"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_lot_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_order_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_part_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_semi_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_stn_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stnfam_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stngrp_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.breakdown_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.live_process_events_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_engineering_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_variable_due_dates_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.pm_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_3_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_4_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setup_matrix_implant_gas_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.toolgroups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.transport_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "fab": "fab11",
+    "question": "route_product_10 공정 순서",
+    "expected": "route_product_10",
+    "top1": "fab11.route_product_10_fab11",
+    "hit6": true,
+    "column_reduction": 0.594,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 20,
+      "selected_tables": 6,
+      "total_columns": 429,
+      "selected_columns": 174,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab11.route_product_10_fab11",
+          "score": 208.0,
+          "reasons": [
+            "explicit_table",
+            "aliases:공정 순서",
+            "description:route_product_10"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.route_product_1_fab11",
+          "score": 6.0,
+          "reasons": [
+            "aliases:공정 순서"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.route_product_2_fab11",
+          "score": 6.0,
+          "reasons": [
+            "aliases:공정 순서"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.route_product_3_fab11",
+          "score": 6.0,
+          "reasons": [
+            "aliases:공정 순서"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.route_product_4_fab11",
+          "score": 6.0,
+          "reasons": [
+            "aliases:공정 순서"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.route_product_5_fab11",
+          "score": 6.0,
+          "reasons": [
+            "aliases:공정 순서"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab11.route_product_6_fab11",
+          "score": 6.0,
+          "reasons": [
+            "aliases:공정 순서"
+          ],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_7_fab11",
+          "score": 6.0,
+          "reasons": [
+            "aliases:공정 순서"
+          ],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_8_fab11",
+          "score": 6.0,
+          "reasons": [
+            "aliases:공정 순서"
+          ],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.route_product_9_fab11",
+          "score": 6.0,
+          "reasons": [
+            "aliases:공정 순서"
+          ],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.live_process_snapshots_fab11",
+          "score": 2.0,
+          "reasons": [
+            "description:공정"
+          ],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.breakdown_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.live_process_events_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.lotrelease_engineering_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.lotrelease_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.lotrelease_variable_due_dates_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.pm_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.setups_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.toolgroups_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab11.transport_fab11",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "fab": "fab10",
+    "question": "운반 이송 시간",
+    "expected": "transport",
+    "top1": "fab10.transport_fab10",
+    "hit6": true,
+    "column_reduction": 0.705,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 21,
+      "selected_tables": 6,
+      "total_columns": 396,
+      "selected_columns": 117,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab10.transport_fab10",
+          "score": 12.0,
+          "reasons": [
+            "aliases:운반,이송"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.live_process_events_fab10",
+          "score": 2.0,
+          "reasons": [
+            "description:시간"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.live_process_snapshots_fab10",
+          "score": 2.0,
+          "reasons": [
+            "description:시간"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_lot_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_order_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_part_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_perf_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_semi_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stn_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stnfam_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stngrp_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.breakdown_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_engineering_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_variable_due_dates_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.pm_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_3_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_4_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setup_matrix_implant_gas_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.toolgroups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "fab": "fab10",
+    "question": "고장 mttr 평균 수리 시간",
+    "expected": "breakdown",
+    "top1": "fab10.breakdown_fab10",
+    "hit6": true,
+    "column_reduction": 0.687,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 21,
+      "selected_tables": 6,
+      "total_columns": 396,
+      "selected_columns": 124,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab10.breakdown_fab10",
+          "score": 22.0,
+          "reasons": [
+            "aliases:고장,수리,mttr",
+            "columns:mttr"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.live_process_events_fab10",
+          "score": 2.0,
+          "reasons": [
+            "description:시간"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.live_process_snapshots_fab10",
+          "score": 2.0,
+          "reasons": [
+            "description:시간"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_lot_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_order_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_part_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_perf_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_semi_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stn_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stnfam_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stngrp_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_engineering_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_variable_due_dates_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.pm_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_3_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_4_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setup_matrix_implant_gas_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.toolgroups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.transport_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "fab": "fab12",
+    "question": "투입 계획 lotrelease",
+    "expected": "lotrelease",
+    "top1": "fab12.lotrelease_fab12",
+    "hit6": true,
+    "column_reduction": 0.623,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 14,
+      "selected_tables": 6,
+      "total_columns": 247,
+      "selected_columns": 93,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab12.lotrelease_fab12",
+          "score": 214.0,
+          "reasons": [
+            "explicit_table",
+            "aliases:투입 계획,lotrelease",
+            "description:lotrelease"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab12.lotrelease_engineering_fab12",
+          "score": 12.0,
+          "reasons": [
+            "aliases:투입 계획,lotrelease"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab12.lotrelease_variable_due_dates_fab12",
+          "score": 12.0,
+          "reasons": [
+            "aliases:투입 계획,lotrelease"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab12.breakdown_fab12",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab12.live_process_events_fab12",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab12.live_process_snapshots_fab12",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab12.pm_fab12",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab12.route_product_3_fab12",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab12.route_product_4_fab12",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab12.route_product_e3_fab12",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab12.setup_matrix_implant_gas_fab12",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab12.setups_fab12",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab12.toolgroups_fab12",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab12.transport_fab12",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "fab": "fab10",
+    "question": "설비군 가동률",
+    "expected": "autosched_stngrp",
+    "top1": "fab10.autosched_stngrp_fab10",
+    "hit6": true,
+    "column_reduction": 0.672,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 21,
+      "selected_tables": 6,
+      "total_columns": 396,
+      "selected_columns": 130,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab10.autosched_stngrp_fab10",
+          "score": 6.0,
+          "reasons": [
+            "aliases:설비군 가동률"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.toolgroups_fab10",
+          "score": 6.0,
+          "reasons": [
+            "aliases:설비군"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.live_process_snapshots_fab10",
+          "score": 2.0,
+          "reasons": [
+            "description:가동률"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_lot_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_order_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_part_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_perf_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_semi_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stn_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stnfam_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.breakdown_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.live_process_events_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_engineering_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_variable_due_dates_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.pm_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_3_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_4_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setup_matrix_implant_gas_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.transport_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  },
+  {
+    "fab": "fab10",
+    "question": "개별 설비 가동률",
+    "expected": "autosched_stn",
+    "top1": "fab10.autosched_stn_fab10",
+    "hit6": true,
+    "column_reduction": 0.659,
+    "trace": {
+      "version": "metadata-ranking-v1",
+      "total_tables": 21,
+      "selected_tables": 6,
+      "total_columns": 396,
+      "selected_columns": 135,
+      "broadened_no_match": false,
+      "ranking": [
+        {
+          "table_ref": "fab10.autosched_stn_fab10",
+          "score": 6.0,
+          "reasons": [
+            "aliases:설비 가동률"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.live_process_events_fab10",
+          "score": 2.0,
+          "reasons": [
+            "description:설비"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.live_process_snapshots_fab10",
+          "score": 2.0,
+          "reasons": [
+            "description:가동률"
+          ],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_lot_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_order_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_part_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": true
+        },
+        {
+          "table_ref": "fab10.autosched_perf_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_semi_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stnfam_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.autosched_stngrp_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.breakdown_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_engineering_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.lotrelease_variable_due_dates_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.pm_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_3_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.route_product_4_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setup_matrix_implant_gas_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.setups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.toolgroups_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        },
+        {
+          "table_ref": "fab10.transport_fab10",
+          "score": 0.0,
+          "reasons": [],
+          "selected": false
+        }
+      ]
+    }
+  }
+]

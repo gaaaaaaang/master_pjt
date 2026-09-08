@@ -45,9 +45,7 @@ SUPERVISOR_OUTPUT_SCHEMA = {
         "answer": {"type": ["string", "null"]},
         "limitations": {"type": "array", "items": {"type": "string"}},
     },
-    "required": [
-        "proceed", "status", "selected_sub_agents", "reason", "answer", "limitations"
-    ],
+    "required": ["proceed", "status", "selected_sub_agents", "reason", "answer", "limitations"],
 }
 
 AGENT_RECOVERY_OUTPUT_SCHEMA = {
@@ -114,6 +112,9 @@ class SupervisorResult:
     reflection_decisions: list[dict[str, Any]] = field(default_factory=list)
     termination_reason: str | None = None
     reflection: dict[str, Any] = field(default_factory=dict)
+    citations: list[dict[str, Any]] = field(default_factory=list)
+    grounding: dict[str, Any] = field(default_factory=dict)
+    model_usage: dict[str, Any] = field(default_factory=dict)
     answer_review: dict[str, Any] = field(default_factory=dict)
     prompt_version: str = SUPERVISOR_PROMPT_VERSION
     prompt_contract: str = SUPERVISOR_SYSTEM_PROMPT
@@ -129,7 +130,7 @@ def review_plan(
     try:
         output = (llm_client or AzureAgentClient()).complete_json(
             system_prompt=SUPERVISOR_SYSTEM_PROMPT,
-            input_data={"question": question, "planner_decision": asdict(plan)},
+            input_data={"question": question, "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}}},
             output_schema=SUPERVISOR_OUTPUT_SCHEMA,
             schema_name="fab_supervisor_decision",
         )
@@ -143,11 +144,22 @@ def review_plan(
             "limitations": ["Supervisor LLM review was unavailable."],
             "fallback_used": True,
         }
+    if (
+        plan.status == "ready"
+        and "text2sql" in plan.selected_sub_agents
+        and output["status"] == "data_unavailable"
+    ):
+        output = {
+            **output, "proceed": True, "status": "ready",
+            "selected_sub_agents": list(plan.selected_sub_agents), "answer": None,
+            "limitations": [],
+            "reason": "현재 DB 가용성은 Text2SQL의 새 조회 결과로 확인합니다.",
+        }
     status = output["status"]
     if plan.status != "ready":
         status = plan.status  # An approval cannot invent missing user input.
     elif not output["proceed"] and status == "ready":
-        status = "needs_clarification"
+        status = "needs_clarification" if output.get("answer") else "unsupported"
     selected, steps = _normalize_agent_route(
         status=status, query_type=plan.query_type, question=question,
         selected_sub_agents=list(output["selected_sub_agents"]),
@@ -195,7 +207,7 @@ def review_agent_result(
         output = (llm_client or AzureAgentClient()).complete_json(
             system_prompt=AGENT_RECOVERY_SYSTEM_PROMPT,
             input_data={
-                "planner_decision": asdict(plan),
+                "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}},
                 "agent_reflection": reflection,
                 "execution_context": execution_context or {},
                 "retry_count": retry_count,
@@ -317,7 +329,7 @@ def review_final_answer(
             system_prompt=ANSWER_SUPERVISOR_SYSTEM_PROMPT,
             input_data={
                 "question": question,
-                "planner_decision": asdict(plan),
+                "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}},
                 "final_answer": answer,
                 "evidence": evidence,
                 "limitations": limitations,
@@ -417,6 +429,9 @@ class Supervisor:
             reflection_decisions=state.get("reflection_decisions", []),
             termination_reason=state.get("termination_reason"),
             reflection=state.get("reflection", {}),
+            citations=state.get("citations", []),
+            grounding=state.get("grounding", {}),
+            model_usage=state.get("model_usage", {}),
             answer_review=state.get("answer_review", {}),
         )
 

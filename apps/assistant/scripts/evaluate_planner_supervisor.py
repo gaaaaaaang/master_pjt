@@ -235,6 +235,7 @@ def evaluate_graph_suite(args):
 
     from app.agents.graph import build_agent_graph, initial_graph_state
     from app.schemas.chat import ChatRequest, Evidence
+    from app.sub_agent.rag import EvidenceResult
     from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
 
     cases = [
@@ -279,8 +280,8 @@ def evaluate_graph_suite(args):
         with (
             patch("app.agents.graph.answer_question", return_value=sql_result),
             patch(
-                "app.agents.graph.retrieve_knowledge",
-                return_value=[
+                "app.agents.graph.retrieve_evidence",
+                return_value=EvidenceResult([
                     Evidence(
                         source_type="rag_chunk",
                         title="합성 WIP 점검 지침",
@@ -291,7 +292,7 @@ def evaluate_graph_suite(args):
                             "source": "synthetic-test",
                         },
                     )
-                ],
+                ], {}, []),
             ),
             patch("app.agents.graph.find_similar_cases", return_value=[]),
         ):

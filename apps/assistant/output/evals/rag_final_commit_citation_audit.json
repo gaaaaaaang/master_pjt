@@ -1,0 +1,16 @@
+{
+  "audit": "canonical_source_fidelity.v1",
+  "scope": "Literal quotation and source metadata; not semantic correctness or completeness.",
+  "input_report": "apps/assistant/output/evals/rag_final_commit_smoke.json",
+  "report_sha256": "c5398da5e0689eba5e39a16ae610924bc9e2b5b22c3e32671a477668696c2b8d",
+  "corpus_sha256": "5cd581ec05cf94505e16ec00177d917b094c3e4461784f9da2bb1222e5cf9dca",
+  "cases": [
+    {
+      "id": "ext_pm_approval",
+      "citations": 4,
+      "issues": []
+    }
+  ],
+  "total_citations": 4,
+  "passed": true
+}

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any, Literal
 
 AgentReflectionDecision = Literal["pass", "needs_supervisor_review"]
@@ -462,9 +462,29 @@ def _mentions_general_data(evidence: list[dict[str, Any]]) -> bool:
 
 
 def _sounds_like_live_state(answer: str) -> bool:
-    lowered = answer.casefold()
-    live_terms = ("현재 상태는", "현재 wip는", "실시간", "live", "current factory state")
-    return any(term in lowered for term in live_terms)
+    live_terms = re.compile(
+        r"현재 상태는|현재 wip는|실시간|\blive\b|current factory state|\breal[- ]time\b"
+    )
+    negation = re.compile(
+        r"아니|아님|아닙|않|없|불가|불일치|다를 수|해석하면 안|추정하면 안|"
+        r"\bnot\b|cannot|can't|isn't|aren't|unavailable|may differ"
+    )
+    # Inspect each claim separately: a later disclaimer must not hide an earlier
+    # affirmative live claim, and a negative mention is not itself an assertion.
+    for clause in re.split(r"[.!?\n;]+|하지만|그러나|반면|다만", answer.casefold()):
+        matches = list(live_terms.finditer(clause))
+        for index, match in enumerate(matches):
+            prefix = clause[max(0, match.start() - 24):match.start()]
+            end = matches[index + 1].start() if index + 1 < len(matches) else len(clause)
+            suffix = clause[match.end():end]
+            if re.search(r"\b(?:not|non)[- ]+(?:actual\s+)?$", prefix):
+                continue
+            # live/current factory state is one phrase with two lexical matches.
+            if suffix.strip() in {"/", "/current"} and index + 1 < len(matches):
+                suffix = clause[match.end():]
+            if not negation.search(suffix):
+                return True
+    return False
 
 
 def _has_only_rag_evidence(evidence: list[dict[str, Any]]) -> bool:
@@ -1734,6 +1754,19 @@ def _trend_summary_matches_target_metric(
     return any(metric_name == column.casefold() for column in metric_columns)
 
 
+def _without_grounded_sql(answer: str, evidence: list[dict[str, Any]]) -> str:
+    """SQL limits/predicates quoted from successful execution are not result claims."""
+    for item in evidence:
+        metadata = item.get("metadata") or {}
+        sql = metadata.get("sql")
+        if metadata.get("status") != "succeeded" or not isinstance(sql, str) or not sql.strip():
+            continue
+        tokens = re.findall(r"'(?:''|[^'])*'|[A-Za-z_][A-Za-z_0-9]*|[0-9]+(?:\.[0-9]+)?|[^\s]", sql.strip().rstrip(";"))
+        pattern = r"\s*".join(re.escape(part) for part in tokens)
+        answer = re.sub(pattern + r";?", " ", answer, flags=re.IGNORECASE)
+    return answer
+
+
 def _unsupported_status_numeric_claims(
     question: str,
     answer: str,
@@ -1747,8 +1780,8 @@ def _unsupported_status_numeric_claims(
                 allowed.add(normalized)
 
     unsupported = []
-    for raw, normalized in _numeric_claims(answer).items():
-        if normalized not in allowed and raw not in unsupported:
+    for raw, normalized in _numeric_claims(_without_grounded_sql(answer, evidence)).items():
+        if not _grounded_numeric_claim(raw, normalized, allowed) and raw not in unsupported:
             unsupported.append(raw)
     return unsupported
 
@@ -1772,8 +1805,8 @@ def _unsupported_impact_numeric_claims(
         allowed.update(abs(value) for value in values)
 
     unsupported = []
-    for raw, normalized in _numeric_claims(answer).items():
-        if normalized not in allowed and raw not in unsupported:
+    for raw, normalized in _numeric_claims(_without_grounded_sql(answer, evidence)).items():
+        if not _grounded_numeric_claim(raw, normalized, allowed) and raw not in unsupported:
             unsupported.append(raw)
     return unsupported
 
@@ -1794,8 +1827,8 @@ def _unsupported_diagnosis_numeric_claims(
         allowed.update(_numeric_claims(str(item.get("content") or "")).values())
 
     unsupported = []
-    for raw, normalized in _numeric_claims(answer).items():
-        if normalized not in allowed and raw not in unsupported:
+    for raw, normalized in _numeric_claims(_without_grounded_sql(answer, evidence)).items():
+        if not _grounded_numeric_claim(raw, normalized, allowed) and raw not in unsupported:
             unsupported.append(raw)
     return unsupported
 
@@ -1833,10 +1866,28 @@ def _unsupported_trend_numeric_claims(
                             allowed.add(normalized * 100)
 
     unsupported = []
-    for raw, normalized in _numeric_claims(answer).items():
-        if normalized not in allowed and raw not in unsupported:
+    for raw, normalized in _numeric_claims(_without_grounded_sql(answer, evidence)).items():
+        if not _grounded_numeric_claim(raw, normalized, allowed) and raw not in unsupported:
             unsupported.append(raw)
     return unsupported
+
+
+def _grounded_numeric_claim(raw: str, value: Decimal, allowed: set[Decimal]) -> bool:
+    if value in allowed:
+        return True
+    # Display rounding is allowed at the precision actually printed, not an
+    # arbitrary tolerance that could accept a different measurement or count.
+    if "." not in raw:
+        return False
+    precision = len(raw.rsplit(".", 1)[1])
+    quantum = Decimal(1).scaleb(-precision)
+    for observed in allowed:
+        try:
+            if observed.is_finite() and observed.quantize(quantum, rounding=ROUND_HALF_UP) == value:
+                return True
+        except InvalidOperation:
+            continue
+    return False
 
 
 def _numeric_values_from_structure(value: Any) -> set[Decimal]:
@@ -1876,6 +1927,10 @@ def _numeric_claims(text: str) -> dict[str, Decimal]:
         r"(?<![A-Za-z0-9_])[A-Za-z][A-Za-z0-9]*(?:[-_][A-Za-z0-9]+)+(?![A-Za-z0-9_])",
         " ",
         scrubbed,
+    )
+    scrubbed = re.sub(
+        r"(?<!\d)(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?",
+        " ", scrubbed,
     )
     scrubbed = re.sub(r"(?<!\d)\d{4}[-/.]\d{1,2}[-/.]\d{1,2}(?!\d)", " ", scrubbed)
     scrubbed = re.sub(r"(?<!\d)\d+\s*차", " ", scrubbed)

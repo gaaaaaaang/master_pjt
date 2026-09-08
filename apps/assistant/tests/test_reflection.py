@@ -14,7 +14,7 @@ def test_agent_reflection_passes_evidence_backed_text2sql_result() -> None:
         agent_output={
             "status": "succeeded",
             "summary": "Returned one WIP row.",
-            "sql": "SELECT wip FROM fab10.autosched_wip LIMIT 1",
+            "sql": "SELECT wip FROM fab10.autosched_wip_fab10 LIMIT 1",
         },
         success_criteria=["Return read-only SQL and result evidence."],
         evidence=[{"source_type": "text2sql_plan"}],
@@ -232,7 +232,7 @@ def test_reflection_does_not_accept_empty_sql_result_as_numeric_evidence() -> No
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT wiplotavg FROM fab10.autosched_perf WHERE FALSE",
+                    "sql": "SELECT wiplotavg FROM fab10.autosched_perf_fab10 WHERE FALSE",
                     "row_count": 0,
                     "sample_rows": [],
                 },
@@ -287,7 +287,7 @@ def test_status_answer_preserves_threshold_and_top_n_constraints() -> None:
             "source_type": "text2sql_plan",
             "metadata": {
                 "status": "succeeded",
-                "sql": "SELECT stngrp, util_percent FROM fab10.autosched_stngrp",
+                "sql": "SELECT stngrp, util_percent FROM fab10.autosched_stngrp_fab10",
                 "row_count": 1,
                 "sample_rows": [{"stngrp": "Dry_Etch_A", "util_percent": 82.5}],
             },
@@ -320,7 +320,7 @@ def test_status_answer_preserves_symbolic_english_and_qualitative_constraints() 
             "source_type": "text2sql_plan",
             "metadata": {
                 "status": "succeeded",
-                "sql": "SELECT util_percent FROM fab10.autosched_stngrp",
+                "sql": "SELECT util_percent FROM fab10.autosched_stngrp_fab10",
                 "row_count": 1,
                 "sample_rows": [{"stngrp": "Dry_Etch", "util_percent": 82.5}],
             },
@@ -476,7 +476,7 @@ def test_status_answer_requires_a_requested_metric_value_from_rows() -> None:
             "source_type": "text2sql_plan",
             "metadata": {
                 "status": "succeeded",
-                "sql": "SELECT wiplotavg FROM fab10.autosched_perf",
+                "sql": "SELECT wiplotavg FROM fab10.autosched_perf_fab10",
                 "row_count": 1,
                 "sample_rows": [{"wiplotavg": 128.5}],
             },
@@ -511,7 +511,7 @@ def test_metric_value_does_not_match_digits_inside_fab_identifier() -> None:
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT wiplotavg FROM fab10.autosched_perf",
+                    "sql": "SELECT wiplotavg FROM fab10.autosched_perf_fab10",
                     "row_count": 1,
                     "sample_rows": [{"wiplotavg": 1}],
                 },
@@ -590,7 +590,7 @@ def test_status_answer_rejects_numeric_claim_absent_from_sql_results() -> None:
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT part, wiplotavg FROM fab10.autosched_part",
+                    "sql": "SELECT part, wiplotavg FROM fab10.autosched_part_fab10",
                     "row_count": 1,
                     "sample_rows": [{"part": "part_3", "wiplotavg": 128.5}],
                 },
@@ -614,7 +614,7 @@ def test_status_answer_allows_numeric_condition_supplied_by_question() -> None:
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT part, wiplotavg FROM fab10.autosched_part",
+                    "sql": "SELECT part, wiplotavg FROM fab10.autosched_part_fab10",
                     "row_count": 1,
                     "sample_rows": [{"part": "part_3", "wiplotavg": 128.5}],
                 },
@@ -634,7 +634,7 @@ def test_chart_claim_requires_successful_visualization_evidence() -> None:
         "source_type": "text2sql_plan",
         "metadata": {
             "status": "succeeded",
-            "sql": "SELECT report_time, wiplotavg FROM fab10.autosched_perf",
+            "sql": "SELECT report_time, wiplotavg FROM fab10.autosched_perf_fab10",
             "row_count": 2,
             "sample_rows": [
                 {"report_time": "2020-01-01", "wiplotavg": 10},
@@ -677,7 +677,7 @@ def test_chart_failure_passes_only_when_answer_discloses_unavailability() -> Non
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT report_time, wiplotavg FROM fab10.autosched_perf",
+                    "sql": "SELECT report_time, wiplotavg FROM fab10.autosched_perf_fab10",
                     "row_count": 1,
                     "sample_rows": [{"report_time": "bad", "wiplotavg": 10}],
                 },
@@ -701,7 +701,7 @@ def test_trend_answer_allows_deterministic_summary_values() -> None:
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT report_date, wiplotavg FROM fab10.autosched_perf",
+                    "sql": "SELECT report_date, wiplotavg FROM fab10.autosched_perf_fab10",
                     "row_count": 2,
                     "sample_rows": [
                         {"report_date": "2020-01-01", "wiplotavg": 10},
@@ -744,7 +744,7 @@ def test_trend_answer_rejects_numeric_claim_absent_from_rows_and_summary() -> No
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT report_date, wiplotavg FROM fab10.autosched_perf",
+                    "sql": "SELECT report_date, wiplotavg FROM fab10.autosched_perf_fab10",
                     "row_count": 2,
                     "sample_rows": [
                         {"report_date": "2020-01-01", "wiplotavg": 10},
@@ -787,7 +787,7 @@ def test_trend_answer_rejects_direction_opposite_to_percent_delta() -> None:
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT report_date, wiplotavg FROM fab10.autosched_perf",
+                    "sql": "SELECT report_date, wiplotavg FROM fab10.autosched_perf_fab10",
                     "row_count": 2,
                     "sample_rows": [
                         {"report_date": "2020-01-01", "wiplotavg": 10},
@@ -832,7 +832,7 @@ def test_impact_answer_rejects_numeric_claim_absent_from_calculation() -> None:
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT util_percent FROM fab10.autosched_stngrp",
+                    "sql": "SELECT util_percent FROM fab10.autosched_stngrp_fab10",
                     "row_count": 1,
                     "sample_rows": [{"util_percent": 80}],
                 },
@@ -867,7 +867,7 @@ def test_impact_answer_allows_formula_constant_and_model_order() -> None:
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT util_percent FROM fab10.autosched_stngrp",
+                    "sql": "SELECT util_percent FROM fab10.autosched_stngrp_fab10",
                     "row_count": 1,
                     "sample_rows": [{"util_percent": 80}],
                 },
@@ -898,7 +898,7 @@ def test_impact_answer_rejects_direction_opposite_to_estimate_sign() -> None:
             "source_type": "text2sql_plan",
             "metadata": {
                 "status": "succeeded",
-                "sql": "SELECT util_percent FROM fab10.autosched_stngrp",
+                "sql": "SELECT util_percent FROM fab10.autosched_stngrp_fab10",
                 "row_count": 1,
                 "sample_rows": [{"util_percent": 80}],
             },
@@ -938,7 +938,7 @@ def test_impact_answer_accepts_unsigned_magnitude_with_matching_direction() -> N
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT util_percent FROM fab10.autosched_stngrp",
+                    "sql": "SELECT util_percent FROM fab10.autosched_stngrp_fab10",
                     "row_count": 1,
                     "sample_rows": [{"util_percent": 80}],
                 },
@@ -969,7 +969,7 @@ def test_impact_direction_uses_nearest_term_in_compound_sentence() -> None:
             "source_type": "text2sql_plan",
             "metadata": {
                 "status": "succeeded",
-                "sql": "SELECT util_percent FROM fab10.autosched_stngrp",
+                "sql": "SELECT util_percent FROM fab10.autosched_stngrp_fab10",
                 "row_count": 1,
                 "sample_rows": [{"util_percent": 80}],
             },
@@ -1009,7 +1009,7 @@ def test_diagnosis_answer_rejects_numeric_claim_absent_from_evidence() -> None:
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT down_percent FROM fab10.autosched_stn",
+                    "sql": "SELECT down_percent FROM fab10.autosched_stn_fab10",
                     "row_count": 1,
                     "sample_rows": [{"stn": "DE_BE_11", "down_percent": 12.5}],
                 },
@@ -1053,7 +1053,7 @@ def test_diagnosis_answer_allows_evidence_value_and_case_identifier() -> None:
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT down_percent FROM fab10.autosched_stn",
+                    "sql": "SELECT down_percent FROM fab10.autosched_stn_fab10",
                     "row_count": 1,
                     "sample_rows": [{"stn": "DE_BE_11", "down_percent": 12.5}],
                 },
@@ -1105,7 +1105,7 @@ def test_impact_limitation_array_cannot_replace_visible_answer_boundary() -> Non
                 "source_type": "text2sql_plan",
                 "metadata": {
                     "status": "succeeded",
-                    "sql": "SELECT util_percent FROM fab10.autosched_stngrp",
+                    "sql": "SELECT util_percent FROM fab10.autosched_stngrp_fab10",
                     "row_count": 1,
                     "sample_rows": [{"util_percent": 80}],
                 },
@@ -1164,7 +1164,7 @@ def test_supervisor_requires_each_supported_compound_impact_estimate() -> None:
             "source_type": "text2sql_plan",
             "metadata": {
                 "status": "succeeded",
-                "sql": "SELECT util_percent, cycleavg FROM fab10.autosched_perf",
+                "sql": "SELECT util_percent, cycleavg FROM fab10.autosched_perf_fab10",
                 "row_count": 1,
                 "sample_rows": [{"util_percent": 80, "cycleavg": 10}],
             },
@@ -1232,7 +1232,7 @@ def test_supervisor_validates_each_long_equipment_target_metric_value() -> None:
             "source_type": "text2sql_plan",
             "metadata": {
                 "status": "succeeded",
-                "sql": "SELECT stn, util_percent, down_percent FROM fab10.autosched_stn",
+                "sql": "SELECT stn, util_percent, down_percent FROM fab10.autosched_stn_fab10",
                 "row_count": 2,
                 "sample_rows": [
                     {"stn": "DE_BE_11_2", "util_percent": 80, "down_percent": 5},
@@ -1268,7 +1268,7 @@ def test_supervisor_requires_each_equipment_metric_in_multi_series_trend_answer(
             "source_type": "text2sql_plan",
             "metadata": {
                 "status": "succeeded",
-                "sql": "SELECT report_date, stn, util_percent, down_percent FROM fab10.autosched_stn",
+                "sql": "SELECT report_date, stn, util_percent, down_percent FROM fab10.autosched_stn_fab10",
                 "row_count": 4,
                 "sample_rows": [
                     {"stn": "DE_BE_11", "util_percent": 80, "down_percent": 5},

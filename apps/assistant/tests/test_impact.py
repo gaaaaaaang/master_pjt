@@ -84,7 +84,7 @@ def test_impact_records_baseline_query_provenance_and_ignores_non_finite_values(
             "columns": ["util_percent", "lotcomps"],
             "query_plan": {
                 "template_id": "status_station_group",
-                "source_tables": ["fab10.autosched_stngrp"],
+                "source_tables": ["fab10.autosched_stngrp_fab10"],
             },
         },
         scenario={"question": "utilization이 5%p 줄면 capacity 영향"},
@@ -92,7 +92,7 @@ def test_impact_records_baseline_query_provenance_and_ignores_non_finite_values(
 
     assert result["inputs"]["baseline_util_percent"] == 80.0
     assert result["provenance"]["aggregation"] == "arithmetic_mean_by_numeric_column"
-    assert result["provenance"]["source_tables"] == ["fab10.autosched_stngrp"]
+    assert result["provenance"]["source_tables"] == ["fab10.autosched_stngrp_fab10"]
 
 
 def test_mixed_target_baseline_is_not_averaged_into_one_impact() -> None:

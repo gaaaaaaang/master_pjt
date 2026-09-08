@@ -2,6 +2,7 @@ from app.agents.graph import _impact_node
 from app.agents.planner import ExecutionStep, PlannerDecision
 from app.agents.supervisor import Supervisor
 from app.schemas.chat import ChatRequest, Evidence
+from app.sub_agent.rag import EvidenceResult
 from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
 
 
@@ -20,22 +21,12 @@ def _patch_compound_graph(monkeypatch, plan: PlannerDecision, result: Text2SQLRe
     monkeypatch.setattr("app.agents.graph.create_plan", lambda *args, **kwargs: plan)
     monkeypatch.setattr(
         "app.agents.graph.review_plan",
-        lambda current_plan, question: (current_plan, {"reason": "approved"}),
+        lambda current_plan, question: (current_plan, {"reason": "approved", "proceed": True}),
     )
     monkeypatch.setattr("app.agents.graph.answer_question", lambda *args, **kwargs: result)
     monkeypatch.setattr(
-        "app.agents.graph.retrieve_knowledge",
-        lambda *args, **kwargs: [
-            Evidence(
-                source_type="rag_chunk",
-                title="WIP playbook",
-                content="WIP 증가 원인 후보 점검",
-                metadata={
-                    "knowledge_base": "incident_playbook",
-                    "issue_types": "wip",
-                },
-            )
-        ],
+        "app.agents.graph.retrieve_evidence",
+        lambda *args, **kwargs: EvidenceResult([Evidence(source_type='rag_chunk', title='WIP playbook', content='WIP 증가 원인 후보 점검', metadata={'knowledge_base': 'incident_playbook', 'issue_types': 'wip'})], {}, []),
     )
     monkeypatch.setattr(
         "app.agents.graph.find_similar_cases",
@@ -97,7 +88,7 @@ def test_recovery_retries_same_agent_once(monkeypatch) -> None:
             status="succeeded",
             query_type="master_data_lookup",
             answer="Toolgroup rows were retrieved.",
-            sql="SELECT toolgroup FROM fab10.toolgroups LIMIT 20",
+            sql="SELECT toolgroup FROM fab10.toolgroups_fab10 LIMIT 20",
             plan=QueryPlan(
                 query_type="master_data_lookup",
                 template_id=None,
@@ -140,7 +131,7 @@ def test_recovery_replans_once_with_execution_feedback(monkeypatch) -> None:
             status="succeeded",
             query_type="master_data_lookup",
             answer="The revised plan succeeded.",
-            sql="SELECT toolgroup FROM fab10.toolgroups LIMIT 20",
+            sql="SELECT toolgroup FROM fab10.toolgroups_fab10 LIMIT 20",
             plan=QueryPlan(
                 query_type="master_data_lookup",
                 template_id=None,
@@ -169,13 +160,13 @@ def test_recovery_routes_to_compatible_alternate_agent(monkeypatch) -> None:
             status="succeeded",
             query_type="status",
             answer="Queue Time trend rows were retrieved.",
-            sql="SELECT queue_time FROM fab10.autosched_status LIMIT 20",
+            sql="SELECT queue_time FROM fab10.autosched_status_fab10 LIMIT 20",
             plan=QueryPlan(query_type="status", template_id=None, fab_id="fab10"),
         ),
     )
     monkeypatch.setattr(
-        "app.agents.graph.retrieve_knowledge",
-        lambda *args, **kwargs: (_ for _ in ()).throw(NotImplementedError("RAG unavailable")),
+        "app.agents.graph.retrieve_evidence",
+        lambda *args, **kwargs: EvidenceResult((_ for _ in ()).throw(NotImplementedError('RAG unavailable')), {}, []),
     )
     monkeypatch.setattr(
         "app.agents.graph.find_similar_cases",
@@ -216,13 +207,11 @@ def test_dispatcher_follows_planner_execution_step_order(monkeypatch) -> None:
     monkeypatch.setattr("app.agents.graph.create_plan", lambda *args, **kwargs: plan)
     monkeypatch.setattr(
         "app.agents.graph.review_plan",
-        lambda current_plan, question: (current_plan, {"reason": "approved"}),
+        lambda current_plan, question: (current_plan, {"reason": "approved", "proceed": True}),
     )
     monkeypatch.setattr(
-        "app.agents.graph.retrieve_knowledge",
-        lambda *args, **kwargs: [
-            Evidence(source_type="rag_chunk", title="context", content="toolgroup context")
-        ],
+        "app.agents.graph.retrieve_evidence",
+        lambda *args, **kwargs: EvidenceResult([Evidence(source_type='rag_chunk', title='context', content='toolgroup context')], {}, []),
     )
     monkeypatch.setattr(
         "app.agents.graph.answer_question",
@@ -230,7 +219,7 @@ def test_dispatcher_follows_planner_execution_step_order(monkeypatch) -> None:
             status="succeeded",
             query_type="master_data_lookup",
             answer="Toolgroups retrieved.",
-            sql="SELECT toolgroup FROM fab10.toolgroups LIMIT 20",
+            sql="SELECT toolgroup FROM fab10.toolgroups_fab10 LIMIT 20",
         ),
     )
 
@@ -256,7 +245,7 @@ def test_compound_diagnosis_trend_executes_visualization_with_trend_rows(monkeyp
         status="succeeded",
         query_type="trend",
         answer="WIP trend rows",
-        sql="SELECT report_date, stngrp, wiplotavg FROM fab10.autosched_stngrp",
+        sql="SELECT report_date, stngrp, wiplotavg FROM fab10.autosched_stngrp_fab10",
         rows=[
             {"report_date": "2020-01-03", "stngrp": "Dry_Etch", "wiplotavg": 12},
             {"report_date": "2020-01-01", "stngrp": "Dry_Etch", "wiplotavg": 10},
@@ -325,7 +314,7 @@ def test_compound_diagnosis_impact_executes_calculation_from_status_baseline(mon
         status="succeeded",
         query_type="status",
         answer="utilization baseline",
-        sql="SELECT util_percent FROM fab10.autosched_stngrp",
+        sql="SELECT util_percent FROM fab10.autosched_stngrp_fab10",
         rows=[{"util_percent": 80.0}],
         columns=["util_percent"],
         row_count=1,
@@ -409,7 +398,7 @@ def test_diagnosis_continues_other_evidence_sources_when_required_sql_fails(
     monkeypatch.setattr("app.agents.graph.create_plan", lambda *args, **kwargs: plan)
     monkeypatch.setattr(
         "app.agents.graph.review_plan",
-        lambda current_plan, question: (current_plan, {"reason": "approved"}),
+        lambda current_plan, question: (current_plan, {"reason": "approved", "proceed": True}),
     )
     monkeypatch.setattr(
         "app.agents.graph.answer_question",
@@ -421,15 +410,8 @@ def test_diagnosis_continues_other_evidence_sources_when_required_sql_fails(
         ),
     )
     monkeypatch.setattr(
-        "app.agents.graph.retrieve_knowledge",
-        lambda *args, **kwargs: [
-            Evidence(
-                source_type="rag_chunk",
-                title="Queue review",
-                content="Review WIP, utilization, and downtime as hypotheses.",
-                metadata={"knowledge_base": "incident_playbook"},
-            )
-        ],
+        "app.agents.graph.retrieve_evidence",
+        lambda *args, **kwargs: EvidenceResult([Evidence(source_type='rag_chunk', title='Queue review', content='Review WIP, utilization, and downtime as hypotheses.', metadata={'knowledge_base': 'incident_playbook'})], {}, []),
     )
     monkeypatch.setattr(
         "app.agents.graph.find_similar_cases",
@@ -465,7 +447,7 @@ def test_final_reflection_retry_target_stops_after_agent_budget(monkeypatch) -> 
             status="succeeded",
             query_type="master_data_lookup",
             answer="Toolgroups retrieved.",
-            sql="SELECT toolgroup FROM fab10.toolgroups LIMIT 20",
+            sql="SELECT toolgroup FROM fab10.toolgroups_fab10 LIMIT 20",
         )
 
     monkeypatch.setattr("app.agents.graph.answer_question", answer_question)
@@ -501,7 +483,7 @@ def test_final_reflection_can_replan_then_compose(monkeypatch) -> None:
             status="succeeded",
             query_type="master_data_lookup",
             answer="Toolgroups retrieved.",
-            sql="SELECT toolgroup FROM fab10.toolgroups LIMIT 20",
+            sql="SELECT toolgroup FROM fab10.toolgroups_fab10 LIMIT 20",
         ),
     )
 

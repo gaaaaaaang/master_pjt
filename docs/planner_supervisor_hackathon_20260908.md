@@ -114,3 +114,19 @@ python -m pytest -q
 - 실제 DB를 포함한 full graph의 정확도는 기준 브랜치의 Text2SQL/DB release 실패를 해결한 뒤 다시 측정해야 한다.
 
 로컬 전체 테스트에서 필요한 미추적 SMT2020 데이터는 기존 작업 폴더의 데이터를 읽는 링크로 제공했다. 해당 절대 경로 링크와 `.env`는 커밋에 포함하지 않는다.
+
+## PR 통합 검증 (2026-09-08)
+
+`origin/feat/adv_integrate`의 `cad5ddc`를 작업 브랜치에 병합했다. 11개 파일의 충돌을
+수동 결합하여 최신 Text2SQL 메타 검색/의미 계획/SQL 검증, RAG 검색 trace/인용 검증,
+사용량 추적, 비동기 SSE timeout과 이번 Planner/Supervisor 실행 계약을 유지했다.
+공통 FAB resolver에 제외 표현을 결합하고 Planner도 같은 resolver와 사용자 대화 이력을
+사용한다. RAG handoff는 새 `EvidenceResult` 반환 형식으로 연결했다.
+
+- 통합 Python 테스트: **647 passed** (기존 deprecation warning 2건).
+- 웹 테스트: **25 passed**.
+- 변경 Python 경로 Ruff 및 `git diff --check`: 통과.
+- FAB 별칭/제외 표현의 RAG scope, 사용자 대화 이력, 검색 trace/limitations 보존 회귀 추가.
+- 앞 절의 실제 LLM/DB 수치와 코드 manifest는 **병합 전 실행 기록**이다. 최신 대상 브랜치의
+  Text2SQL 변경 이후 DB 지표가 동일하다고 주장하지 않으며, 이번 충돌 해결에서는 외부 LLM과
+  실제 DB 평가를 재실행하지 않았다.

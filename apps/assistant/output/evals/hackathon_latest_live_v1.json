@@ -1,0 +1,64 @@
+{
+  "question": "fab12 시뮬레이션에서 가장 최근 스냅샷의 공장 전체 WIP 합계를 알려줘. 영역별 wip_lots를 합산해줘.",
+  "result": {
+    "status": "failed",
+    "query_type": "status",
+    "answer": "LLM이 만든 SQL이 read-only allowlist 검증을 통과하지 못했습니다.",
+    "sql": "SELECT SUM(wip_lots) AS total_wip_lots\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )",
+    "rows": [],
+    "columns": [],
+    "row_count": 0,
+    "confidence": 0.1,
+    "limitations": [
+      "SQL does not select the latest snapshot: fab12.live_process_snapshots_fab12.interval_end"
+    ],
+    "plan": {
+      "query_type": "status",
+      "template_id": null,
+      "fab_id": "fab12",
+      "data_source_type": "operational_report",
+      "slots": {
+        "relative_period": {
+          "value": "recent",
+          "source": "parser",
+          "confidence": 0.8,
+          "raw_text": "recent"
+        },
+        "metric": {
+          "value": "wiplotavg",
+          "source": "alias_match",
+          "confidence": 0.8,
+          "raw_text": "wiplotavg"
+        },
+        "metrics": {
+          "value": "wiplotavg",
+          "source": "alias_match",
+          "confidence": 0.85,
+          "raw_text": "wiplotavg"
+        },
+        "fab_id": {
+          "value": "fab12",
+          "source": "explicit_user",
+          "confidence": 1.0,
+          "raw_text": "fab12 시뮬레이션에서 가장 최근 스냅샷의 공장 전체 WIP 합계를 알려줘. 영역별 wip_lots를 합산해줘."
+        }
+      },
+      "limitations": [],
+      "source_tables": [
+        "fab12.live_process_snapshots_fab12"
+      ],
+      "select_items": [],
+      "filters": [],
+      "group_by": [],
+      "order_by": [],
+      "aggregation": null,
+      "expected_result_shape": null,
+      "chart_intent": null,
+      "semantic_plan": {},
+      "grounding": {}
+    }
+  },
+  "expected": 1183,
+  "semantic_match": false,
+  "seconds": 13.83
+}

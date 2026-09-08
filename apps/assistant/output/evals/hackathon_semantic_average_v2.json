@@ -1,0 +1,288 @@
+{
+  "question": "fab11 시뮬레이션 전체 적재 기간에서 영역별 avg_queue_minutes의 시간평균을 AVG로 계산해줘. 영역마다 한 행으로 보여줘.",
+  "result": {
+    "status": "succeeded",
+    "query_type": "status",
+    "answer": "시뮬레이션 공정 데이터 기준으로 6개 행을 조회했습니다.",
+    "sql": "SELECT area, AVG(avg_queue_minutes) AS time_avg_queue_minutes\nFROM fab11.live_process_snapshots_fab11\nWHERE fab_id = 'fab11'\nGROUP BY area\nORDER BY area ASC\nLIMIT 200;",
+    "rows": [
+      {
+        "area": "cmp",
+        "time_avg_queue_minutes": "47.7194444444444444"
+      },
+      {
+        "area": "deposition",
+        "time_avg_queue_minutes": "55.4716666666666667"
+      },
+      {
+        "area": "etch",
+        "time_avg_queue_minutes": "95.0633333333333333"
+      },
+      {
+        "area": "implant",
+        "time_avg_queue_minutes": "55.4711111111111111"
+      },
+      {
+        "area": "metrology",
+        "time_avg_queue_minutes": "77.8761111111111111"
+      },
+      {
+        "area": "photo",
+        "time_avg_queue_minutes": "102.0988888888888889"
+      }
+    ],
+    "columns": [
+      "area",
+      "time_avg_queue_minutes"
+    ],
+    "row_count": 6,
+    "confidence": 1.0,
+    "limitations": [
+      "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+      "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+      "Result is an unweighted time-average (simple AVG of all intervals) per area; this is not a lot-weighted mean.",
+      "Source is simulation data, not actual fab measurements.",
+      "Area codes are from simulation and may differ from real fab area codes."
+    ],
+    "plan": {
+      "query_type": "status",
+      "template_id": null,
+      "fab_id": "fab11",
+      "data_source_type": "simulation_snapshot",
+      "slots": {
+        "fab_id": {
+          "value": "fab11",
+          "source": "explicit_user",
+          "confidence": 1.0,
+          "raw_text": "fab11 시뮬레이션 전체 적재 기간에서 영역별 avg_queue_minutes의 시간평균을 AVG로 계산해줘. 영역마다 한 행으로 보여줘."
+        }
+      },
+      "limitations": [
+        "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+        "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+        "Result is an unweighted time-average (simple AVG of all intervals) per area; this is not a lot-weighted mean.",
+        "Source is simulation data, not actual fab measurements.",
+        "Area codes are from simulation and may differ from real fab area codes."
+      ],
+      "source_tables": [
+        "fab11.live_process_snapshots_fab11"
+      ],
+      "select_items": [
+        "area",
+        "AVG(avg_queue_minutes) AS time_avg_queue_minutes"
+      ],
+      "filters": [
+        {
+          "field": "fab_id",
+          "operator": "=",
+          "value": "fab11"
+        }
+      ],
+      "group_by": [
+        "area"
+      ],
+      "order_by": [
+        "area ASC"
+      ],
+      "aggregation": "AVG(avg_queue_minutes) AS time_avg_queue_minutes",
+      "expected_result_shape": "per-area aggregate (one row per area)",
+      "chart_intent": null,
+      "semantic_plan": {
+        "supported": true,
+        "reason": "The request is for a per-area time-average (unweighted AVG) of the simulation metric avg_queue_minutes, one row per area, for the entire available simulation period in fab11. The correct source is the simulation snapshot table, which is already in the correct (interval, fab_id, area) grain. Only group by area, and use AVG over snapshot values as an unweighted time-average (not a lot-weighted mean).",
+        "tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "projections": [
+          {
+            "table": "fab11.live_process_snapshots_fab11",
+            "column": "area"
+          }
+        ],
+        "aggregates": [
+          {
+            "source": {
+              "table": "fab11.live_process_snapshots_fab11",
+              "column": "avg_queue_minutes"
+            },
+            "function": "avg",
+            "alias": "time_avg_queue_minutes"
+          }
+        ],
+        "group_by": [
+          {
+            "table": "fab11.live_process_snapshots_fab11",
+            "column": "area"
+          }
+        ],
+        "filters": [
+          {
+            "source": {
+              "table": "fab11.live_process_snapshots_fab11",
+              "column": "fab_id"
+            },
+            "operator": "eq",
+            "values": [
+              "fab11"
+            ]
+          }
+        ],
+        "joins": [],
+        "time_basis": "interval-level simulation snapshots (entire available load period)",
+        "result_grain": "one row per area (interval_end/fab_id/area grain aggregated to area)",
+        "limitations": [
+          "Result is an unweighted time-average (simple AVG of all intervals) per area; this is not a lot-weighted mean.",
+          "Source is simulation data, not actual fab measurements.",
+          "Area codes are from simulation and may differ from real fab area codes."
+        ]
+      },
+      "grounding": {
+        "version": "metadata-ranking-v1",
+        "total_tables": 20,
+        "selected_tables": 6,
+        "total_columns": 429,
+        "selected_columns": 93,
+        "broadened_no_match": false,
+        "ranking": [
+          {
+            "table_ref": "fab11.live_process_snapshots_fab11",
+            "score": 36.0,
+            "reasons": [
+              "aliases:시뮬레이션",
+              "columns:avg_queue_minutes",
+              "description:시뮬레이션",
+              "request_slots"
+            ],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.live_process_events_fab11",
+            "score": 24.0,
+            "reasons": [
+              "request_slots"
+            ],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.breakdown_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.lotrelease_engineering_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.lotrelease_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.lotrelease_variable_due_dates_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.pm_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_10_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_1_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_2_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_3_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_4_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_5_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_6_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_7_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_8_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_9_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.setups_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.toolgroups_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.transport_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          }
+        ]
+      }
+    }
+  },
+  "expected": {
+    "cmp": 47.71944444444444,
+    "deposition": 55.471666666666664,
+    "etch": 95.06333333333333,
+    "implant": 55.471111111111114,
+    "metrology": 77.87611111111111,
+    "photo": 102.0988888888889
+  },
+  "semantic_match": true,
+  "seconds": 8.35
+}

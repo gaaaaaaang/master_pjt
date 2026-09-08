@@ -7,7 +7,7 @@
     "answer": "fab10 Product_3 WIP는 128.5입니다. PostgreSQL에 적재된 AutoSched report 기준입니다.",
     "limitations": ["PostgreSQL에 적재된 AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT wiplotavg FROM fab10.autosched_part", "row_count": 1, "sample_rows": [{"part": "part_3", "wiplotavg": 128.5}]}}
+      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT wiplotavg FROM fab10.autosched_part_fab10", "row_count": 1, "sample_rows": [{"part": "part_3", "wiplotavg": 128.5}]}}
     ],
     "expected_supported": true
   },
@@ -19,7 +19,7 @@
     "answer": "fab10 Product_3 WIP를 조회했습니다. AutoSched report 기준입니다.",
     "limitations": ["PostgreSQL에 적재된 AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT wiplotavg FROM fab10.autosched_part", "row_count": 1, "sample_rows": [{"part": "part_3", "wiplotavg": 128.5}]}}
+      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT wiplotavg FROM fab10.autosched_part_fab10", "row_count": 1, "sample_rows": [{"part": "part_3", "wiplotavg": 128.5}]}}
     ],
     "expected_supported": false
   },
@@ -31,7 +31,7 @@
     "answer": "fab10 DE_BE_11 down 12.5%는 관측값입니다. 시뮬레이션 참고 사례상 equipment down은 원인 후보지만 실제 원인은 확정할 수 없습니다.",
     "limitations": ["실제 이벤트 로그 확인이 필요합니다."],
     "evidence": [
-      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT down_percent FROM fab10.autosched_stn", "row_count": 1, "sample_rows": [{"stn": "DE_BE_11", "down_percent": 12.5}]}},
+      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT down_percent FROM fab10.autosched_stn_fab10", "row_count": 1, "sample_rows": [{"stn": "DE_BE_11", "down_percent": 12.5}]}},
       {"source_type": "similar_case", "title": "SIM", "content": "simulation", "metadata": {"case_type": "simulated_reference"}},
       {"source_type": "diagnosis_synthesis", "title": "synthesis", "content": "candidate", "metadata": {"conclusion_level": "candidate_only", "candidate_issue_types": ["equipment_down"], "reliability_assessment": {"simulated_case_count": 1, "simulated_knowledge_count": 0, "can_confirm_root_cause": false}}}
     ],
@@ -45,7 +45,7 @@
     "answer": "fab10 DE_BE_11 down의 원인 후보는 equipment down이지만 실제 원인은 확정할 수 없습니다.",
     "limitations": ["실제 이벤트 로그 확인이 필요합니다."],
     "evidence": [
-      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT down_percent FROM fab10.autosched_stn", "row_count": 1, "sample_rows": [{"stn": "DE_BE_11", "down_percent": 12.5}]}},
+      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT down_percent FROM fab10.autosched_stn_fab10", "row_count": 1, "sample_rows": [{"stn": "DE_BE_11", "down_percent": 12.5}]}},
       {"source_type": "similar_case", "title": "SIM", "content": "simulation", "metadata": {"case_type": "simulated_reference"}},
       {"source_type": "diagnosis_synthesis", "title": "synthesis", "content": "candidate", "metadata": {"conclusion_level": "candidate_only", "candidate_issue_types": ["equipment_down"], "reliability_assessment": {"simulated_case_count": 1, "simulated_knowledge_count": 0, "can_confirm_root_cause": false}}}
     ],
@@ -59,7 +59,7 @@
     "answer": "fab10 DE_BE_11 down 12.5%는 관측값입니다. RAG와 유사 사례 근거가 없어 원인 후보를 제시할 수 없으며 실제 원인도 확정할 수 없습니다.",
     "limitations": ["RAG와 유사 사례 근거가 없습니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn_fab10","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"diagnosis_synthesis","title":"synthesis","content":"insufficient","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":[],"candidate_causes":[],"similar_cases":[],"missing_evidence":["incident_playbook_candidate","similar_incident"],"reliability_assessment":{"can_confirm_root_cause":false}}}
     ],
     "expected_supported": true
@@ -72,7 +72,7 @@
     "answer": "fab10 DE_BE_11 down 12.5%는 관측값입니다. 장비 고장이 원인 후보일 가능성이 있지만 실제 원인은 확정할 수 없고 근거에는 한계가 있습니다.",
     "limitations": ["RAG와 유사 사례 근거가 없습니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn_fab10","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"diagnosis_synthesis","title":"synthesis","content":"insufficient","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":[],"candidate_causes":[],"similar_cases":[],"missing_evidence":["incident_playbook_candidate","similar_incident"],"reliability_assessment":{"can_confirm_root_cause":false}}}
     ],
     "expected_supported": false
@@ -85,7 +85,7 @@
     "answer": "fab10 WIP 추세는 SQL 시계열 결과로 확인했습니다. 문서상 WIP 증가는 원인 후보지만 실제 원인은 확정할 수 없습니다.",
     "limitations": ["실제 이벤트 로그 확인이 필요합니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
       {"source_type":"diagnosis_synthesis","title":"synthesis","content":"candidate","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["wip"],"candidate_causes":[{"issue_types":["wip"]}],"similar_cases":[],"reliability_assessment":{"can_confirm_root_cause":false}}}
     ],
     "expected_supported": true
@@ -98,7 +98,7 @@
     "answer": "fab10 WIP 증가는 문서상 원인 후보가 있지만 실제 원인은 확정할 수 없고 이벤트 로그 확인이 필요합니다.",
     "limitations": ["실제 이벤트 로그 확인이 필요합니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
       {"source_type":"diagnosis_synthesis","title":"synthesis","content":"candidate","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["wip"],"candidate_causes":[{"issue_types":["wip"]}],"similar_cases":[],"reliability_assessment":{"can_confirm_root_cause":false}}}
     ],
     "expected_supported": false
@@ -111,7 +111,7 @@
     "answer": "fab10 Dry_Etch 병목은 원인 후보이며 실제 원인은 확정할 수 없습니다. 입력 baseline utilization 80%에서 5%p 감소를 1차 비례 가정으로 계산한 capacity 영향은 -6.25%입니다.",
     "limitations": ["utilization 1차 비례 가정입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch","util_percent":80}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp_fab10","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch","util_percent":80}]}},
       {"source_type":"diagnosis_synthesis","title":"synthesis","content":"candidate","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["bottleneck"],"candidate_causes":[{"issue_types":["bottleneck"]}],"similar_cases":[],"reliability_assessment":{"can_confirm_root_cause":false}}},
       {"source_type":"impact_calculation","title":"impact","content":"calculation","metadata":{"status":"succeeded","inputs":{"baseline_util_percent":80},"estimates":{"capacity_delta_percent":-6.25},"formulae":["capacity formula"],"assumptions":["first order"]}}
     ],
@@ -125,7 +125,7 @@
     "answer": "fab10 Dry_Etch 병목은 원인 후보이며 실제 원인은 확정할 수 없습니다. utilization 5%p와 capacity 영향은 입력 baseline을 이용한 1차 계산 가정이며 한계가 있습니다.",
     "limitations": ["utilization 1차 비례 가정입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch","util_percent":80}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp_fab10","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch","util_percent":80}]}},
       {"source_type":"diagnosis_synthesis","title":"synthesis","content":"candidate","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["bottleneck"],"candidate_causes":[{"issue_types":["bottleneck"]}],"similar_cases":[],"reliability_assessment":{"can_confirm_root_cause":false}}},
       {"source_type":"impact_calculation","title":"impact","content":"calculation","metadata":{"status":"succeeded","inputs":{"baseline_util_percent":80},"estimates":{"capacity_delta_percent":-6.25},"formulae":["capacity formula"],"assumptions":["first order"]}}
     ],
@@ -139,7 +139,7 @@
     "answer": "fab10 입력 baseline utilization 80%를 기준으로 계산한 capacity 변화는 -6.25%입니다. utilization 1차 비례 가정이며 실제 인과 모델에는 한계가 있습니다.",
     "limitations": ["utilization 1차 비례 가정입니다."],
     "evidence": [
-      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT util_percent FROM fab10.autosched_stngrp", "row_count": 1, "sample_rows": [{"util_percent": 80}]}},
+      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT util_percent FROM fab10.autosched_stngrp_fab10", "row_count": 1, "sample_rows": [{"util_percent": 80}]}},
       {"source_type": "impact_calculation", "title": "impact", "content": "calculation", "metadata": {"status": "succeeded", "inputs": {"baseline_util_percent": 80}, "estimates": {"capacity_delta_percent": -6.25}, "formulae": ["capacity formula"], "assumptions": ["first order"]}}
     ],
     "expected_supported": true
@@ -152,7 +152,7 @@
     "answer": "fab10 utilization은 5%p 떨어지고 capacity는 -6.25%입니다.",
     "limitations": ["utilization 1차 비례 가정입니다."],
     "evidence": [
-      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT util_percent FROM fab10.autosched_stngrp", "row_count": 1, "sample_rows": [{"util_percent": 80}]}},
+      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT util_percent FROM fab10.autosched_stngrp_fab10", "row_count": 1, "sample_rows": [{"util_percent": 80}]}},
       {"source_type": "impact_calculation", "title": "impact", "content": "calculation", "metadata": {"status": "succeeded", "inputs": {"baseline_util_percent": 80}, "estimates": {"capacity_delta_percent": -6.25}, "formulae": ["capacity formula"], "assumptions": ["first order"]}}
     ],
     "expected_supported": false
@@ -165,7 +165,7 @@
     "answer": "fab10 WIP의 2020-01-01부터 2020-01-07까지 추세이며 AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT report_time, wiplotavg FROM fab10.autosched_perf", "row_count": 2, "sample_rows": [{"report_time": "2020-01-01", "wiplotavg": 10}, {"report_time": "2020-01-07", "wiplotavg": 11}]}}
+      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT report_time, wiplotavg FROM fab10.autosched_perf_fab10", "row_count": 2, "sample_rows": [{"report_time": "2020-01-01", "wiplotavg": 10}, {"report_time": "2020-01-07", "wiplotavg": 11}]}}
     ],
     "expected_supported": true
   },
@@ -177,7 +177,7 @@
     "answer": "fab10 WIP 추세이며 AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT report_time, wiplotavg FROM fab10.autosched_perf", "row_count": 2, "sample_rows": [{"report_time": "2020-01-01", "wiplotavg": 10}, {"report_time": "2020-01-07", "wiplotavg": 11}]}}
+      {"source_type": "text2sql_plan", "title": "query", "content": "rows", "metadata": {"status": "succeeded", "sql": "SELECT report_time, wiplotavg FROM fab10.autosched_perf_fab10", "row_count": 2, "sample_rows": [{"report_time": "2020-01-01", "wiplotavg": 10}, {"report_time": "2020-01-07", "wiplotavg": 11}]}}
     ],
     "expected_supported": false
   },
@@ -189,7 +189,7 @@
     "answer": "fab10 2020년 2월 WIP 추세이며 AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_time, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_time":"2020-02-01","wiplotavg":10},{"report_time":"2020-02-02","wiplotavg":11}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_time, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_time":"2020-02-01","wiplotavg":10},{"report_time":"2020-02-02","wiplotavg":11}]}}
     ],
     "expected_supported": true
   },
@@ -201,7 +201,7 @@
     "answer": "fab10 WIP 추세이며 AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_time, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_time":"2020-02-01","wiplotavg":10},{"report_time":"2020-02-02","wiplotavg":11}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_time, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_time":"2020-02-01","wiplotavg":10},{"report_time":"2020-02-02","wiplotavg":11}]}}
     ],
     "expected_supported": false
   },
@@ -213,7 +213,7 @@
     "answer": "fab10 WIP의 2020 Q1부터 Q2까지 월별 추세이며 AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_month, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_month":"2020-01-01","wiplotavg":10},{"report_month":"2020-04-01","wiplotavg":11}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_month, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_month":"2020-01-01","wiplotavg":10},{"report_month":"2020-04-01","wiplotavg":11}]}}
     ],
     "expected_supported": true
   },
@@ -225,7 +225,7 @@
     "answer": "fab10 WIP 월별 추세이며 AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_month, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_month":"2026-04-01","wiplotavg":10},{"report_month":"2026-06-01","wiplotavg":11}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_month, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_month":"2026-04-01","wiplotavg":10},{"report_month":"2026-06-01","wiplotavg":11}]}}
     ],
     "expected_supported": false
   },
@@ -237,7 +237,7 @@
     "answer": "fab10 Product_3 현재 WIP는 128.5, cycle time은 10.2입니다. AutoSched report 기준입니다.",
     "limitations": ["PostgreSQL에 적재된 AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg, cycleavg FROM fab10.autosched_part WHERE part = 'part_3'","row_count":1,"sample_rows":[{"part":"part_3","wiplotavg":128.5,"cycleavg":10.2}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg, cycleavg FROM fab10.autosched_part_fab10 WHERE part = 'part_3'","row_count":1,"sample_rows":[{"part":"part_3","wiplotavg":128.5,"cycleavg":10.2}]}}
     ],
     "expected_supported": true
   },
@@ -249,7 +249,7 @@
     "answer": "fab10 Product_3 현재 WIP는 128.5이며 cycle time도 조회했습니다. AutoSched report 기준입니다.",
     "limitations": ["PostgreSQL에 적재된 AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg, cycleavg FROM fab10.autosched_part WHERE part = 'part_3'","row_count":1,"sample_rows":[{"part":"part_3","wiplotavg":128.5,"cycleavg":10.2}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg, cycleavg FROM fab10.autosched_part_fab10 WHERE part = 'part_3'","row_count":1,"sample_rows":[{"part":"part_3","wiplotavg":128.5,"cycleavg":10.2}]}}
     ],
     "expected_supported": false
   },
@@ -261,7 +261,7 @@
     "answer": "fab10 Product_3 WIP는 128.5, cycle time은 10.2입니다. Product_4 WIP는 140.0, cycle time은 11.4입니다. AutoSched report 기준입니다.",
     "limitations": ["PostgreSQL에 적재된 AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg, cycleavg FROM fab10.autosched_part WHERE part IN ('part_3', 'part_4')","row_count":2,"sample_rows":[{"part":"part_3","wiplotavg":128.5,"cycleavg":10.2},{"part":"part_4","wiplotavg":140.0,"cycleavg":11.4}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg, cycleavg FROM fab10.autosched_part_fab10 WHERE part IN ('part_3', 'part_4')","row_count":2,"sample_rows":[{"part":"part_3","wiplotavg":128.5,"cycleavg":10.2},{"part":"part_4","wiplotavg":140.0,"cycleavg":11.4}]}}
     ],
     "expected_supported": true
   },
@@ -273,7 +273,7 @@
     "answer": "fab10 Product_3 WIP는 128.5, cycle time은 10.2입니다. Product_4 WIP는 140.0이며 cycle time도 조회했습니다. AutoSched report 기준입니다.",
     "limitations": ["PostgreSQL에 적재된 AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg, cycleavg FROM fab10.autosched_part WHERE part IN ('part_3', 'part_4')","row_count":2,"sample_rows":[{"part":"part_3","wiplotavg":128.5,"cycleavg":10.2},{"part":"part_4","wiplotavg":140.0,"cycleavg":11.4}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg, cycleavg FROM fab10.autosched_part_fab10 WHERE part IN ('part_3', 'part_4')","row_count":2,"sample_rows":[{"part":"part_3","wiplotavg":128.5,"cycleavg":10.2},{"part":"part_4","wiplotavg":140.0,"cycleavg":11.4}]}}
     ],
     "expected_supported": false
   },
@@ -285,7 +285,7 @@
     "answer": "fab10 Product_3 WIP는 128.5이며 요청한 100 이상 조건을 충족합니다. AutoSched report 기준입니다.",
     "limitations": ["PostgreSQL에 적재된 AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg FROM fab10.autosched_part WHERE part = 'part_3'","row_count":1,"sample_rows":[{"part":"part_3","wiplotavg":128.5}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg FROM fab10.autosched_part_fab10 WHERE part = 'part_3'","row_count":1,"sample_rows":[{"part":"part_3","wiplotavg":128.5}]}}
     ],
     "expected_supported": true
   },
@@ -297,7 +297,7 @@
     "answer": "fab10 Product_3 WIP는 128.5이고 전일 대비 999% 증가했습니다. AutoSched report 기준입니다.",
     "limitations": ["PostgreSQL에 적재된 AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg FROM fab10.autosched_part WHERE part = 'part_3'","row_count":1,"sample_rows":[{"part":"part_3","wiplotavg":128.5}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT part, wiplotavg FROM fab10.autosched_part_fab10 WHERE part = 'part_3'","row_count":1,"sample_rows":[{"part":"part_3","wiplotavg":128.5}]}}
     ],
     "expected_supported": false
   },
@@ -309,7 +309,7 @@
     "answer": "fab10 WIP line 그래프를 생성했습니다. AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_time, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_time":"2020-01-01","wiplotavg":10},{"report_time":"2020-01-02","wiplotavg":11}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_time, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_time":"2020-01-01","wiplotavg":10},{"report_time":"2020-01-02","wiplotavg":11}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"SQL query rows로 생성한 chart specification입니다.","metadata":{"status":"succeeded","chart_type":"line","encoding":{"x":{"field":"report_time"},"y":{"field":"wiplotavg"}}}}
     ],
     "expected_supported": true
@@ -322,7 +322,7 @@
     "answer": "fab10 WIP line 그래프를 생성했습니다. AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_time, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_time":"2020-01-01","wiplotavg":10},{"report_time":"2020-01-02","wiplotavg":11}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_time, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_time":"2020-01-01","wiplotavg":10},{"report_time":"2020-01-02","wiplotavg":11}]}}
     ],
     "expected_supported": false
   },
@@ -334,7 +334,7 @@
     "answer": "fab10 입력 baseline utilization 80%와 계산식 분모 100을 기준으로 계산한 capacity 변화는 -6.25%입니다. utilization 1차 비례 가정이며 실제 인과 모델에는 한계가 있습니다.",
     "limitations": ["utilization 1차 비례 가정입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp","row_count":1,"sample_rows":[{"util_percent":80}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp_fab10","row_count":1,"sample_rows":[{"util_percent":80}]}},
       {"source_type":"impact_calculation","title":"impact","content":"calculation","metadata":{"status":"succeeded","inputs":{"baseline_util_percent":80},"estimates":{"capacity_delta_percent":-6.25},"formulae":["capacity_delta_percent = delta / baseline * 100"],"assumptions":["first order"]}}
     ],
     "expected_supported": true
@@ -347,7 +347,7 @@
     "answer": "fab10 입력 baseline utilization 80%를 기준으로 계산한 capacity 변화는 -6.25%이며 생산량도 999% 증가합니다. utilization 1차 비례 가정이며 실제 인과 모델에는 한계가 있습니다.",
     "limitations": ["utilization 1차 비례 가정입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp","row_count":1,"sample_rows":[{"util_percent":80}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp_fab10","row_count":1,"sample_rows":[{"util_percent":80}]}},
       {"source_type":"impact_calculation","title":"impact","content":"calculation","metadata":{"status":"succeeded","inputs":{"baseline_util_percent":80},"estimates":{"capacity_delta_percent":-6.25},"formulae":["capacity_delta_percent = delta / baseline * 100"],"assumptions":["first order"]}}
     ],
     "expected_supported": false
@@ -360,7 +360,7 @@
     "answer": "fab10 입력 baseline utilization 80%를 기준으로 계산한 capacity는 6.25% 감소합니다. utilization 1차 비례 가정이며 실제 인과 모델에는 한계가 있습니다.",
     "limitations": ["utilization 1차 비례 가정입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp","row_count":1,"sample_rows":[{"util_percent":80}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp_fab10","row_count":1,"sample_rows":[{"util_percent":80}]}},
       {"source_type":"impact_calculation","title":"impact","content":"calculation","metadata":{"status":"succeeded","inputs":{"baseline_util_percent":80},"estimates":{"capacity_delta_percent":-6.25},"formulae":["capacity_delta_percent = delta / baseline * 100"],"assumptions":["first order"]}}
     ],
     "expected_supported": true
@@ -373,7 +373,7 @@
     "answer": "fab10 입력 baseline utilization 80%를 기준으로 계산한 capacity는 -6.25% 증가합니다. utilization 1차 비례 가정이며 실제 인과 모델에는 한계가 있습니다.",
     "limitations": ["utilization 1차 비례 가정입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp","row_count":1,"sample_rows":[{"util_percent":80}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp_fab10","row_count":1,"sample_rows":[{"util_percent":80}]}},
       {"source_type":"impact_calculation","title":"impact","content":"calculation","metadata":{"status":"succeeded","inputs":{"baseline_util_percent":80},"estimates":{"capacity_delta_percent":-6.25},"formulae":["capacity_delta_percent = delta / baseline * 100"],"assumptions":["first order"]}}
     ],
     "expected_supported": false
@@ -386,7 +386,7 @@
     "answer": "fab10 DE_BE_11 down 12.5%는 관측값입니다. SIM-001 시뮬레이션 참고 사례상 equipment down은 원인 후보지만 실제 원인은 확정할 수 없습니다.",
     "limitations": ["실제 이벤트 로그 확인이 필요합니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn_fab10","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"similar_case","title":"SIM-001","content":"simulation","metadata":{"case_id":"SIM-001","case_type":"simulated_reference"}},
       {"source_type":"diagnosis_synthesis","title":"synthesis","content":"candidate","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["equipment_down"],"reliability_assessment":{"simulated_case_count":1,"can_confirm_root_cause":false}}}
     ],
@@ -400,7 +400,7 @@
     "answer": "fab10 DE_BE_11 down 12.5%는 관측값입니다. SIM-001 시뮬레이션 참고 사례상 equipment down은 원인 후보지만 추가 이상률 999%도 확인됐고 실제 원인은 확정할 수 없습니다.",
     "limitations": ["실제 이벤트 로그 확인이 필요합니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn_fab10","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"similar_case","title":"SIM-001","content":"simulation","metadata":{"case_id":"SIM-001","case_type":"simulated_reference"}},
       {"source_type":"diagnosis_synthesis","title":"synthesis","content":"candidate","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["equipment_down"],"reliability_assessment":{"simulated_case_count":1,"can_confirm_root_cause":false}}}
     ],
@@ -414,7 +414,7 @@
     "answer": "fab10 입력 baseline utilization 80%에서 5%p 감소하면 capacity는 6.25% 감소합니다. 1차 비례 계산 가정이며 실제 인과 모델에는 한계가 있습니다.",
     "limitations": ["utilization 1차 비례 가정입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp","row_count":1,"sample_rows":[{"util_percent":80}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp_fab10","row_count":1,"sample_rows":[{"util_percent":80}]}},
       {"source_type":"impact_calculation","title":"impact","content":"calculation","metadata":{"status":"succeeded","inputs":{"baseline_util_percent":80},"estimates":{"capacity_delta_percent":-6.25},"formulae":["capacity_delta_percent = delta / baseline * 100"],"assumptions":["first order"]}}
     ],
     "expected_supported": true
@@ -427,7 +427,7 @@
     "answer": "fab10 입력 baseline utilization 80%에서 5%p 감소하면 capacity는 -6.25% 증가합니다. 1차 비례 계산 가정이며 실제 인과 모델에는 한계가 있습니다.",
     "limitations": ["utilization 1차 비례 가정입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp","row_count":1,"sample_rows":[{"util_percent":80}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent FROM fab10.autosched_stngrp_fab10","row_count":1,"sample_rows":[{"util_percent":80}]}},
       {"source_type":"impact_calculation","title":"impact","content":"calculation","metadata":{"status":"succeeded","inputs":{"baseline_util_percent":80},"estimates":{"capacity_delta_percent":-6.25},"formulae":["capacity_delta_percent = delta / baseline * 100"],"assumptions":["first order"]}}
     ],
     "expected_supported": false
@@ -440,7 +440,7 @@
     "answer": "fab10 WIP는 2020-01-01의 10에서 2020-01-02의 12로 20% 증가했습니다. line 그래프이며 AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"wiplotavg","start_value":10,"end_value":12,"absolute_delta":2,"percent_delta":20}]}}
     ],
     "expected_supported": true
@@ -453,7 +453,7 @@
     "answer": "fab10 WIP는 2020-01-01의 10에서 2020-01-02의 12로 999% 증가했습니다. line 그래프이며 AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"wiplotavg","start_value":10,"end_value":12,"absolute_delta":2,"percent_delta":20}]}}
     ],
     "expected_supported": false
@@ -466,7 +466,7 @@
     "answer": "fab10 WIP는 2020-01-01의 10에서 2020-01-02의 12로 20% 증가했습니다. line 그래프이며 AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"wiplotavg","start_value":10,"end_value":12,"absolute_delta":2,"percent_delta":20}]}}
     ],
     "expected_supported": true
@@ -479,7 +479,7 @@
     "answer": "fab10 WIP는 2020-01-01의 10에서 2020-01-02의 12로 20% 감소했습니다. line 그래프이며 AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf_fab10","row_count":2,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10},{"report_date":"2020-01-02","wiplotavg":12}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"wiplotavg","start_value":10,"end_value":12,"absolute_delta":2,"percent_delta":20}]}}
     ],
     "expected_supported": false
@@ -492,7 +492,7 @@
     "answer": "fab10 DE_BE_11_2 utilization 80%, down 5%, DE_BE_12_3 utilization 70%, down 9%입니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stn, util_percent, down_percent FROM fab10.autosched_stn","row_count":2,"sample_rows":[{"stn":"DE_BE_11_2","util_percent":80,"down_percent":5},{"stn":"DE_BE_12_3","util_percent":70,"down_percent":9}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stn, util_percent, down_percent FROM fab10.autosched_stn_fab10","row_count":2,"sample_rows":[{"stn":"DE_BE_11_2","util_percent":80,"down_percent":5},{"stn":"DE_BE_12_3","util_percent":70,"down_percent":9}]}}
     ],
     "expected_supported": true
   },
@@ -504,7 +504,7 @@
     "answer": "fab10 DE_BE_11_2 utilization 80%, down 5%, DE_BE_12_3 utilization 70%입니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stn, util_percent, down_percent FROM fab10.autosched_stn","row_count":2,"sample_rows":[{"stn":"DE_BE_11_2","util_percent":80,"down_percent":5},{"stn":"DE_BE_12_3","util_percent":70,"down_percent":9}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stn, util_percent, down_percent FROM fab10.autosched_stn_fab10","row_count":2,"sample_rows":[{"stn":"DE_BE_11_2","util_percent":80,"down_percent":5},{"stn":"DE_BE_12_3","util_percent":70,"down_percent":9}]}}
     ],
     "expected_supported": false
   },
@@ -516,7 +516,7 @@
     "answer": "fab10 추세에서 DE_BE_11 utilization은 80에서 82로 증가했고 down은 5에서 4로 감소했습니다. DE_BE_12 utilization은 75에서 73으로 감소했고 down은 8에서 9로 증가했습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, util_percent, down_percent FROM fab10.autosched_stn","row_count":4,"sample_rows":[{"stn":"DE_BE_11","util_percent":80,"down_percent":5},{"stn":"DE_BE_11","util_percent":82,"down_percent":4},{"stn":"DE_BE_12","util_percent":75,"down_percent":8},{"stn":"DE_BE_12","util_percent":73,"down_percent":9}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, util_percent, down_percent FROM fab10.autosched_stn_fab10","row_count":4,"sample_rows":[{"stn":"DE_BE_11","util_percent":80,"down_percent":5},{"stn":"DE_BE_11","util_percent":82,"down_percent":4},{"stn":"DE_BE_12","util_percent":75,"down_percent":8},{"stn":"DE_BE_12","util_percent":73,"down_percent":9}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"DE_BE_11 / util_percent","start_value":80,"end_value":82,"absolute_delta":2,"percent_delta":2.5},{"series":"DE_BE_11 / down_percent","start_value":5,"end_value":4,"absolute_delta":-1,"percent_delta":-20},{"series":"DE_BE_12 / util_percent","start_value":75,"end_value":73,"absolute_delta":-2,"percent_delta":-2.6667},{"series":"DE_BE_12 / down_percent","start_value":8,"end_value":9,"absolute_delta":1,"percent_delta":12.5}]}}
     ],
     "expected_supported": true
@@ -529,7 +529,7 @@
     "answer": "fab10 추세에서 DE_BE_11 utilization은 80에서 82로 증가했고 down은 5에서 4로 감소했습니다. DE_BE_12 utilization은 75에서 73으로 감소했고 down 추세도 확인했습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, util_percent, down_percent FROM fab10.autosched_stn","row_count":4,"sample_rows":[{"stn":"DE_BE_11","util_percent":80,"down_percent":5},{"stn":"DE_BE_11","util_percent":82,"down_percent":4},{"stn":"DE_BE_12","util_percent":75,"down_percent":8},{"stn":"DE_BE_12","util_percent":73,"down_percent":9}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, util_percent, down_percent FROM fab10.autosched_stn_fab10","row_count":4,"sample_rows":[{"stn":"DE_BE_11","util_percent":80,"down_percent":5},{"stn":"DE_BE_11","util_percent":82,"down_percent":4},{"stn":"DE_BE_12","util_percent":75,"down_percent":8},{"stn":"DE_BE_12","util_percent":73,"down_percent":9}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"DE_BE_11 / util_percent","start_value":80,"end_value":82,"absolute_delta":2,"percent_delta":2.5},{"series":"DE_BE_11 / down_percent","start_value":5,"end_value":4,"absolute_delta":-1,"percent_delta":-20},{"series":"DE_BE_12 / util_percent","start_value":75,"end_value":73,"absolute_delta":-2,"percent_delta":-2.6667},{"series":"DE_BE_12 / down_percent","start_value":8,"end_value":9,"absolute_delta":1,"percent_delta":12.5}]}}
     ],
     "expected_supported": false
@@ -542,7 +542,7 @@
     "answer": "fab10 입력 baseline utilization 80%, cycle time 10시간 기준으로 capacity는 6.25% 감소하고 projected cycle time은 10.8시간입니다. 1차 계산 가정이며 ontime 탄력성 모델이 없어 납기 영향은 산출할 수 없습니다.",
     "limitations": ["ontime elasticity unavailable"],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent, cycleavg FROM fab10.autosched_perf","row_count":1,"sample_rows":[{"util_percent":80,"cycleavg":10}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent, cycleavg FROM fab10.autosched_perf_fab10","row_count":1,"sample_rows":[{"util_percent":80,"cycleavg":10}]}},
       {"source_type":"impact_calculation","title":"impact","content":"calculation","metadata":{"status":"succeeded","scenario":{"parsed_changes":[{"metric":"utilization","value":5,"unit":"percentage_point","direction":-1},{"metric":"cycle_time","value":8,"unit":"percent","direction":1}]},"inputs":{"baseline_util_percent":80,"baseline_cycle_time":10},"estimates":{"capacity_delta_percent":-6.25,"projected_cycle_time":10.8},"formulae":["capacity formula","cycle formula"],"assumptions":["first order"],"limitations":["ontime elasticity unavailable"]}}
     ],
     "expected_supported": true
@@ -555,7 +555,7 @@
     "answer": "fab10 입력 baseline utilization 80%, cycle time 10시간 기준으로 capacity는 6.25% 감소합니다. 1차 계산 가정이며 ontime 탄력성 모델이 없어 납기 영향은 산출할 수 없습니다.",
     "limitations": ["ontime elasticity unavailable"],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent, cycleavg FROM fab10.autosched_perf","row_count":1,"sample_rows":[{"util_percent":80,"cycleavg":10}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT util_percent, cycleavg FROM fab10.autosched_perf_fab10","row_count":1,"sample_rows":[{"util_percent":80,"cycleavg":10}]}},
       {"source_type":"impact_calculation","title":"impact","content":"calculation","metadata":{"status":"succeeded","scenario":{"parsed_changes":[{"metric":"utilization","value":5,"unit":"percentage_point","direction":-1},{"metric":"cycle_time","value":8,"unit":"percent","direction":1}]},"inputs":{"baseline_util_percent":80,"baseline_cycle_time":10},"estimates":{"capacity_delta_percent":-6.25,"projected_cycle_time":10.8},"formulae":["capacity formula","cycle formula"],"assumptions":["first order"],"limitations":["ontime elasticity unavailable"]}}
     ],
     "expected_supported": false
@@ -568,7 +568,7 @@
     "answer": "fab10 DE_BE_11 down 관측값과 검증 사례를 함께 보면 장비 고장이 우선 원인 후보이고 대기 시간은 후순위 후보입니다. 실제 원인은 확정할 수 없으며 이벤트 로그 확인이 필요합니다.",
     "limitations": ["실제 이벤트 로그 확인이 필요합니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn_fab10","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"diagnosis_synthesis","title":"synthesis","content":"ranked candidates","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["equipment_down","queue_time"],"candidate_causes":[{"issue_types":["equipment_down"]},{"issue_types":["queue_time"]}],"candidate_rankings":[{"issue_type":"equipment_down","support_level":"strong_candidate"},{"issue_type":"queue_time","support_level":"weak_candidate"}],"reliability_assessment":{"can_confirm_root_cause":false}}}
     ],
     "expected_supported": true
@@ -581,7 +581,7 @@
     "answer": "대기 시간이 우선 원인 후보입니다. 실제 원인은 확정할 수 없으며 이벤트 로그 확인이 필요합니다.",
     "limitations": ["실제 이벤트 로그 확인이 필요합니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT down_percent FROM fab10.autosched_stn_fab10","row_count":1,"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"diagnosis_synthesis","title":"synthesis","content":"ranked candidates","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["equipment_down","queue_time"],"candidate_causes":[{"issue_types":["equipment_down"]},{"issue_types":["queue_time"]}],"candidate_rankings":[{"issue_type":"equipment_down","support_level":"strong_candidate"},{"issue_type":"queue_time","support_level":"weak_candidate"}],"reliability_assessment":{"can_confirm_root_cause":false}}}
     ],
     "expected_supported": false
@@ -594,7 +594,7 @@
     "answer": "fab10 Dry_Etch utilization 80% 이상 상위 5개 조건에서 첫 설비군 값은 82.5%입니다. AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, util_percent FROM fab10.autosched_stngrp WHERE util_percent >= 80 ORDER BY util_percent DESC LIMIT 5","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","util_percent":82.5}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, util_percent FROM fab10.autosched_stngrp_fab10 WHERE util_percent >= 80 ORDER BY util_percent DESC LIMIT 5","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","util_percent":82.5}]}}
     ],
     "expected_supported": true
   },
@@ -606,7 +606,7 @@
     "answer": "fab10 Dry_Etch utilization 첫 설비군 값은 82.5%입니다. AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, util_percent FROM fab10.autosched_stngrp WHERE util_percent >= 80 ORDER BY util_percent DESC LIMIT 5","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","util_percent":82.5}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, util_percent FROM fab10.autosched_stngrp_fab10 WHERE util_percent >= 80 ORDER BY util_percent DESC LIMIT 5","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","util_percent":82.5}]}}
     ],
     "expected_supported": false
   },
@@ -618,7 +618,7 @@
     "answer": "fab10 Dry_Etch utilization 80 이상 설비군을 내림차순으로 조회한 첫 값은 82.5%입니다. AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, util_percent FROM fab10.autosched_stngrp WHERE util_percent >= 80 ORDER BY util_percent DESC","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","util_percent":82.5}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, util_percent FROM fab10.autosched_stngrp_fab10 WHERE util_percent >= 80 ORDER BY util_percent DESC","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","util_percent":82.5}]}}
     ],
     "expected_supported": true
   },
@@ -630,7 +630,7 @@
     "answer": "fab10 Dry_Etch utilization 첫 설비군 값은 82.5%입니다. AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, util_percent FROM fab10.autosched_stngrp WHERE util_percent >= 80 ORDER BY util_percent DESC","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","util_percent":82.5}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, util_percent FROM fab10.autosched_stngrp_fab10 WHERE util_percent >= 80 ORDER BY util_percent DESC","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","util_percent":82.5}]}}
     ],
     "expected_supported": false
   },
@@ -642,7 +642,7 @@
     "answer": "fab10 Dry_Etch down 5% 초과 조건의 첫 설비군 값은 8%입니다. AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, down_percent FROM fab10.autosched_stngrp WHERE down_percent > 5","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","down_percent":8}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, down_percent FROM fab10.autosched_stngrp_fab10 WHERE down_percent > 5","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","down_percent":8}]}}
     ],
     "expected_supported": true
   },
@@ -654,7 +654,7 @@
     "answer": "fab10 Dry_Etch down 첫 설비군 값은 8%입니다. AutoSched report 기준입니다.",
     "limitations": ["AutoSched report 기준입니다."],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, down_percent FROM fab10.autosched_stngrp WHERE down_percent > 5","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","down_percent":8}]}}
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT stngrp, down_percent FROM fab10.autosched_stngrp_fab10 WHERE down_percent > 5","row_count":1,"sample_rows":[{"stngrp":"Dry_Etch_A","down_percent":8}]}}
     ],
     "expected_supported": false
   },
@@ -666,7 +666,7 @@
     "answer": "fab10의 2020-01-01부터 2020-01-03까지 WIP 추세에서 DE_BE_11 WIP은 10에서 12로 증가했고 DE_BE_12 WIP은 8에서 11로 증가했습니다. DE_BE_11의 2020-01-02 관측 데이터는 누락되어 해당 구간의 선은 연결하지 않았습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, wiplotavg FROM fab10.autosched_stn","row_count":5,"sample_rows":[{"report_date":"2020-01-01","stn":"DE_BE_11","wiplotavg":10},{"report_date":"2020-01-03","stn":"DE_BE_11","wiplotavg":12},{"report_date":"2020-01-01","stn":"DE_BE_12","wiplotavg":8},{"report_date":"2020-01-02","stn":"DE_BE_12","wiplotavg":9},{"report_date":"2020-01-03","stn":"DE_BE_12","wiplotavg":11}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, wiplotavg FROM fab10.autosched_stn_fab10","row_count":5,"sample_rows":[{"report_date":"2020-01-01","stn":"DE_BE_11","wiplotavg":10},{"report_date":"2020-01-03","stn":"DE_BE_11","wiplotavg":12},{"report_date":"2020-01-01","stn":"DE_BE_12","wiplotavg":8},{"report_date":"2020-01-02","stn":"DE_BE_12","wiplotavg":9},{"report_date":"2020-01-03","stn":"DE_BE_12","wiplotavg":11}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"DE_BE_11 / wiplotavg","start_value":10,"end_value":12,"absolute_delta":2,"percent_delta":20},{"series":"DE_BE_12 / wiplotavg","start_value":8,"end_value":11,"absolute_delta":3,"percent_delta":37.5}],"series_gaps":[{"series":"DE_BE_11","missing_x":["2020-01-02"]}]}}
     ],
     "expected_supported": true
@@ -679,7 +679,7 @@
     "answer": "fab10의 2020-01-01부터 2020-01-03까지 WIP 추세에서 DE_BE_11 WIP은 10에서 12로 증가했고 DE_BE_12 WIP은 8에서 11로 증가했습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, wiplotavg FROM fab10.autosched_stn","row_count":5,"sample_rows":[{"report_date":"2020-01-01","stn":"DE_BE_11","wiplotavg":10},{"report_date":"2020-01-03","stn":"DE_BE_11","wiplotavg":12},{"report_date":"2020-01-01","stn":"DE_BE_12","wiplotavg":8},{"report_date":"2020-01-02","stn":"DE_BE_12","wiplotavg":9},{"report_date":"2020-01-03","stn":"DE_BE_12","wiplotavg":11}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, wiplotavg FROM fab10.autosched_stn_fab10","row_count":5,"sample_rows":[{"report_date":"2020-01-01","stn":"DE_BE_11","wiplotavg":10},{"report_date":"2020-01-03","stn":"DE_BE_11","wiplotavg":12},{"report_date":"2020-01-01","stn":"DE_BE_12","wiplotavg":8},{"report_date":"2020-01-02","stn":"DE_BE_12","wiplotavg":9},{"report_date":"2020-01-03","stn":"DE_BE_12","wiplotavg":11}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"DE_BE_11 / wiplotavg","start_value":10,"end_value":12,"absolute_delta":2,"percent_delta":20},{"series":"DE_BE_12 / wiplotavg","start_value":8,"end_value":11,"absolute_delta":3,"percent_delta":37.5}],"series_gaps":[{"series":"DE_BE_11","missing_x":["2020-01-02"]}]}}
     ],
     "expected_supported": false
@@ -692,7 +692,7 @@
     "answer": "fab10 WIP는 2020-01-01에 10으로 조회됐습니다. 관측치가 1개뿐이므로 WIP 추세를 판단할 수 없습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf","row_count":1,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf_fab10","row_count":1,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[],"series_gaps":[],"series_coverage":[{"series":"wiplotavg","point_count":1,"axis_point_count":1,"coverage_rate":1.0,"assessment":"insufficient"}]}}
     ],
     "expected_supported": true
@@ -705,7 +705,7 @@
     "answer": "fab10 WIP는 2020-01-01에 10이며 변화 없음으로 판단됩니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf","row_count":1,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, wiplotavg FROM fab10.autosched_perf_fab10","row_count":1,"sample_rows":[{"report_date":"2020-01-01","wiplotavg":10}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[],"series_gaps":[],"series_coverage":[{"series":"wiplotavg","point_count":1,"axis_point_count":1,"coverage_rate":1.0,"assessment":"insufficient"}]}}
     ],
     "expected_supported": false
@@ -718,7 +718,7 @@
     "answer": "fab10의 2020-01-01부터 2020-01-05까지 DE_BE_11 WIP은 10과 14의 두 값이 있지만 전체 5시점 중 2시점, coverage 40%뿐입니다. 2020-01-02, 2020-01-03, 2020-01-04가 누락되어 DE_BE_11 추세를 판단할 수 없습니다. DE_BE_12 WIP은 8에서 12로 증가했습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, wiplotavg FROM fab10.autosched_stn","row_count":7,"sample_rows":[{"report_date":"2020-01-01","stn":"DE_BE_11","wiplotavg":10},{"report_date":"2020-01-05","stn":"DE_BE_11","wiplotavg":14},{"report_date":"2020-01-01","stn":"DE_BE_12","wiplotavg":8},{"report_date":"2020-01-02","stn":"DE_BE_12","wiplotavg":9},{"report_date":"2020-01-03","stn":"DE_BE_12","wiplotavg":10},{"report_date":"2020-01-04","stn":"DE_BE_12","wiplotavg":11},{"report_date":"2020-01-05","stn":"DE_BE_12","wiplotavg":12}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, wiplotavg FROM fab10.autosched_stn_fab10","row_count":7,"sample_rows":[{"report_date":"2020-01-01","stn":"DE_BE_11","wiplotavg":10},{"report_date":"2020-01-05","stn":"DE_BE_11","wiplotavg":14},{"report_date":"2020-01-01","stn":"DE_BE_12","wiplotavg":8},{"report_date":"2020-01-02","stn":"DE_BE_12","wiplotavg":9},{"report_date":"2020-01-03","stn":"DE_BE_12","wiplotavg":10},{"report_date":"2020-01-04","stn":"DE_BE_12","wiplotavg":11},{"report_date":"2020-01-05","stn":"DE_BE_12","wiplotavg":12}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"DE_BE_12 / wiplotavg","start_value":8,"end_value":12,"absolute_delta":4,"percent_delta":50}],"series_gaps":[{"series":"DE_BE_11","missing_x":["2020-01-02","2020-01-03","2020-01-04"]}],"series_coverage":[{"series":"DE_BE_11","point_count":2,"axis_point_count":5,"coverage_rate":0.4,"assessment":"insufficient","reason":"coverage_below_0.5"},{"series":"DE_BE_12","point_count":5,"axis_point_count":5,"coverage_rate":1.0,"assessment":"complete"}]}}
     ],
     "expected_supported": true
@@ -731,7 +731,7 @@
     "answer": "fab10의 2020-01-01부터 2020-01-05까지 DE_BE_11 WIP은 10에서 14로 증가 추세이며 DE_BE_12 WIP도 8에서 12로 증가했습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, wiplotavg FROM fab10.autosched_stn","row_count":7,"sample_rows":[{"report_date":"2020-01-01","stn":"DE_BE_11","wiplotavg":10},{"report_date":"2020-01-05","stn":"DE_BE_11","wiplotavg":14},{"report_date":"2020-01-01","stn":"DE_BE_12","wiplotavg":8},{"report_date":"2020-01-02","stn":"DE_BE_12","wiplotavg":9},{"report_date":"2020-01-03","stn":"DE_BE_12","wiplotavg":10},{"report_date":"2020-01-04","stn":"DE_BE_12","wiplotavg":11},{"report_date":"2020-01-05","stn":"DE_BE_12","wiplotavg":12}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, wiplotavg FROM fab10.autosched_stn_fab10","row_count":7,"sample_rows":[{"report_date":"2020-01-01","stn":"DE_BE_11","wiplotavg":10},{"report_date":"2020-01-05","stn":"DE_BE_11","wiplotavg":14},{"report_date":"2020-01-01","stn":"DE_BE_12","wiplotavg":8},{"report_date":"2020-01-02","stn":"DE_BE_12","wiplotavg":9},{"report_date":"2020-01-03","stn":"DE_BE_12","wiplotavg":10},{"report_date":"2020-01-04","stn":"DE_BE_12","wiplotavg":11},{"report_date":"2020-01-05","stn":"DE_BE_12","wiplotavg":12}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"DE_BE_12 / wiplotavg","start_value":8,"end_value":12,"absolute_delta":4,"percent_delta":50}],"series_gaps":[{"series":"DE_BE_11","missing_x":["2020-01-02","2020-01-03","2020-01-04"]}],"series_coverage":[{"series":"DE_BE_11","point_count":2,"axis_point_count":5,"coverage_rate":0.4,"assessment":"insufficient","reason":"coverage_below_0.5"},{"series":"DE_BE_12","point_count":5,"axis_point_count":5,"coverage_rate":1.0,"assessment":"complete"}]}}
     ],
     "expected_supported": false
@@ -744,7 +744,7 @@
     "answer": "fab10 Route_Product_3의 2020-01-01부터 2020-01-03까지 일별 lotrelease 건수 라인차트입니다. 2020-01-01은 2건, 2020-01-03은 1건이며, 빈 날짜 bucket인 2020-01-02는 COUNT 의미에 따라 0건으로 채웠습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT release_date, COUNT(*) AS lot_count FROM fab10.lotrelease GROUP BY release_date","row_count":2,"sample_rows":[{"release_date":"2020-01-01","lot_count":2},{"release_date":"2020-01-03","lot_count":1}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT release_date, COUNT(*) AS lot_count FROM fab10.lotrelease_fab10 GROUP BY release_date","row_count":2,"sample_rows":[{"release_date":"2020-01-01","lot_count":2},{"release_date":"2020-01-03","lot_count":1}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"lot_count","start_value":2,"end_value":1,"absolute_delta":-1,"percent_delta":-50}],"series_gaps":[],"series_coverage":[{"series":"lot_count","point_count":3,"axis_point_count":3,"coverage_rate":1.0,"assessment":"complete"}],"imputed_points":[{"x":"2020-01-02","fields":["lot_count"],"value":0}]}}
     ],
     "expected_supported": true
@@ -757,7 +757,7 @@
     "answer": "fab10 Route_Product_3의 2020-01-01부터 2020-01-03까지 일별 lotrelease 건수 라인차트입니다. 조회값은 2020-01-01 2건, 2020-01-02 0건, 2020-01-03 1건입니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT release_date, COUNT(*) AS lot_count FROM fab10.lotrelease GROUP BY release_date","row_count":2,"sample_rows":[{"release_date":"2020-01-01","lot_count":2},{"release_date":"2020-01-03","lot_count":1}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT release_date, COUNT(*) AS lot_count FROM fab10.lotrelease_fab10 GROUP BY release_date","row_count":2,"sample_rows":[{"release_date":"2020-01-01","lot_count":2},{"release_date":"2020-01-03","lot_count":1}]}},
       {"source_type":"visualization_spec","title":"line chart","content":"chart specification","metadata":{"status":"succeeded","chart_type":"line","trend_summary":[{"series":"lot_count","start_value":2,"end_value":1,"absolute_delta":-1,"percent_delta":-50}],"series_gaps":[],"series_coverage":[{"series":"lot_count","point_count":3,"axis_point_count":3,"coverage_rate":1.0,"assessment":"complete"}],"imputed_points":[{"x":"2020-01-02","fields":["lot_count"],"value":0}]}}
     ],
     "expected_supported": false
@@ -770,7 +770,7 @@
     "answer": "fab10 WIP 기간 평균 비교 결과, 2020-01-01~2020-01-02는 100이고 2021-01-01~2021-01-02는 120입니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT comparison_period, AVG(wiplotavg) AS wiplotavg FROM fab10.autosched_perf GROUP BY comparison_period","row_count":2,"sample_rows":[{"comparison_period":"2020-01-01~2020-01-02","wiplotavg":100},{"comparison_period":"2021-01-01~2021-01-02","wiplotavg":120}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT comparison_period, AVG(wiplotavg) AS wiplotavg FROM fab10.autosched_perf_fab10 GROUP BY comparison_period","row_count":2,"sample_rows":[{"comparison_period":"2020-01-01~2020-01-02","wiplotavg":100},{"comparison_period":"2021-01-01~2021-01-02","wiplotavg":120}]}},
       {"source_type":"visualization_spec","title":"period comparison","content":"chart specification","metadata":{"status":"succeeded","chart_type":"grouped_bar"}}
     ],
     "expected_supported": true
@@ -783,7 +783,7 @@
     "answer": "fab10 WIP 기간 평균 비교 결과, 2020-01-01~2020-01-02는 100입니다. 2021-01-01~2021-01-02 기간도 비교했습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT comparison_period, AVG(wiplotavg) AS wiplotavg FROM fab10.autosched_perf GROUP BY comparison_period","row_count":2,"sample_rows":[{"comparison_period":"2020-01-01~2020-01-02","wiplotavg":100},{"comparison_period":"2021-01-01~2021-01-02","wiplotavg":120}]}},
+      {"source_type":"text2sql_plan","title":"query","content":"rows","metadata":{"status":"succeeded","sql":"SELECT comparison_period, AVG(wiplotavg) AS wiplotavg FROM fab10.autosched_perf_fab10 GROUP BY comparison_period","row_count":2,"sample_rows":[{"comparison_period":"2020-01-01~2020-01-02","wiplotavg":100},{"comparison_period":"2021-01-01~2021-01-02","wiplotavg":120}]}},
       {"source_type":"visualization_spec","title":"period comparison","content":"chart specification","metadata":{"status":"succeeded","chart_type":"grouped_bar"}}
     ],
     "expected_supported": false
@@ -796,7 +796,7 @@
     "answer": "fab10 DE_BE_11의 down 12.5% 관측과 검증 유사 사례 INC-DOWN-042를 근거로 장비 고장을 원인 후보로 봅니다. 다만 현재 건의 실제 원인으로 확정할 수 없습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT stn, down_percent FROM fab10.autosched_stn","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT stn, down_percent FROM fab10.autosched_stn_fab10","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"diagnosis_synthesis","title":"diagnosis","content":"candidate-only synthesis","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["equipment_down"],"candidate_rankings":[{"issue_type":"equipment_down","support_level":"moderate_candidate"}],"similar_cases":[{"case_id":"INC-DOWN-042","reliability":"verified_analogy","verification":{"incident_at":"2026-08-31T14:00:00+09:00","verified_at":"2026-09-01T09:00:00+09:00","verified_by":"fab-incident-review-board","evidence_refs":["EVENT-042"]}}]}}
     ],
     "expected_supported": true
@@ -809,7 +809,7 @@
     "answer": "fab10 DE_BE_11의 down 12.5% 관측과 검증 유사 사례를 근거로 장비 고장을 원인 후보로 봅니다. 다만 현재 건의 실제 원인으로 확정할 수 없습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT stn, down_percent FROM fab10.autosched_stn","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT stn, down_percent FROM fab10.autosched_stn_fab10","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"diagnosis_synthesis","title":"diagnosis","content":"candidate-only synthesis","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["equipment_down"],"candidate_rankings":[{"issue_type":"equipment_down","support_level":"moderate_candidate"}],"similar_cases":[{"case_id":"INC-DOWN-042","reliability":"verified_analogy","verification":{"incident_at":"2026-08-31T14:00:00+09:00","verified_at":"2026-09-01T09:00:00+09:00","verified_by":"fab-incident-review-board","evidence_refs":["EVENT-042"]}}]}}
     ],
     "expected_supported": false
@@ -822,7 +822,7 @@
     "answer": "fab10 DE_BE_11의 down 12.5% 관측과 검증 사례를 대조했습니다. INC-DOWN-A는 breakdown, INC-DOWN-B는 PM 작업 오류로 서로 다른 원인을 기록해 충돌하므로 둘 다 원인 후보이며 현재 건의 실제 원인은 확정할 수 없습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT stn, down_percent FROM fab10.autosched_stn","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT stn, down_percent FROM fab10.autosched_stn_fab10","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"diagnosis_synthesis","title":"diagnosis","content":"candidate-only synthesis","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["equipment_down"],"candidate_rankings":[{"issue_type":"equipment_down","support_level":"conflicting_candidate"}],"similar_cases":[{"case_id":"INC-DOWN-A","reliability":"verified_analogy"},{"case_id":"INC-DOWN-B","reliability":"verified_analogy"}],"reliability_assessment":{"verified_case_conflicts":[{"issue_type":"equipment_down","causes":["breakdown","pm 작업 오류"],"case_ids":["INC-DOWN-A","INC-DOWN-B"]}]}}}
     ],
     "expected_supported": true
@@ -835,7 +835,7 @@
     "answer": "fab10 DE_BE_11의 down 12.5% 관측과 검증 사례 INC-DOWN-A, INC-DOWN-B를 근거로 장비 고장을 원인 후보로 봅니다. 현재 건의 실제 원인은 확정할 수 없습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT stn, down_percent FROM fab10.autosched_stn","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT stn, down_percent FROM fab10.autosched_stn_fab10","row_count":1,"columns":["stn","down_percent"],"sample_rows":[{"stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"diagnosis_synthesis","title":"diagnosis","content":"candidate-only synthesis","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["equipment_down"],"candidate_rankings":[{"issue_type":"equipment_down","support_level":"conflicting_candidate"}],"similar_cases":[{"case_id":"INC-DOWN-A","reliability":"verified_analogy"},{"case_id":"INC-DOWN-B","reliability":"verified_analogy"}],"reliability_assessment":{"verified_case_conflicts":[{"issue_type":"equipment_down","causes":["breakdown","pm 작업 오류"],"case_ids":["INC-DOWN-A","INC-DOWN-B"]}]}}}
     ],
     "expected_supported": false
@@ -848,7 +848,7 @@
     "answer": "fab10 DE_BE_11의 2026-08-30부터 2026-09-02까지 down 12.5% 관측을 검토했습니다. INC-HISTORICAL은 질문 기간 밖의 과거 사례라 현재 건의 직접 시간 정합 근거가 아니며, 장비 고장은 원인 후보일 뿐 확정할 수 없습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, down_percent FROM fab10.autosched_stn","row_count":1,"columns":["report_date","stn","down_percent"],"sample_rows":[{"report_date":"2026-08-31","stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, down_percent FROM fab10.autosched_stn_fab10","row_count":1,"columns":["report_date","stn","down_percent"],"sample_rows":[{"report_date":"2026-08-31","stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"diagnosis_synthesis","title":"diagnosis","content":"candidate-only synthesis","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["equipment_down"],"candidate_rankings":[{"issue_type":"equipment_down","support_level":"weak_candidate"}],"similar_cases":[{"case_id":"INC-HISTORICAL","reliability":"verified_historical_analogy","temporal_alignment":"historical_outside_requested_period"}],"reliability_assessment":{"historical_verified_case_count":1}}}
     ],
     "expected_supported": true
@@ -861,7 +861,7 @@
     "answer": "fab10 DE_BE_11의 2026-08-30부터 2026-09-02까지 down 12.5% 관측과 검증 사례 INC-HISTORICAL을 근거로 장비 고장을 원인 후보로 봅니다. 실제 원인은 확정할 수 없습니다.",
     "limitations": [],
     "evidence": [
-      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, down_percent FROM fab10.autosched_stn","row_count":1,"columns":["report_date","stn","down_percent"],"sample_rows":[{"report_date":"2026-08-31","stn":"DE_BE_11","down_percent":12.5}]}},
+      {"source_type":"text2sql_plan","title":"down observation","content":"query result","metadata":{"status":"succeeded","sql":"SELECT report_date, stn, down_percent FROM fab10.autosched_stn_fab10","row_count":1,"columns":["report_date","stn","down_percent"],"sample_rows":[{"report_date":"2026-08-31","stn":"DE_BE_11","down_percent":12.5}]}},
       {"source_type":"diagnosis_synthesis","title":"diagnosis","content":"candidate-only synthesis","metadata":{"conclusion_level":"candidate_only","candidate_issue_types":["equipment_down"],"candidate_rankings":[{"issue_type":"equipment_down","support_level":"weak_candidate"}],"similar_cases":[{"case_id":"INC-HISTORICAL","reliability":"verified_historical_analogy","temporal_alignment":"historical_outside_requested_period"}],"reliability_assessment":{"historical_verified_case_count":1}}}
     ],
     "expected_supported": false

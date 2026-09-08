@@ -1,0 +1,678 @@
+{
+  "conversation_id": "access-recovery-verification-20260907",
+  "status": "failed",
+  "query_type": "master_data_lookup",
+  "answer": "다음은 fab10의 Dry_Etch toolgroup 목록이며, SMT2020 General Data 기준 simulation/model input 데이터에서 추출된 결과입니다. 이 정보는 실시간 fab10의 실제 운영 상태가 아니며, 현장 상황과 다를 수 있습니다.\n\n총 32개 toolgroup이 조회되었습니다. 주요 속성 예시는 아래와 같습니다:\n\n- toolgroup: DE_BE_11, number_of_tools: 10, location: Fab, dispatching: SuperHotLotFIRST_and_Reservation, ranking: Highest Lotpriority / Least Setuptime / FIFO\n- toolgroup: DE_BE_11_SIM_029, number_of_tools: 13\n- toolgroup: DE_BE_12, number_of_tools: 9\n- toolgroup: DE_BE_13, number_of_tools: 21, tool_wake_up_ranking: wake up Least Setuptime\n- toolgroup: DE_BE_48, number_of_tools: 10\n- toolgroup: DE_BE_50, number_of_tools: 9\n- toolgroup: DE_BE_65, number_of_tools: 17\n- toolgroup: DE_BE_66, number_of_tools: 19, tool_wake_up_ranking: wake up Least Setuptime\n- toolgroup: DE_FE_1, number_of_tools: 7 등\n\n모든 toolgroup은 'Fab' 내에 위치하며, 대부분의 dispatching 정책은 \"SuperHotLotFIRST_and_Reservation\"이고, ranking은 \"Highest Lotpriority\", \"Least Setuptime\", \"FIFO\" 순서로 설정되어 있습니다.\n\n[자료의 한계]\n- 본 목록은 SMT2020 General Data 기반 simulation/model input 데이터임을 강조합니다. 현장 실시간 공정 또는 설비 운영과 불일치할 수 있습니다.\n- fab10 마스터 데이터 스키마 및 포함 여부에 따라 빈 toolgroup 또는 일부 데이터 누락 가능성이 있으므로 참고용으로만 활용하시기 바랍니다.",
+  "conversation_history": [
+    {
+      "role": "user",
+      "content": "fab10 Dry_Etch toolgroup 목록 보여줘",
+      "metadata": {
+        "fab": "fab10",
+        "line": null,
+        "process": "Dry_Etch",
+        "product": null,
+        "route": null,
+        "equipment": null,
+        "date_basis": null,
+        "metric": null
+      }
+    },
+    {
+      "role": "assistant",
+      "content": "fab10의 Dry_Etch toolgroup 목록은 데이터베이스 접근 또는 스키마 문제로 인해 조회할 수 없습니다. 현재 운영 또는 시뮬레이션 데이터 모두 제공이 불가하며, 데이터 소스가 존재하지 않거나 접근이 제한된 것이 확인되었습니다.",
+      "metadata": {
+        "query_type": "master_data_lookup",
+        "status": "failed",
+        "sql": "SELECT area, toolgroup, number_of_tools, toolgrouplocation, dispatching, ranking_1, ranking_2, ranking_3, tool_wake_up_ranking\nFROM fab10.toolgroups_fab10\nWHERE area ILIKE '%Dry_Etch%'\nORDER BY area, toolgroup\nLIMIT 50",
+        "limitations": [
+          "Tool group data may not be available if fab10 master data is missing or schema is unaligned",
+          "Request assumes standard naming for 'Dry_Etch' category",
+          "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다.",
+          "live/current factory state로 해석하면 안 됩니다.",
+          "relation \"fab10.toolgroups_fab10\" does not exist\nLINE 2: FROM fab10.toolgroups_fab10\n             ^",
+          "No tool group data for Dry_Etch in fab10 is available from operational database.",
+          "SQL query generated, but database not accessible or schema misaligned.",
+          "No alternate agents permitted for this master data lookup.",
+          "Database lookup failed: fab10.toolgroups_fab10 does not exist or is inaccessible.",
+          "No alternate agents allowed, so the data cannot be gathered from another source.",
+          "No tool group data for Dry_Etch in fab10 could be retrieved.",
+          "결과가 데이터베이스 접근 문제로 인해 조회 불가함을 명시해야 함",
+          "정확한 tool group 목록이 존재하지 않음을 근거 기반으로 설명해야 함"
+        ]
+      }
+    },
+    {
+      "role": "user",
+      "content": "fab10 Dry_Etch toolgroup 목록 보여줘",
+      "metadata": {
+        "fab": "fab10",
+        "line": null,
+        "process": "Dry_Etch",
+        "product": null,
+        "route": null,
+        "equipment": null,
+        "date_basis": null,
+        "metric": null
+      }
+    },
+    {
+      "role": "assistant",
+      "content": "다음은 fab10의 Dry_Etch toolgroup 목록이며, SMT2020 General Data 기준 simulation/model input 데이터에서 추출된 결과입니다. 이 정보는 실시간 fab10의 실제 운영 상태가 아니며, 현장 상황과 다를 수 있습니다.\n\n총 32개 toolgroup이 조회되었습니다. 주요 속성 예시는 아래와 같습니다:\n\n- toolgroup: DE_BE_11, number_of_tools: 10, location: Fab, dispatching: SuperHotLotFIRST_and_Reservation, ranking: Highest Lotpriority / Least Setuptime / FIFO\n- toolgroup: DE_BE_11_SIM_029, number_of_tools: 13\n- toolgroup: DE_BE_12, number_of_tools: 9\n- toolgroup: DE_BE_13, number_of_tools: 21, tool_wake_up_ranking: wake up Least Setuptime\n- toolgroup: DE_BE_48, number_of_tools: 10\n- toolgroup: DE_BE_50, number_of_tools: 9\n- toolgroup: DE_BE_65, number_of_tools: 17\n- toolgroup: DE_BE_66, number_of_tools: 19, tool_wake_up_ranking: wake up Least Setuptime\n- toolgroup: DE_FE_1, number_of_tools: 7 등\n\n모든 toolgroup은 'Fab' 내에 위치하며, 대부분의 dispatching 정책은 \"SuperHotLotFIRST_and_Reservation\"이고, ranking은 \"Highest Lotpriority\", \"Least Setuptime\", \"FIFO\" 순서로 설정되어 있습니다.\n\n[자료의 한계]\n- 본 목록은 SMT2020 General Data 기반 simulation/model input 데이터임을 강조합니다. 현장 실시간 공정 또는 설비 운영과 불일치할 수 있습니다.\n- fab10 마스터 데이터 스키마 및 포함 여부에 따라 빈 toolgroup 또는 일부 데이터 누락 가능성이 있으므로 참고용으로만 활용하시기 바랍니다.",
+      "metadata": {
+        "query_type": "master_data_lookup",
+        "status": "failed",
+        "sql": "SELECT area, toolgroup, number_of_tools, toolgrouplocation, dispatching, ranking_1, ranking_2, ranking_3, tool_wake_up_ranking\nFROM fab10.toolgroups_fab10\nWHERE area ILIKE '%Dry_Etch%'\nORDER BY area, toolgroup\nLIMIT 50",
+        "limitations": [
+          "Result may depend on the current database schema. If fab10 toolgroup master data is structurally missing or inaccessible, no result can be provided.",
+          "Toolgroup names and categorization are assumed to match the requested 'Dry_Etch' process area.",
+          "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다.",
+          "live/current factory state로 해석하면 안 됩니다.",
+          "결과는 SMT2020 General Data 기반 simulation/model input에서 조회된 것이며, 현재 fab10 공장의 실시간 운영 현황이 아님을 명확히 밝혀야 합니다. 현장 상태와 불일치할 수 있음.",
+          "General Data must not be described as live/current factory state."
+        ]
+      }
+    }
+  ],
+  "reasoning_state": [
+    {
+      "node": "planner",
+      "summary": "master_data_lookup로 분류하고 1개 실행 단계를 만들었습니다.",
+      "details": {
+        "history_turns": 2,
+        "execution_feedback_count": 0,
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "missing_slots": []
+      }
+    },
+    {
+      "node": "supervisor",
+      "summary": "계획 상태가 ready라서 실행을 승인했습니다.",
+      "details": {
+        "status": "ready",
+        "halted": false,
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "reason": "The question is a direct database lookup for master data (Dry_Etch toolgroup list in fab10) and all required slots are provided. Per policy, a fresh Text2SQL attempt is needed to determine live data availability regardless of past results. No clarification or additional diagnostic/RAG step is needed for this specific lookup."
+      }
+    },
+    {
+      "node": "dispatcher",
+      "summary": "계획 cursor 0의 다음 agent로 text2sql를 선택했습니다.",
+      "details": {
+        "cursor": 0,
+        "next_agent": "text2sql",
+        "total_steps": 1
+      }
+    },
+    {
+      "node": "text2sql",
+      "summary": "master_data_lookup 질의를 succeeded 상태로 처리했습니다.",
+      "details": {
+        "fab": "fab10",
+        "required": true,
+        "row_count": 32,
+        "has_sql": true,
+        "feedback_count": 0
+      }
+    },
+    {
+      "node": "dispatcher",
+      "summary": "계획된 실행 단계를 모두 소진해 최종 reflection으로 이동합니다.",
+      "details": {
+        "cursor": 1,
+        "total_steps": 1
+      }
+    },
+    {
+      "node": "reflection",
+      "summary": "최종 검증 결과: 최종 답변 작성.",
+      "details": {
+        "is_supported": true,
+        "warning_count": 1,
+        "retry_target": null,
+        "termination_reason": "completed"
+      }
+    },
+    {
+      "node": "composer",
+      "summary": "수집된 tool summary, evidence, limitation, reflection을 기준으로 최종 답변을 작성했습니다.",
+      "details": {
+        "answer_part_count": 1,
+        "evidence_count": 2,
+        "limitation_count": 5
+      }
+    },
+    {
+      "node": "answer_supervisor",
+      "summary": "최종 답변을 원 질문과 근거에 대조해 검증했습니다.",
+      "details": {
+        "approved": false,
+        "revised": false,
+        "issue_count": 1
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "source_type": "planner_plan",
+      "title": "Planner plan",
+      "content": "List Dry_Etch toolgroup information for fab10",
+      "metadata": {
+        "execution_mode": "llm_chat_completions",
+        "model": "gpt-4.1",
+        "status": "ready",
+        "query_type": "master_data_lookup",
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [],
+        "execution_steps": [
+          {
+            "agent": "text2sql",
+            "action": "Query the fab10 master data/model input tables for Dry_Etch toolgroup list and basic attributes (name, location, etc)",
+            "required": true,
+            "reason": "Toolgroup listings by process area require a master data or model input database lookup, and schema availability may have changed since last attempt."
+          }
+        ],
+        "slots": {
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 0.9,
+            "raw_text": "fab10 Dry_Etch toolgroup 목록 보여줘"
+          },
+          "process": {
+            "value": "Dry_Etch",
+            "source": "request_context",
+            "confidence": 0.9,
+            "raw_text": "Dry_Etch"
+          }
+        }
+      }
+    },
+    {
+      "source_type": "text2sql_plan",
+      "title": "Text2SQL query and result",
+      "content": "General Data 기준으로 32개 행을 조회했습니다.",
+      "metadata": {
+        "status": "succeeded",
+        "query_type": "master_data_lookup",
+        "row_count": 32,
+        "columns": [
+          "area",
+          "toolgroup",
+          "number_of_tools",
+          "toolgrouplocation",
+          "dispatching",
+          "ranking_1",
+          "ranking_2",
+          "ranking_3",
+          "tool_wake_up_ranking"
+        ],
+        "sample_rows": [
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_11",
+            "number_of_tools": 10,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_11_SIM_029",
+            "number_of_tools": 13,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_12",
+            "number_of_tools": 9,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_13",
+            "number_of_tools": 21,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": "wake up Least Setuptime"
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_48",
+            "number_of_tools": 10,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_48_SIM_015",
+            "number_of_tools": 10,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_50",
+            "number_of_tools": 9,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_65",
+            "number_of_tools": 17,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_66",
+            "number_of_tools": 19,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": "wake up Least Setuptime"
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_66_SIM_034",
+            "number_of_tools": 20,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": "wake up Least Setuptime"
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_67",
+            "number_of_tools": 10,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_69",
+            "number_of_tools": 2,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_BE_69_SIM_016",
+            "number_of_tools": 2,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_FE_1",
+            "number_of_tools": 7,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_FE_1_SIM_009",
+            "number_of_tools": 8,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_FE_51",
+            "number_of_tools": 19,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_FE_51_SIM_028",
+            "number_of_tools": 21,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_FE_53",
+            "number_of_tools": 5,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_FE_54",
+            "number_of_tools": 5,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          },
+          {
+            "area": "Dry_Etch",
+            "toolgroup": "DE_FE_54_SIM_040",
+            "number_of_tools": 4,
+            "toolgrouplocation": "Fab",
+            "dispatching": "SuperHotLotFIRST_and_Reservation",
+            "ranking_1": "Highest Lotpriority",
+            "ranking_2": "Least Setuptime",
+            "ranking_3": "FIFO",
+            "tool_wake_up_ranking": null
+          }
+        ],
+        "query_plan": {
+          "query_type": "master_data_lookup",
+          "template_id": "deterministic_master_toolgroups",
+          "fab_id": "fab10",
+          "data_source_type": "model_master",
+          "slots": {
+            "area": {
+              "value": "Dry_Etch",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "Dry_Etch"
+            },
+            "fab_id": {
+              "value": "fab10",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10 Dry_Etch toolgroup 목록 보여줘"
+            }
+          },
+          "limitations": [
+            "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다.",
+            "live/current factory state로 해석하면 안 됩니다."
+          ],
+          "source_tables": [
+            "fab10.toolgroups_fab10"
+          ],
+          "select_items": [
+            "area",
+            "toolgroup",
+            "number_of_tools",
+            "toolgrouplocation",
+            "dispatching",
+            "ranking_1",
+            "ranking_2",
+            "ranking_3",
+            "tool_wake_up_ranking"
+          ],
+          "filters": [],
+          "group_by": [],
+          "order_by": [
+            "area",
+            "toolgroup"
+          ],
+          "aggregation": null,
+          "expected_result_shape": "rows",
+          "chart_intent": null
+        },
+        "sql": "SELECT area, toolgroup, number_of_tools, toolgrouplocation, dispatching, ranking_1, ranking_2, ranking_3, tool_wake_up_ranking\nFROM fab10.toolgroups_fab10\nWHERE area ILIKE '%Dry_Etch%'\nORDER BY area, toolgroup\nLIMIT 50"
+      }
+    }
+  ],
+  "sql": "SELECT area, toolgroup, number_of_tools, toolgrouplocation, dispatching, ranking_1, ranking_2, ranking_3, tool_wake_up_ranking\nFROM fab10.toolgroups_fab10\nWHERE area ILIKE '%Dry_Etch%'\nORDER BY area, toolgroup\nLIMIT 50",
+  "chart": null,
+  "confidence": 0.98,
+  "limitations": [
+    "Result may depend on the current database schema. If fab10 toolgroup master data is structurally missing or inaccessible, no result can be provided.",
+    "Toolgroup names and categorization are assumed to match the requested 'Dry_Etch' process area.",
+    "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다.",
+    "live/current factory state로 해석하면 안 됩니다.",
+    "결과는 SMT2020 General Data 기반 simulation/model input에서 조회된 것이며, 현재 fab10 공장의 실시간 운영 현황이 아님을 명확히 밝혀야 합니다. 현장 상태와 불일치할 수 있음.",
+    "General Data must not be described as live/current factory state."
+  ],
+  "agent_runs": [
+    {
+      "agent": "text2sql",
+      "status": "succeeded",
+      "summary": "General Data 기준으로 32개 행을 조회했습니다.",
+      "metadata": {
+        "row_count": 32
+      }
+    }
+  ],
+  "agent_reflections": [
+    {
+      "agent_name": "text2sql",
+      "agent_intent": "Query the fab10 master data/model input tables for Dry_Etch toolgroup list and basic attributes (name, location, etc) (Toolgroup listings by process area require a master data or model input database lookup, and schema availability may have changed since last attempt.)",
+      "planner_intent": "List Dry_Etch toolgroup information for fab10",
+      "query_type": "master_data_lookup",
+      "required": true,
+      "status": "succeeded",
+      "success_criteria": [
+        "Complete planner action: Query the fab10 master data/model input tables for Dry_Etch toolgroup list and basic attributes (name, location, etc)",
+        "Return a succeeded status with read-only SQL.",
+        "Record query/result evidence and limitations."
+      ],
+      "agent_output": {
+        "agent": "text2sql",
+        "status": "succeeded",
+        "summary": "General Data 기준으로 32개 행을 조회했습니다.",
+        "metadata": {
+          "row_count": 32
+        },
+        "sql": "SELECT area, toolgroup, number_of_tools, toolgrouplocation, dispatching, ranking_1, ranking_2, ranking_3, tool_wake_up_ranking\nFROM fab10.toolgroups_fab10\nWHERE area ILIKE '%Dry_Etch%'\nORDER BY area, toolgroup\nLIMIT 50",
+        "row_count": 32,
+        "columns": [
+          "area",
+          "toolgroup",
+          "number_of_tools",
+          "toolgrouplocation",
+          "dispatching",
+          "ranking_1",
+          "ranking_2",
+          "ranking_3",
+          "tool_wake_up_ranking"
+        ]
+      },
+      "decision": "pass",
+      "recommended_action": "continue",
+      "reason": "Agent output satisfies the declared success criteria.",
+      "warnings": [],
+      "evidence_count": 1,
+      "limitation_count": 2
+    }
+  ],
+  "supervisor_reviews": [],
+  "supervisor_decisions": [],
+  "retry_counts": {},
+  "replan_count": 0,
+  "reflection_decisions": [
+    {
+      "action": "compose",
+      "retry_target": null,
+      "reason": "text2sql 마스터 데이터 조회 결과와 evidence에서 fab10 Dry_Etch toolgroup 목록(32개 행)이 General Data simulation/model input 기준으로 성공적으로 추출됨이 명확하므로, 근거 및 제한사항을 포함해 답변하도록 안내함.",
+      "retry_budget_remaining": 2,
+      "replan_budget_remaining": 1,
+      "termination_reason": "completed"
+    }
+  ],
+  "termination_reason": "answer_review_failed",
+  "reflection": {
+    "is_supported": true,
+    "warnings": [
+      "결과는 SMT2020 General Data 기반 simulation/model input에서 조회된 것이며, 현재 fab10 공장의 실시간 운영 현황이 아님을 명확히 밝혀야 합니다. 현장 상태와 불일치할 수 있음."
+    ],
+    "composer_instructions": [
+      "답변에는 반드시 'General Data 기준'임을 명시하고, 실운영 정보가 아니라 simulation/model input 데이터임을 설명할 것.",
+      "데이터베이스에서 Dry_Etch toolgroup 목록을 32개 행으로 조회한 사실 및 해당 속성(이름, 개수 등)을 제시할 것.",
+      "자료의 한계(스키마/데이터셋 차이로 누락 가능성, live 상황 미반영 등)를 명확히 서두/말미에 표기할 것."
+    ],
+    "action": "compose",
+    "retry_target": null,
+    "reason": "text2sql 마스터 데이터 조회 결과와 evidence에서 fab10 Dry_Etch toolgroup 목록(32개 행)이 General Data simulation/model input 기준으로 성공적으로 추출됨이 명확하므로, 근거 및 제한사항을 포함해 답변하도록 안내함.",
+    "evidence_count": 2,
+    "limitation_count": 4,
+    "deterministic_warnings": [],
+    "agent_reflections": [
+      {
+        "agent_name": "text2sql",
+        "agent_intent": "Query the fab10 master data/model input tables for Dry_Etch toolgroup list and basic attributes (name, location, etc) (Toolgroup listings by process area require a master data or model input database lookup, and schema availability may have changed since last attempt.)",
+        "planner_intent": "List Dry_Etch toolgroup information for fab10",
+        "query_type": "master_data_lookup",
+        "required": true,
+        "status": "succeeded",
+        "success_criteria": [
+          "Complete planner action: Query the fab10 master data/model input tables for Dry_Etch toolgroup list and basic attributes (name, location, etc)",
+          "Return a succeeded status with read-only SQL.",
+          "Record query/result evidence and limitations."
+        ],
+        "agent_output": {
+          "agent": "text2sql",
+          "status": "succeeded",
+          "summary": "General Data 기준으로 32개 행을 조회했습니다.",
+          "metadata": {
+            "row_count": 32
+          },
+          "sql": "SELECT area, toolgroup, number_of_tools, toolgrouplocation, dispatching, ranking_1, ranking_2, ranking_3, tool_wake_up_ranking\nFROM fab10.toolgroups_fab10\nWHERE area ILIKE '%Dry_Etch%'\nORDER BY area, toolgroup\nLIMIT 50",
+          "row_count": 32,
+          "columns": [
+            "area",
+            "toolgroup",
+            "number_of_tools",
+            "toolgrouplocation",
+            "dispatching",
+            "ranking_1",
+            "ranking_2",
+            "ranking_3",
+            "tool_wake_up_ranking"
+          ]
+        },
+        "decision": "pass",
+        "recommended_action": "continue",
+        "reason": "Agent output satisfies the declared success criteria.",
+        "warnings": [],
+        "evidence_count": 1,
+        "limitation_count": 2
+      }
+    ],
+    "supervisor_reviews": [],
+    "execution_mode": "llm_chat_completions",
+    "model": "gpt-4.1"
+  },
+  "answer_review": {
+    "approved": false,
+    "issues": [
+      "General Data must not be described as live/current factory state."
+    ],
+    "corrected_answer": null,
+    "reason": "The final answer directly addresses the user's request for the fab10 Dry_Etch toolgroup list, using real database evidence (simulation/model input data), includes all requested identifiers, describes key attributes, and prominently highlights limitations about simulation data vs. real-time fab state. No unsupported claims or invented facts are present.",
+    "original_approved": false,
+    "correction_applied": false,
+    "deterministic_check": {
+      "is_supported": false,
+      "warnings": [
+        "General Data must not be described as live/current factory state."
+      ],
+      "evidence_count": 2,
+      "limitation_count": 5,
+      "missing_identifiers": [],
+      "missing_metrics": [],
+      "missing_dates": [],
+      "missing_facets": [],
+      "missing_selection_constraints": [],
+      "missing_result_metrics": [],
+      "missing_result_targets": [],
+      "unsupported_numeric_claims": [],
+      "missing_impact_estimates": [],
+      "impact_direction_conflicts": [],
+      "missing_mixed_impact_dimensions": [],
+      "trend_direction_conflicts": [],
+      "missing_trend_series": [],
+      "missing_comparison_periods": [],
+      "missing_verified_case_citations": [],
+      "undisclosed_verified_case_conflict": false,
+      "undisclosed_historical_case": false,
+      "undisclosed_series_gaps": [],
+      "undisclosed_insufficient_trends": [],
+      "undisclosed_imputed_points": [],
+      "chart_claim_grounded": true,
+      "quality_dimensions": {
+        "question_alignment": true,
+        "evidence_grounding": true,
+        "limitation_visibility": true,
+        "provenance_calibration": true
+      },
+      "quality_score": 1.0
+    },
+    "correction_check": null,
+    "prompt_version": "answer-supervisor.v1"
+  }
+}

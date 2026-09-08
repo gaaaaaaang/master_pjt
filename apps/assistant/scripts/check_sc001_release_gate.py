@@ -9,6 +9,7 @@ from typing import Any
 
 import psycopg
 from app.config import get_settings
+from app.db.fab_catalog import physical_table_name, table_ref
 from app.db.read_only import ReadOnlyQueryExecutor
 from psycopg import sql
 from psycopg.rows import dict_row
@@ -76,7 +77,7 @@ def inspect_database(contract: dict[str, Any], dsn: str) -> dict[str, Any]:
         row_factory=dict_row,
     ) as connection, connection.cursor() as cursor:
         for table_name in contract["tables"]:
-            cursor.execute("SELECT to_regclass(%s)", (f"fab10.{table_name}",))
+            cursor.execute("SELECT to_regclass(%s)", (table_ref("fab10", table_name),))
             if cursor.fetchone()["to_regclass"] is None:
                 table_observations[table_name] = None
                 continue
@@ -84,7 +85,7 @@ def inspect_database(contract: dict[str, Any], dsn: str) -> dict[str, Any]:
                 sql.SQL(
                     "SELECT COUNT(*) AS row_count, "
                     "MAX(report_time)::text AS max_report_time FROM {}.{}"
-                ).format(sql.Identifier("fab10"), sql.Identifier(table_name))
+                ).format(sql.Identifier("fab10"), sql.Identifier(physical_table_name("fab10", table_name)))
             )
             table_observations[table_name] = dict(cursor.fetchone())
         for query in contract["queries"]:

@@ -1,0 +1,9 @@
+{
+  "chunk_count": 55,
+  "corpus_digest": "ce3f3e02b50d2e4093ade6f6fa4d1d8095248c5c15f456ca7986e4a8b5af3762",
+  "dimension": 3072,
+  "embedding_model": "text-embedding-3-large",
+  "embedding_revision": "text-embedding-3-large.v1",
+  "index_version": "61d9cd5e076e055f0b6436f7",
+  "schema_version": 1
+}

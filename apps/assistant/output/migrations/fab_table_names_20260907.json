@@ -1,0 +1,630 @@
+{
+  "renamed": 78,
+  "same_oid_and_row_counts": true,
+  "tables": [
+    {
+      "schema": "fab10",
+      "from": "autosched_lot",
+      "to": "autosched_lot_fab10",
+      "oid": 18132,
+      "rows_before": 85772,
+      "rows_after": 85772
+    },
+    {
+      "schema": "fab10",
+      "from": "autosched_order",
+      "to": "autosched_order_fab10",
+      "oid": 18141,
+      "rows_before": 24,
+      "rows_after": 24
+    },
+    {
+      "schema": "fab10",
+      "from": "autosched_part",
+      "to": "autosched_part_fab10",
+      "oid": 18123,
+      "rows_before": 8,
+      "rows_after": 8
+    },
+    {
+      "schema": "fab10",
+      "from": "autosched_perf",
+      "to": "autosched_perf_fab10",
+      "oid": 18096,
+      "rows_before": 4,
+      "rows_after": 4
+    },
+    {
+      "schema": "fab10",
+      "from": "autosched_semi",
+      "to": "autosched_semi_fab10",
+      "oid": 18150,
+      "rows_before": 418,
+      "rows_after": 418
+    },
+    {
+      "schema": "fab10",
+      "from": "autosched_stn",
+      "to": "autosched_stn_fab10",
+      "oid": 18114,
+      "rows_before": 5772,
+      "rows_after": 5772
+    },
+    {
+      "schema": "fab10",
+      "from": "autosched_stnfam",
+      "to": "autosched_stnfam_fab10",
+      "oid": 18159,
+      "rows_before": 424,
+      "rows_after": 424
+    },
+    {
+      "schema": "fab10",
+      "from": "autosched_stngrp",
+      "to": "autosched_stngrp_fab10",
+      "oid": 18105,
+      "rows_before": 48,
+      "rows_after": 48
+    },
+    {
+      "schema": "fab10",
+      "from": "breakdown",
+      "to": "breakdown_fab10",
+      "oid": 16597,
+      "rows_before": 77,
+      "rows_after": 77
+    },
+    {
+      "schema": "fab10",
+      "from": "live_process_events",
+      "to": "live_process_events_fab10",
+      "oid": 18258,
+      "rows_before": 2016,
+      "rows_after": 2016
+    },
+    {
+      "schema": "fab10",
+      "from": "live_process_snapshots",
+      "to": "live_process_snapshots_fab10",
+      "oid": 18209,
+      "rows_before": 108,
+      "rows_after": 108
+    },
+    {
+      "schema": "fab10",
+      "from": "lotrelease",
+      "to": "lotrelease_fab10",
+      "oid": 16624,
+      "rows_before": 35,
+      "rows_after": 35
+    },
+    {
+      "schema": "fab10",
+      "from": "lotrelease_engineering",
+      "to": "lotrelease_engineering_fab10",
+      "oid": 17742,
+      "rows_before": 30,
+      "rows_after": 30
+    },
+    {
+      "schema": "fab10",
+      "from": "lotrelease_variable_due_dates",
+      "to": "lotrelease_variable_due_dates_fab10",
+      "oid": 17733,
+      "rows_before": 30,
+      "rows_after": 30
+    },
+    {
+      "schema": "fab10",
+      "from": "pm",
+      "to": "pm_fab10",
+      "oid": 16588,
+      "rows_before": 412,
+      "rows_after": 412
+    },
+    {
+      "schema": "fab10",
+      "from": "route_product_3",
+      "to": "route_product_3_fab10",
+      "oid": 16606,
+      "rows_before": 983,
+      "rows_after": 983
+    },
+    {
+      "schema": "fab10",
+      "from": "route_product_4",
+      "to": "route_product_4_fab10",
+      "oid": 16615,
+      "rows_before": 593,
+      "rows_after": 593
+    },
+    {
+      "schema": "fab10",
+      "from": "setup_matrix_implant_gas",
+      "to": "setup_matrix_implant_gas_fab10",
+      "oid": 16642,
+      "rows_before": 73,
+      "rows_after": 73
+    },
+    {
+      "schema": "fab10",
+      "from": "setups",
+      "to": "setups_fab10",
+      "oid": 16633,
+      "rows_before": 43,
+      "rows_after": 43
+    },
+    {
+      "schema": "fab10",
+      "from": "toolgroups",
+      "to": "toolgroups_fab10",
+      "oid": 16579,
+      "rows_before": 156,
+      "rows_after": 156
+    },
+    {
+      "schema": "fab10",
+      "from": "transport",
+      "to": "transport_fab10",
+      "oid": 16651,
+      "rows_before": 31,
+      "rows_after": 31
+    },
+    {
+      "schema": "fab11",
+      "from": "breakdown",
+      "to": "breakdown_fab11",
+      "oid": 16679,
+      "rows_before": 41,
+      "rows_after": 41
+    },
+    {
+      "schema": "fab11",
+      "from": "live_process_events",
+      "to": "live_process_events_fab11",
+      "oid": 18270,
+      "rows_before": 2016,
+      "rows_after": 2016
+    },
+    {
+      "schema": "fab11",
+      "from": "live_process_snapshots",
+      "to": "live_process_snapshots_fab11",
+      "oid": 18221,
+      "rows_before": 108,
+      "rows_after": 108
+    },
+    {
+      "schema": "fab11",
+      "from": "lotrelease",
+      "to": "lotrelease_fab11",
+      "oid": 16706,
+      "rows_before": 51,
+      "rows_after": 51
+    },
+    {
+      "schema": "fab11",
+      "from": "lotrelease_engineering",
+      "to": "lotrelease_engineering_fab11",
+      "oid": 17751,
+      "rows_before": 30,
+      "rows_after": 30
+    },
+    {
+      "schema": "fab11",
+      "from": "lotrelease_variable_due_dates",
+      "to": "lotrelease_variable_due_dates_fab11",
+      "oid": 16715,
+      "rows_before": 167159,
+      "rows_after": 167159
+    },
+    {
+      "schema": "fab11",
+      "from": "pm",
+      "to": "pm_fab11",
+      "oid": 16670,
+      "rows_before": 322,
+      "rows_after": 322
+    },
+    {
+      "schema": "fab11",
+      "from": "route_product_1",
+      "to": "route_product_1_fab11",
+      "oid": 16724,
+      "rows_before": 551,
+      "rows_after": 551
+    },
+    {
+      "schema": "fab11",
+      "from": "route_product_10",
+      "to": "route_product_10_fab11",
+      "oid": 16805,
+      "rows_before": 420,
+      "rows_after": 420
+    },
+    {
+      "schema": "fab11",
+      "from": "route_product_2",
+      "to": "route_product_2_fab11",
+      "oid": 16733,
+      "rows_before": 559,
+      "rows_after": 559
+    },
+    {
+      "schema": "fab11",
+      "from": "route_product_3",
+      "to": "route_product_3_fab11",
+      "oid": 16742,
+      "rows_before": 613,
+      "rows_after": 613
+    },
+    {
+      "schema": "fab11",
+      "from": "route_product_4",
+      "to": "route_product_4_fab11",
+      "oid": 16751,
+      "rows_before": 373,
+      "rows_after": 373
+    },
+    {
+      "schema": "fab11",
+      "from": "route_product_5",
+      "to": "route_product_5_fab11",
+      "oid": 16760,
+      "rows_before": 272,
+      "rows_after": 272
+    },
+    {
+      "schema": "fab11",
+      "from": "route_product_6",
+      "to": "route_product_6_fab11",
+      "oid": 16769,
+      "rows_before": 323,
+      "rows_after": 323
+    },
+    {
+      "schema": "fab11",
+      "from": "route_product_7",
+      "to": "route_product_7_fab11",
+      "oid": 16778,
+      "rows_before": 383,
+      "rows_after": 383
+    },
+    {
+      "schema": "fab11",
+      "from": "route_product_8",
+      "to": "route_product_8_fab11",
+      "oid": 16787,
+      "rows_before": 405,
+      "rows_after": 405
+    },
+    {
+      "schema": "fab11",
+      "from": "route_product_9",
+      "to": "route_product_9_fab11",
+      "oid": 16796,
+      "rows_before": 414,
+      "rows_after": 414
+    },
+    {
+      "schema": "fab11",
+      "from": "setups",
+      "to": "setups_fab11",
+      "oid": 16688,
+      "rows_before": 43,
+      "rows_after": 43
+    },
+    {
+      "schema": "fab11",
+      "from": "toolgroups",
+      "to": "toolgroups_fab11",
+      "oid": 16661,
+      "rows_before": 136,
+      "rows_after": 136
+    },
+    {
+      "schema": "fab11",
+      "from": "transport",
+      "to": "transport_fab11",
+      "oid": 16697,
+      "rows_before": 31,
+      "rows_after": 31
+    },
+    {
+      "schema": "fab12",
+      "from": "breakdown",
+      "to": "breakdown_fab12",
+      "oid": 16833,
+      "rows_before": 41,
+      "rows_after": 41
+    },
+    {
+      "schema": "fab12",
+      "from": "live_process_events",
+      "to": "live_process_events_fab12",
+      "oid": 18282,
+      "rows_before": 2016,
+      "rows_after": 2016
+    },
+    {
+      "schema": "fab12",
+      "from": "live_process_snapshots",
+      "to": "live_process_snapshots_fab12",
+      "oid": 18233,
+      "rows_before": 108,
+      "rows_after": 108
+    },
+    {
+      "schema": "fab12",
+      "from": "lotrelease",
+      "to": "lotrelease_fab12",
+      "oid": 16869,
+      "rows_before": 37,
+      "rows_after": 37
+    },
+    {
+      "schema": "fab12",
+      "from": "lotrelease_engineering",
+      "to": "lotrelease_engineering_fab12",
+      "oid": 16878,
+      "rows_before": 16750,
+      "rows_after": 16750
+    },
+    {
+      "schema": "fab12",
+      "from": "lotrelease_variable_due_dates",
+      "to": "lotrelease_variable_due_dates_fab12",
+      "oid": 17760,
+      "rows_before": 30,
+      "rows_after": 30
+    },
+    {
+      "schema": "fab12",
+      "from": "pm",
+      "to": "pm_fab12",
+      "oid": 16824,
+      "rows_before": 322,
+      "rows_after": 322
+    },
+    {
+      "schema": "fab12",
+      "from": "route_product_3",
+      "to": "route_product_3_fab12",
+      "oid": 16851,
+      "rows_before": 613,
+      "rows_after": 613
+    },
+    {
+      "schema": "fab12",
+      "from": "route_product_4",
+      "to": "route_product_4_fab12",
+      "oid": 16860,
+      "rows_before": 373,
+      "rows_after": 373
+    },
+    {
+      "schema": "fab12",
+      "from": "route_product_e3",
+      "to": "route_product_e3_fab12",
+      "oid": 16842,
+      "rows_before": 613,
+      "rows_after": 613
+    },
+    {
+      "schema": "fab12",
+      "from": "setup_matrix_implant_gas",
+      "to": "setup_matrix_implant_gas_fab12",
+      "oid": 16896,
+      "rows_before": 73,
+      "rows_after": 73
+    },
+    {
+      "schema": "fab12",
+      "from": "setups",
+      "to": "setups_fab12",
+      "oid": 16887,
+      "rows_before": 43,
+      "rows_after": 43
+    },
+    {
+      "schema": "fab12",
+      "from": "toolgroups",
+      "to": "toolgroups_fab12",
+      "oid": 16815,
+      "rows_before": 136,
+      "rows_after": 136
+    },
+    {
+      "schema": "fab12",
+      "from": "transport",
+      "to": "transport_fab12",
+      "oid": 16905,
+      "rows_before": 31,
+      "rows_after": 31
+    },
+    {
+      "schema": "fab13",
+      "from": "breakdown",
+      "to": "breakdown_fab13",
+      "oid": 16933,
+      "rows_before": 41,
+      "rows_after": 41
+    },
+    {
+      "schema": "fab13",
+      "from": "live_process_events",
+      "to": "live_process_events_fab13",
+      "oid": 18294,
+      "rows_before": 2016,
+      "rows_after": 2016
+    },
+    {
+      "schema": "fab13",
+      "from": "live_process_snapshots",
+      "to": "live_process_snapshots_fab13",
+      "oid": 18245,
+      "rows_before": 108,
+      "rows_after": 108
+    },
+    {
+      "schema": "fab13",
+      "from": "lotrelease",
+      "to": "lotrelease_fab13",
+      "oid": 16960,
+      "rows_before": 57,
+      "rows_after": 57
+    },
+    {
+      "schema": "fab13",
+      "from": "lotrelease_engineering",
+      "to": "lotrelease_engineering_fab13",
+      "oid": 16978,
+      "rows_before": 33468,
+      "rows_after": 33468
+    },
+    {
+      "schema": "fab13",
+      "from": "lotrelease_variable_due_dates",
+      "to": "lotrelease_variable_due_dates_fab13",
+      "oid": 16969,
+      "rows_before": 167159,
+      "rows_after": 167159
+    },
+    {
+      "schema": "fab13",
+      "from": "pm",
+      "to": "pm_fab13",
+      "oid": 16924,
+      "rows_before": 322,
+      "rows_after": 322
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_1",
+      "to": "route_product_1_fab13",
+      "oid": 17014,
+      "rows_before": 551,
+      "rows_after": 551
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_10",
+      "to": "route_product_10_fab13",
+      "oid": 17095,
+      "rows_before": 420,
+      "rows_after": 420
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_2",
+      "to": "route_product_2_fab13",
+      "oid": 17023,
+      "rows_before": 559,
+      "rows_after": 559
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_3",
+      "to": "route_product_3_fab13",
+      "oid": 17032,
+      "rows_before": 613,
+      "rows_after": 613
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_4",
+      "to": "route_product_4_fab13",
+      "oid": 17041,
+      "rows_before": 373,
+      "rows_after": 373
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_5",
+      "to": "route_product_5_fab13",
+      "oid": 17050,
+      "rows_before": 272,
+      "rows_after": 272
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_6",
+      "to": "route_product_6_fab13",
+      "oid": 17059,
+      "rows_before": 323,
+      "rows_after": 323
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_7",
+      "to": "route_product_7_fab13",
+      "oid": 17068,
+      "rows_before": 383,
+      "rows_after": 383
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_8",
+      "to": "route_product_8_fab13",
+      "oid": 17077,
+      "rows_before": 405,
+      "rows_after": 405
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_9",
+      "to": "route_product_9_fab13",
+      "oid": 17086,
+      "rows_before": 414,
+      "rows_after": 414
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_e1",
+      "to": "route_product_e1_fab13",
+      "oid": 16987,
+      "rows_before": 551,
+      "rows_after": 551
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_e2",
+      "to": "route_product_e2_fab13",
+      "oid": 16996,
+      "rows_before": 559,
+      "rows_after": 559
+    },
+    {
+      "schema": "fab13",
+      "from": "route_product_e3",
+      "to": "route_product_e3_fab13",
+      "oid": 17005,
+      "rows_before": 613,
+      "rows_after": 613
+    },
+    {
+      "schema": "fab13",
+      "from": "setups",
+      "to": "setups_fab13",
+      "oid": 16942,
+      "rows_before": 43,
+      "rows_after": 43
+    },
+    {
+      "schema": "fab13",
+      "from": "toolgroups",
+      "to": "toolgroups_fab13",
+      "oid": 16915,
+      "rows_before": 136,
+      "rows_after": 136
+    },
+    {
+      "schema": "fab13",
+      "from": "transport",
+      "to": "transport_fab13",
+      "oid": 16951,
+      "rows_before": 31,
+      "rows_after": 31
+    }
+  ]
+}

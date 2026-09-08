@@ -1,0 +1,576 @@
+{
+  "evaluation_version": "evidence_units.v2",
+  "top_k": 3,
+  "case_count": 30,
+  "metrics": {
+    "hit_rate": 0.8620689655172413,
+    "recall_at_k": 0.8620689655172413,
+    "mrr": 0.8448275862068966,
+    "ndcg": 0.8493424052955675,
+    "complete_evidence_rate": 0.8620689655172413,
+    "abstention_accuracy": 1.0,
+    "answerable_count": 29,
+    "unanswerable_count": 1
+  },
+  "by_split": {
+    "challenge": {
+      "hit_rate": 0.8620689655172413,
+      "recall_at_k": 0.8620689655172413,
+      "mrr": 0.8448275862068966,
+      "ndcg": 0.8493424052955675,
+      "complete_evidence_rate": 0.8620689655172413,
+      "abstention_accuracy": 1.0,
+      "answerable_count": 29,
+      "unanswerable_count": 1
+    }
+  },
+  "cases": [
+    {
+      "id": "q01",
+      "split": "challenge",
+      "query": "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록",
+      "answerable": true,
+      "hit": false,
+      "coverage": 0.0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0.0,
+      "abstained": true,
+      "missing_units": [
+        "PB-EQ-001"
+      ],
+      "chunks": [],
+      "latency_ms": 125.373
+    },
+    {
+      "id": "q02",
+      "split": "challenge",
+      "query": "tool status가 DOWN으로 바뀌고 start rate가 0이 되었어",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "949c72912ec914f87682d1ce",
+        "d52a1a791baa13b8e76342c6"
+      ],
+      "latency_ms": 15.875
+    },
+    {
+      "id": "q03",
+      "split": "challenge",
+      "query": "PM due가 지났는데 생산을 계속해도 되는지 판단 기준",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "826a8c8ba9e44f729a587f08",
+        "9ba6a61997def9b3b5e224d8",
+        "d10adf524831c6774d823097"
+      ],
+      "latency_ms": 9.945
+    },
+    {
+      "id": "q04",
+      "split": "challenge",
+      "query": "정기 보전 미실시 때문에 장비 가용성이 나빠졌어",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "826a8c8ba9e44f729a587f08",
+        "9ba6a61997def9b3b5e224d8",
+        "d10adf524831c6774d823097"
+      ],
+      "latency_ms": 8.452
+    },
+    {
+      "id": "q05",
+      "split": "challenge",
+      "query": "특정 toolgroup 앞에 재공이 몰리는 상황 대응",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "99a39595d316a25f8f24a5a3",
+        "81bddf4a711369e41644984f",
+        "949c72912ec914f87682d1ce"
+      ],
+      "latency_ms": 10.202
+    },
+    {
+      "id": "q06",
+      "split": "challenge",
+      "query": "downstream starvation과 upstream accumulation 확인",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "f82356024f90c55a8af8a020",
+        "99a39595d316a25f8f24a5a3"
+      ],
+      "latency_ms": 7.819
+    },
+    {
+      "id": "q07",
+      "split": "challenge",
+      "query": "pass/fail 비율이 갑자기 나빠지면 무엇부터 확인하나",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "d10adf524831c6774d823097"
+      ],
+      "latency_ms": 8.005
+    },
+    {
+      "id": "q08",
+      "split": "challenge",
+      "query": "불량률 급증과 수율 저하 대응",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "d10adf524831c6774d823097",
+        "fdacc3a30565694d3d7656e4"
+      ],
+      "latency_ms": 8.374
+    },
+    {
+      "id": "q09",
+      "split": "challenge",
+      "query": "관리도에서 이상 신호가 발생했어",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "fddc7a71bd7731f22f219fea"
+      ],
+      "latency_ms": 7.332
+    },
+    {
+      "id": "q10",
+      "split": "challenge",
+      "query": "out-of-control signal investigation checklist",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "fddc7a71bd7731f22f219fea"
+      ],
+      "latency_ms": 7.404
+    },
+    {
+      "id": "q11",
+      "split": "challenge",
+      "query": "납기 압박만으로 품질 보류를 풀 수 있는지",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "4456402d14afcca1262205d0",
+        "448e9fe7c0a26836a9eb0b32",
+        "d52a1a791baa13b8e76342c6"
+      ],
+      "latency_ms": 9.637
+    },
+    {
+      "id": "q12",
+      "split": "challenge",
+      "query": "suspect time window와 affected operation 기록은 어떤 매뉴얼이야",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "4456402d14afcca1262205d0",
+        "6068e37d81afe3b918a7dfae"
+      ],
+      "latency_ms": 9.214
+    },
+    {
+      "id": "q13",
+      "split": "challenge",
+      "query": "conditional release와 engineering release 차이",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "a8da225ce8c69f5a646c038b",
+        "945772ffc0887bda7adabd95",
+        "d10adf524831c6774d823097"
+      ],
+      "latency_ms": 8.638
+    },
+    {
+      "id": "q14",
+      "split": "challenge",
+      "query": "hold 해제 후 downstream timelink를 누가 점검해",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "a8da225ce8c69f5a646c038b",
+        "4456402d14afcca1262205d0"
+      ],
+      "latency_ms": 9.567
+    },
+    {
+      "id": "q15",
+      "split": "challenge",
+      "query": "소모품 재고가 바닥나 생산 투입이 막혔어",
+      "answerable": true,
+      "hit": false,
+      "coverage": 0.0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0.0,
+      "abstained": true,
+      "missing_units": [
+        "PB-MT-001"
+      ],
+      "chunks": [],
+      "latency_ms": 7.586
+    },
+    {
+      "id": "q16",
+      "split": "challenge",
+      "query": "material shortage 대응 역할과 승인",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "945772ffc0887bda7adabd95",
+        "fdacc3a30565694d3d7656e4"
+      ],
+      "latency_ms": 16.493
+    },
+    {
+      "id": "q17",
+      "split": "challenge",
+      "query": "rush order가 들어왔을 때 기존 주문 납기를 어떻게 고려해",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "9521d273c2c237adb3ee7e24",
+        "4fd61e7115454c5005988769",
+        "4d8eb02555561b087798a125"
+      ],
+      "latency_ms": 8.941
+    },
+    {
+      "id": "q18",
+      "split": "challenge",
+      "query": "핫랏 우선 처리가 다른 로트에 미치는 영향 검토",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "9521d273c2c237adb3ee7e24",
+        "f82356024f90c55a8af8a020",
+        "945772ffc0887bda7adabd95"
+      ],
+      "latency_ms": 9.821
+    },
+    {
+      "id": "q19",
+      "split": "challenge",
+      "query": "공정 사이 timelink 제한 시간이 곧 만료돼",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "6068e37d81afe3b918a7dfae"
+      ],
+      "latency_ms": 7.565
+    },
+    {
+      "id": "q20",
+      "split": "challenge",
+      "query": "큐타임 초과 위험 대응",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 0.5,
+      "ndcg": 0.6309297535714575,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "fddc7a71bd7731f22f219fea",
+        "6068e37d81afe3b918a7dfae"
+      ],
+      "latency_ms": 8.057
+    },
+    {
+      "id": "q21",
+      "split": "challenge",
+      "query": "스케줄링 규칙을 임시 변경할 때 승인과 복귀 조건",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "4fd61e7115454c5005988769"
+      ],
+      "latency_ms": 8.844
+    },
+    {
+      "id": "q22",
+      "split": "challenge",
+      "query": "dispatch rule override rollback",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "4fd61e7115454c5005988769",
+        "9521d273c2c237adb3ee7e24",
+        "58232e41f1478e3d7f4482cc"
+      ],
+      "latency_ms": 8.022
+    },
+    {
+      "id": "q23",
+      "split": "challenge",
+      "query": "다른 장비로 우회하기 전 qualification 점검",
+      "answerable": true,
+      "hit": false,
+      "coverage": 0.0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0.0,
+      "abstained": true,
+      "missing_units": [
+        "PB-ALT-001"
+      ],
+      "chunks": [],
+      "latency_ms": 8.015
+    },
+    {
+      "id": "q24",
+      "split": "challenge",
+      "query": "alternative tool assignment compatibility",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "d52a1a791baa13b8e76342c6",
+        "99a39595d316a25f8f24a5a3",
+        "4d8eb02555561b087798a125"
+      ],
+      "latency_ms": 8.638
+    },
+    {
+      "id": "q25",
+      "split": "challenge",
+      "query": "5 Why 분석으로 사건 재발을 예방하려면",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "9ba6a61997def9b3b5e224d8",
+        "448e9fe7c0a26836a9eb0b32",
+        "4d8eb02555561b087798a125"
+      ],
+      "latency_ms": 7.911
+    },
+    {
+      "id": "q26",
+      "split": "challenge",
+      "query": "복구 후 모니터링과 종료 체크리스트",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "58232e41f1478e3d7f4482cc",
+        "949c72912ec914f87682d1ce",
+        "4456402d14afcca1262205d0"
+      ],
+      "latency_ms": 9.564
+    },
+    {
+      "id": "q27",
+      "split": "challenge",
+      "query": "사건 보고 주기와 에스컬레이션 담당",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "98a8f32aa16dea1bd77d620e",
+        "4d8eb02555561b087798a125",
+        "81bddf4a711369e41644984f"
+      ],
+      "latency_ms": 7.027
+    },
+    {
+      "id": "q28",
+      "split": "challenge",
+      "query": "사건 종료 뒤 플레이북에 새 판단 기준을 추가하려면",
+      "answerable": true,
+      "hit": false,
+      "coverage": 0.0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0.0,
+      "abstained": true,
+      "missing_units": [
+        "PB-KB-001"
+      ],
+      "chunks": [],
+      "latency_ms": 7.422
+    },
+    {
+      "id": "q29",
+      "split": "challenge",
+      "query": "설비 고장 대응과 수율 저하 조사를 함께 정리",
+      "answerable": true,
+      "hit": true,
+      "coverage": 1.0,
+      "complete": true,
+      "rr": 1.0,
+      "ndcg": 1.0,
+      "abstained": false,
+      "missing_units": [],
+      "chunks": [
+        "d10adf524831c6774d823097",
+        "949c72912ec914f87682d1ce",
+        "6068e37d81afe3b918a7dfae"
+      ],
+      "latency_ms": 8.985
+    },
+    {
+      "id": "q30",
+      "split": "challenge",
+      "query": "실제 사내 승인된 SOP의 장비 고장 대응 절차",
+      "answerable": false,
+      "hit": false,
+      "coverage": 0,
+      "complete": false,
+      "rr": 0,
+      "ndcg": 0,
+      "abstained": true,
+      "missing_units": [],
+      "chunks": [],
+      "latency_ms": 7.126
+    }
+  ],
+  "backend": "local_offline",
+  "baseline_ref": null,
+  "fixture_digest": "4c5081f11a33852214b4a2bc876615eb4849df1bcf20e8bdd981656e8adfb6b2",
+  "corpus_digest": "5cd581ec05cf94505e16ec00177d917b094c3e4461784f9da2bb1222e5cf9dca",
+  "artifact_format": "compact.v1",
+  "omitted_debug_fields": "Duplicate final events, repeated per-evidence retrieval traces, intermediate usage call lists and prompt_contract; final evidence, per-run trace, outcomes and final usage remain."
+}

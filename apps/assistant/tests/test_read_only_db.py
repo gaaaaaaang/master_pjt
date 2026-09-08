@@ -12,34 +12,34 @@ def executor() -> ReadOnlyQueryExecutor:
 
 
 def test_validate_allows_schema_qualified_select() -> None:
-    sql = executor().validate("SELECT toolgroup FROM fab10.toolgroups")
-    assert sql == "SELECT toolgroup FROM fab10.toolgroups"
+    sql = executor().validate("SELECT toolgroup FROM fab10.toolgroups_fab10")
+    assert sql == "SELECT toolgroup FROM fab10.toolgroups_fab10"
 
 
 def test_validate_allows_with_query() -> None:
     sql = executor().validate(
-        "WITH station AS (SELECT stn FROM fab11.autosched_stn) SELECT * FROM station"
+        "WITH station AS (SELECT stn FROM fab11.autosched_stn_fab11) SELECT * FROM station"
     )
     assert sql.startswith("WITH station")
 
 
 def test_validate_rejects_write_statement() -> None:
     with pytest.raises(SqlValidationError, match="Only SELECT or WITH"):
-        executor().validate("DELETE FROM fab10.toolgroups")
+        executor().validate("DELETE FROM fab10.toolgroups_fab10")
 
 
 def test_validate_rejects_forbidden_keyword_inside_select() -> None:
     with pytest.raises(SqlValidationError, match="Forbidden SQL keyword"):
-        executor().validate("SELECT * FROM fab10.toolgroups FOR UPDATE")
+        executor().validate("SELECT * FROM fab10.toolgroups_fab10 FOR UPDATE")
 
 
 def test_validate_ignores_forbidden_keyword_inside_string_literal() -> None:
-    sql = executor().validate("SELECT * FROM fab10.toolgroups WHERE area = 'drop'")
+    sql = executor().validate("SELECT * FROM fab10.toolgroups_fab10 WHERE area = 'drop'")
     assert "drop" in sql
 
 
 def test_validate_ignores_semicolon_inside_string_literal() -> None:
-    sql = executor().validate("SELECT * FROM fab10.toolgroups WHERE area = 'Dry;Etch'")
+    sql = executor().validate("SELECT * FROM fab10.toolgroups_fab10 WHERE area = 'Dry;Etch'")
     assert "Dry;Etch" in sql
 
 
@@ -55,11 +55,11 @@ def test_validate_rejects_unallowed_schema() -> None:
 
 def test_validate_rejects_multiple_statements() -> None:
     with pytest.raises(SqlValidationError, match="Only one SQL statement"):
-        executor().validate("SELECT * FROM fab10.toolgroups; SELECT * FROM fab11.toolgroups")
+        executor().validate("SELECT * FROM fab10.toolgroups_fab10; SELECT * FROM fab11.toolgroups_fab11")
 
 
 def test_with_limit_wraps_query_and_caps_limit() -> None:
-    sql, limit = executor().with_limit("SELECT * FROM fab13.route_product_10", limit=500)
+    sql, limit = executor().with_limit("SELECT * FROM fab13.route_product_10_fab13", limit=500)
     assert limit == 100
     assert sql.endswith("LIMIT 100")
-    assert "fab13.route_product_10" in sql
+    assert "fab13.route_product_10_fab13" in sql

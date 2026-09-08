@@ -1,0 +1,104 @@
+{
+  "kind": "same-question first planning message character counts, not billed token usage",
+  "paired_cases": 19,
+  "baseline_median_characters": 33906,
+  "candidate_median_characters": 18823,
+  "median_reduction_fraction": 0.4448,
+  "pairs": [
+    {
+      "id": "t01",
+      "baseline_first_plan_characters": 37480,
+      "candidate_first_plan_characters": 21813
+    },
+    {
+      "id": "t02",
+      "baseline_first_plan_characters": 32175,
+      "candidate_first_plan_characters": 18612
+    },
+    {
+      "id": "t03",
+      "baseline_first_plan_characters": 31106,
+      "candidate_first_plan_characters": 18087
+    },
+    {
+      "id": "t04",
+      "baseline_first_plan_characters": 31957,
+      "candidate_first_plan_characters": 18003
+    },
+    {
+      "id": "t05",
+      "baseline_first_plan_characters": 38200,
+      "candidate_first_plan_characters": 18823
+    },
+    {
+      "id": "t06",
+      "baseline_first_plan_characters": 31626,
+      "candidate_first_plan_characters": 18057
+    },
+    {
+      "id": "t07",
+      "baseline_first_plan_characters": 32202,
+      "candidate_first_plan_characters": 21561
+    },
+    {
+      "id": "t08",
+      "baseline_first_plan_characters": 33906,
+      "candidate_first_plan_characters": 20801
+    },
+    {
+      "id": "t09",
+      "baseline_first_plan_characters": 38080,
+      "candidate_first_plan_characters": 22353
+    },
+    {
+      "id": "t10",
+      "baseline_first_plan_characters": 40850,
+      "candidate_first_plan_characters": 40432
+    },
+    {
+      "id": "t11",
+      "baseline_first_plan_characters": 38296,
+      "candidate_first_plan_characters": 35346
+    },
+    {
+      "id": "t12",
+      "baseline_first_plan_characters": 40415,
+      "candidate_first_plan_characters": 39662
+    },
+    {
+      "id": "t13",
+      "baseline_first_plan_characters": 31425,
+      "candidate_first_plan_characters": 17856
+    },
+    {
+      "id": "t14",
+      "baseline_first_plan_characters": 30928,
+      "candidate_first_plan_characters": 17974
+    },
+    {
+      "id": "t15",
+      "baseline_first_plan_characters": 40868,
+      "candidate_first_plan_characters": 40075
+    },
+    {
+      "id": "t16",
+      "baseline_first_plan_characters": 37363,
+      "candidate_first_plan_characters": 17955
+    },
+    {
+      "id": "t17",
+      "baseline_first_plan_characters": 32124,
+      "candidate_first_plan_characters": 18495
+    },
+    {
+      "id": "t18",
+      "baseline_first_plan_characters": 30962,
+      "candidate_first_plan_characters": 17982
+    },
+    {
+      "id": "t20",
+      "baseline_first_plan_characters": 38438,
+      "candidate_first_plan_characters": 31324
+    }
+  ]
+}

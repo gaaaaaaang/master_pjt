@@ -1,0 +1,475 @@
+{
+  "retrieval_replayed_from": "apps/assistant/output/evals/rag_chat_extension_spans_final.json",
+  "cases": [
+    {
+      "id": "ext_pm_approval",
+      "seconds": 7.385,
+      "result": {
+        "answer": "PM 연기는 Engineer 승인 없이는 허용하지 않는다. [1]\n\nPM 연기(단기 지연)는 'low risk and manager approval' 조건에서 허용되며, 'risk memo'가 필요하다. [2]\n\nEngineer는 hold/release 승인과 qualification 조건 판단을 담당한다. [3]\n\nManager는 중대한 납기/품질 리스크의 승인을 담당한다. [4]\n\nPM 이후 recovery 기록으로 qualification 또는 dummy run 결과를 기록해야 한다. [5]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[3] semiconductor_fab_incident_response_playbook_kr.pdf, p.4\n[4] semiconductor_fab_incident_response_playbook_kr.pdf, p.4\n[5] semiconductor_fab_incident_response_playbook_kr.pdf, p.8",
+        "status": "supported",
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 2,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM short delay low risk and manager approval risk memo",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 3,
+            "chunk_id": "4d8eb02555561b087798a125",
+            "quote": "Engineer는 원인 판단, hold/release 승인, qualification 조건, RCA를 담당한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 4
+          },
+          {
+            "number": 4,
+            "chunk_id": "4d8eb02555561b087798a125",
+            "quote": "Manager는 중대 이슈의 납기/품질 리스크 승인과 고객 영향 커뮤니케이션을 담당한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 4
+          },
+          {
+            "number": 5,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 이후 qualification 또는 dummy run 결과를 기록한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          }
+        ],
+        "validation": "verified_quotes_and_model_review",
+        "review": {
+          "complete": true,
+          "coverage": [
+            {
+              "requirement": "PM 연기 승인자는 누구인가?",
+              "covered": true,
+              "reason": "'Engineer 승인 없이는 허용하지 않는다' 및 'manager approval' 요구가 명시되었음."
+            },
+            {
+              "requirement": "Manager 승인 조건 및 위험 수준은 무엇인가?",
+              "covered": true,
+              "reason": "'low risk and manager approval'이 조건으로 표에 명확히 언급됨."
+            },
+            {
+              "requirement": "필요한 복구(이행) 기록은 무엇인가?",
+              "covered": true,
+              "reason": "'risk memo'와 'PM 이후 qualification 또는 dummy run 결과'가 요구됨."
+            }
+          ],
+          "checks": [
+            {
+              "claim_index": 0,
+              "supported": true,
+              "reason": "PM 연기는 Engineer 승인 없이는 허용하지 않는다는 근거가 명확히 명시됨."
+            },
+            {
+              "claim_index": 1,
+              "supported": true,
+              "reason": "'low risk and manager approval' 조건과 'risk memo' 요구가 decision table에 근거로 있음."
+            },
+            {
+              "claim_index": 2,
+              "supported": true,
+              "reason": "Engineer가 hold/release 승인과 qualification 조건 판단 담당이 명확히 명시되어 있음."
+            },
+            {
+              "claim_index": 3,
+              "supported": true,
+              "reason": "Manager가 중대한 납기/품질 리스크 승인 담당 명시되어 있음."
+            },
+            {
+              "claim_index": 4,
+              "supported": true,
+              "reason": "PM 이후 qualification 또는 dummy run 결과 기록이 recovery 요구로 명확히 기재됨."
+            }
+          ]
+        },
+        "version": "source_spans.v3"
+      },
+      "model_usage": {
+        "call_count": 2,
+        "failed_calls": 0,
+        "reported_total_tokens": 4660,
+        "unreported_usage_calls": 0,
+        "calls": [
+          {
+            "kind": "fab_grounded_answer",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 2421,
+            "output_tokens": 235,
+            "total_tokens": 2656,
+            "seconds": 4.127
+          },
+          {
+            "kind": "fab_grounded_review",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 1703,
+            "output_tokens": 301,
+            "total_tokens": 2004,
+            "seconds": 3.253
+          }
+        ]
+      },
+      "model_outputs": [
+        {
+          "schema": "fab_grounded_answer",
+          "output": {
+            "status": "supported",
+            "claims": [
+              {
+                "text": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+                "sources": [
+                  {
+                    "quote_id": "826a8c8ba9e44f729a587f08:6"
+                  }
+                ]
+              },
+              {
+                "text": "PM 연기(단기 지연)는 'low risk and manager approval' 조건에서 허용되며, 'risk memo'가 필요하다.",
+                "sources": [
+                  {
+                    "quote_id": "826a8c8ba9e44f729a587f08:decision:1"
+                  }
+                ]
+              },
+              {
+                "text": "Engineer는 hold/release 승인과 qualification 조건 판단을 담당한다.",
+                "sources": [
+                  {
+                    "quote_id": "4d8eb02555561b087798a125:5"
+                  }
+                ]
+              },
+              {
+                "text": "Manager는 중대한 납기/품질 리스크의 승인을 담당한다.",
+                "sources": [
+                  {
+                    "quote_id": "4d8eb02555561b087798a125:6"
+                  }
+                ]
+              },
+              {
+                "text": "PM 이후 recovery 기록으로 qualification 또는 dummy run 결과를 기록해야 한다.",
+                "sources": [
+                  {
+                    "quote_id": "826a8c8ba9e44f729a587f08:8"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "schema": "fab_grounded_review",
+          "output": {
+            "complete": true,
+            "coverage": [
+              {
+                "requirement": "PM 연기 승인자는 누구인가?",
+                "covered": true,
+                "reason": "'Engineer 승인 없이는 허용하지 않는다' 및 'manager approval' 요구가 명시되었음."
+              },
+              {
+                "requirement": "Manager 승인 조건 및 위험 수준은 무엇인가?",
+                "covered": true,
+                "reason": "'low risk and manager approval'이 조건으로 표에 명확히 언급됨."
+              },
+              {
+                "requirement": "필요한 복구(이행) 기록은 무엇인가?",
+                "covered": true,
+                "reason": "'risk memo'와 'PM 이후 qualification 또는 dummy run 결과'가 요구됨."
+              }
+            ],
+            "checks": [
+              {
+                "claim_index": 0,
+                "supported": true,
+                "reason": "PM 연기는 Engineer 승인 없이는 허용하지 않는다는 근거가 명확히 명시됨."
+              },
+              {
+                "claim_index": 1,
+                "supported": true,
+                "reason": "'low risk and manager approval' 조건과 'risk memo' 요구가 decision table에 근거로 있음."
+              },
+              {
+                "claim_index": 2,
+                "supported": true,
+                "reason": "Engineer가 hold/release 승인과 qualification 조건 판단 담당이 명확히 명시되어 있음."
+              },
+              {
+                "claim_index": 3,
+                "supported": true,
+                "reason": "Manager가 중대한 납기/품질 리스크 승인 담당 명시되어 있음."
+              },
+              {
+                "claim_index": 4,
+                "supported": true,
+                "reason": "PM 이후 qualification 또는 dummy run 결과 기록이 recovery 요구로 명확히 기재됨."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ext_knowledge_update",
+      "seconds": 8.618,
+      "result": {
+        "answer": "재발 방지 내용을 반영할 때는 복구 후 RCA와 예방 규칙(prevention rule) 업데이트를 완료해야 한다. [1]\n\n새로운 원인 유형, 새로운 조치, 기존 플레이북과 다른 판단이 나타나면 KB 업데이트 후보로 등록한다. [2]\n\nRAG 문서에는 사례 요약과 함께 실제 수치보다 판단 기준과 증거 필드를 우선 저장해야 한다. [3]\n\n한 청크에는 하나의 이슈와 하나의 주요 의사결정만 담아야 한다. [4]\n\n버전 관리는 validity 필드를 사용해 draft, reviewed, approved 등으로 관리한다. [5]\n\n실제 FAB 적용 전에는 회사별 품질 시스템, EHS, MES, 승인 체계, 고객 계약 조건에 맞춰 사전 검토가 필요하다. [6]\n\napproved 등급은 site-specific SOP 매핑을 의미한다. [7]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.5\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[3] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[4] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[5] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[6] semiconductor_fab_incident_response_playbook_kr.pdf, p.25\n[7] semiconductor_fab_incident_response_playbook_kr.pdf, p.25",
+        "status": "supported",
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "448e9fe7c0a26836a9eb0b32",
+            "quote": "복구 후에는 RCA와 prevention rule 업데이트를 완료해야 한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 5
+          },
+          {
+            "number": 2,
+            "chunk_id": "a839a587bd93bf6554de1924",
+            "quote": "새로운 원인 유형, 새로운 조치, 기존 playbook과 다른 판단이 발생하면 KB 업데이트 후보로 등록한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 23
+          },
+          {
+            "number": 3,
+            "chunk_id": "a839a587bd93bf6554de1924",
+            "quote": "RAG 문서에는 사례 요약과 함께 실제 수치보다 판단 기준과 증거 필드를 우선 저장한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 23
+          },
+          {
+            "number": 4,
+            "chunk_id": "a839a587bd93bf6554de1924",
+            "quote": "한 청크에는 하나의 이슈와 하나의 주요 의사결정만 담는다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 23
+          },
+          {
+            "number": 5,
+            "chunk_id": "a839a587bd93bf6554de1924",
+            "quote": "KB Field Rule chunk_title specific and searchable tags 5-8 keywords source public/simulated/internal validity draft/reviewed/approved RAG note: 검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 23
+          },
+          {
+            "number": 6,
+            "chunk_id": "257568723d1a8c49f324db49",
+            "quote": "실제 생산 적용 전에는 회사별 품질 시스템, EHS, MES, 승인 체계, 고객 계약 조건에 맞춰 검토해야 한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 25
+          },
+          {
+            "number": 7,
+            "chunk_id": "257568723d1a8c49f324db49",
+            "quote": "Document Status Meaning Generated public-source-based draft Reviewed domain expert checked Approved site-specific SOP mapped Retired not for retrieval RAG note: 검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 25
+          }
+        ],
+        "validation": "verified_quotes_and_model_review",
+        "review": {
+          "complete": true,
+          "coverage": [
+            {
+              "requirement": "재발 방지(RCA, prevention rule 등) 내용을 반영할 때 필요한 검토와 버전 관리 기준은?",
+              "covered": true,
+              "reason": "모든 검토(사전 검토, 정보 요약, 주요 결정 단위, 승인 체계 등)와 버전 관리 필드(validity) 기준이 상세히 기술됨."
+            }
+          ],
+          "checks": [
+            {
+              "claim_index": 0,
+              "supported": true,
+              "reason": "복구 후 RCA 및 prevention rule 업데이트는 명확히 source에서 요구됨."
+            },
+            {
+              "claim_index": 1,
+              "supported": true,
+              "reason": "새로운 원인/조치/판단마다 KB 업데이트 후보 등록 필요가 명확히 언급됨."
+            },
+            {
+              "claim_index": 2,
+              "supported": true,
+              "reason": "RAG 문서에 판단 기준과 증거 필드 우선 저장 지침 명시됨."
+            },
+            {
+              "claim_index": 3,
+              "supported": true,
+              "reason": "한 청크에 하나의 이슈와 의사결정만 수록 기준 출처에 명확히 기재됨."
+            },
+            {
+              "claim_index": 4,
+              "supported": true,
+              "reason": "validity(등급) 필드로 draft/reviewed/approved 버전 관리 명확히 기재."
+            },
+            {
+              "claim_index": 5,
+              "supported": true,
+              "reason": "적용 전 품질, EHS, MES, 승인 체계, 고객계약에 따른 사전 검토 필수 명시됨."
+            },
+            {
+              "claim_index": 6,
+              "supported": true,
+              "reason": "approved 등급=site-specific SOP 매핑 의미 명확히 표기됨."
+            }
+          ]
+        },
+        "version": "source_spans.v3"
+      },
+      "model_usage": {
+        "call_count": 2,
+        "failed_calls": 0,
+        "reported_total_tokens": 6017,
+        "unreported_usage_calls": 0,
+        "calls": [
+          {
+            "kind": "fab_grounded_answer",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 3147,
+            "output_tokens": 361,
+            "total_tokens": 3508,
+            "seconds": 5.067
+          },
+          {
+            "kind": "fab_grounded_review",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 2174,
+            "output_tokens": 335,
+            "total_tokens": 2509,
+            "seconds": 3.549
+          }
+        ]
+      },
+      "model_outputs": [
+        {
+          "schema": "fab_grounded_answer",
+          "output": {
+            "status": "supported",
+            "claims": [
+              {
+                "text": "재발 방지 내용을 반영할 때는 복구 후 RCA와 예방 규칙(prevention rule) 업데이트를 완료해야 한다.",
+                "sources": [
+                  {
+                    "quote_id": "448e9fe7c0a26836a9eb0b32:6"
+                  }
+                ]
+              },
+              {
+                "text": "새로운 원인 유형, 새로운 조치, 기존 플레이북과 다른 판단이 나타나면 KB 업데이트 후보로 등록한다.",
+                "sources": [
+                  {
+                    "quote_id": "a839a587bd93bf6554de1924:3"
+                  }
+                ]
+              },
+              {
+                "text": "RAG 문서에는 사례 요약과 함께 실제 수치보다 판단 기준과 증거 필드를 우선 저장해야 한다.",
+                "sources": [
+                  {
+                    "quote_id": "a839a587bd93bf6554de1924:4"
+                  }
+                ]
+              },
+              {
+                "text": "한 청크에는 하나의 이슈와 하나의 주요 의사결정만 담아야 한다.",
+                "sources": [
+                  {
+                    "quote_id": "a839a587bd93bf6554de1924:6"
+                  }
+                ]
+              },
+              {
+                "text": "버전 관리는 validity 필드를 사용해 draft, reviewed, approved 등으로 관리한다.",
+                "sources": [
+                  {
+                    "quote_id": "a839a587bd93bf6554de1924:8"
+                  }
+                ]
+              },
+              {
+                "text": "실제 FAB 적용 전에는 회사별 품질 시스템, EHS, MES, 승인 체계, 고객 계약 조건에 맞춰 사전 검토가 필요하다.",
+                "sources": [
+                  {
+                    "quote_id": "257568723d1a8c49f324db49:19"
+                  }
+                ]
+              },
+              {
+                "text": "approved 등급은 site-specific SOP 매핑을 의미한다.",
+                "sources": [
+                  {
+                    "quote_id": "257568723d1a8c49f324db49:20"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "schema": "fab_grounded_review",
+          "output": {
+            "complete": true,
+            "coverage": [
+              {
+                "requirement": "재발 방지(RCA, prevention rule 등) 내용을 반영할 때 필요한 검토와 버전 관리 기준은?",
+                "covered": true,
+                "reason": "모든 검토(사전 검토, 정보 요약, 주요 결정 단위, 승인 체계 등)와 버전 관리 필드(validity) 기준이 상세히 기술됨."
+              }
+            ],
+            "checks": [
+              {
+                "claim_index": 0,
+                "supported": true,
+                "reason": "복구 후 RCA 및 prevention rule 업데이트는 명확히 source에서 요구됨."
+              },
+              {
+                "claim_index": 1,
+                "supported": true,
+                "reason": "새로운 원인/조치/판단마다 KB 업데이트 후보 등록 필요가 명확히 언급됨."
+              },
+              {
+                "claim_index": 2,
+                "supported": true,
+                "reason": "RAG 문서에 판단 기준과 증거 필드 우선 저장 지침 명시됨."
+              },
+              {
+                "claim_index": 3,
+                "supported": true,
+                "reason": "한 청크에 하나의 이슈와 의사결정만 수록 기준 출처에 명확히 기재됨."
+              },
+              {
+                "claim_index": 4,
+                "supported": true,
+                "reason": "validity(등급) 필드로 draft/reviewed/approved 버전 관리 명확히 기재."
+              },
+              {
+                "claim_index": 5,
+                "supported": true,
+                "reason": "적용 전 품질, EHS, MES, 승인 체계, 고객계약에 따른 사전 검토 필수 명시됨."
+              },
+              {
+                "claim_index": 6,
+                "supported": true,
+                "reason": "approved 등급=site-specific SOP 매핑 의미 명확히 표기됨."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

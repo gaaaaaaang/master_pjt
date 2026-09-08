@@ -1,0 +1,11 @@
+{
+  "kind": "saved ranking result re-evaluated with explicit optional snapshot context; no new LLM/DB calls",
+  "id": "top_wip_fab13",
+  "reference_stable": true,
+  "plan_sql_contract_passed": true,
+  "strict_result_matches_reference": false,
+  "result_matches_reference": true,
+  "ignored_context_columns": [
+    "interval_end"
+  ]
+}

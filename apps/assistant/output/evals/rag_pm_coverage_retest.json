@@ -1,0 +1,140 @@
+{
+  "retrieval_replayed_from": "apps/assistant/output/evals/rag_chat_extension_spans_final.json",
+  "cases": [
+    {
+      "id": "ext_pm_approval",
+      "seconds": 4.447,
+      "result": {
+        "answer": "PM 연기는 Engineer 승인 없이는 허용하지 않는다. [1]\n\n복구 기록으로는 PM 이후 qualification 또는 dummy run 결과를 기록한다. [2]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.8",
+        "status": "supported",
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 2,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 이후 qualification 또는 dummy run 결과를 기록한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          }
+        ],
+        "validation": "verified_quotes_and_model_review",
+        "review": {
+          "complete": true,
+          "coverage": [
+            {
+              "requirement": "PM 연기 승인자는 누구인가?",
+              "covered": true,
+              "reason": "'PM 연기는 Engineer 승인 없이는 허용하지 않는다.'가 명확히 규정."
+            },
+            {
+              "requirement": "어떤 복구 기록이 요구되는가?",
+              "covered": true,
+              "reason": "'PM 이후 qualification 또는 dummy run 결과를 기록한다.'고 명시."
+            }
+          ],
+          "checks": [
+            {
+              "claim_index": 0,
+              "supported": true,
+              "reason": "원문에 'PM 연기는 Engineer 승인 없이는 허용하지 않는다.'로 명확히 일치."
+            },
+            {
+              "claim_index": 1,
+              "supported": true,
+              "reason": "'PM 이후 qualification 또는 dummy run 결과를 기록한다.'와 claim이 동일."
+            }
+          ]
+        },
+        "version": "source_spans.v3"
+      },
+      "model_usage": {
+        "call_count": 2,
+        "failed_calls": 0,
+        "reported_total_tokens": 3529,
+        "unreported_usage_calls": 0,
+        "calls": [
+          {
+            "kind": "fab_grounded_answer",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 2024,
+            "output_tokens": 93,
+            "total_tokens": 2117,
+            "seconds": 2.157
+          },
+          {
+            "kind": "fab_grounded_review",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 1259,
+            "output_tokens": 153,
+            "total_tokens": 1412,
+            "seconds": 2.286
+          }
+        ]
+      },
+      "model_outputs": [
+        {
+          "schema": "fab_grounded_answer",
+          "output": {
+            "status": "supported",
+            "claims": [
+              {
+                "text": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+                "sources": [
+                  {
+                    "quote_id": "826a8c8ba9e44f729a587f08:6"
+                  }
+                ]
+              },
+              {
+                "text": "복구 기록으로는 PM 이후 qualification 또는 dummy run 결과를 기록한다.",
+                "sources": [
+                  {
+                    "quote_id": "826a8c8ba9e44f729a587f08:8"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "schema": "fab_grounded_review",
+          "output": {
+            "complete": true,
+            "coverage": [
+              {
+                "requirement": "PM 연기 승인자는 누구인가?",
+                "covered": true,
+                "reason": "'PM 연기는 Engineer 승인 없이는 허용하지 않는다.'가 명확히 규정."
+              },
+              {
+                "requirement": "어떤 복구 기록이 요구되는가?",
+                "covered": true,
+                "reason": "'PM 이후 qualification 또는 dummy run 결과를 기록한다.'고 명시."
+              }
+            ],
+            "checks": [
+              {
+                "claim_index": 0,
+                "supported": true,
+                "reason": "원문에 'PM 연기는 Engineer 승인 없이는 허용하지 않는다.'로 명확히 일치."
+              },
+              {
+                "claim_index": 1,
+                "supported": true,
+                "reason": "'PM 이후 qualification 또는 dummy run 결과를 기록한다.'와 claim이 동일."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

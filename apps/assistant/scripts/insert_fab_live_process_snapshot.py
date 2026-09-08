@@ -5,13 +5,18 @@ import hashlib
 import json
 import os
 import random
+import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from pathlib import Path
 from typing import Any
 
 import psycopg
 from psycopg.rows import dict_row
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from app.db.fab_catalog import ALLOWED_FABS
 
 FABS = ("fab10", "fab11", "fab12", "fab13")
 AREAS = ("photo", "etch", "deposition", "implant", "cmp", "metrology")
@@ -48,7 +53,7 @@ EVENTS = {
 
 
 CREATE_TABLE_SQL = """
-CREATE TABLE IF NOT EXISTS {schema}.live_process_snapshots (
+CREATE TABLE IF NOT EXISTS {schema}.live_process_snapshots_{schema} (
     snapshot_id BIGSERIAL PRIMARY KEY,
     interval_start TIMESTAMPTZ NOT NULL,
     interval_end TIMESTAMPTZ NOT NULL,
@@ -79,7 +84,7 @@ CREATE TABLE IF NOT EXISTS {schema}.live_process_snapshots (
 """
 
 CREATE_DETAIL_TABLE_SQL = """
-CREATE TABLE IF NOT EXISTS {schema}.live_process_events (
+CREATE TABLE IF NOT EXISTS {schema}.live_process_events_{schema} (
     detail_id BIGSERIAL PRIMARY KEY,
     interval_start TIMESTAMPTZ NOT NULL,
     interval_end TIMESTAMPTZ NOT NULL,
@@ -179,11 +184,13 @@ def event_impact(event_type: str, severity: str) -> dict[str, float]:
 
 
 def get_prior_state(conn: psycopg.Connection[Any], schema: str) -> dict[str, Any] | None:
+    if schema not in ALLOWED_FABS:
+        raise ValueError("Unsupported FAB")
     with conn.cursor() as cur:
         cur.execute(
             f"""
             SELECT event_type, yield_percent, wip_lots, utilization_percent
-            FROM {schema}.live_process_snapshots
+            FROM {schema}.live_process_snapshots_{schema}
             WHERE fab_id = %s
             ORDER BY interval_end DESC, snapshot_id DESC
             LIMIT 1
@@ -400,6 +407,8 @@ def lot_yield_loss(state: str, event_type: str, rng: random.Random) -> int:
 
 
 def insert_rows(conn: psycopg.Connection[Any], schema: str, rows: list[dict[str, Any]]) -> int:
+    if schema not in ALLOWED_FABS:
+        raise ValueError("Unsupported FAB")
     columns = tuple(rows[0])
     placeholders = ", ".join([f"%({column})s" for column in columns])
     assignments = ", ".join(
@@ -408,7 +417,7 @@ def insert_rows(conn: psycopg.Connection[Any], schema: str, rows: list[dict[str,
         if column not in {"interval_end", "fab_id", "area"}
     )
     sql = """
-        INSERT INTO {schema}.live_process_snapshots ({columns})
+        INSERT INTO {schema}.live_process_snapshots_{schema} ({columns})
         VALUES ({placeholders})
         ON CONFLICT (interval_end, fab_id, area)
         DO UPDATE SET {assignments}
@@ -424,6 +433,8 @@ def insert_rows(conn: psycopg.Connection[Any], schema: str, rows: list[dict[str,
 
 
 def insert_detail_rows(conn: psycopg.Connection[Any], schema: str, rows: list[dict[str, Any]]) -> int:
+    if schema not in ALLOWED_FABS:
+        raise ValueError("Unsupported FAB")
     columns = tuple(rows[0])
     placeholders = ", ".join([f"%({column})s" for column in columns])
     assignments = ", ".join(
@@ -432,7 +443,7 @@ def insert_detail_rows(conn: psycopg.Connection[Any], schema: str, rows: list[di
         if column not in {"interval_end", "fab_id", "event_id"}
     )
     sql = """
-        INSERT INTO {schema}.live_process_events ({columns})
+        INSERT INTO {schema}.live_process_events_{schema} ({columns})
         VALUES ({placeholders})
         ON CONFLICT (interval_end, fab_id, event_id)
         DO UPDATE SET {assignments}
@@ -484,12 +495,12 @@ def main() -> None:
                     SELECT
                         (
                             SELECT count(*)
-                            FROM {fab_id}.live_process_snapshots
+                            FROM {fab_id}.live_process_snapshots_{fab_id}
                             WHERE interval_end = %s
                         ) AS snapshot_rows,
                         (
                             SELECT count(*)
-                            FROM {fab_id}.live_process_events
+                            FROM {fab_id}.live_process_events_{fab_id}
                             WHERE interval_end = %s
                         ) AS event_rows
                     """,

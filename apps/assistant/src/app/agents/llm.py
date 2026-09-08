@@ -5,6 +5,7 @@ from typing import Any
 
 import httpx
 
+from app.agents.usage import model_call, reported_usage
 from app.config import get_settings
 
 
@@ -25,6 +26,15 @@ class AzureAgentClient:
         output_schema: dict[str, Any],
         schema_name: str,
     ) -> dict[str, Any]:
+        with model_call(schema_name, self.model):
+            return self._complete_json(
+                system_prompt=system_prompt,
+                input_data=input_data,
+                output_schema=output_schema,
+                schema_name=schema_name,
+            )
+
+    def _complete_json(self, *, system_prompt, input_data, output_schema, schema_name):
         if not self.api_key:
             raise RuntimeError("OPENAI_API_KEY is not configured.")
 
@@ -73,6 +83,7 @@ class AzureAgentClient:
             body = response.json()
         except ValueError as exc:
             raise RuntimeError("LLM API returned a non-JSON response.") from exc
+        reported_usage(body.get("usage"))
         try:
             content = body["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:

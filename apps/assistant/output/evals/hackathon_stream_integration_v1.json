@@ -1,0 +1,1513 @@
+[
+  {
+    "type": "run_started",
+    "node": "input",
+    "message": "질문을 접수했습니다.",
+    "data": {
+      "conversation_id": "hackathon-final-stream-20260907",
+      "retry_budget_remaining": 2,
+      "timeout_seconds": 120,
+      "elapsed_ms": 0
+    }
+  },
+  {
+    "type": "node_completed",
+    "node": "planner",
+    "message": "status 질의로 분류하고 실행 계획을 만들었습니다.",
+    "data": {
+      "execution_mode": "llm_chat_completions",
+      "model": "gpt-4.1",
+      "status": "ready",
+      "query_type": "status",
+      "selected_sub_agents": [
+        "text2sql"
+      ],
+      "rag_knowledge_base": null,
+      "missing_slots": [],
+      "execution_steps": [
+        {
+          "agent": "text2sql",
+          "action": "Query the most recent simulation snapshot for FAB12 and calculate the total WIP for the entire factory.",
+          "required": true,
+          "reason": "FAB simulation snapshots and WIP values are stored in structured business tables; text2sql is required to aggregate these metrics."
+        }
+      ],
+      "slots": {
+        "fab_id": {
+          "value": "fab12",
+          "source": "explicit_user",
+          "confidence": 0.9,
+          "raw_text": "fab12 시뮬레이션 가장 최근 스냅샷의 공장 전체 WIP 합계를 알려줘"
+        },
+        "metric": {
+          "value": "wiplotavg",
+          "source": "request_context",
+          "confidence": 0.9,
+          "raw_text": "wiplotavg"
+        }
+      },
+      "reasoning": {
+        "node": "planner",
+        "summary": "status로 분류하고 1개 실행 단계를 만들었습니다.",
+        "details": {
+          "history_turns": 0,
+          "execution_feedback_count": 0,
+          "selected_sub_agents": [
+            "text2sql"
+          ],
+          "missing_slots": []
+        }
+      },
+      "retry_budget_remaining": 2,
+      "elapsed_ms": 2356
+    }
+  },
+  {
+    "type": "node_completed",
+    "node": "supervisor",
+    "message": "text2sql",
+    "data": {
+      "status": "ready",
+      "selected_sub_agents": [
+        "text2sql"
+      ],
+      "reason": "The planner decision is clear: this is a database-backed status query specifically about FAB12's most recent simulation snapshot total WIP. Per policy, this requires a Text2SQL step for availability and cannot be answered from general data or past failures. No clarification is present or needed; the query is ready for execution.",
+      "execution_mode": "llm_chat_completions",
+      "model": "gpt-4.1",
+      "reasoning": {
+        "node": "supervisor",
+        "summary": "계획 상태가 ready라서 실행을 승인했습니다.",
+        "details": {
+          "status": "ready",
+          "halted": false,
+          "selected_sub_agents": [
+            "text2sql"
+          ],
+          "reason": "The planner decision is clear: this is a database-backed status query specifically about FAB12's most recent simulation snapshot total WIP. Per policy, this requires a Text2SQL step for availability and cannot be answered from general data or past failures. No clarification is present or needed; the query is ready for execution."
+        }
+      },
+      "retry_budget_remaining": 2,
+      "elapsed_ms": 4887
+    }
+  },
+  {
+    "type": "node_completed",
+    "node": "dispatcher",
+    "message": "다음 실행 agent를 text2sql로 정했습니다.",
+    "data": {
+      "reasoning": {
+        "node": "dispatcher",
+        "summary": "계획 cursor 0의 다음 agent로 text2sql를 선택했습니다.",
+        "details": {
+          "cursor": 0,
+          "next_agent": "text2sql",
+          "total_steps": 1
+        }
+      },
+      "retry_budget_remaining": 2,
+      "elapsed_ms": 4888
+    }
+  },
+  {
+    "type": "tool_completed",
+    "node": "text2sql",
+    "message": "시뮬레이션 공정 데이터 기준으로 1개 행을 조회했습니다.",
+    "data": {
+      "status": "succeeded",
+      "query_plan": {
+        "query_type": "status",
+        "template_id": null,
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "recent",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "recent"
+          },
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab12 시뮬레이션 가장 최근 스냅샷의 공장 전체 WIP 합계를 알려줘"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "실제 공장 측정값이 아닌 합성 시뮬레이션 데이터입니다.",
+          "가장 최근 스냅샷 시점에서 area별 WIP를 합산하며, 여러 시점을 중복해서 합산하지 않습니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12",
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "SUM(wip_lots) AS factory_wip_total"
+        ],
+        "filters": [
+          {
+            "field": "fab_id",
+            "operator": "=",
+            "value": "fab12"
+          },
+          {
+            "field": "interval_end",
+            "operator": "=",
+            "value": "(SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12')"
+          }
+        ],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": "SUM(wip_lots)",
+        "expected_result_shape": "single_row_scalar_total",
+        "chart_intent": null,
+        "semantic_plan": {
+          "supported": true,
+          "reason": "Request for simulated FAB12 factory-wide WIP total at the most recent snapshot is directly supported. Whole-factory sum of snapshot WIP across all disjoint areas, restricted to the latest available interval_end.",
+          "tables": [
+            "fab12.live_process_snapshots_fab12"
+          ],
+          "projections": [],
+          "aggregates": [
+            {
+              "source": {
+                "table": "fab12.live_process_snapshots_fab12",
+                "column": "wip_lots"
+              },
+              "function": "sum",
+              "alias": "factory_wip_total"
+            }
+          ],
+          "group_by": [],
+          "filters": [
+            {
+              "source": {
+                "table": "fab12.live_process_snapshots_fab12",
+                "column": "fab_id"
+              },
+              "operator": "eq",
+              "values": [
+                "fab12"
+              ]
+            }
+          ],
+          "joins": [],
+          "latest_by": [
+            {
+              "table": "fab12.live_process_snapshots_fab12",
+              "column": "interval_end"
+            }
+          ],
+          "time_basis": "latest interval_end snapshot (simulation)",
+          "result_grain": "factory-wide total at latest snapshot (one row)",
+          "limitations": [
+            "Only synthetic simulation data, not real factory measurement.",
+            "Result sums disjoint area WIP within latest snapshot; does not sum across multiple timestamps."
+          ]
+        },
+        "grounding": {
+          "version": "metadata-ranking-v1",
+          "total_tables": 14,
+          "selected_tables": 6,
+          "total_columns": 247,
+          "selected_columns": 93,
+          "broadened_no_match": false,
+          "ranking": [
+            {
+              "table_ref": "fab12.live_process_snapshots_fab12",
+              "score": 40.0,
+              "reasons": [
+                "aliases:시뮬레이션,스냅샷",
+                "description:wip,시뮬레이션",
+                "request_slots"
+              ],
+              "selected": true
+            },
+            {
+              "table_ref": "fab12.live_process_events_fab12",
+              "score": 24.0,
+              "reasons": [
+                "request_slots"
+              ],
+              "selected": true
+            },
+            {
+              "table_ref": "fab12.breakdown_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": true
+            },
+            {
+              "table_ref": "fab12.lotrelease_engineering_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": true
+            },
+            {
+              "table_ref": "fab12.lotrelease_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": true
+            },
+            {
+              "table_ref": "fab12.lotrelease_variable_due_dates_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": true
+            },
+            {
+              "table_ref": "fab12.pm_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": false
+            },
+            {
+              "table_ref": "fab12.route_product_3_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": false
+            },
+            {
+              "table_ref": "fab12.route_product_4_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": false
+            },
+            {
+              "table_ref": "fab12.route_product_e3_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": false
+            },
+            {
+              "table_ref": "fab12.setup_matrix_implant_gas_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": false
+            },
+            {
+              "table_ref": "fab12.setups_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": false
+            },
+            {
+              "table_ref": "fab12.toolgroups_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": false
+            },
+            {
+              "table_ref": "fab12.transport_fab12",
+              "score": 0.0,
+              "reasons": [],
+              "selected": false
+            }
+          ]
+        },
+        "generation_attempts": [
+          {
+            "attempt": 1,
+            "action": "focused_generation",
+            "status": "succeeded",
+            "sql": "SELECT SUM(wip_lots) AS factory_wip_total\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )\nLIMIT 1;",
+            "issues": [
+              "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+              "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+              "실제 공장 측정값이 아닌 합성 시뮬레이션 데이터입니다.",
+              "가장 최근 스냅샷 시점에서 area별 WIP를 합산하며, 여러 시점을 중복해서 합산하지 않습니다."
+            ],
+            "tables": [
+              "fab12.live_process_snapshots_fab12",
+              "fab12.live_process_events_fab12",
+              "fab12.breakdown_fab12",
+              "fab12.lotrelease_engineering_fab12",
+              "fab12.lotrelease_fab12",
+              "fab12.lotrelease_variable_due_dates_fab12"
+            ],
+            "semantic_plan": {
+              "supported": true,
+              "reason": "Request for simulated FAB12 factory-wide WIP total at the most recent snapshot is directly supported. Whole-factory sum of snapshot WIP across all disjoint areas, restricted to the latest available interval_end.",
+              "tables": [
+                "fab12.live_process_snapshots_fab12"
+              ],
+              "projections": [],
+              "aggregates": [
+                {
+                  "source": {
+                    "table": "fab12.live_process_snapshots_fab12",
+                    "column": "wip_lots"
+                  },
+                  "function": "sum",
+                  "alias": "factory_wip_total"
+                }
+              ],
+              "group_by": [],
+              "filters": [
+                {
+                  "source": {
+                    "table": "fab12.live_process_snapshots_fab12",
+                    "column": "fab_id"
+                  },
+                  "operator": "eq",
+                  "values": [
+                    "fab12"
+                  ]
+                }
+              ],
+              "joins": [],
+              "latest_by": [
+                {
+                  "table": "fab12.live_process_snapshots_fab12",
+                  "column": "interval_end"
+                }
+              ],
+              "time_basis": "latest interval_end snapshot (simulation)",
+              "result_grain": "factory-wide total at latest snapshot (one row)",
+              "limitations": [
+                "Only synthetic simulation data, not real factory measurement.",
+                "Result sums disjoint area WIP within latest snapshot; does not sum across multiple timestamps."
+              ]
+            },
+            "grounding": {
+              "version": "metadata-ranking-v1",
+              "total_tables": 14,
+              "selected_tables": 6,
+              "total_columns": 247,
+              "selected_columns": 93,
+              "broadened_no_match": false,
+              "ranking": [
+                {
+                  "table_ref": "fab12.live_process_snapshots_fab12",
+                  "score": 40.0,
+                  "reasons": [
+                    "aliases:시뮬레이션,스냅샷",
+                    "description:wip,시뮬레이션",
+                    "request_slots"
+                  ],
+                  "selected": true
+                },
+                {
+                  "table_ref": "fab12.live_process_events_fab12",
+                  "score": 24.0,
+                  "reasons": [
+                    "request_slots"
+                  ],
+                  "selected": true
+                },
+                {
+                  "table_ref": "fab12.breakdown_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": true
+                },
+                {
+                  "table_ref": "fab12.lotrelease_engineering_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": true
+                },
+                {
+                  "table_ref": "fab12.lotrelease_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": true
+                },
+                {
+                  "table_ref": "fab12.lotrelease_variable_due_dates_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": true
+                },
+                {
+                  "table_ref": "fab12.pm_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": false
+                },
+                {
+                  "table_ref": "fab12.route_product_3_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": false
+                },
+                {
+                  "table_ref": "fab12.route_product_4_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": false
+                },
+                {
+                  "table_ref": "fab12.route_product_e3_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": false
+                },
+                {
+                  "table_ref": "fab12.setup_matrix_implant_gas_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": false
+                },
+                {
+                  "table_ref": "fab12.setups_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": false
+                },
+                {
+                  "table_ref": "fab12.toolgroups_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": false
+                },
+                {
+                  "table_ref": "fab12.transport_fab12",
+                  "score": 0.0,
+                  "reasons": [],
+                  "selected": false
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "sql": "SELECT SUM(wip_lots) AS factory_wip_total\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )\nLIMIT 1;",
+      "row_count": 1,
+      "columns": [
+        "factory_wip_total"
+      ],
+      "sample_rows": [
+        {
+          "factory_wip_total": 1183
+        }
+      ],
+      "reflection": {
+        "agent_name": "text2sql",
+        "agent_intent": "Query the most recent simulation snapshot for FAB12 and calculate the total WIP for the entire factory. (FAB simulation snapshots and WIP values are stored in structured business tables; text2sql is required to aggregate these metrics.)",
+        "planner_intent": "Retrieve the total WIP sum for the entire FAB in the most recent simulation snapshot for FAB12.",
+        "query_type": "status",
+        "required": true,
+        "status": "succeeded",
+        "success_criteria": [
+          "Complete planner action: Query the most recent simulation snapshot for FAB12 and calculate the total WIP for the entire factory.",
+          "Return a succeeded status with read-only SQL.",
+          "Record query/result evidence and limitations."
+        ],
+        "agent_output": {
+          "agent": "text2sql",
+          "status": "succeeded",
+          "summary": "시뮬레이션 공정 데이터 기준으로 1개 행을 조회했습니다.",
+          "metadata": {
+            "row_count": 1
+          },
+          "sql": "SELECT SUM(wip_lots) AS factory_wip_total\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )\nLIMIT 1;",
+          "row_count": 1,
+          "columns": [
+            "factory_wip_total"
+          ]
+        },
+        "decision": "pass",
+        "recommended_action": "continue",
+        "reason": "Agent output satisfies the declared success criteria.",
+        "warnings": [],
+        "evidence_count": 1,
+        "limitation_count": 4
+      },
+      "reasoning": {
+        "node": "text2sql",
+        "summary": "status 질의를 succeeded 상태로 처리했습니다.",
+        "details": {
+          "fab": "fab12",
+          "required": true,
+          "row_count": 1,
+          "has_sql": true,
+          "feedback_count": 0
+        }
+      },
+      "retry_budget_remaining": 2,
+      "elapsed_ms": 10973
+    }
+  },
+  {
+    "type": "node_completed",
+    "node": "dispatcher",
+    "message": "계획된 agent 실행을 모두 마쳤습니다.",
+    "data": {
+      "reasoning": {
+        "node": "dispatcher",
+        "summary": "계획된 실행 단계를 모두 소진해 최종 reflection으로 이동합니다.",
+        "details": {
+          "cursor": 1,
+          "total_steps": 1
+        }
+      },
+      "retry_budget_remaining": 2,
+      "elapsed_ms": 10974
+    }
+  },
+  {
+    "type": "node_completed",
+    "node": "reflection",
+    "message": "근거, 의도 일치, 데이터 한계를 검증했습니다.",
+    "data": {
+      "is_supported": true,
+      "warnings": [
+        "조회값은 합성된 시뮬레이션 공정 데이터 기준이며, 실제 공장 실측 데이터가 아닙니다.",
+        "가장 최근 스냅샷 1개를 기준으로 area별 WIP를 단일 시점에서만 합산합니다.",
+        "여러 시점의 값을 중복 합산하지 않습니다.",
+        "시뮬레이션 데이터의 신선도, 커버리지에 따라 결과의 정확도가 제한될 수 있습니다."
+      ],
+      "composer_instructions": [
+        "답변 시 시뮬레이션 데이터 기준임을 명확히 고지하세요.",
+        "공장 전체 WIP 합계는 1183임을 근거와 함께 명확하게 서술하세요.",
+        "실제 공장 값이 아님을 강조하세요.",
+        "SQL 실행 및 샘플 결과를 출처와 함께 제시하세요."
+      ],
+      "action": "compose",
+      "retry_target": null,
+      "reason": "SQL과 샘플 결과에 따라 \"fab12\"의 최신 시뮬레이션 스냅샷 기준 공장 전체 WIP 합계는 1183임을 알 수 있습니다. 답변 근거(스냅샷, 집계 SQL 등)가 명확하며, 제한사항 및 데이터 성격(합성 시뮬레이션) 안내가 필수적입니다.",
+      "evidence_count": 2,
+      "limitation_count": 6,
+      "deterministic_warnings": [
+        "Status answer contains numeric claims absent from grounded inputs and results: 1"
+      ],
+      "agent_reflections": [
+        {
+          "agent_name": "text2sql",
+          "agent_intent": "Query the most recent simulation snapshot for FAB12 and calculate the total WIP for the entire factory. (FAB simulation snapshots and WIP values are stored in structured business tables; text2sql is required to aggregate these metrics.)",
+          "planner_intent": "Retrieve the total WIP sum for the entire FAB in the most recent simulation snapshot for FAB12.",
+          "query_type": "status",
+          "required": true,
+          "status": "succeeded",
+          "success_criteria": [
+            "Complete planner action: Query the most recent simulation snapshot for FAB12 and calculate the total WIP for the entire factory.",
+            "Return a succeeded status with read-only SQL.",
+            "Record query/result evidence and limitations."
+          ],
+          "agent_output": {
+            "agent": "text2sql",
+            "status": "succeeded",
+            "summary": "시뮬레이션 공정 데이터 기준으로 1개 행을 조회했습니다.",
+            "metadata": {
+              "row_count": 1
+            },
+            "sql": "SELECT SUM(wip_lots) AS factory_wip_total\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )\nLIMIT 1;",
+            "row_count": 1,
+            "columns": [
+              "factory_wip_total"
+            ]
+          },
+          "decision": "pass",
+          "recommended_action": "continue",
+          "reason": "Agent output satisfies the declared success criteria.",
+          "warnings": [],
+          "evidence_count": 1,
+          "limitation_count": 4
+        }
+      ],
+      "supervisor_reviews": [],
+      "execution_mode": "llm_chat_completions",
+      "model": "gpt-4.1",
+      "reasoning": {
+        "node": "reflection",
+        "summary": "최종 검증 결과: 최종 답변 작성.",
+        "details": {
+          "is_supported": true,
+          "warning_count": 4,
+          "retry_target": null,
+          "termination_reason": "completed"
+        }
+      },
+      "retry_budget_remaining": 2,
+      "elapsed_ms": 15367
+    }
+  },
+  {
+    "type": "node_completed",
+    "node": "composer",
+    "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
+    "data": {
+      "answer": "fab12 공장의 가장 최근 시뮬레이션 스냅샷 기준 전체 WIP(공정 진행 중인 Lot의 합계)는 1,183입니다.\n\n이 값은 실제 공장 실측 데이터가 아니라, 합성된 시뮬레이션 공정 데이터에서 산출된 값임을 명확히 안내드립니다. 집계는 fab12의 시뮬레이션 스냅샷 테이블에서 최신 시점(interval_end)이 하나 선택되어 area별 WIP를 합산하는 방식으로 수행되었습니다.\n\nSQL 근거:\nSELECT SUM(wip_lots) AS factory_wip_total FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end = (SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12') LIMIT 1;\n\n제한사항:\n- 여러 시점의 값을 중복해서 합산하지 않고, 단일 최신 스냅샷 기준입니다.\n- 시뮬레이션 데이터의 신선도와 커버리지에 따라 결과의 정확도가 제한될 수 있습니다.\n- 본 조회값은 실제 생산 현장의 실측 데이터가 아니므로, 실 운영 수치를 확인할 때는 별도 실측 자료를 참고하셔야 합니다.",
+      "execution_mode": "llm_chat_completions",
+      "model": "gpt-4.1",
+      "reasoning": {
+        "node": "composer",
+        "summary": "수집된 tool summary, evidence, limitation, reflection을 기준으로 최종 답변을 작성했습니다.",
+        "details": {
+          "answer_part_count": 1,
+          "evidence_count": 2,
+          "limitation_count": 10
+        }
+      },
+      "retry_budget_remaining": 2,
+      "elapsed_ms": 19297
+    }
+  },
+  {
+    "type": "node_completed",
+    "node": "answer_supervisor",
+    "message": "최종 답변과 사용자 질문의 정합성을 검증했습니다.",
+    "data": {
+      "approved": false,
+      "revised": false,
+      "issues": [
+        "Status answer contains numeric claims absent from grounded inputs and results: 1"
+      ],
+      "execution_mode": "llm_chat_completions",
+      "reasoning": {
+        "node": "answer_supervisor",
+        "summary": "최종 답변을 원 질문과 근거에 대조해 검증했습니다.",
+        "details": {
+          "approved": false,
+          "revised": false,
+          "issue_count": 1
+        }
+      },
+      "retry_budget_remaining": 2,
+      "elapsed_ms": 21658
+    }
+  },
+  {
+    "type": "run_completed",
+    "node": "supervisor",
+    "message": "전체 실행을 완료했습니다.",
+    "data": {
+      "conversation_id": "hackathon-final-stream-20260907",
+      "status": "failed",
+      "query_type": "status",
+      "answer": "fab12 공장의 가장 최근 시뮬레이션 스냅샷 기준 전체 WIP(공정 진행 중인 Lot의 합계)는 1,183입니다.\n\n이 값은 실제 공장 실측 데이터가 아니라, 합성된 시뮬레이션 공정 데이터에서 산출된 값임을 명확히 안내드립니다. 집계는 fab12의 시뮬레이션 스냅샷 테이블에서 최신 시점(interval_end)이 하나 선택되어 area별 WIP를 합산하는 방식으로 수행되었습니다.\n\nSQL 근거:\nSELECT SUM(wip_lots) AS factory_wip_total FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end = (SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12') LIMIT 1;\n\n제한사항:\n- 여러 시점의 값을 중복해서 합산하지 않고, 단일 최신 스냅샷 기준입니다.\n- 시뮬레이션 데이터의 신선도와 커버리지에 따라 결과의 정확도가 제한될 수 있습니다.\n- 본 조회값은 실제 생산 현장의 실측 데이터가 아니므로, 실 운영 수치를 확인할 때는 별도 실측 자료를 참고하셔야 합니다.",
+      "sql": "SELECT SUM(wip_lots) AS factory_wip_total\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )\nLIMIT 1;",
+      "chart": null,
+      "confidence": 0.98,
+      "limitations": [
+        "Sum will be based only on the latest available simulation snapshot, not real-time WIP.",
+        "Result accuracy depends on simulation data freshness and coverage.",
+        "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+        "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+        "실제 공장 측정값이 아닌 합성 시뮬레이션 데이터입니다.",
+        "가장 최근 스냅샷 시점에서 area별 WIP를 합산하며, 여러 시점을 중복해서 합산하지 않습니다.",
+        "조회값은 합성된 시뮬레이션 공정 데이터 기준이며, 실제 공장 실측 데이터가 아닙니다.",
+        "가장 최근 스냅샷 1개를 기준으로 area별 WIP를 단일 시점에서만 합산합니다.",
+        "여러 시점의 값을 중복 합산하지 않습니다.",
+        "시뮬레이션 데이터의 신선도, 커버리지에 따라 결과의 정확도가 제한될 수 있습니다.",
+        "Status answer contains numeric claims absent from grounded inputs and results: 1"
+      ],
+      "evidence": [
+        {
+          "source_type": "planner_plan",
+          "title": "Planner plan",
+          "content": "Retrieve the total WIP sum for the entire FAB in the most recent simulation snapshot for FAB12.",
+          "metadata": {
+            "execution_mode": "llm_chat_completions",
+            "model": "gpt-4.1",
+            "status": "ready",
+            "query_type": "status",
+            "selected_sub_agents": [
+              "text2sql"
+            ],
+            "rag_knowledge_base": null,
+            "missing_slots": [],
+            "execution_steps": [
+              {
+                "agent": "text2sql",
+                "action": "Query the most recent simulation snapshot for FAB12 and calculate the total WIP for the entire factory.",
+                "required": true,
+                "reason": "FAB simulation snapshots and WIP values are stored in structured business tables; text2sql is required to aggregate these metrics."
+              }
+            ],
+            "slots": {
+              "fab_id": {
+                "value": "fab12",
+                "source": "explicit_user",
+                "confidence": 0.9,
+                "raw_text": "fab12 시뮬레이션 가장 최근 스냅샷의 공장 전체 WIP 합계를 알려줘"
+              },
+              "metric": {
+                "value": "wiplotavg",
+                "source": "request_context",
+                "confidence": 0.9,
+                "raw_text": "wiplotavg"
+              }
+            }
+          }
+        },
+        {
+          "source_type": "text2sql_plan",
+          "title": "Text2SQL query and result",
+          "content": "시뮬레이션 공정 데이터 기준으로 1개 행을 조회했습니다.",
+          "metadata": {
+            "status": "succeeded",
+            "query_type": "status",
+            "row_count": 1,
+            "columns": [
+              "factory_wip_total"
+            ],
+            "sample_rows": [
+              {
+                "factory_wip_total": 1183
+              }
+            ],
+            "query_plan": {
+              "query_type": "status",
+              "template_id": null,
+              "fab_id": "fab12",
+              "data_source_type": "simulation_snapshot",
+              "slots": {
+                "relative_period": {
+                  "value": "recent",
+                  "source": "parser",
+                  "confidence": 0.8,
+                  "raw_text": "recent"
+                },
+                "metric": {
+                  "value": "wiplotavg",
+                  "source": "alias_match",
+                  "confidence": 0.8,
+                  "raw_text": "wiplotavg"
+                },
+                "metrics": {
+                  "value": "wiplotavg",
+                  "source": "alias_match",
+                  "confidence": 0.85,
+                  "raw_text": "wiplotavg"
+                },
+                "fab_id": {
+                  "value": "fab12",
+                  "source": "explicit_user",
+                  "confidence": 1.0,
+                  "raw_text": "fab12 시뮬레이션 가장 최근 스냅샷의 공장 전체 WIP 합계를 알려줘"
+                }
+              },
+              "limitations": [
+                "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+                "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+                "실제 공장 측정값이 아닌 합성 시뮬레이션 데이터입니다.",
+                "가장 최근 스냅샷 시점에서 area별 WIP를 합산하며, 여러 시점을 중복해서 합산하지 않습니다."
+              ],
+              "source_tables": [
+                "fab12.live_process_snapshots_fab12",
+                "fab12.live_process_snapshots_fab12"
+              ],
+              "select_items": [
+                "SUM(wip_lots) AS factory_wip_total"
+              ],
+              "filters": [
+                {
+                  "field": "fab_id",
+                  "operator": "=",
+                  "value": "fab12"
+                },
+                {
+                  "field": "interval_end",
+                  "operator": "=",
+                  "value": "(SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12')"
+                }
+              ],
+              "group_by": [],
+              "order_by": [],
+              "aggregation": "SUM(wip_lots)",
+              "expected_result_shape": "single_row_scalar_total",
+              "chart_intent": null,
+              "semantic_plan": {
+                "supported": true,
+                "reason": "Request for simulated FAB12 factory-wide WIP total at the most recent snapshot is directly supported. Whole-factory sum of snapshot WIP across all disjoint areas, restricted to the latest available interval_end.",
+                "tables": [
+                  "fab12.live_process_snapshots_fab12"
+                ],
+                "projections": [],
+                "aggregates": [
+                  {
+                    "source": {
+                      "table": "fab12.live_process_snapshots_fab12",
+                      "column": "wip_lots"
+                    },
+                    "function": "sum",
+                    "alias": "factory_wip_total"
+                  }
+                ],
+                "group_by": [],
+                "filters": [
+                  {
+                    "source": {
+                      "table": "fab12.live_process_snapshots_fab12",
+                      "column": "fab_id"
+                    },
+                    "operator": "eq",
+                    "values": [
+                      "fab12"
+                    ]
+                  }
+                ],
+                "joins": [],
+                "latest_by": [
+                  {
+                    "table": "fab12.live_process_snapshots_fab12",
+                    "column": "interval_end"
+                  }
+                ],
+                "time_basis": "latest interval_end snapshot (simulation)",
+                "result_grain": "factory-wide total at latest snapshot (one row)",
+                "limitations": [
+                  "Only synthetic simulation data, not real factory measurement.",
+                  "Result sums disjoint area WIP within latest snapshot; does not sum across multiple timestamps."
+                ]
+              },
+              "grounding": {
+                "version": "metadata-ranking-v1",
+                "total_tables": 14,
+                "selected_tables": 6,
+                "total_columns": 247,
+                "selected_columns": 93,
+                "broadened_no_match": false,
+                "ranking": [
+                  {
+                    "table_ref": "fab12.live_process_snapshots_fab12",
+                    "score": 40.0,
+                    "reasons": [
+                      "aliases:시뮬레이션,스냅샷",
+                      "description:wip,시뮬레이션",
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.live_process_events_fab12",
+                    "score": 24.0,
+                    "reasons": [
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.breakdown_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.lotrelease_engineering_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.lotrelease_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.lotrelease_variable_due_dates_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.pm_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.route_product_3_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.route_product_4_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.route_product_e3_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.setup_matrix_implant_gas_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.setups_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.toolgroups_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.transport_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  }
+                ]
+              },
+              "generation_attempts": [
+                {
+                  "attempt": 1,
+                  "action": "focused_generation",
+                  "status": "succeeded",
+                  "sql": "SELECT SUM(wip_lots) AS factory_wip_total\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )\nLIMIT 1;",
+                  "issues": [
+                    "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+                    "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+                    "실제 공장 측정값이 아닌 합성 시뮬레이션 데이터입니다.",
+                    "가장 최근 스냅샷 시점에서 area별 WIP를 합산하며, 여러 시점을 중복해서 합산하지 않습니다."
+                  ],
+                  "tables": [
+                    "fab12.live_process_snapshots_fab12",
+                    "fab12.live_process_events_fab12",
+                    "fab12.breakdown_fab12",
+                    "fab12.lotrelease_engineering_fab12",
+                    "fab12.lotrelease_fab12",
+                    "fab12.lotrelease_variable_due_dates_fab12"
+                  ],
+                  "semantic_plan": {
+                    "supported": true,
+                    "reason": "Request for simulated FAB12 factory-wide WIP total at the most recent snapshot is directly supported. Whole-factory sum of snapshot WIP across all disjoint areas, restricted to the latest available interval_end.",
+                    "tables": [
+                      "fab12.live_process_snapshots_fab12"
+                    ],
+                    "projections": [],
+                    "aggregates": [
+                      {
+                        "source": {
+                          "table": "fab12.live_process_snapshots_fab12",
+                          "column": "wip_lots"
+                        },
+                        "function": "sum",
+                        "alias": "factory_wip_total"
+                      }
+                    ],
+                    "group_by": [],
+                    "filters": [
+                      {
+                        "source": {
+                          "table": "fab12.live_process_snapshots_fab12",
+                          "column": "fab_id"
+                        },
+                        "operator": "eq",
+                        "values": [
+                          "fab12"
+                        ]
+                      }
+                    ],
+                    "joins": [],
+                    "latest_by": [
+                      {
+                        "table": "fab12.live_process_snapshots_fab12",
+                        "column": "interval_end"
+                      }
+                    ],
+                    "time_basis": "latest interval_end snapshot (simulation)",
+                    "result_grain": "factory-wide total at latest snapshot (one row)",
+                    "limitations": [
+                      "Only synthetic simulation data, not real factory measurement.",
+                      "Result sums disjoint area WIP within latest snapshot; does not sum across multiple timestamps."
+                    ]
+                  },
+                  "grounding": {
+                    "version": "metadata-ranking-v1",
+                    "total_tables": 14,
+                    "selected_tables": 6,
+                    "total_columns": 247,
+                    "selected_columns": 93,
+                    "broadened_no_match": false,
+                    "ranking": [
+                      {
+                        "table_ref": "fab12.live_process_snapshots_fab12",
+                        "score": 40.0,
+                        "reasons": [
+                          "aliases:시뮬레이션,스냅샷",
+                          "description:wip,시뮬레이션",
+                          "request_slots"
+                        ],
+                        "selected": true
+                      },
+                      {
+                        "table_ref": "fab12.live_process_events_fab12",
+                        "score": 24.0,
+                        "reasons": [
+                          "request_slots"
+                        ],
+                        "selected": true
+                      },
+                      {
+                        "table_ref": "fab12.breakdown_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": true
+                      },
+                      {
+                        "table_ref": "fab12.lotrelease_engineering_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": true
+                      },
+                      {
+                        "table_ref": "fab12.lotrelease_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": true
+                      },
+                      {
+                        "table_ref": "fab12.lotrelease_variable_due_dates_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": true
+                      },
+                      {
+                        "table_ref": "fab12.pm_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": false
+                      },
+                      {
+                        "table_ref": "fab12.route_product_3_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": false
+                      },
+                      {
+                        "table_ref": "fab12.route_product_4_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": false
+                      },
+                      {
+                        "table_ref": "fab12.route_product_e3_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": false
+                      },
+                      {
+                        "table_ref": "fab12.setup_matrix_implant_gas_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": false
+                      },
+                      {
+                        "table_ref": "fab12.setups_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": false
+                      },
+                      {
+                        "table_ref": "fab12.toolgroups_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": false
+                      },
+                      {
+                        "table_ref": "fab12.transport_fab12",
+                        "score": 0.0,
+                        "reasons": [],
+                        "selected": false
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "sql": "SELECT SUM(wip_lots) AS factory_wip_total\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )\nLIMIT 1;"
+          }
+        }
+      ],
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "fab12 시뮬레이션 가장 최근 스냅샷의 공장 전체 WIP 합계를 알려줘",
+          "metadata": {
+            "fab": "fab12",
+            "line": null,
+            "process": null,
+            "product": null,
+            "route": null,
+            "equipment": null,
+            "date_basis": null,
+            "metric": "wiplotavg"
+          }
+        },
+        {
+          "role": "assistant",
+          "content": "fab12 공장의 가장 최근 시뮬레이션 스냅샷 기준 전체 WIP(공정 진행 중인 Lot의 합계)는 1,183입니다.\n\n이 값은 실제 공장 실측 데이터가 아니라, 합성된 시뮬레이션 공정 데이터에서 산출된 값임을 명확히 안내드립니다. 집계는 fab12의 시뮬레이션 스냅샷 테이블에서 최신 시점(interval_end)이 하나 선택되어 area별 WIP를 합산하는 방식으로 수행되었습니다.\n\nSQL 근거:\nSELECT SUM(wip_lots) AS factory_wip_total FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end = (SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12') LIMIT 1;\n\n제한사항:\n- 여러 시점의 값을 중복해서 합산하지 않고, 단일 최신 스냅샷 기준입니다.\n- 시뮬레이션 데이터의 신선도와 커버리지에 따라 결과의 정확도가 제한될 수 있습니다.\n- 본 조회값은 실제 생산 현장의 실측 데이터가 아니므로, 실 운영 수치를 확인할 때는 별도 실측 자료를 참고하셔야 합니다.",
+          "metadata": {
+            "query_type": "status",
+            "status": "failed",
+            "sql": "SELECT SUM(wip_lots) AS factory_wip_total\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )\nLIMIT 1;",
+            "limitations": [
+              "Sum will be based only on the latest available simulation snapshot, not real-time WIP.",
+              "Result accuracy depends on simulation data freshness and coverage.",
+              "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+              "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+              "실제 공장 측정값이 아닌 합성 시뮬레이션 데이터입니다.",
+              "가장 최근 스냅샷 시점에서 area별 WIP를 합산하며, 여러 시점을 중복해서 합산하지 않습니다.",
+              "조회값은 합성된 시뮬레이션 공정 데이터 기준이며, 실제 공장 실측 데이터가 아닙니다.",
+              "가장 최근 스냅샷 1개를 기준으로 area별 WIP를 단일 시점에서만 합산합니다.",
+              "여러 시점의 값을 중복 합산하지 않습니다.",
+              "시뮬레이션 데이터의 신선도, 커버리지에 따라 결과의 정확도가 제한될 수 있습니다.",
+              "Status answer contains numeric claims absent from grounded inputs and results: 1"
+            ]
+          }
+        }
+      ],
+      "reasoning_state": [
+        {
+          "node": "planner",
+          "summary": "status로 분류하고 1개 실행 단계를 만들었습니다.",
+          "details": {
+            "history_turns": 0,
+            "execution_feedback_count": 0,
+            "selected_sub_agents": [
+              "text2sql"
+            ],
+            "missing_slots": []
+          }
+        },
+        {
+          "node": "supervisor",
+          "summary": "계획 상태가 ready라서 실행을 승인했습니다.",
+          "details": {
+            "status": "ready",
+            "halted": false,
+            "selected_sub_agents": [
+              "text2sql"
+            ],
+            "reason": "The planner decision is clear: this is a database-backed status query specifically about FAB12's most recent simulation snapshot total WIP. Per policy, this requires a Text2SQL step for availability and cannot be answered from general data or past failures. No clarification is present or needed; the query is ready for execution."
+          }
+        },
+        {
+          "node": "dispatcher",
+          "summary": "계획 cursor 0의 다음 agent로 text2sql를 선택했습니다.",
+          "details": {
+            "cursor": 0,
+            "next_agent": "text2sql",
+            "total_steps": 1
+          }
+        },
+        {
+          "node": "text2sql",
+          "summary": "status 질의를 succeeded 상태로 처리했습니다.",
+          "details": {
+            "fab": "fab12",
+            "required": true,
+            "row_count": 1,
+            "has_sql": true,
+            "feedback_count": 0
+          }
+        },
+        {
+          "node": "dispatcher",
+          "summary": "계획된 실행 단계를 모두 소진해 최종 reflection으로 이동합니다.",
+          "details": {
+            "cursor": 1,
+            "total_steps": 1
+          }
+        },
+        {
+          "node": "reflection",
+          "summary": "최종 검증 결과: 최종 답변 작성.",
+          "details": {
+            "is_supported": true,
+            "warning_count": 4,
+            "retry_target": null,
+            "termination_reason": "completed"
+          }
+        },
+        {
+          "node": "composer",
+          "summary": "수집된 tool summary, evidence, limitation, reflection을 기준으로 최종 답변을 작성했습니다.",
+          "details": {
+            "answer_part_count": 1,
+            "evidence_count": 2,
+            "limitation_count": 10
+          }
+        },
+        {
+          "node": "answer_supervisor",
+          "summary": "최종 답변을 원 질문과 근거에 대조해 검증했습니다.",
+          "details": {
+            "approved": false,
+            "revised": false,
+            "issue_count": 1
+          }
+        }
+      ],
+      "plan": {
+        "status": "ready",
+        "query_type": "status",
+        "intent": "Retrieve the total WIP sum for the entire FAB in the most recent simulation snapshot for FAB12.",
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "execution_steps": [
+          {
+            "agent": "text2sql",
+            "action": "Query the most recent simulation snapshot for FAB12 and calculate the total WIP for the entire factory.",
+            "required": true,
+            "reason": "FAB simulation snapshots and WIP values are stored in structured business tables; text2sql is required to aggregate these metrics."
+          }
+        ],
+        "slots": {
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 0.9,
+            "raw_text": "fab12 시뮬레이션 가장 최근 스냅샷의 공장 전체 WIP 합계를 알려줘"
+          },
+          "metric": {
+            "value": "wiplotavg",
+            "source": "request_context",
+            "confidence": 0.9,
+            "raw_text": "wiplotavg"
+          }
+        },
+        "rag_knowledge_base": null,
+        "missing_slots": [],
+        "clarification_question": null,
+        "limitations": [
+          "Sum will be based only on the latest available simulation snapshot, not real-time WIP.",
+          "Result accuracy depends on simulation data freshness and coverage.",
+          "Sum will be based only on the latest available simulation snapshot, not real-time WIP.",
+          "Result accuracy depends on simulation data freshness and coverage."
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- All existing FAB10-FAB13 business tables are authorized for read-only discovery and querying,\n  including model inputs, AutoSched reports, and simulated process snapshots/events.\n- Availability is determined by the current database tool, never by previous assistant answers.\n  Always plan a fresh Text2SQL attempt for a database question with a resolved FAB. Do not mark\n  data_unavailable before a tool has checked the current request. Past schema/connection errors\n  are historical events, not permanent access policies.\n- Select sources by their actual metric, grain and time coverage. General Data cannot supply\n  observed WIP; simulated snapshots may supply simulated WIP and must be labeled as simulation.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- The current question determines intent. A new toolgroup list request after a WIP\n  trend question is master_data_lookup, not trend. Inherit context only for omitted\n  references; do not carry the old task, metric, or chart requirement into a new task.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "agent_runs": [
+        {
+          "agent": "text2sql",
+          "status": "succeeded",
+          "summary": "시뮬레이션 공정 데이터 기준으로 1개 행을 조회했습니다.",
+          "metadata": {
+            "row_count": 1
+          }
+        }
+      ],
+      "agent_reflections": [
+        {
+          "agent_name": "text2sql",
+          "agent_intent": "Query the most recent simulation snapshot for FAB12 and calculate the total WIP for the entire factory. (FAB simulation snapshots and WIP values are stored in structured business tables; text2sql is required to aggregate these metrics.)",
+          "planner_intent": "Retrieve the total WIP sum for the entire FAB in the most recent simulation snapshot for FAB12.",
+          "query_type": "status",
+          "required": true,
+          "status": "succeeded",
+          "success_criteria": [
+            "Complete planner action: Query the most recent simulation snapshot for FAB12 and calculate the total WIP for the entire factory.",
+            "Return a succeeded status with read-only SQL.",
+            "Record query/result evidence and limitations."
+          ],
+          "agent_output": {
+            "agent": "text2sql",
+            "status": "succeeded",
+            "summary": "시뮬레이션 공정 데이터 기준으로 1개 행을 조회했습니다.",
+            "metadata": {
+              "row_count": 1
+            },
+            "sql": "SELECT SUM(wip_lots) AS factory_wip_total\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )\nLIMIT 1;",
+            "row_count": 1,
+            "columns": [
+              "factory_wip_total"
+            ]
+          },
+          "decision": "pass",
+          "recommended_action": "continue",
+          "reason": "Agent output satisfies the declared success criteria.",
+          "warnings": [],
+          "evidence_count": 1,
+          "limitation_count": 4
+        }
+      ],
+      "supervisor_reviews": [],
+      "supervisor_decisions": [],
+      "retry_counts": {},
+      "replan_count": 0,
+      "reflection_decisions": [
+        {
+          "action": "compose",
+          "retry_target": null,
+          "reason": "SQL과 샘플 결과에 따라 \"fab12\"의 최신 시뮬레이션 스냅샷 기준 공장 전체 WIP 합계는 1183임을 알 수 있습니다. 답변 근거(스냅샷, 집계 SQL 등)가 명확하며, 제한사항 및 데이터 성격(합성 시뮬레이션) 안내가 필수적입니다.",
+          "retry_budget_remaining": 2,
+          "replan_budget_remaining": 1,
+          "termination_reason": "completed"
+        }
+      ],
+      "termination_reason": "answer_review_failed",
+      "reflection": {
+        "is_supported": true,
+        "warnings": [
+          "조회값은 합성된 시뮬레이션 공정 데이터 기준이며, 실제 공장 실측 데이터가 아닙니다.",
+          "가장 최근 스냅샷 1개를 기준으로 area별 WIP를 단일 시점에서만 합산합니다.",
+          "여러 시점의 값을 중복 합산하지 않습니다.",
+          "시뮬레이션 데이터의 신선도, 커버리지에 따라 결과의 정확도가 제한될 수 있습니다."
+        ],
+        "composer_instructions": [
+          "답변 시 시뮬레이션 데이터 기준임을 명확히 고지하세요.",
+          "공장 전체 WIP 합계는 1183임을 근거와 함께 명확하게 서술하세요.",
+          "실제 공장 값이 아님을 강조하세요.",
+          "SQL 실행 및 샘플 결과를 출처와 함께 제시하세요."
+        ],
+        "action": "compose",
+        "retry_target": null,
+        "reason": "SQL과 샘플 결과에 따라 \"fab12\"의 최신 시뮬레이션 스냅샷 기준 공장 전체 WIP 합계는 1183임을 알 수 있습니다. 답변 근거(스냅샷, 집계 SQL 등)가 명확하며, 제한사항 및 데이터 성격(합성 시뮬레이션) 안내가 필수적입니다.",
+        "evidence_count": 2,
+        "limitation_count": 6,
+        "deterministic_warnings": [
+          "Status answer contains numeric claims absent from grounded inputs and results: 1"
+        ],
+        "agent_reflections": [
+          {
+            "agent_name": "text2sql",
+            "agent_intent": "Query the most recent simulation snapshot for FAB12 and calculate the total WIP for the entire factory. (FAB simulation snapshots and WIP values are stored in structured business tables; text2sql is required to aggregate these metrics.)",
+            "planner_intent": "Retrieve the total WIP sum for the entire FAB in the most recent simulation snapshot for FAB12.",
+            "query_type": "status",
+            "required": true,
+            "status": "succeeded",
+            "success_criteria": [
+              "Complete planner action: Query the most recent simulation snapshot for FAB12 and calculate the total WIP for the entire factory.",
+              "Return a succeeded status with read-only SQL.",
+              "Record query/result evidence and limitations."
+            ],
+            "agent_output": {
+              "agent": "text2sql",
+              "status": "succeeded",
+              "summary": "시뮬레이션 공정 데이터 기준으로 1개 행을 조회했습니다.",
+              "metadata": {
+                "row_count": 1
+              },
+              "sql": "SELECT SUM(wip_lots) AS factory_wip_total\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )\nLIMIT 1;",
+              "row_count": 1,
+              "columns": [
+                "factory_wip_total"
+              ]
+            },
+            "decision": "pass",
+            "recommended_action": "continue",
+            "reason": "Agent output satisfies the declared success criteria.",
+            "warnings": [],
+            "evidence_count": 1,
+            "limitation_count": 4
+          }
+        ],
+        "supervisor_reviews": [],
+        "execution_mode": "llm_chat_completions",
+        "model": "gpt-4.1"
+      },
+      "answer_review": {
+        "approved": false,
+        "issues": [
+          "Status answer contains numeric claims absent from grounded inputs and results: 1"
+        ],
+        "corrected_answer": "fab12 공장의 가장 최근 시뮬레이션 스냅샷 기준 전체 WIP(공정 진행 중인 Lot의 합계)는 1,183입니다.\n\n이 값은 fab12의 시뮬레이션 스냅샷 테이블에서 최신 시점(interval_end)이 하나 선택되어 area별 WIP를 합산하는 방식으로 산출되었습니다. 실제 공장 실측 데이터가 아니라 합성된 시뮬레이션 데이터임을 명확히 안내드립니다.\n\nSQL 근거:\nSELECT SUM(wip_lots) AS factory_wip_total FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end = (SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12') LIMIT 1;\n\n제한사항:\n- 단일 최신 시뮬레이션 스냅샷 기준이며, 여러 시점의 값을 중복해서 합산하지 않습니다.\n- 시뮬레이션 데이터의 신선도와 커버리지에 따라 결과의 정확도가 제한될 수 있습니다.\n- 본 집계값은 실제 생산 현장의 실측 데이터가 아니므로, 실 운영 수치를 확인할 때는 별도 실측 자료를 참고하셔야 합니다.",
+        "reason": "The answer is well-aligned to the user's request and grounded in database evidence, except for a minor unsupported numeric claim detected ('1'). This refers to a generic value rather than the result itself. Otherwise, all identifiers, metrics, date constraints, and limitations are covered.",
+        "original_approved": false,
+        "correction_applied": false,
+        "deterministic_check": {
+          "is_supported": false,
+          "warnings": [
+            "Status answer contains numeric claims absent from grounded inputs and results: 1"
+          ],
+          "evidence_count": 2,
+          "limitation_count": 10,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [
+            "1"
+          ],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "correction_check": {
+          "is_supported": false,
+          "warnings": [
+            "Status answer contains numeric claims absent from grounded inputs and results: 1"
+          ],
+          "evidence_count": 2,
+          "limitation_count": 10,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [
+            "1"
+          ],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "retry_budget_remaining": 2,
+      "elapsed_ms": 21662
+    }
+  }
+]

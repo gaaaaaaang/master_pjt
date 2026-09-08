@@ -7,6 +7,7 @@ from app.agents.intent import analyze_request, enrich_analysis
 from app.agents.planner import create_plan
 from app.agents.supervisor import review_agent_result, review_plan
 from app.schemas.chat import ChatRequest, Evidence
+from app.sub_agent.rag import EvidenceResult
 from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
 
 
@@ -243,7 +244,8 @@ def test_graph_reviews_success_and_passes_actual_sql_results_to_next_agent(monke
         reviewed.append(kwargs["execution_context"])
         return recovery("continue")
 
-    monkeypatch.setattr("app.agents.graph.retrieve_knowledge", rag)
+    monkeypatch.setattr("app.agents.graph.retrieve_evidence",
+                        lambda *a, **kw: EvidenceResult(rag(*a, **kw), {}, []))
     monkeypatch.setattr("app.agents.graph.find_similar_cases", lambda *a, **kw: [])
     monkeypatch.setattr("app.agents.graph.review_agent_result", review)
     result = build_agent_graph().invoke(
@@ -290,7 +292,8 @@ def test_combination_retry_replaces_old_evidence_and_resumes_remaining_plan(monk
         return recovery("continue")
 
     monkeypatch.setattr("app.agents.graph.answer_question", sql)
-    monkeypatch.setattr("app.agents.graph.retrieve_knowledge", rag)
+    monkeypatch.setattr("app.agents.graph.retrieve_evidence",
+                        lambda *a, **kw: EvidenceResult(rag(*a, **kw), {}, []))
     monkeypatch.setattr("app.agents.graph.find_similar_cases", lambda *a, **kw: [])
     monkeypatch.setattr("app.agents.graph.review_agent_result", review)
     result = build_agent_graph().invoke(
@@ -420,7 +423,8 @@ def test_rag_transport_error_is_reviewable_and_retry_can_recover(monkeypatch):
     def review(plan, reflection, **kwargs):
         return recovery("retry_same_agent" if reflection["status"] == "failed" else "continue")
 
-    monkeypatch.setattr("app.agents.graph.retrieve_knowledge", retrieve)
+    monkeypatch.setattr("app.agents.graph.retrieve_evidence",
+                        lambda *a, **kw: EvidenceResult(retrieve(*a, **kw), {}, []))
     monkeypatch.setattr("app.agents.graph.review_agent_result", review)
     result = Supervisor().run(ChatRequest(message="CMP 공정 정의 설명"))
     assert calls == 2
@@ -683,3 +687,49 @@ def test_supervisor_added_chart_has_sql_dependency():
         "reason": "chart requested", "answer": None, "limitations": [],
     }))
     assert reviewed.execution_steps[-1].depends_on == ["text2sql"]
+
+
+@pytest.mark.parametrize("question", ["M13 현재 WIP", "13번 패브 현재 WIP", "fab10 말고 M13 현재 WIP"])
+def test_integrated_shared_fab_aliases_reach_retrieval_scope(question):
+    from app.agents.execution import scoped_retrieval_query
+    from app.db.fab_catalog import resolve_fab
+    from app.rag.query import analyze_query, apply_fab_scope
+
+    plan = plan_for(question, fab="fab11")
+    assert plan.status == "ready"
+    assert plan.slots["fab_id"].value == "fab13"
+    assert resolve_fab(question, "fab11").fab_id == "fab13"
+    query = scoped_retrieval_query(question, build_handoff(plan, "rag", {}))
+    assert apply_fab_scope(analyze_query(query), "fab13").fab_ids == ("fab13",)
+
+
+def test_integrated_planner_retains_user_history_fab_without_ui_default():
+    plan = plan_for("현재 WIP 몇 개야?", conversation_history=[
+        {"role": "user", "content": "M12 설비 목록"},
+        {"role": "assistant", "content": "예를 들면 fab10입니다."},
+    ])
+    assert plan.status == "ready"
+    assert plan.slots["fab_id"].value == "fab12"
+    assert plan.slots["fab_id"].source == "conversation_context"
+
+
+def test_integrated_rag_handoff_preserves_trace_and_limitations(monkeypatch):
+    from app.rag.search import SearchResult
+    from app.sub_agent.rag import retrieve_evidence
+
+    seen = []
+    def search(query, *args, **kwargs):
+        seen.append((query, kwargs["fab_id"]))
+        return SearchResult([], {"plan": {}}, ["Index unavailable in this test."])
+
+    monkeypatch.setattr("app.sub_agent.rag.retrieve_with_trace", search)
+    plan = plan_for("fab10 말고 M13 현재 WIP")
+    result = retrieve_evidence(
+        "fab10 말고 M13 현재 WIP", fab_id="fab13",
+        execution_context=build_handoff(plan, "rag", {}),
+    )
+    assert seen[0][1] == "fab13"
+    assert "fab10" not in seen[0][0] and "M13" not in seen[0][0]
+    assert "fab13" in seen[0][0]
+    assert result.trace == {"plan": {}}
+    assert result.limitations == ["Index unavailable in this test."]

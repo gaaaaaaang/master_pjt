@@ -4,10 +4,8 @@ import argparse
 import csv
 import subprocess
 import tempfile
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
-
-from openpyxl import load_workbook as openpyxl_load_workbook
 
 from generate_smt2020_postgres_ddl import (
     DATASETS,
@@ -17,8 +15,10 @@ from generate_smt2020_postgres_ddl import (
     PROJECT_ROOT,
     dedupe,
     ident,
+    physical_table_name,
     snake,
 )
+from openpyxl import load_workbook as openpyxl_load_workbook
 
 
 def parse_args() -> argparse.Namespace:
@@ -118,7 +118,7 @@ def load_dataset_workbook(
         with tempfile.TemporaryDirectory(prefix="smt2020_csv_") as tmpdir:
             tmp = Path(tmpdir)
             for ws in wb.worksheets:
-                table_name = snake(ws.title, "sheet")
+                table_name = physical_table_name(schema_name, snake(ws.title, "sheet"))
                 header_row, columns = sheet_columns(ws, ws.title)
                 if not args.no_truncate:
                     run_sql(

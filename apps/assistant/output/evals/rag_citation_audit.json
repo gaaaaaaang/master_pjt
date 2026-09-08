@@ -1,0 +1,61 @@
+{
+  "audit": "canonical_source_fidelity.v1",
+  "scope": "Literal quotation and source metadata; not semantic correctness or completeness.",
+  "input_report": "apps/assistant/output/evals/rag_chat_extension_spans_final.json",
+  "report_sha256": "d92435b1b061dcd0dde121beebc4aafab30db52a2e36c9d67ed75e2524c7f9d6",
+  "corpus_sha256": "5cd581ec05cf94505e16ec00177d917b094c3e4461784f9da2bb1222e5cf9dca",
+  "cases": [
+    {
+      "id": "ext_pm_approval",
+      "citations": 2,
+      "issues": []
+    },
+    {
+      "id": "ext_hold_deadline",
+      "citations": 7,
+      "issues": []
+    },
+    {
+      "id": "ext_equipment_record",
+      "citations": 4,
+      "issues": []
+    },
+    {
+      "id": "ext_alternate",
+      "citations": 11,
+      "issues": []
+    },
+    {
+      "id": "ext_timelink",
+      "citations": 2,
+      "issues": []
+    },
+    {
+      "id": "ext_knowledge_update",
+      "citations": 6,
+      "issues": []
+    },
+    {
+      "id": "ext_autosched_attach",
+      "citations": 6,
+      "issues": []
+    },
+    {
+      "id": "ext_unknown_threshold",
+      "citations": 0,
+      "issues": []
+    },
+    {
+      "id": "ext_unknown_euv",
+      "citations": 0,
+      "issues": []
+    },
+    {
+      "id": "ext_verified_sop",
+      "citations": 0,
+      "issues": []
+    }
+  ],
+  "total_citations": 38,
+  "passed": true
+}

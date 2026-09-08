@@ -1,0 +1,26 @@
+{
+  "payload_kind": "synthetic_connectivity_only",
+  "checks": [
+    {
+      "check": "embedding",
+      "succeeded": true,
+      "dimension": 3072,
+      "seconds": 0.27
+    },
+    {
+      "check": "reranker",
+      "succeeded": true,
+      "grades": [
+        {
+          "id": "test-blue",
+          "grade": 3
+        },
+        {
+          "id": "test-other",
+          "grade": 0
+        }
+      ],
+      "seconds": 2.23
+    }
+  ]
+}

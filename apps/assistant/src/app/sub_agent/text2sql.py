@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass, field
+from copy import deepcopy
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from typing import Any, Literal, Protocol
 from zoneinfo import ZoneInfo
@@ -11,7 +12,17 @@ import httpx
 from psycopg import Error as PsycopgError
 
 from app.config import get_settings
+from app.db.fab_catalog import normalize_fab, resolve_fab, table_pattern, table_ref
+from app.db.metadata_catalog import load_fab_catalog
 from app.db.read_only import ReadOnlyQueryExecutor, SqlValidationError
+from app.db.schema_retrieval import mentions_table, select_catalog
+from app.sub_agent.semantic_plan import (
+    PLAN_PROMPT,
+    SemanticPlan,
+    request_requirements,
+    validate_plan,
+    validate_sql_plan,
+)
 
 QueryType = Literal[
     "status",
@@ -32,7 +43,7 @@ Text2SQLStatus = Literal[
 @dataclass(frozen=True)
 class QuerySlot:
     value: str
-    source: Literal["explicit_user", "request_context", "alias_match", "parser", "llm_inference"]
+    source: Literal["explicit_user", "request_context", "alias_match", "parser", "llm_inference", "conversation_context"]
     confidence: float
     raw_text: str
 
@@ -42,7 +53,9 @@ class QueryPlan:
     query_type: QueryType
     template_id: str | None
     fab_id: str | None = None
-    data_source_type: Literal["operational_report", "model_master", "release_plan"] | None = None
+    data_source_type: Literal[
+        "operational_report", "model_master", "release_plan", "simulation_snapshot", "mixed"
+    ] | None = None
     slots: dict[str, QuerySlot] = field(default_factory=dict)
     limitations: list[str] = field(default_factory=list)
     source_tables: list[str] = field(default_factory=list)
@@ -53,6 +66,9 @@ class QueryPlan:
     aggregation: str | None = None
     expected_result_shape: str | None = None
     chart_intent: dict[str, Any] | None = None
+    semantic_plan: dict[str, Any] = field(default_factory=dict)
+    grounding: dict[str, Any] = field(default_factory=dict)
+    generation_attempts: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -94,11 +110,6 @@ ROUTE_TABLES_BY_FAB: dict[str, set[str]] = {
     },
 }
 
-FAB_PATTERN = re.compile(
-    r"(?<![A-Za-z0-9_])(?:fab|FAB)\s*[-_ ]?(1[0-3])(?![A-Za-z0-9_])"
-    r"|(?<![A-Za-z0-9_])fab(1[0-3])(?![A-Za-z0-9_])",
-    re.IGNORECASE,
-)
 PRODUCT_PATTERN = re.compile(
     r"(?<![A-Za-z0-9_])(?:product|part|route_product)[-_ ]?([eE]?\d+)(?![A-Za-z0-9_])",
     re.IGNORECASE,
@@ -504,6 +515,7 @@ class OpenAIText2SQLClient:
         if not self.api_key:
             raise RuntimeError("OPENAI_API_KEY is not configured.")
 
+        schema_context["request_requirements"] = request_requirements(question)
         payload = {
             "model": self.model,
             "messages": [
@@ -519,7 +531,7 @@ class OpenAIText2SQLClient:
                             "query_type": query_type,
                             "fab_id": fab_id,
                             "slots": _serialize_slots(slots),
-                            "schema_context": schema_context,
+                            "schema_context": _compact_model_context(schema_context),
                         },
                         ensure_ascii=False,
                     ),
@@ -534,6 +546,34 @@ class OpenAIText2SQLClient:
                 },
             },
         }
+        if schema_context.get("table_details"):
+            planning_payload = {
+                **payload,
+                "messages": [{"role": "system", "content": PLAN_PROMPT}, payload["messages"][1]],
+                "response_format": {"type": "json_schema", "json_schema": {
+                    "name": "fab_semantic_plan", "strict": True,
+                    "schema": SemanticPlan.strict_response_schema(),
+                }},
+            }
+            raw_plan = self._complete_payload(planning_payload)
+            schema_context["proposed_semantic_plan"] = raw_plan
+            try:
+                semantic_plan = validate_plan(raw_plan, schema_context)
+            except ValueError as exc:
+                return {"supported": False, "answer": "SQL 작성 전 조회 계획 검증에 실패했습니다.",
+                        "limitations": [str(exc)], "failure_stage": "semantic_plan"}
+            if not semantic_plan.supported:
+                return {"supported": False, "answer": semantic_plan.reason,
+                        "limitations": semantic_plan.limitations}
+            schema_context["validated_semantic_plan"] = semantic_plan.model_dump()
+            payload["messages"].append({
+                "role": "user",
+                "content": "Generate SQL faithful to this validated plan. Preserve its tables, columns, "
+                           "joins, filters, aggregation and grain:\n" + semantic_plan.model_dump_json(),
+            })
+        return self._complete_payload(payload)
+
+    def _complete_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
         headers = {
             "api-key": self.api_key,
             "Content-Type": "application/json",
@@ -555,6 +595,17 @@ class OpenAIText2SQLClient:
                 ) from exc
         output_text = _extract_chat_completion_content(response.json())
         return json.loads(output_text)
+
+
+def _compact_model_context(context: dict[str, Any]) -> dict[str, Any]:
+    """Keep grounding evidence, omit duplicate descriptions and audit-only rankings."""
+    compact = deepcopy(context)
+    compact.pop("grounding", None)
+    for detail in compact.get("table_details", {}).values():
+        detail.get("semantics", {}).pop("column_meanings", None)
+    for feedback in compact.get("execution_feedback", []):
+        feedback.pop("previous_plan", None)
+    return compact
 
 
 def generate_sql(
@@ -592,6 +643,18 @@ def answer_question(
     llm_client: Text2SQLClient | None = None,
     deterministic_only: bool = False,
 ) -> Text2SQLResult:
+    settings = get_settings()
+    should_execute = execute if execute is not None else bool(settings.postgres_dsn)
+    database_catalog = None
+    if should_execute and llm_client is None and not deterministic_only:
+        resolution = resolve_fab(question, fab, conversation_history)
+        if resolution.fab_id:
+            try:
+                database_catalog = load_fab_catalog(resolution.fab_id)
+            except (RuntimeError, PsycopgError):
+                # The executor remains the authority on a query's failure. A metadata
+                # outage alone is not evidence of a policy denial for every table.
+                pass
     result = plan_text2sql(
         question,
         fab=fab,
@@ -607,12 +670,12 @@ def answer_question(
         execution_context=execution_context,
         llm_client=llm_client,
         deterministic_only=deterministic_only,
+        discover_schema=should_execute and llm_client is None and not deterministic_only,
+        database_catalog=database_catalog,
     )
     if result.status != "succeeded" or not result.sql:
         return result
 
-    settings = get_settings()
-    should_execute = execute if execute is not None else bool(settings.postgres_dsn)
     if not should_execute:
         return result
 
@@ -674,8 +737,13 @@ def plan_text2sql(
     execution_context: dict[str, Any] | None = None,
     llm_client: Text2SQLClient | None = None,
     deterministic_only: bool = False,
+    discover_schema: bool = False,
+    database_catalog: dict[str, dict[str, Any]] | None = None,
 ) -> Text2SQLResult:
     normalized = _normalize_question(question)
+    if re.search(r"(?:행|레코드|테이블|데이터).{0,30}(?:삭제|비워|비우|드롭|삽입)(?:해|하|줘)", normalized):
+        return Text2SQLResult(status="unsupported", query_type="unsupported",
+                              answer="이 Text2SQL agent는 읽기 전용 조회만 지원합니다. 데이터 변경은 실행하지 않습니다.")
     slots = _extract_slots(
         question,
         normalized,
@@ -687,9 +755,15 @@ def plan_text2sql(
         date_basis=date_basis,
         metric=metric,
     )
-    # A grounded Planner may resolve an explicit exclusion ("fab10 말고 fab12")
-    # or Korean FAB alias that this legacy parser does not recognize. The graph
-    # passes its approved scope separately from the original, unchanged question.
+    resolution = resolve_fab(question, fab, conversation_history)
+    slots.pop("fab_id", None)
+    if resolution.fab_id:
+        slots["fab_id"] = QuerySlot(
+            resolution.fab_id, resolution.source,
+            1.0 if resolution.source == "explicit_user" else 0.9, resolution.raw_text,
+        )
+    # The graph passes its grounded scope alongside the original question so
+    # sequential attempts retain the same approved request context.
     planner_fab = (execution_context or {}).get("scope", {}).get("fab_id", {})
     resolved_fab = _normalize_fab(str(planner_fab.get("value") or ""))
     if resolved_fab:
@@ -702,7 +776,7 @@ def plan_text2sql(
     if not fab_id:
         return _clarification(
             query_type=query_type,
-            answer="어느 FAB을 조회할까요? 현재 조회 가능한 대상은 fab10, fab11, fab12, fab13입니다.",
+            answer=resolution.clarification or "조회할 FAB을 지정해주세요.",
             slots=slots,
         )
 
@@ -788,7 +862,16 @@ def plan_text2sql(
             slots=slots,
         )
 
-    if query_type in {"status", "trend"} and _is_unavailable_queue_metric_request(normalized):
+    explicit_simulation = any(term in normalized for term in (
+        "live_process_", "시뮬레이션", "simulation", "snapshot", "스냅샷",
+    ))
+    catalog_queue = _is_unavailable_queue_metric_request(normalized) and any(
+        entry["data_source_type"] == "simulation_snapshot"
+        for entry in (database_catalog or {}).values()
+    )
+    if (query_type in {"status", "trend"}
+            and _is_unavailable_queue_metric_request(normalized)
+            and not explicit_simulation and not catalog_queue):
         return Text2SQLResult(
             status="data_unavailable",
             query_type=query_type,
@@ -806,9 +889,20 @@ def plan_text2sql(
             ),
         )
 
-    if llm_client is None or deterministic_only:
+    explicit_catalog_table = any(
+        mentions_table(normalized, ref, entry["logical_table"])
+        and entry["logical_table"] not in SCHEMA_CATALOG.get(_data_source_type(query_type, slots), {})
+        for ref, entry in (database_catalog or {}).items()
+    )
+    if ((llm_client is None or deterministic_only)
+            and not explicit_simulation and not explicit_catalog_table and not catalog_queue
+            and not (query_type == "master_data_lookup" and re.search(
+                r"개수|건수|몇\s*(?:개|건)|행\s*수|count\s*\(|합계|총합|평균|최댓값|최솟값", normalized))):
         deterministic = _deterministic_fast_path(query_type, slots, fab_id)
-        if deterministic:
+        if deterministic and (
+            database_catalog is None or not deterministic.sql
+            or set(_extract_table_refs(deterministic.sql)) <= set(database_catalog)
+        ):
             return deterministic
     if deterministic_only:
         return Text2SQLResult(
@@ -829,10 +923,40 @@ def plan_text2sql(
             ),
         )
 
-    schema_context = _schema_context_for_question(query_type, slots, fab_id)
+    if database_catalog is None and discover_schema:
+        try:
+            database_catalog = load_fab_catalog(fab_id)
+        except (RuntimeError, PsycopgError) as exc:
+            return Text2SQLResult(
+                status="failed", query_type=query_type,
+                answer="이번 요청의 테이블 목록을 확인하지 못했습니다. DB 연결 상태를 확인해주세요.",
+                limitations=[str(exc)], plan=QueryPlan(query_type, None, fab_id=fab_id, slots=slots),
+            )
+    schema_context = _schema_context_for_question(query_type, slots, fab_id, database_catalog)
+    if database_catalog:
+        explicit_sources = [ref for ref, entry in database_catalog.items()
+                            if mentions_table(normalized, ref, entry["logical_table"])]
+        if explicit_sources:
+            schema_context["primary_table_refs"] = explicit_sources
+        elif explicit_simulation or catalog_queue:
+            schema_context["primary_table_refs"] = [
+                ref for ref, entry in database_catalog.items()
+                if entry["data_source_type"] == "simulation_snapshot"
+            ]
     schema_context["conversation_history"] = conversation_history or []
     schema_context["execution_feedback"] = execution_feedback or []
     schema_context["execution_context"] = execution_context or {}
+    full_schema_context = schema_context
+    if database_catalog:
+        selected, grounding = select_catalog(
+            question, schema_context["table_details"],
+            primary_refs=schema_context["primary_table_refs"],
+        )
+        schema_context = {**schema_context,
+                          "tables": {ref: schema_context["tables"][ref] for ref in selected},
+                          "table_details": selected, "allowed_table_refs": list(selected),
+                          "table_patterns": {ref: schema_context["table_patterns"][ref] for ref in selected},
+                          "grounding": grounding}
     if not schema_context["tables"]:
         return Text2SQLResult(
             status="unsupported",
@@ -868,7 +992,48 @@ def plan_text2sql(
             ),
         )
 
-    return _result_from_llm_output(llm_output, query_type, slots, fab_id, schema_context)
+    result = _result_from_llm_output(llm_output, query_type, slots, fab_id, schema_context)
+    attempts = []
+
+    def record_attempt(candidate, context, action):
+        attempts.append({"attempt": len(attempts) + 1, "action": action,
+                         "status": candidate.status, "sql": candidate.sql,
+                         "issues": candidate.limitations,
+                         "tables": list(context["tables"]),
+                         "semantic_plan": context.get("proposed_semantic_plan", {}),
+                         "grounding": context.get("grounding", {})})
+
+    record_attempt(result, schema_context, "focused_generation")
+    validation_failure = result.status == "failed" or llm_output.get("failure_stage") == "semantic_plan"
+    can_broaden = len(schema_context["tables"]) < len(full_schema_context["tables"])
+    if database_catalog and (validation_failure or (result.status == "unsupported" and can_broaden)):
+        # Two candidate attempts total: repair a grounded structure failure in place,
+        # or broaden on a retrieval miss. Neither action grants new DB permissions.
+        stage = "validation_repair" if validation_failure else "schema_retrieval"
+        retry_context = {**(schema_context if validation_failure else full_schema_context), "execution_feedback": [
+            *(execution_feedback or []),
+            {"stage": stage, "status": result.status,
+             "reason": result.answer, "issues": result.limitations,
+             "previous_sql": result.sql,
+             "previous_plan": schema_context.get("proposed_semantic_plan", {}),
+             "action": "Repair the reported structural error using the same schema."
+             if validation_failure else "Broadened to all actual FAB tables after the focused attempt."},
+        ]}
+        retry_context.pop("validated_semantic_plan", None)
+        retry_context.pop("proposed_semantic_plan", None)
+        try:
+            output = (llm_client or OpenAIText2SQLClient()).create_sql(
+                question=question, query_type=query_type, fab_id=fab_id,
+                slots=slots, schema_context=retry_context,
+            )
+            result = _result_from_llm_output(output, query_type, slots, fab_id, retry_context)
+            record_attempt(result, retry_context, stage)
+        except (RuntimeError, httpx.HTTPError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+            attempts.append({"attempt": 2, "action": stage, "status": "transport_failure",
+                             "issues": [str(exc)]})
+    if result.plan:
+        result = replace(result, plan=replace(result.plan, generation_attempts=attempts))
+    return result
 
 
 def _deterministic_fast_path(
@@ -923,7 +1088,7 @@ def _deterministic_master_query(
         if toolgroup:
             predicates.append(f"toolgroup ILIKE {_sql_literal('%' + toolgroup + '%')}")
         predicate = " AND ".join(predicates) if predicates else "TRUE"
-        table = f"{fab_id}.{route_table}"
+        table = table_ref(fab_id, route_table)
         sql = _select_sql(
             columns=columns,
             table=table,
@@ -946,10 +1111,10 @@ def _deterministic_master_query(
 
     if domain == "pm":
         columns = ["p.pm_event_name", "p.type_name", "p.pm_type", "p.mean", "p.ttr_units"]
-        table = f"{fab_id}.pm"
+        table = table_ref(fab_id, 'pm')
         extra_tables: tuple[str, ...] = ()
         if area:
-            toolgroups = f"{fab_id}.toolgroups"
+            toolgroups = table_ref(fab_id, 'toolgroups')
             sql = (
                 f"SELECT {', '.join(columns)}\n"
                 f"FROM {table} p\n"
@@ -982,7 +1147,7 @@ def _deterministic_master_query(
         )
 
     if domain == "breakdown":
-        table = f"{fab_id}.breakdown"
+        table = table_ref(fab_id, 'breakdown')
         raw_columns = [
             "down_event_name", "type_name", "down_type", "mttf", "mttr", "mttr_units"
         ]
@@ -991,7 +1156,7 @@ def _deterministic_master_query(
         )
         additional_tables = ()
         if type_prefix:
-            toolgroups = f"{fab_id}.toolgroups"
+            toolgroups = table_ref(fab_id, 'toolgroups')
             columns = [f"b.{column}" for column in raw_columns]
             sql = (
                 f"SELECT {', '.join(columns)}\n"
@@ -1031,7 +1196,7 @@ def _deterministic_master_query(
     if domain:
         return None
 
-    table = f"{fab_id}.toolgroups"
+    table = table_ref(fab_id, 'toolgroups')
     columns = [
         "area", "toolgroup", "number_of_tools", "toolgrouplocation", "dispatching",
         "ranking_1", "ranking_2", "ranking_3", "tool_wake_up_ranking",
@@ -1067,7 +1232,7 @@ def _deterministic_release_lookup(
     slots: dict[str, QuerySlot],
     fab_id: str,
 ) -> Text2SQLResult:
-    table = f"{fab_id}.lotrelease"
+    table = table_ref(fab_id, 'lotrelease')
     columns = [
         "product_name", "route_name", "lot_name_type", "priority", "wafers_per_lot",
         "start_date", "due_date", "release_scenario",
@@ -1298,7 +1463,7 @@ def _deterministic_status_query(
     )
     sql = _select_sql(
         columns=columns,
-        table=f"{fab_id}.{table}",
+        table=table_ref(fab_id, table),
         predicate=predicate,
         order_by=order_by,
         limit=top_n if 1 <= top_n <= 200 else default_limit,
@@ -1319,7 +1484,7 @@ def _deterministic_status_query(
             if table == "autosched_stn" and len(toolgroups) > 1
             else f"deterministic_status_{table}"
         ),
-        table=f"{fab_id}.{table}",
+        table=table_ref(fab_id, table),
         sql=sql,
         columns=columns,
         filters=filters,
@@ -1334,8 +1499,8 @@ def _deterministic_cross_source_impact_baseline(
     *,
     area: str | None,
 ) -> Text2SQLResult:
-    perf_table = f"{fab_id}.autosched_perf"
-    utilization_table = f"{fab_id}.autosched_stngrp"
+    perf_table = table_ref(fab_id, 'autosched_perf')
+    utilization_table = table_ref(fab_id, 'autosched_stngrp')
     area_predicate = (
         f"\n  AND s.stngrp ILIKE {_sql_literal('%' + area + '%')}" if area else ""
     )
@@ -1433,7 +1598,7 @@ def _deterministic_trend_query(
             ]
             sql = (
                 f"SELECT {', '.join(select_items)}\n"
-                f"FROM {fab_id}.{table}\n"
+                f"FROM {table_ref(fab_id, table)}\n"
                 f"WHERE {' AND '.join(predicates)}\n"
                 "GROUP BY part\n"
                 "ORDER BY part"
@@ -1443,7 +1608,7 @@ def _deterministic_trend_query(
                 fab_id=fab_id,
                 slots=slots,
                 template_id="deterministic_compare_autosched_part_date_range",
-                table=f"{fab_id}.{table}",
+                table=table_ref(fab_id, table),
                 sql=sql,
                 columns=columns,
                 filters=filters,
@@ -1486,7 +1651,7 @@ def _deterministic_trend_query(
         group_by = [date_expression, "stn"]
         sql = (
             f"SELECT {', '.join(select_items)}\n"
-            f"FROM {fab_id}.{table}\n"
+            f"FROM {table_ref(fab_id, table)}\n"
             f"WHERE {predicate}\n"
             f"GROUP BY {', '.join(group_by)}\n"
             f"ORDER BY {date_column} ASC, stn"
@@ -1496,7 +1661,7 @@ def _deterministic_trend_query(
             fab_id=fab_id,
             slots=slots,
             template_id="deterministic_trend_autosched_stn_multi",
-            table=f"{fab_id}.{table}",
+            table=table_ref(fab_id, table),
             sql=sql,
             columns=[date_column, "stn", *metrics],
             filters=filters,
@@ -1534,7 +1699,7 @@ def _deterministic_trend_query(
         group_by = [date_expression, *category]
         sql = (
             f"SELECT {', '.join(select_items)}\n"
-            f"FROM {fab_id}.{table}\n"
+            f"FROM {table_ref(fab_id, table)}\n"
             f"WHERE {predicate}\n"
             f"GROUP BY {', '.join(group_by)}\n"
             f"ORDER BY {date_column} ASC{', stngrp' if area else ''}"
@@ -1544,7 +1709,7 @@ def _deterministic_trend_query(
             fab_id=fab_id,
             slots=slots,
             template_id=f"deterministic_trend_{table}",
-            table=f"{fab_id}.{table}",
+            table=table_ref(fab_id, table),
             sql=sql,
             columns=[date_column, *category, *metrics],
             filters=filters,
@@ -1557,7 +1722,7 @@ def _deterministic_trend_query(
 
     sql = _select_sql(
         columns=columns,
-        table=f"{fab_id}.{table}",
+        table=table_ref(fab_id, table),
         predicate=predicate,
         order_by=order_by,
         limit=200,
@@ -1567,7 +1732,7 @@ def _deterministic_trend_query(
         fab_id=fab_id,
         slots=slots,
         template_id=f"deterministic_compare_{table}",
-        table=f"{fab_id}.{table}",
+        table=table_ref(fab_id, table),
         sql=sql,
         columns=columns,
         filters=filters,
@@ -1615,7 +1780,7 @@ def _deterministic_date_range_comparison(
         predicate += f"\n  AND stngrp ILIKE {_sql_literal('%' + area + '%')}"
     sql = (
         f"SELECT {', '.join(select_items)}\n"
-        f"FROM {fab_id}.{table}\n"
+        f"FROM {table_ref(fab_id, table)}\n"
         f"WHERE {predicate}\n"
         f"GROUP BY {comparison_expression}\n"
         "ORDER BY comparison_period"
@@ -1625,7 +1790,7 @@ def _deterministic_date_range_comparison(
         fab_id=fab_id,
         slots=slots,
         template_id="deterministic_compare_explicit_date_ranges",
-        table=f"{fab_id}.{table}",
+        table=table_ref(fab_id, table),
         sql=sql,
         columns=["comparison_period", *metrics],
         filters=filters,
@@ -1666,7 +1831,7 @@ def _deterministic_release_trend(
     )
     sql = (
         f"SELECT {date_expression} AS {date_column}, COUNT(*)::bigint AS lot_count\n"
-        f"FROM {fab_id}.lotrelease\n"
+        f"FROM {table_ref(fab_id, 'lotrelease')}\n"
         f"WHERE {where}\n"
         f"GROUP BY {date_expression}\n"
         f"ORDER BY {date_column} ASC"
@@ -1676,7 +1841,7 @@ def _deterministic_release_trend(
         fab_id=fab_id,
         slots=slots,
         template_id="deterministic_lotrelease_daily",
-        table=f"{fab_id}.lotrelease",
+        table=table_ref(fab_id, 'lotrelease'),
         sql=sql,
         columns=[date_column, "lot_count"],
         filters=[],
@@ -1715,7 +1880,7 @@ def _deterministic_result(
     source_tables = [table, *additional_tables]
     _validate_sql_tables(sql, set(source_tables))
     _validate_explicit_periods(sql, slots)
-    if table.endswith(".lotrelease"):
+    if table == table_ref(fab_id, "lotrelease"):
         data_source_type = "release_plan"
     elif ".autosched_" in table:
         data_source_type = "operational_report"
@@ -1761,7 +1926,7 @@ def _current_report_predicate(
         "relative = 'Y'\n"
         "  AND period <> 'WarmUp'\n"
         "  AND report_time = (\n"
-        f"      SELECT MAX(report_time) FROM {fab_id}.{table}\n"
+        f"      SELECT MAX(report_time) FROM {table_ref(fab_id, table)}\n"
         "      WHERE relative = 'Y' AND period <> 'WarmUp'\n"
         "  )"
     )
@@ -1842,17 +2007,27 @@ def _result_from_llm_output(
 
     sql = str(llm_output.get("sql") or "").strip()
     normalization_notes: list[str] = []
-    if schema_context["data_source_type"] == "operational_report":
+    sql_sources = _extract_table_refs(sql)
+    source_kinds = {
+        schema_context.get("table_details", {}).get(ref, {}).get(
+            "data_source_type", schema_context["data_source_type"]
+        ) for ref in sql_sources
+    }
+    actual_source_type = (next(iter(source_kinds)) if len(source_kinds) == 1
+                          else "mixed" if source_kinds else schema_context["data_source_type"])
+    if actual_source_type == "operational_report":
         sql, normalization_notes = _normalize_operational_sql(sql)
     try:
         ReadOnlyQueryExecutor(dsn="postgresql://validation-only").validate(sql)
         _validate_sql_tables(sql, set(schema_context["allowed_table_refs"]))
         _validate_explicit_periods(sql, slots)
+        if schema_context.get("validated_semantic_plan"):
+            validate_sql_plan(sql, SemanticPlan.model_validate(schema_context["validated_semantic_plan"]))
     except (SqlValidationError, ValueError) as exc:
         return Text2SQLResult(
             status="failed",
             query_type=query_type,
-            answer="LLM이 만든 SQL이 read-only allowlist 검증을 통과하지 못했습니다.",
+            answer="LLM이 만든 SQL이 조회 정책 또는 의미 계획 검증을 통과하지 못했습니다.",
             sql=sql or None,
             confidence=0.1,
             limitations=[str(exc)],
@@ -1863,10 +2038,12 @@ def _result_from_llm_output(
                 data_source_type=schema_context["data_source_type"],
                 slots=slots,
                 source_tables=list(llm_output.get("source_tables") or []),
+                semantic_plan=schema_context.get("validated_semantic_plan", {}),
+                grounding=schema_context.get("grounding", {}),
             ),
         )
 
-    source_tables = list(llm_output.get("source_tables") or _extract_table_refs(sql))
+    source_tables = _extract_table_refs(sql)
     chart_intent, chart_notes = _normalize_chart_intent(
         llm_output.get("chart_intent"),
         slots,
@@ -1876,9 +2053,9 @@ def _result_from_llm_output(
         query_type=query_type,
         template_id=None,
         fab_id=fab_id,
-        data_source_type=schema_context["data_source_type"],
+        data_source_type=actual_source_type,
         slots=slots,
-        limitations=_base_limitations(query_type, schema_context["data_source_type"])
+        limitations=_base_limitations(query_type, actual_source_type)
         + normalization_notes
         + chart_notes
         + list(llm_output.get("limitations") or []),
@@ -1890,6 +2067,8 @@ def _result_from_llm_output(
         aggregation=llm_output.get("aggregation"),
         expected_result_shape=llm_output.get("expected_result_shape"),
         chart_intent=chart_intent,
+        semantic_plan=schema_context.get("validated_semantic_plan", {}),
+        grounding=schema_context.get("grounding", {}),
     )
     return Text2SQLResult(
         status="succeeded",
@@ -1906,6 +2085,7 @@ def _schema_context_for_question(
     query_type: QueryType,
     slots: dict[str, QuerySlot],
     fab_id: str,
+    database_catalog: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     data_source_type = _data_source_type(query_type, slots)
     tables: dict[str, list[str]] = {}
@@ -1934,18 +2114,19 @@ def _schema_context_for_question(
             tables.update(SCHEMA_CATALOG[data_source_type])
 
     primary_table_refs = [
-        f"{fab_id}.{table}"
+        table_ref(fab_id, table)
         for table in _primary_tables_for_question(data_source_type, slots)
         if table in tables
     ]
     if not primary_table_refs and len(tables) == 1:
-        primary_table_refs = [f"{fab_id}.{next(iter(tables))}"]
-    return {
+        primary_table_refs = [table_ref(fab_id, next(iter(tables)))]
+    context = {
         "dialect": "postgresql",
         "fab_id": fab_id,
         "data_source_type": data_source_type,
-        "tables": {f"{fab_id}.{table}": columns for table, columns in tables.items()},
-        "allowed_table_refs": [f"{fab_id}.{table}" for table in tables],
+        "tables": {table_ref(fab_id, table): columns for table, columns in tables.items()},
+        "table_patterns": {table_ref(fab_id, table): table_pattern(table) for table in tables},
+        "allowed_table_refs": [table_ref(fab_id, table) for table in tables],
         "primary_table_refs": primary_table_refs,
         "slots": _serialize_slots(slots),
         "metric_catalog": _metric_catalog_for_tables(tables),
@@ -1956,14 +2137,30 @@ def _schema_context_for_question(
             "Do not write DDL, DML, COPY, INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, SET, or comments.",
             "Always include a deterministic ORDER BY when using LIMIT.",
             "Never scan release-plan tables without a selective product, route, scenario, or date predicate.",
-            "For current status, use AutoSched tables only; never infer live status from General Data.",
+            "For observed status use report/snapshot sources; never infer observed status from model input tables.",
+            "Simulation snapshots/events are authorized sources but must be explicitly labeled as simulated data, not actual factory measurements.",
             "Prefer primary_table_refs when present; use other allowed tables only when the primary table cannot answer the question.",
             "Use only columns listed for the chosen table. Do not borrow columns from another table.",
-            "For PM or breakdown lookups constrained by area, resolve area through toolgroups.toolgroup to the event table type_name.",
+            "PM type_name joins toolgroups.toolgroup. Breakdown type_name for area-scoped settings identifies toolgroups.area, not toolgroup; avoid multiplying settings when joining multiple toolgroups per area.",
             "If the user specified date_basis/date_start/date_end slots, preserve those exact constraints.",
             "For lotrelease trends, do not choose between start_date and due_date unless date_basis is explicit.",
         ],
     }
+    if database_catalog is not None:
+        available = {
+            ref: entry for ref, entry in database_catalog.items()
+            if ref == table_ref(fab_id, entry["logical_table"])
+        }
+        context.update({
+            "tables": {ref: [column["name"] for column in entry["columns"]]
+                       for ref, entry in available.items()},
+            "table_details": available,
+            "allowed_table_refs": list(available),
+            "primary_table_refs": [ref for ref in primary_table_refs if ref in available],
+            "table_patterns": {ref: entry["table_pattern"] for ref, entry in available.items()},
+            "catalog_source": "current_database_and_agent_meta",
+        })
+    return context
 
 
 def _system_prompt() -> str:
@@ -1985,6 +2182,15 @@ Hard rules:
    x-axis is temporal. Set series to a result column only when that column identifies categories.
 8. Prefer schema_context.primary_table_refs when present.
 9. Do not select columns that are absent from the selected table.
+10. FAB is resolved before this call. Use exactly the bound schema and suffixed table names
+    in allowed_table_refs (e.g. fab11.toolgroups_fab11). Never switch FABs or emit {fab} placeholders.
+11. A validated plan is the output contract. Emit exactly its projections and aggregates,
+    preserve order_by/result_limit, and add no undeclared filtering conditions.
+12. For each latest_by column, use equality to a same-table SELECT MAX(column) subquery.
+    ORDER BY timestamp DESC LIMIT 1 does not satisfy this contract. When latest_scope is
+    global, MAX must have no filters except the bound fab_id, even when the outer query
+    filters area or another entity. When latest_scope is filtered, MAX must repeat all
+    static filters for that source from the plan. Do not choose the scope again.
 """
 
 
@@ -2063,6 +2269,11 @@ def _primary_tables_for_question(
 
 
 def _base_limitations(query_type: QueryType, data_source_type: str) -> list[str]:
+    if data_source_type == "simulation_snapshot":
+        return ["조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+                "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다."]
+    if data_source_type == "mixed":
+        return ["서로 다른 종류의 데이터를 결합한 조회입니다. 각 소스의 시간·집계 단위와 시뮬레이션 여부를 구분해야 합니다."]
     if data_source_type == "operational_report":
         return [
             "현재 상태 조회는 PostgreSQL에 적재된 AutoSched report 기준입니다.",
@@ -2099,8 +2310,8 @@ def _validate_sql_tables(sql: str, allowed_table_refs: set[str]) -> None:
 
 def _extract_table_refs(sql: str) -> list[str]:
     refs = []
-    for table_ref in TABLE_REF_PATTERN.findall(sql):
-        refs.append(table_ref.replace(" ", "").replace('"', "").lower())
+    for reference in TABLE_REF_PATTERN.findall(sql):
+        refs.append(reference.replace(" ", "").replace('"', "").lower())
     return refs
 
 
@@ -2159,6 +2370,8 @@ def _clarification(
 def _summarize_execution(planned: Text2SQLResult, rows: list[dict[str, Any]]) -> str:
     if not rows:
         return "조회는 성공했지만 조건에 맞는 행이 없습니다."
+    if planned.plan and planned.plan.data_source_type == "simulation_snapshot":
+        return f"시뮬레이션 공정 데이터 기준으로 {len(rows)}개 행을 조회했습니다."
     if planned.query_type == "master_data_lookup":
         return f"General Data 기준으로 {len(rows)}개 행을 조회했습니다."
     if planned.query_type == "release_plan_lookup":
@@ -2238,6 +2451,9 @@ def _execute_empty_result_repairs(result: Text2SQLResult) -> Text2SQLResult | No
                 aggregation=result.plan.aggregation,
                 expected_result_shape=result.plan.expected_result_shape,
                 chart_intent=result.plan.chart_intent,
+                semantic_plan=result.plan.semantic_plan,
+                grounding=result.plan.grounding,
+                generation_attempts=result.plan.generation_attempts,
             ),
         )
     return None
@@ -2500,8 +2716,8 @@ def _pm_area_lookup_sql(fab_id: str, area: str) -> str:
     escaped_area = area.replace("'", "''")
     return (
         "SELECT p.pm_event_name, p.type_name, p.pm_type, p.mean, p.ttr_units "
-        f"FROM {fab_id}.pm p "
-        f"JOIN {fab_id}.toolgroups t ON t.toolgroup = p.type_name "
+        f"FROM {table_ref(fab_id, 'pm')} p "
+        f"JOIN {table_ref(fab_id, 'toolgroups')} t ON t.toolgroup = p.type_name "
         f"WHERE t.area ILIKE '%{escaped_area}%' "
         "ORDER BY p.type_name, p.pm_event_name LIMIT 200"
     )
@@ -2823,6 +3039,19 @@ def _parse_ranking_direction(normalized_question: str) -> str | None:
     return None
 
 
+def is_explicit_master_lookup(question: str) -> bool:
+    normalized = _normalize_question(question)
+    if any(term in normalized for term in (
+        "왜", "원인", "진단", "사례", "영향", "병목", "설명", "정의", "차트", "그래프",
+        "why", "cause", "diagnos", "impact", "explain", "chart", "graph",
+    )):
+        return False
+    return (
+        _classify_query_type(normalized) == "master_data_lookup"
+        and any(term in normalized for term in ("목록", "리스트", "구성", "list"))
+    )
+
+
 def _classify_query_type(normalized_question: str) -> QueryType:
     if _contains_any(normalized_question, TREND_TERMS) or _looks_like_compare(normalized_question):
         return "trend"
@@ -2880,22 +3109,11 @@ def _contains_any(value: str, terms: set[str]) -> bool:
 
 
 def _normalize_fab(value: str | None) -> str | None:
-    if not value:
-        return None
-    raw = value.strip().lower().replace(" ", "")
-    if raw in ALLOWED_FABS:
-        return raw
-    if raw in {"10", "11", "12", "13"}:
-        return f"fab{raw}"
-    return None
+    return normalize_fab(value)
 
 
 def _parse_fab(question: str) -> str | None:
-    match = FAB_PATTERN.search(question)
-    if not match:
-        return None
-    number = match.group(1) or match.group(2)
-    return f"fab{number}"
+    return resolve_fab(question).fab_id
 
 
 def _parse_product(question: str) -> str | None:
@@ -3258,7 +3476,7 @@ def _is_unavailable_queue_metric_request(normalized_question: str) -> bool:
 def _parse_master_domain(normalized_question: str) -> str | None:
     if "breakdown" in normalized_question or "고장" in normalized_question or "장애" in normalized_question:
         return "breakdown"
-    if "pm" in normalized_question:
+    if re.search(r"(?<![a-z0-9_])pm(?:_fab\d+)?(?![a-z0-9_])", normalized_question):
         return "pm"
     if "setup" in normalized_question or "셋업" in normalized_question:
         return "setups"

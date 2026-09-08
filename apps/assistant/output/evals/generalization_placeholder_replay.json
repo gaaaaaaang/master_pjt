@@ -1,0 +1,66 @@
+{
+  "kind": "saved_sql_repair_replay_no_new_llm_generation",
+  "id": "t01",
+  "sql": "SELECT SUM(fab10.live_process_snapshots_fab10.queue_lots) AS total_queue_lots\nFROM fab10.live_process_snapshots_fab10\nWHERE fab10.live_process_snapshots_fab10.fab_id = 'fab10'\nAND fab10.live_process_snapshots_fab10.interval_end = (\n  SELECT MAX(fab10.live_process_snapshots_fab10.interval_end)\n  FROM fab10.live_process_snapshots_fab10\n  WHERE fab10.live_process_snapshots_fab10.fab_id = 'fab10'\n)",
+  "normalized_plan": {
+    "supported": true,
+    "reason": "",
+    "tables": [
+      "fab10.live_process_snapshots_fab10"
+    ],
+    "projections": [],
+    "aggregates": [
+      {
+        "source": {
+          "table": "fab10.live_process_snapshots_fab10",
+          "column": "queue_lots"
+        },
+        "function": "sum",
+        "alias": "total_queue_lots"
+      }
+    ],
+    "group_by": [],
+    "filters": [
+      {
+        "source": {
+          "table": "fab10.live_process_snapshots_fab10",
+          "column": "fab_id"
+        },
+        "operator": "eq",
+        "values": [
+          "fab10"
+        ]
+      }
+    ],
+    "joins": [],
+    "latest_by": [
+      {
+        "table": "fab10.live_process_snapshots_fab10",
+        "column": "interval_end"
+      }
+    ],
+    "time_basis": "interval_end (snapshot default time column)",
+    "result_grain": "latest snapshot (whole factory total)",
+    "limitations": [
+      "Sums across disjoint areas at the latest simulation snapshot; does not group or output area/toolgroup dimensions.",
+      "Excludes any non-latest snapshots; always uses the global maximum interval_end for the given fab_id."
+    ],
+    "order_by": [],
+    "result_limit": null,
+    "latest_scope": "global"
+  },
+  "reference_stable": true,
+  "actual_rows": [
+    {
+      "total_queue_lots": 217
+    }
+  ],
+  "reference_rows": [
+    {
+      "sum": 217
+    }
+  ],
+  "strict_result_matches_reference": true,
+  "result_matches_reference": true,
+  "ignored_context_columns": []
+}
