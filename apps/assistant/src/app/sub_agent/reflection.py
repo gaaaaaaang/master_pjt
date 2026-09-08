@@ -1934,6 +1934,15 @@ def _numeric_claims(text: str) -> dict[str, Decimal]:
     )
     scrubbed = re.sub(r"(?<!\d)\d{4}[-/.]\d{1,2}[-/.]\d{1,2}(?!\d)", " ", scrubbed)
     scrubbed = re.sub(r"(?<!\d)\d+\s*차", " ", scrubbed)
+    # Markdown list ordinals describe document structure, not measured quantities.
+    scrubbed = re.sub(r"(?m)^[ \t]{0,3}\d+[.)][ \t]+(?=\S)", "", scrubbed)
+    lines = []
+    for line in scrubbed.splitlines():
+        ordinals = [int(value) for value in re.findall(r"\((\d+)\)[ \t]+(?=\D)", line)]
+        if len(ordinals) >= 2 and ordinals == list(range(1, len(ordinals) + 1)):
+            line = re.sub(r"\(\d+\)[ \t]+(?=\D)", "", line)
+        lines.append(line)
+    scrubbed = "\n".join(lines)
     claims: dict[str, Decimal] = {}
     for match in re.finditer(
         r"(?<![0-9A-Za-z_])[-+]?\d[\d,]*(?:\.\d+)?(?![0-9A-Za-z_])",

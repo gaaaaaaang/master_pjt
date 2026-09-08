@@ -1,5 +1,6 @@
 from dataclasses import asdict
 
+from app.agents.intent import resolved_request_context
 from app.agents.supervisor import Supervisor
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.services.conversation_memory import ConversationMemory, conversation_memory
@@ -19,7 +20,8 @@ class ChatService:
         result = self.supervisor.run(prepared, conversation_history=history)
         updated_history = self.memory.append_exchange(
             conversation_id=result.conversation_id,
-            request=prepared,
+            request=prepared.model_copy(update=resolved_request_context(result.plan.slots))
+            if result.plan else prepared,
             answer=result.answer,
             metadata={
                 "query_type": result.query_type,

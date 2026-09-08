@@ -33,10 +33,12 @@ def retrieve_knowledge(
     knowledge_base: str | None = None,
     fab_id: str | None = None,
     store_path: Path | None = None,
+    execution_context: dict[str, Any] | None = None,
 ) -> list[Evidence]:
     """Route a general RAG request to the relevant FAB knowledge base."""
     return retrieve_evidence(
-        query, top_k, knowledge_base=knowledge_base, fab_id=fab_id, store_path=store_path
+        query, top_k, knowledge_base=knowledge_base, fab_id=fab_id, store_path=store_path,
+        execution_context=execution_context,
     ).evidence
 
 
@@ -47,8 +49,12 @@ def retrieve_evidence(
     knowledge_base: str | None = None,
     fab_id: str | None = None,
     store_path: Path | None = None,
+    execution_context: dict[str, Any] | None = None,
 ) -> EvidenceResult:
     """Keep trace and limitations available even when retrieval returns no evidence."""
+    from app.agents.execution import scoped_retrieval_query
+
+    query = scoped_retrieval_query(query, execution_context)
     result = retrieve_with_trace(
         query, top_k, knowledge_base=knowledge_base, fab_id=fab_id, store_path=store_path
     )

@@ -4,6 +4,15 @@ import re
 from dataclasses import dataclass, field, replace
 from typing import Any, Literal
 
+from app.agents.intent import (
+    LLM_SLOT_NAMES,
+    AnswerRequirement,
+    IntentAnalysis,
+    analyze_request,
+    build_answer_requirements,
+    enrich_analysis,
+    intent_payload,
+)
 from app.agents.llm import AzureAgentClient
 from app.agents.prompts import PLANNER_PROMPT_VERSION, PLANNER_SYSTEM_PROMPT
 from app.db.fab_catalog import resolve_fab
@@ -58,6 +67,17 @@ PLANNER_OUTPUT_SCHEMA = {
         },
         "query_type": {"type": "string", "enum": sorted(QUERY_TYPES)},
         "intent": {"type": "string"},
+        "extracted_slots": {
+            "type": "array", "items": {
+                "type": "object", "additionalProperties": False,
+                "properties": {
+                    "name": {"type": "string", "enum": sorted(LLM_SLOT_NAMES)},
+                    "value": {"type": "string"}, "raw_text": {"type": "string"},
+                },
+                "required": ["name", "value", "raw_text"],
+            },
+        },
+        "success_criteria": {"type": "array", "items": {"type": "string"}},
         "fab_id": {"type": ["string", "null"]},
         "rag_knowledge_base": {
             "type": ["string", "null"],
@@ -87,6 +107,7 @@ PLANNER_OUTPUT_SCHEMA = {
     },
     "required": [
         "status", "query_type", "intent", "fab_id", "missing_slots",
+        "extracted_slots", "success_criteria",
         "rag_knowledge_base", "selected_sub_agents", "execution_steps",
         "clarification_question", "limitations",
     ],
@@ -99,6 +120,8 @@ class ExecutionStep:
     action: str
     required: bool
     reason: str
+    depends_on: list[str] = field(default_factory=list)
+    input_requirements: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -109,6 +132,9 @@ class PlannerDecision:
     selected_sub_agents: list[AgentName]
     execution_steps: list[ExecutionStep]
     slots: dict[str, QuerySlot] = field(default_factory=dict)
+    intent_analysis: IntentAnalysis | None = None
+    answer_requirements: list[AnswerRequirement] = field(default_factory=list)
+    success_criteria: list[str] = field(default_factory=list)
     rag_knowledge_base: str | None = None
     missing_slots: list[str] = field(default_factory=list)
     clarification_question: str | None = None
@@ -134,11 +160,17 @@ def create_plan(
     llm_client: AzureAgentClient | None = None,
 ) -> PlannerDecision:
     """Create a structured execution plan with an LLM Chat Completions call."""
+    analysis = analyze_request(
+        message, fab=fab, line=line, process=process, product=product,
+        route=route, equipment=equipment, date_basis=date_basis, metric=metric,
+        conversation_history=conversation_history,
+    )
     try:
         output = (llm_client or AzureAgentClient()).complete_json(
             system_prompt=PLANNER_SYSTEM_PROMPT,
             input_data={
                 "question": message,
+                "request_analysis": intent_payload(analysis),
                 "request_fab": fab,
                 "request_line": line,
                 "request_process": process,
@@ -154,9 +186,9 @@ def create_plan(
             schema_name="fab_planner_decision",
         )
     except RuntimeError as exc:
-        return _create_deterministic_fallback_plan(
+        fallback = _create_deterministic_fallback_plan(
             message,
-            fab=fab,
+            fab=analysis.slots["fab_id"].value if "fab_id" in analysis.slots else fab,
             line=line,
             process=process,
             product=product,
@@ -166,8 +198,9 @@ def create_plan(
             metric=metric,
             reason=str(exc),
         )
-    fab_resolution = resolve_fab(message, fab, conversation_history)
-    fab_id = fab_resolution.fab_id
+        return _ground_plan(fallback, analysis)
+    analysis = enrich_analysis(analysis, output.get("extracted_slots", []))
+    fab_id = analysis.slots["fab_id"].value if "fab_id" in analysis.slots else None
     if is_explicit_master_lookup(message) and output["query_type"] in {"status", "trend"}:
         # A fresh explicit lookup must not inherit the previous metric/chart task.
         output = {**output, "query_type": "master_data_lookup", "intent": message,
@@ -195,24 +228,6 @@ def create_plan(
     ):
         output = {**output, "status": "ready", "limitations": [],
                   "clarification_question": None}
-    slots = {}
-    if fab_id:
-        slots["fab_id"] = QuerySlot(
-            fab_id, fab_resolution.source, 0.9, fab_resolution.raw_text
-        )
-    if line:
-        slots["line"] = QuerySlot(line, "request_context", 0.9, line)
-    if process:
-        slots["process"] = QuerySlot(process, "request_context", 0.9, process)
-    for key, value in (
-        ("product", product),
-        ("route", route),
-        ("equipment", equipment),
-        ("date_basis", date_basis),
-        ("metric", metric),
-    ):
-        if value:
-            slots[key] = QuerySlot(value, "request_context", 0.9, value)
     rag_knowledge_base = output.get("rag_knowledge_base") or _infer_rag_knowledge_base(
         message,
         output["query_type"],
@@ -225,18 +240,18 @@ def create_plan(
         selected_sub_agents=list(output["selected_sub_agents"]),
         execution_steps=[ExecutionStep(**step) for step in output["execution_steps"]],
     )
-    return PlannerDecision(
+    return _ground_plan(PlannerDecision(
         status=output["status"],
         query_type=output["query_type"],
         intent=output["intent"],
+        success_criteria=list(output.get("success_criteria", [])),
         selected_sub_agents=selected_agents,
         execution_steps=execution_steps,
-        slots=slots,
         rag_knowledge_base=rag_knowledge_base,
         missing_slots=list(output["missing_slots"]),
         clarification_question=output["clarification_question"],
         limitations=list(output["limitations"]),
-    )
+    ), analysis)
 
 
 def _create_deterministic_fallback_plan(
@@ -265,7 +280,9 @@ def _create_deterministic_fallback_plan(
             normalized,
         )
     )
-    operational_status = bool(fab_id) and (
+    operational_status = (bool(fab_id) or bool(metric) or any(
+        term in normalized for term in ("wip", "재공", "가동률", "queue", "cycle", "수율", "처리량")
+    )) and (
         has_bare_selection
         or any(
             term in normalized
@@ -293,7 +310,7 @@ def _create_deterministic_fallback_plan(
         query_type = "impact"
     elif any(
         term in normalized
-        for term in ("추세", "비교", "차트", "그래프", "일별", "기간별", "흐름", "변화")
+        for term in ("추세", "추이", "비교", "차트", "그래프", "일별", "주별", "월별", "날짜별", "기간별", "흐름", "변화")
     ):
         query_type = "trend"
     elif operational_status:
@@ -317,7 +334,7 @@ def _create_deterministic_fallback_plan(
         and "start_date" not in normalized
         and "due_date" not in normalized
     )
-    needs_fab = query_type != "knowledge_lookup" and not fab_id
+    needs_fab = query_type not in {"knowledge_lookup", "unsupported"} and not fab_id
     if ambiguous_release_date:
         status: PlanStatus = "needs_clarification"
         missing_slots = ["date_basis"]
@@ -430,14 +447,18 @@ def _deterministic_compound_agents(
     normalized: str, query_type: str
 ) -> list[AgentName]:
     extras: list[AgentName] = []
+    if query_type == "status" and any(
+        term in normalized for term in ("비교", "차트", "그래프", "시각화", "compare", "chart", "plot")
+    ):
+        extras.append("visualization")
     if query_type == "diagnosis":
         if any(
-            term in normalized for term in ("영향", "계산", "capacity", "output", "생산능력")
+            term in normalized for term in ("영향", "계산", "impact", "capacity", "output", "생산능력")
         ):
             extras.append("impact")
         if any(
             term in normalized
-            for term in ("추세", "비교", "차트", "그래프", "일별", "기간별", "흐름")
+            for term in ("추세", "비교", "차트", "그래프", "일별", "기간별", "흐름", "trend", "compare", "chart", "plot")
         ):
             extras.append("visualization")
     elif query_type == "impact" and any(
@@ -487,3 +508,48 @@ def _infer_rag_knowledge_base(
     if query_type == "diagnosis" or any(term in lowered for term in incident_terms):
         return "incident_playbook"
     return "process_basics"
+
+
+def _ground_plan(plan: PlannerDecision, analysis: IntentAnalysis) -> PlannerDecision:
+    """Bind the LLM plan to parsed user scope before any agent can execute it."""
+    slots = dict(analysis.slots)
+    # Do not accept an LLM-invented FAB or let an old request field override the
+    # current question. Other parser-owned slots have the same precedence.
+    status = "unsupported" if plan.query_type == "unsupported" and plan.status == "ready" else plan.status
+    missing = list(plan.missing_slots)
+    clarification = plan.clarification_question
+    if analysis.missing_slots:
+        status = "needs_clarification"
+        missing = list(analysis.missing_slots)
+        clarification = analysis.clarification_question
+    elif plan.query_type not in {"knowledge_lookup", "unsupported"} and "fab_id" not in slots:
+        status = "needs_clarification"
+        missing = ["fab_id"]
+        clarification = "어느 FAB을 조회할까요?"
+    elif status == "needs_clarification":
+        # A table/column name is the data agent's responsibility, not a user slot.
+        missing = [key for key in missing if key not in slots
+                   and key not in {"table", "table_name", "column", "column_name", "schema"}]
+        if not missing:
+            status, clarification = "ready", None
+    agents, steps = _normalize_agent_route(
+        status=status, query_type=plan.query_type, question=analysis.question,
+        selected_sub_agents=plan.selected_sub_agents, execution_steps=plan.execution_steps,
+    )
+    if status != "ready":
+        agents, steps = [], []
+    steps = [replace(
+        step,
+        depends_on=["text2sql"] if step.agent in {"impact", "visualization"} else [],
+        input_requirements=(
+            ["successful SQL rows with matching scope and units"]
+            if step.agent in {"impact", "visualization"}
+            else ["request scope", "available upstream evidence and its limitations"]
+        ),
+    ) for step in steps]
+    return replace(
+        plan, status=status, slots=slots, intent_analysis=analysis,
+        missing_slots=missing, clarification_question=clarification,
+        selected_sub_agents=agents, execution_steps=steps,
+        answer_requirements=build_answer_requirements(plan.query_type, agents, analysis),
+    )

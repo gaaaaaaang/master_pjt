@@ -20,6 +20,10 @@ FAB_MENTION = re.compile(
 def mentioned_fabs(text: str) -> list[str]:
     return list(dict.fromkeys(
         f"fab{match.group(1) or match.group(2)}" for match in FAB_MENTION.finditer(text)
+        if not re.match(
+            r"\s*(?:이|가|은|는|을|를|에서)?\s*(?:말고|아니라|아니고|아닌|제외|빼고)",
+            text[match.end():],
+        )
     ))
 
 
@@ -49,7 +53,7 @@ def resolve_fab(
     history: list[dict[str, Any]] | None = None,
 ) -> FabResolution:
     explicit = mentioned_fabs(question)
-    if explicit:
+    if explicit or FAB_MENTION.search(question):
         if len(explicit) != 1 or explicit[0] not in ALLOWED_FABS:
             return FabResolution(None, "explicit_user", question,
                                  "조회할 FAB 하나를 fab10, fab11, fab12, fab13 중 지정해주세요.")

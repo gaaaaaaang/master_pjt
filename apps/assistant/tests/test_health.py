@@ -168,8 +168,10 @@ ORDER BY release_date ASC
         "supervisor",
         "dispatcher",
         "text2sql",
+        "agent_supervisor",
         "dispatcher",
         "visualization",
+        "agent_supervisor",
         "dispatcher",
         "reflection",
         "composer",
@@ -194,8 +196,10 @@ ORDER BY release_date ASC
         "supervisor",
         "dispatcher",
         "text2sql",
+        "agent_supervisor",
         "dispatcher",
         "visualization",
+        "agent_supervisor",
         "dispatcher",
         "reflection",
         "composer",
@@ -214,8 +218,8 @@ ORDER BY release_date ASC
 
 def test_chat_stream_returns_error_event_with_telemetry(monkeypatch) -> None:
     class BrokenGraph:
-        async def astream(self, state, stream_mode):
-            del state, stream_mode
+        async def astream(self, state, stream_mode, config=None):
+            del state, stream_mode, config
             raise RuntimeError("test stream failure")
             yield
 
@@ -244,7 +248,7 @@ def test_chat_stream_timeout_interrupts_pending_async_node(monkeypatch):
     cancelled = []
 
     class SlowGraph:
-        async def astream(self, state, stream_mode):
+        async def astream(self, state, stream_mode, config=None):
             try:
                 await asyncio.sleep(30)
             finally:

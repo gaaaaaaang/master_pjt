@@ -1,0 +1,128 @@
+{
+  "mode": "synthetic_recovery_live",
+  "passed": 6,
+  "total": 6,
+  "results": [
+    {
+      "id": "REC-001",
+      "passed": true,
+      "allowed": [
+        "compose",
+        "continue"
+      ],
+      "decision": {
+        "action": "compose",
+        "retry_agents": [],
+        "repair_instructions": null,
+        "alternate_agent": null,
+        "reason": "The text2sql agent successfully produced a result fully satisfying the requirement for current WIP status for fab10, with evidence matching all requested targets/metrics for the correct scope and clearly marked as synthetic test data (합성 테스트 데이터). Coverage is complete, no unsatisfied requirements or remaining steps, so composition/finalization is appropriate.",
+        "planner_feedback": null,
+        "limitations": [
+          "합성 테스트 데이터: 실제 운영 데이터가 아님"
+        ],
+        "prompt_version": "agent-recovery.v2"
+      }
+    },
+    {
+      "id": "REC-002",
+      "passed": true,
+      "allowed": [
+        "continue"
+      ],
+      "decision": {
+        "action": "continue",
+        "retry_agents": [],
+        "repair_instructions": null,
+        "alternate_agent": null,
+        "reason": "The text2sql agent has succeeded and provided evidence fully matching the request scope (fab10, WIP, current value), and there are no errors or data issues requiring recovery. Both 'rag' and 'case_search' steps remain and are relevant to additional requirements that are still pending (knowledge base guidance; relevant case examples). There is no indication that recovery would improve the outcome at this point. The correct action is to continue to the next planned agent.",
+        "planner_feedback": null,
+        "limitations": [
+          "Planner LLM unavailable; deterministic routing was used: deterministic evaluation"
+        ],
+        "prompt_version": "agent-recovery.v2"
+      }
+    },
+    {
+      "id": "REC-003",
+      "passed": true,
+      "allowed": [
+        "replan",
+        "retry_agents",
+        "retry_same_agent"
+      ],
+      "decision": {
+        "action": "retry_same_agent",
+        "retry_agents": [],
+        "repair_instructions": "Retry the text2sql agent, as the failure was due to a temporary HTTP 503 transport error and may succeed on retry. Do not change the query or parameters.",
+        "alternate_agent": null,
+        "reason": "A transient HTTP 503 error is plausibly repairable by retrying the same agent, and there are retry attempts remaining. There are no errors in the request itself, and text2sql is required for DB evidence per requirements. No alternate agents are allowed for this step.",
+        "planner_feedback": null,
+        "limitations": [
+          "If the error persists after retries, a plan revision will be required indicating possible continued backend service outage."
+        ],
+        "prompt_version": "agent-recovery.v2"
+      }
+    },
+    {
+      "id": "REC-004",
+      "passed": true,
+      "allowed": [
+        "continue"
+      ],
+      "decision": {
+        "action": "continue",
+        "retry_agents": [],
+        "repair_instructions": null,
+        "alternate_agent": null,
+        "reason": "The text2sql agent reported data_unavailable for the required operational queue time evidence for fab10, and this result is consistent with the grounded planner instructions (\"Do not fall back to General Data\"; \"plan a data_unavailable path\" for missing operational data). There are no eligible alternate agents, remaining steps, or plausible retries that would supply the missing evidence. The response limitation is that the essential status observation cannot be answered for fab10 using current available data in the system.",
+        "planner_feedback": null,
+        "limitations": [
+          "필수 관측 데이터가 저장소에 없어 값을 계산할 수 없습니다.",
+          "No eligible alternate agents or retries can provide the required operational evidence as per current plan.",
+          "Planner LLM unavailable; deterministic routing was used."
+        ],
+        "prompt_version": "agent-recovery.v2"
+      }
+    },
+    {
+      "id": "REC-005",
+      "passed": true,
+      "allowed": [
+        "alternate_agent",
+        "continue"
+      ],
+      "decision": {
+        "action": "continue",
+        "retry_agents": [],
+        "repair_instructions": null,
+        "alternate_agent": null,
+        "reason": "The RAG agent reported data_unavailable for knowledge/playbook evidence and cannot be retried or replaced by another agent without requesting unavailable data. Text2sql succeeded but its evidence is limited (no strong DB facts). However, 'case_search' remains pending, and its result may address the outstanding requirement for similar cases. All required routes except case_search have been attempted. The safest course is to continue with case_search, noting that some reference/playbook evidence will be missing due to the RAG data limitation.",
+        "planner_feedback": null,
+        "limitations": [
+          "RAG evidence for 공정 지식 및 지침 is unavailable and cannot be further recovered."
+        ],
+        "prompt_version": "agent-recovery.v2"
+      }
+    },
+    {
+      "id": "REC-006",
+      "passed": true,
+      "allowed": [
+        "continue"
+      ],
+      "decision": {
+        "action": "continue",
+        "retry_agents": [],
+        "repair_instructions": null,
+        "alternate_agent": null,
+        "reason": "The required text2sql agent failed due to a temporary HTTP 503 error, but there is no retry or replan budget remaining and no allowed alternate agents available. No further recovery path is possible. The limitation and evidence have been documented as required. Continuing to the next step (finalization) while preserving the explicit limitation and incomplete requirement coverage for traceability.",
+        "planner_feedback": null,
+        "limitations": [
+          "Text2SQL agent failed: Temporary HTTP 503 error, data unavailable for fab10 (wiplotcur, wiplotavg)",
+          "No retry/replan/alternate budget remaining; requirement not satisfied."
+        ],
+        "prompt_version": "agent-recovery.v2"
+      }
+    }
+  ]
+}

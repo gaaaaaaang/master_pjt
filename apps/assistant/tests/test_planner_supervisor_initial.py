@@ -647,7 +647,7 @@ def test_planner_routes_process_basics_to_rag_only_without_fab() -> None:
 
 def test_planner_routes_release_count_chart_to_text2sql_and_visualization() -> None:
     plan = create_plan(
-        "fab10의 lotrelease 테이블에서 route_product_3 건수를 날짜 기준으로 라인차트로 그려줘."
+        "fab10의 lotrelease 테이블에서 route_product_3 건수를 start_date 기준으로 라인차트로 그려줘."
     )
 
     assert plan.status == "ready"

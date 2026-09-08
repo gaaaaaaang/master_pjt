@@ -1,0 +1,63 @@
+{
+  "branch": "fix/adv_pl_sp",
+  "base_commit": "7f85aaa033b7fd5c47aa9706975bd1b515d5a3e7",
+  "started_at_utc": "2026-09-08T06:23:35Z",
+  "validation_recorded_at_utc": "2026-09-08T07:44:53.860600+00:00",
+  "pytest_passed": 382,
+  "ruff": "passed",
+  "live_planner": {
+    "passed": 16,
+    "total": 16
+  },
+  "live_variants": {
+    "passed": 12,
+    "total": 12
+  },
+  "live_recovery": {
+    "passed": 6,
+    "total": 6
+  },
+  "live_graph_last": {
+    "passed": 4,
+    "total": 4,
+    "data": "synthetic tool outputs",
+    "earlier_runs": [
+      {
+        "passed": 3,
+        "total": 4
+      },
+      {
+        "passed": 3,
+        "total": 4
+      },
+      {
+        "passed": 2,
+        "total": 4
+      }
+    ]
+  },
+  "db_release_passed": false,
+  "db_release_matches_base": true,
+  "compared_metrics": 47,
+  "code_sha256": {
+    "apps/assistant/scripts/evaluate_planner_supervisor.py": "90588f361bd6d583e90ee16d420488f7219c05c83cccdf4c70e1d3c48eb6a9d5",
+    "apps/assistant/src/app/agents/execution.py": "768c316472bee5401e9789ec0e14305655437f973e3f8ad6d58676bb628fae03",
+    "apps/assistant/src/app/agents/graph.py": "6a7dfaec41f410b2abc031f946ea36bc018d036010cb821c49a507b1a3d8a1f6",
+    "apps/assistant/src/app/agents/intent.py": "17c728d723d697c87587ecbee7ea90d2448e7601e5d5200e279fc2c5a7742ae6",
+    "apps/assistant/src/app/agents/llm.py": "93840a22b3b7b39fc5561b55c08f2d49e10c6443adafe0074f5b6b9b24b7f0f4",
+    "apps/assistant/src/app/agents/llm_nodes.py": "fc3f6c03c4e4f7f0705dee518ed87557ce7428ff0d5ad7d7d8733715f1c482e5",
+    "apps/assistant/src/app/agents/planner.py": "412c0e4d731aaf76904ff24e2e236f55d800580c2dce6990083b38c559555071",
+    "apps/assistant/src/app/agents/prompts.py": "ef5cdf1ec768de7e36fe5d8640a24f11c8ab4d14cea4793e6a72eadeaa4c8f44",
+    "apps/assistant/src/app/agents/supervisor.py": "e4d7f4cafbfba3643a5a0a3e019f6f5be52970b74dcaff88e4f50d533e1d83d8",
+    "apps/assistant/src/app/api/routes.py": "d1a13016586181ed07179340bc29a22001de0a9bb17fa46d492b0f1a66bde7a4",
+    "apps/assistant/src/app/services/chat_service.py": "9f8bce102584e0fd1936d00d824758fd198e9a1074c55999cc0fc1d47a7f41e0",
+    "apps/assistant/src/app/sub_agent/case_search.py": "ab3df4deebddb1d54737979b3e537bca92eda9329176dba7fddff5caca130184",
+    "apps/assistant/src/app/sub_agent/rag.py": "b6cd0e48d2f86a1b1c3b60b8bcc189da8507f24e69b283f38efe5432c830112a",
+    "apps/assistant/src/app/sub_agent/reflection.py": "f0d8e5da9f8d478dc389819cd7b3d98d15e0f01d2c8bd8f0ada9766b5e681f1e",
+    "apps/assistant/src/app/sub_agent/text2sql.py": "a2574b538c7a511b1bbdbf7ab438bfd49fa20a63f679601fa7282777602fd6d1",
+    "apps/assistant/tests/test_health.py": "121ad98e034a53e2b9574617a15b87e9c7ba217b26920470d3e91a2c65743ba7",
+    "apps/assistant/tests/test_planner_supervisor_contracts.py": "0d835fda572fd014cfe62656e9ef5ab5ad63b37a2d87b8db05d2235eb341c2c9",
+    "apps/assistant/tests/test_planner_supervisor_initial.py": "bc9259d2b20cdfc745609e54803b6da4aefdc48841666e856fe1cfb97896a9ed",
+    "apps/assistant/tests/test_recovery_routing.py": "57e0886f65b04c0642e81fc4af6ab1a386052a3a91c1328d5120a1a235b06124"
+  }
+}

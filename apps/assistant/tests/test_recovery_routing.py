@@ -186,8 +186,9 @@ def test_recovery_routes_to_compatible_alternate_agent(monkeypatch) -> None:
     result = Supervisor().run(ChatRequest(message="왜 fab10 Queue Time이 늘었어?"))
 
     assert [run.agent for run in result.agent_runs] == ["text2sql", "rag", "case_search"]
-    assert result.supervisor_decisions[0]["action"] == "alternate_agent"
-    assert result.supervisor_decisions[0]["alternate_agent"] == "case_search"
+    assert result.supervisor_decisions[0]["action"] == "continue"
+    assert result.supervisor_decisions[1]["action"] == "alternate_agent"
+    assert result.supervisor_decisions[1]["alternate_agent"] == "case_search"
     assert result.supervisor_reviews[0]["resolution"] == "alternate_agent"
 
 

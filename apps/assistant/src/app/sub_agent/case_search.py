@@ -22,8 +22,12 @@ def find_similar_cases(
     top_k: int = 5,
     *,
     store_path: Path | None = None,
+    execution_context: dict[str, Any] | None = None,
 ) -> list[Evidence]:
     """Find verified or explicitly simulated incidents, never generic playbook chunks."""
+    from app.agents.execution import scoped_retrieval_query
+
+    query = scoped_retrieval_query(query, execution_context)
     if top_k <= 0:
         return []
     path = store_path or Path(get_settings().incident_case_store_path)
