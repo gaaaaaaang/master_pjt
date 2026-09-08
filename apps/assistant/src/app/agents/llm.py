@@ -83,6 +83,13 @@ class AzureAgentClient:
                 for item in content
             )
         try:
-            return json.loads(str(content))
+            result = json.loads(str(content))
         except json.JSONDecodeError as exc:
             raise RuntimeError("LLM response content was not valid JSON.") from exc
+
+        if not isinstance(result, dict):
+            raise RuntimeError("LLM structured response must be a JSON object.")  # noqa: TRY004
+        missing = set(output_schema.get("required", [])) - result.keys()
+        if missing:
+            raise RuntimeError("LLM structured response omitted required fields: " + ", ".join(sorted(missing)))
+        return result

@@ -588,6 +588,7 @@ def answer_question(
     query_type: QueryType | None = None,
     conversation_history: list[dict[str, Any]] | None = None,
     execution_feedback: list[dict[str, Any]] | None = None,
+    execution_context: dict[str, Any] | None = None,
     llm_client: Text2SQLClient | None = None,
     deterministic_only: bool = False,
 ) -> Text2SQLResult:
@@ -603,6 +604,7 @@ def answer_question(
         query_type=query_type,
         conversation_history=conversation_history,
         execution_feedback=execution_feedback,
+        execution_context=execution_context,
         llm_client=llm_client,
         deterministic_only=deterministic_only,
     )
@@ -669,6 +671,7 @@ def plan_text2sql(
     query_type: QueryType | None = None,
     conversation_history: list[dict[str, Any]] | None = None,
     execution_feedback: list[dict[str, Any]] | None = None,
+    execution_context: dict[str, Any] | None = None,
     llm_client: Text2SQLClient | None = None,
     deterministic_only: bool = False,
 ) -> Text2SQLResult:
@@ -684,6 +687,15 @@ def plan_text2sql(
         date_basis=date_basis,
         metric=metric,
     )
+    # A grounded Planner may resolve an explicit exclusion ("fab10 말고 fab12")
+    # or Korean FAB alias that this legacy parser does not recognize. The graph
+    # passes its approved scope separately from the original, unchanged question.
+    planner_fab = (execution_context or {}).get("scope", {}).get("fab_id", {})
+    resolved_fab = _normalize_fab(str(planner_fab.get("value") or ""))
+    if resolved_fab:
+        slots["fab_id"] = QuerySlot(
+            resolved_fab, "request_context", 1.0, str(planner_fab.get("raw_text") or resolved_fab),
+        )
     fab_id = slots.get("fab_id").value if "fab_id" in slots else None
     query_type = query_type or _classify_query_type(normalized)
 
@@ -820,6 +832,7 @@ def plan_text2sql(
     schema_context = _schema_context_for_question(query_type, slots, fab_id)
     schema_context["conversation_history"] = conversation_history or []
     schema_context["execution_feedback"] = execution_feedback or []
+    schema_context["execution_context"] = execution_context or {}
     if not schema_context["tables"]:
         return Text2SQLResult(
             status="unsupported",
@@ -2504,6 +2517,24 @@ def _product_to_part_alias(product: str) -> str | None:
 def _toolgroup_to_type_prefix(toolgroup: str) -> str | None:
     match = re.match(r"([A-Za-z]+_[A-Za-z]+)(?:_\d+)?", toolgroup)
     return match.group(1) if match else None
+
+
+def extract_query_slots(
+    question: str,
+    *,
+    fab: str | None = None,
+    process: str | None = None,
+    product: str | None = None,
+    route: str | None = None,
+    equipment: str | None = None,
+    date_basis: str | None = None,
+    metric: str | None = None,
+) -> dict[str, QuerySlot]:
+    """Extract shared FAB scope without an LLM call, schema lookup, or SQL execution."""
+    return _extract_slots(
+        question, _normalize_question(question), fab=fab, process=process,
+        product=product, route=route, equipment=equipment, date_basis=date_basis, metric=metric,
+    )
 
 
 def _extract_slots(

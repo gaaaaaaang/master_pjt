@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import re
 from dataclasses import asdict, dataclass, field, replace
 from typing import Any, Literal, cast
 
+from app.agents.intent import build_answer_requirements
 from app.agents.llm import AzureAgentClient
-from app.agents.planner import AGENT_NAMES, PlannerDecision
+from app.agents.planner import AGENT_NAMES, PlannerDecision, _normalize_agent_route
 from app.agents.prompts import (
     AGENT_RECOVERY_PROMPT_VERSION,
     AGENT_RECOVERY_SYSTEM_PROMPT,
@@ -24,7 +26,7 @@ SupervisorStatus = Literal[
     "failed",
     "needs_replan",
 ]
-RecoveryAction = Literal["continue", "retry_same_agent", "replan", "alternate_agent"]
+RecoveryAction = Literal["continue", "retry_same_agent", "retry_agents", "replan", "alternate_agent", "compose"]
 
 SUPERVISOR_OUTPUT_SCHEMA = {
     "type": "object",
@@ -54,8 +56,10 @@ AGENT_RECOVERY_OUTPUT_SCHEMA = {
     "properties": {
         "action": {
             "type": "string",
-            "enum": ["continue", "retry_same_agent", "replan", "alternate_agent"],
+            "enum": ["continue", "retry_same_agent", "retry_agents", "replan", "alternate_agent", "compose"],
         },
+        "retry_agents": {"type": "array", "items": {"type": "string", "enum": sorted(AGENT_NAMES)}},
+        "repair_instructions": {"type": ["string", "null"]},
         "alternate_agent": {
             "type": ["string", "null"],
             "enum": [*sorted(AGENT_NAMES), None],
@@ -64,7 +68,7 @@ AGENT_RECOVERY_OUTPUT_SCHEMA = {
         "planner_feedback": {"type": ["string", "null"]},
         "limitations": {"type": "array", "items": {"type": "string"}},
     },
-    "required": ["action", "alternate_agent", "reason", "planner_feedback", "limitations"],
+    "required": ["action", "retry_agents", "repair_instructions", "alternate_agent", "reason", "planner_feedback", "limitations"],
 }
 
 ANSWER_SUPERVISOR_OUTPUT_SCHEMA = {
@@ -139,19 +143,38 @@ def review_plan(
             "limitations": ["Supervisor LLM review was unavailable."],
             "fallback_used": True,
         }
-    selected = (
-        list(plan.selected_sub_agents)
-        if output["status"] == "ready" and output["proceed"]
-        else list(output["selected_sub_agents"])
+    status = output["status"]
+    if plan.status != "ready":
+        status = plan.status  # An approval cannot invent missing user input.
+    elif not output["proceed"] and status == "ready":
+        status = "needs_clarification"
+    selected, steps = _normalize_agent_route(
+        status=status, query_type=plan.query_type, question=question,
+        selected_sub_agents=list(output["selected_sub_agents"]),
+        execution_steps=plan.execution_steps,
     )
-    selected_set = set(selected)
+    if status != "ready":
+        selected, steps = [], []
+    # Preserve the grounded dependency/input contract after supervisor selection.
+    original = {step.agent: step for step in plan.execution_steps}
+    steps = [replace(
+        step,
+        depends_on=(original[step.agent].depends_on if step.agent in original
+                    else ["text2sql"] if step.agent in {"impact", "visualization"} else []),
+        input_requirements=(original[step.agent].input_requirements if step.agent in original
+                            else ["request scope", "available upstream evidence and its limitations"]),
+    ) for step in steps]
     reviewed = replace(
-        plan,
-        status=output["status"],
-        selected_sub_agents=selected,
-        execution_steps=[step for step in plan.execution_steps if step.agent in selected_set],
-        limitations=[*plan.limitations, *output["limitations"]],
+        plan, status=status, selected_sub_agents=selected, execution_steps=steps,
+        answer_requirements=(build_answer_requirements(plan.query_type, selected, plan.intent_analysis)
+                             if plan.intent_analysis else plan.answer_requirements),
+        clarification_question=(plan.clarification_question or output.get("answer")
+                                if status == "needs_clarification" else None),
+        limitations=list(dict.fromkeys([*plan.limitations, *output["limitations"]])),
     )
+    output = {**output, "status": status, "proceed": status == "ready",
+              "selected_sub_agents": selected}
+
     return reviewed, output
 
 
@@ -164,6 +187,7 @@ def review_agent_result(
     replan_budget_remaining: int,
     alternate_budget_remaining: int,
     allowed_alternate_agents: list[str],
+    execution_context: dict[str, Any] | None = None,
     llm_client: AzureAgentClient | None = None,
 ) -> dict[str, Any]:
     """Choose a bounded recovery action for one reflected agent result."""
@@ -173,6 +197,7 @@ def review_agent_result(
             input_data={
                 "planner_decision": asdict(plan),
                 "agent_reflection": reflection,
+                "execution_context": execution_context or {},
                 "retry_count": retry_count,
                 "retry_budget_remaining": retry_budget_remaining,
                 "replan_budget_remaining": replan_budget_remaining,
@@ -191,31 +216,73 @@ def review_agent_result(
             "limitations": ["Recovery LLM review was unavailable."],
             "fallback_used": True,
         }
-    action = str(output["action"])
+    return enforce_recovery_policy(
+        output, reflection=reflection, retry_count=retry_count,
+        retry_budget_remaining=retry_budget_remaining,
+        replan_budget_remaining=replan_budget_remaining,
+        alternate_budget_remaining=alternate_budget_remaining,
+        allowed_alternate_agents=allowed_alternate_agents,
+        execution_context=execution_context or {},
+    )
+
+
+def enforce_recovery_policy(
+    output: dict[str, Any], *, reflection: dict[str, Any], retry_count: int,
+    retry_budget_remaining: int, replan_budget_remaining: int,
+    alternate_budget_remaining: int, allowed_alternate_agents: list[str],
+    execution_context: dict[str, Any],
+) -> dict[str, Any]:
+    """Enforce budgets again at the graph boundary, independent of model behavior."""
+    action = str(output.get("action", "continue"))
     status = str(reflection.get("status") or "unknown")
     alternate = output.get("alternate_agent")
     fallback_reason: str | None = None
 
+    if action not in {"continue", "compose", "retry_same_agent", "retry_agents", "replan", "alternate_agent"}:
+        action = "continue"
+        fallback_reason = "Unknown recovery action was rejected."
+    if action == "compose" and not execution_context.get("coverage", {}).get("all_satisfied"):
+        action = "continue"
+        fallback_reason = "Composition cannot bypass unresolved answer requirements."
+    retry_agents = list(dict.fromkeys(output.get("retry_agents") or []))
+    if action == "retry_agents":
+        results = execution_context.get("active_results", {})
+        counts = execution_context.get("retry_counts", {})
+        valid = bool(retry_agents) and bool(output.get("repair_instructions"))
+        valid = valid and len(retry_agents) <= retry_budget_remaining
+        valid = valid and all(
+            agent in results and counts.get(agent, 0) < 1
+            and results[agent].get("status") not in {
+                "data_unavailable", "unsupported", "needs_clarification", "skipped",
+            } for agent in retry_agents
+        )
+        if not valid:
+            action = "continue"
+            fallback_reason = "Combination retry requires repair instructions, attempted agents, and budget."
     if action == "retry_same_agent" and (
         retry_budget_remaining <= 0
         or retry_count >= 1
         or status in {"data_unavailable", "unsupported", "needs_clarification", "skipped"}
     ):
-        action = "replan" if replan_budget_remaining > 0 else "continue"
+        action = "replan" if status != "succeeded" and replan_budget_remaining > 0 else "continue"
         fallback_reason = "Retry was rejected by the bounded recovery policy."
+    if action == "replan" and not output.get("planner_feedback") and not fallback_reason:
+        action = "continue"
+        fallback_reason = "Replanning requires concrete feedback for the Planner."
     if action == "replan" and replan_budget_remaining <= 0:
         action = "continue"
         fallback_reason = "Replan budget is exhausted."
     if action == "alternate_agent" and (
         alternate_budget_remaining <= 0 or alternate not in allowed_alternate_agents
     ):
-        action = "replan" if replan_budget_remaining > 0 else "continue"
+        action = "continue"
         alternate = None
         fallback_reason = "Alternate agent was rejected by the compatibility or budget policy."
 
     return {
         **output,
         "action": action,
+        "retry_agents": retry_agents if action == "retry_agents" else [],
         "alternate_agent": alternate if action == "alternate_agent" else None,
         "reason": (
             f"{output['reason']} {fallback_reason}" if fallback_reason else output["reason"]
@@ -234,6 +301,10 @@ def review_final_answer(
     llm_client: AzureAgentClient | None = None,
 ) -> dict[str, Any]:
     """Review the composed answer against the original request and grounded evidence."""
+    if plan.status == "needs_clarification" and answer.strip() == (plan.clarification_question or "").strip():
+        return {"approved": bool(answer.strip()), "issues": [], "correction_applied": False,
+                "corrected_answer": None, "reason": "Preserved the grounded clarification question.",
+                "prompt_version": ANSWER_SUPERVISOR_PROMPT_VERSION}
     deterministic = verify_response(
         answer,
         evidence=evidence,
@@ -277,6 +348,19 @@ def review_final_answer(
             query_type=plan.query_type,
             question=question,
         )
+        if (not correction_check["is_supported"] and limitations
+                and correction_check["warnings"] == ["Material limitations must be visible in the final answer."]):
+            corrected_answer += "\n\n제한사항: " + " ".join(dict.fromkeys(limitations))
+            correction_check = verify_response(
+                corrected_answer, evidence=evidence, limitations=limitations,
+                query_type=plan.query_type, question=question,
+            )
+        novel_topics = _ungrounded_correction_topics(corrected_answer, answer, evidence) if plan.query_type == "diagnosis" else []
+        if novel_topics:
+            correction_check["is_supported"] = False
+            correction_check["warnings"].append(
+                "Correction introduced diagnosis topics absent from the supplied evidence: " + ", ".join(novel_topics)
+            )
         if correction_check["is_supported"]:
             approved = True
             issues = []
@@ -307,7 +391,7 @@ class Supervisor:
         from app.agents.graph import build_agent_graph, initial_graph_state
 
         state = initial_graph_state(request, conversation_history=conversation_history)
-        for update in build_agent_graph().stream(state, stream_mode="updates"):
+        for update in build_agent_graph().stream(state, config={"recursion_limit": 100}, stream_mode="updates"):
             for patch in update.values():
                 state.update(patch)
 
@@ -335,3 +419,19 @@ class Supervisor:
             reflection=state.get("reflection", {}),
             answer_review=state.get("answer_review", {}),
         )
+
+
+def _ungrounded_correction_topics(
+    corrected: str, original: str, evidence: list[dict[str, Any]],
+) -> list[str]:
+    """A reviewer may repair wording, but may not add new domain hypotheses."""
+    supported = " ".join([original, *(str(item.get("content") or "") for item in evidence)])
+    topics = {
+        "equipment_down": r"다운타임|장비\s*고장|equipment\s+down|downtime",
+        "product_mix": r"제품\s*mix|product\s+mix|제품\s*구성\s*변화",
+        "queue_time": r"queue\s*time|대기\s*시간",
+        "material_shortage": r"자재\s*부족|material\s+shortage",
+    }
+    return [name for name, pattern in topics.items()
+            if re.search(pattern, corrected, re.IGNORECASE)
+            and not re.search(pattern, supported, re.IGNORECASE)]

@@ -46,6 +46,7 @@ def reflect_with_llm(
     agent_reflections: list[dict[str, Any]] | None = None,
     supervisor_reviews: list[dict[str, Any]] | None = None,
     conversation_history: list[dict[str, Any]] | None = None,
+    request_contract: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     draft = "\n\n".join(dict.fromkeys(answer_parts))
     deterministic = verify_response(
@@ -62,10 +63,13 @@ def reflect_with_llm(
                 "Process-basics evidence must stay educational and must not become operational control. "
                 "Use supervisor_reviews as agent-level review history and treat only pending reviews "
                 "as unresolved findings. Choose compose, bounded replan, bounded retry_target, or "
-                "human_review. Never request a retry for unavailable or unsupported data."
+                "human_review. Never request a retry for unavailable or unsupported data. "
+                "Check every requirement in request_contract against the actual evidence. "
+                "Only active evidence supports the answer; old execution history is audit context."
             ),
             input_data={
                 "question": question, "query_type": query_type, "draft_tool_summary": draft,
+                "request_contract": request_contract or {},
                 "evidence": evidence, "limitations": limitations,
                 "agent_reflections": agent_reflections or [],
                 "supervisor_reviews": supervisor_reviews or [],
@@ -114,14 +118,19 @@ def compose_with_llm(
     *, question: str, plan: PlannerDecision, answer_parts: list[str],
     evidence: list[dict[str, Any]], limitations: list[str], reflection: dict[str, Any],
     conversation_history: list[dict[str, Any]] | None = None,
+    diagnostics: dict[str, Any] | None = None,
 ) -> str:
     try:
         output = AzureAgentClient().complete_json(
             system_prompt=(
                 "You are the final answer Composer for a semiconductor FAB assistant. Answer in the "
-                "user's language using only supplied tool evidence. Include concrete query results when "
+                "user's language using only supplied tool evidence. Address every plan.success_criteria "
+                "and plan.answer_requirements item, including an explicit gap when evidence is absent. "
+                "Preserve the scope in plan.slots for follow-up questions. Include concrete query results when "
                 "present, data basis, and material limitations. Follow reflection instructions. Do not "
                 "refer to internal evidence objects; present their values directly to the user. "
+                "A chart is already returned separately: summarize its observed values and supplied "
+                "trend_summary, but do not invent or print axis ranges or raw chart specifications. "
                 "For diagnosis, distinguish observations from hypotheses and explicitly label simulated "
                 "reference cases; simulation-only evidence never confirms a root cause."
             ),
@@ -133,8 +142,12 @@ def compose_with_llm(
             output_schema=COMPOSER_SCHEMA,
             schema_name="fab_final_answer",
         )
+        if diagnostics is not None:
+            diagnostics["execution_mode"] = "llm_chat_completions"
         return str(output["answer"]).strip()
     except RuntimeError:
+        if diagnostics is not None:
+            diagnostics["execution_mode"] = "deterministic_fallback"
         sections = list(dict.fromkeys(part.strip() for part in answer_parts if part.strip()))
         scope = required_question_context(question)
         if scope:

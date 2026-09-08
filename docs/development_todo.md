@@ -550,3 +550,16 @@ Local composite gate 실행:
 - SC-001 endpoint는 AutoSched `.rep` 적재와 LLM direct SQL validation 이후 연결한다.
 - 현재 LLM API key 인증 실패 시 Text2SQL은 `failed`로 종료하고 SQL을 생성하지 않는다.
 - Planner, Supervisor, Self-reflection, Composer는 모두 Azure Chat Completions를 호출한다.
+
+## Planner / Supervisor 고도화 (2026-09-08, fix/adv_pl_sp)
+
+- [x] 공통 slot 파서 기반 FAB/대상/지표/기간/필터 추출, LLM semantic slot의 원문 근거와 성공 기준 추가.
+- [x] 현재 질문의 FAB 및 제외 표현 우선, 복수 FAB/지원 외 FAB/lotrelease 날짜 기준 확인.
+- [x] 모든 agent 성공·실패 결과에 대해 Supervisor가 실제 근거와 남은 답변 요건 검토.
+- [x] agent 간 구조화된 근거 전달, 조합 재호출·재계획·답변 생성 분기와 예산 제한.
+- [x] 재시도 후 이전 근거 제거, 소비자/차트 재계산, 대체 agent의 단계 누락 방지.
+- [x] 일반 API/SSE의 확정 문맥 저장, Composer 제한사항 교정과 실제 fallback 기록.
+- [x] 실제 LLM 계획 16건, 추가 표현 12건, 복구 판단 6건 검증.
+- [ ] 기준 브랜치에서도 동일하게 실패하는 Text2SQL/DB release 지표 해결 후 실제 DB full graph 재평가.
+
+변경·최초 실패·검증 범위: `docs/planner_supervisor_hackathon_20260908.md`.

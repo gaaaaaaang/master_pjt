@@ -9,6 +9,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 
 from app.agents.graph import build_agent_graph, initial_graph_state
+from app.agents.intent import resolved_request_context
 from app.config import get_settings
 from app.schemas.chat import ChatRequest, ChatResponse, FeedbackRequest, FeedbackResponse
 from app.services.chat_service import ChatService
@@ -98,7 +99,7 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
             request.message,
         )
         try:
-            for update in graph.stream(state, stream_mode="updates"):
+            for update in graph.stream(state, config={"recursion_limit": 100}, stream_mode="updates"):
                 if await http_request.is_disconnected():
                     logger.info(
                         "stream.cancelled conversation_id=%s reason=client_disconnected",
@@ -169,7 +170,7 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
             )
             final_history = conversation_memory.append_exchange(
                 conversation_id=state["conversation_id"],
-                request=prepared,
+                request=prepared.model_copy(update=resolved_request_context(state["plan"].slots)),
                 answer=str(state.get("answer") or ""),
                 metadata={
                     "query_type": final["query_type"],

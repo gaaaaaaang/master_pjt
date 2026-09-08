@@ -1,17 +1,24 @@
 from __future__ import annotations
 
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from functools import partial
 from typing import Any, TypedDict
 from uuid import uuid4
 
 from langgraph.graph import END, START, StateGraph
 
+from app.agents.execution import build_handoff, downstream_agents, requirement_coverage
+from app.agents.intent import resolved_request_context
 from app.agents.llm_nodes import compose_with_llm, reflect_with_llm
 from app.agents.planner import PlannerDecision, create_plan
-from app.agents.supervisor import review_agent_result, review_final_answer, review_plan
+from app.agents.supervisor import (
+    enforce_recovery_policy,
+    review_agent_result,
+    review_final_answer,
+    review_plan,
+)
 from app.config import get_settings
-from app.schemas.chat import ChatRequest
+from app.schemas.chat import ChatRequest, Evidence
 from app.sub_agent.case_search import find_similar_cases
 from app.sub_agent.diagnosis import synthesize_diagnosis
 from app.sub_agent.impact import estimate_output_delta
@@ -49,6 +56,9 @@ class AgentState(TypedDict, total=False):
     replan_budget_remaining: int
     alternate_budget_remaining: int
     replan_feedback: list[dict[str, Any]]
+    active_results: dict[str, dict[str, Any]]
+    pending_agents: list[str]
+    completed_alternates: list[str]
     execution_cursor: int
     next_agent: str | None
     termination_reason: str | None
@@ -88,6 +98,8 @@ def _planner_node(state: AgentState) -> dict[str, Any]:
         "missing_slots": plan.missing_slots,
         "execution_steps": [asdict(step) for step in plan.execution_steps],
         "slots": {key: asdict(value) for key, value in plan.slots.items()},
+        "intent_analysis": asdict(plan.intent_analysis) if plan.intent_analysis else None,
+        "answer_requirements": [asdict(item) for item in plan.answer_requirements],
     }
     evidence = {
         "source_type": "planner_plan",
@@ -107,10 +119,11 @@ def _planner_node(state: AgentState) -> dict[str, Any]:
     )
     return {
         "plan": plan,
+        "active_results": {},
+        "pending_agents": [],
+        "completed_alternates": [],
         "status": plan.status,
-        "limitations": list(
-            dict.fromkeys([*state.get("limitations", []), *plan.limitations])
-        ),
+        "limitations": list(dict.fromkeys(plan.limitations)),
         "evidence": [evidence],
         "answer_parts": [],
         "halted": False,
@@ -158,6 +171,8 @@ def _supervisor_node(state: AgentState) -> dict[str, Any]:
     )
     return {
         "plan": plan,
+        "status": plan.status,
+        "limitations": plan.limitations,
         "halted": halted,
         "answer": answer,
         "reasoning_state": [*state.get("reasoning_state", []), reasoning],
@@ -202,8 +217,19 @@ def _dispatcher_node(state: AgentState) -> dict[str, Any]:
                 "data": {"reasoning": reasoning},
             },
         }
+    pending = list(state.get("pending_agents", []))
+    if pending:
+        agent = pending.pop(0)
+        return {"next_agent": agent, "pending_agents": pending, "forced_agent": agent,
+                "stream_event": {"type": "node_completed", "node": "dispatcher",
+                                 "message": f"재검토 조합의 {agent}를 실행합니다.",
+                                 "data": {"next_agent": agent, "pending_agents": pending}}}
     steps = state["plan"].execution_steps
     cursor = state.get("execution_cursor", 0)
+    completed_alternates = state.get("completed_alternates", [])
+    while (cursor < len(steps) and steps[cursor].agent in completed_alternates
+           and steps[cursor].agent in state.get("active_results", {})):
+        cursor += 1
     if cursor >= len(steps):
         reasoning = _reasoning_entry(
             "dispatcher",
@@ -240,40 +266,60 @@ def _dispatcher_node(state: AgentState) -> dict[str, Any]:
 
 
 def _text2sql_node(state: AgentState) -> dict[str, Any]:
+    state = _prepare_agent_attempt(state, "text2sql")
     plan = state["plan"]
     if not _should_run_agent(state, "text2sql"):
         return _skipped("text2sql", "Planner가 Text2SQL을 선택하지 않았습니다.")
 
-    request = state["request"]
-    result = answer_question(
-        request.message,
-        fab=request.fab,
-        process=request.process,
-        product=request.product,
-        route=request.route,
-        equipment=request.equipment,
-        date_basis=request.date_basis,
-        metric=request.metric,
-        query_type=_text2sql_query_type(
-            plan.query_type, plan.selected_sub_agents
-        ),
-        conversation_history=state.get("conversation_history", []),
-        execution_feedback=[
-            decision
-            for decision in [
-                *state.get("supervisor_decisions", []),
-                *state.get("reflection_decisions", []),
-            ]
-            if (
-                decision.get("agent_name") == "text2sql"
-                and decision.get("action") == "retry_same_agent"
-            )
-            or (
-                decision.get("retry_target") == "text2sql"
-                and decision.get("action") == "retry_target"
-            )
-        ],
-    )
+    request = _scoped_request(state)
+    handoff = _handoff(state, "text2sql")
+    try:
+        result = answer_question(
+            request.message,
+            fab=request.fab,
+            process=request.process,
+            product=request.product,
+            route=request.route,
+            equipment=request.equipment,
+            date_basis=request.date_basis,
+            metric=request.metric,
+            query_type=_text2sql_query_type(
+                plan.query_type, plan.selected_sub_agents
+            ),
+            conversation_history=state.get("conversation_history", []),
+            execution_feedback=[
+                *state.get("replan_feedback", []),
+                *[decision
+                for decision in [
+                    *state.get("supervisor_decisions", []),
+                    *state.get("reflection_decisions", []),
+                ]
+                if (
+                    decision.get("agent_name") == "text2sql"
+                    and decision.get("action") in {"retry_same_agent", "retry_agents"}
+                )
+                or (
+                    decision.get("retry_target") == "text2sql"
+                    and decision.get("action") == "retry_target"
+                )
+                or "text2sql" in decision.get("retry_agents", [])
+                ],
+            ],
+            execution_context=handoff,
+        )
+    except (RuntimeError, ValueError) as exc:
+        result = Text2SQLResult(
+            status="failed", query_type=_text2sql_query_type(plan.query_type, plan.selected_sub_agents),
+            answer="데이터 조회를 완료하지 못했습니다.",
+            limitations=[f"Text2SQL execution failed: {type(exc).__name__}: {exc}"],
+        )
+    scope_issues = _result_scope_issues(plan, result)
+    if scope_issues:
+        result = replace(
+            result, status="failed", rows=[], row_count=0,
+            answer="조회 결과의 대상 또는 기간이 요청과 달라 답변 근거로 사용할 수 없습니다.",
+            limitations=[*result.limitations, *scope_issues],
+        )
     run = {
         "agent": "text2sql",
         "status": result.status,
@@ -371,6 +417,7 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
 
 
 def _rag_node(state: AgentState) -> dict[str, Any]:
+    state = _prepare_agent_attempt(state, "rag")
     if not _should_run_agent(state, "rag"):
         return _skipped("rag", "Planner가 RAG를 선택하지 않았거나 필수 단계가 실패했습니다.")
     request = state["request"]
@@ -379,9 +426,11 @@ def _rag_node(state: AgentState) -> dict[str, Any]:
     items = []
     try:
         knowledge_base = state["plan"].rag_knowledge_base
-        items = retrieve_knowledge(request.message, knowledge_base=knowledge_base)
-    except NotImplementedError as exc:
-        status = "data_unavailable"
+        items = retrieve_knowledge(
+            request.message, knowledge_base=knowledge_base, execution_context=_handoff(state, "rag"),
+        )
+    except (NotImplementedError, RuntimeError, OSError, ValueError) as exc:
+        status = "data_unavailable" if isinstance(exc, NotImplementedError) else "failed"
         summary = str(exc)
         limitations.append(summary)
     else:
@@ -448,6 +497,7 @@ def _rag_node(state: AgentState) -> dict[str, Any]:
 
 
 def _case_search_node(state: AgentState) -> dict[str, Any]:
+    state = _prepare_agent_attempt(state, "case_search")
     if not _should_run_agent(state, "case_search"):
         return _skipped(
             "case_search",
@@ -455,10 +505,12 @@ def _case_search_node(state: AgentState) -> dict[str, Any]:
         )
     limitations = list(state.get("limitations", []))
     try:
-        items = find_similar_cases(state["request"].message)
-    except (NotImplementedError, TypeError, ValueError) as exc:
+        items = find_similar_cases(
+            state["request"].message, execution_context=_handoff(state, "case_search"),
+        )
+    except (NotImplementedError, TypeError, ValueError, RuntimeError, OSError) as exc:
         items = []
-        status = "data_unavailable"
+        status = "failed" if isinstance(exc, (RuntimeError, OSError)) else "data_unavailable"
         summary = str(exc)
         limitations.append(summary)
     else:
@@ -518,6 +570,7 @@ def _case_search_node(state: AgentState) -> dict[str, Any]:
 
 
 def _impact_node(state: AgentState) -> dict[str, Any]:
+    state = _prepare_agent_attempt(state, "impact")
     if not _should_run_agent(state, "impact"):
         return _skipped("impact", "Planner가 영향도 계산을 선택하지 않았거나 필수 단계가 실패했습니다.")
     request = state["request"]
@@ -532,7 +585,8 @@ def _impact_node(state: AgentState) -> dict[str, Any]:
                 else None
             ),
         },
-        scenario={"question": request.message, "fab": request.fab},
+        scenario={"question": request.message, "fab": _scoped_request(state).fab,
+                  "execution_context": _handoff(state, "impact")},
     )
     limitations = [*state.get("limitations", []), *impact.get("limitations", [])]
     summary = impact["summary"]
@@ -594,6 +648,7 @@ def _impact_node(state: AgentState) -> dict[str, Any]:
 
 
 def _visualization_node(state: AgentState) -> dict[str, Any]:
+    state = _prepare_agent_attempt(state, "visualization")
     result = state.get("text2sql_result")
     if not _should_run_agent(state, "visualization"):
         return _skipped("visualization", "Planner가 시각화를 선택하지 않았습니다.")
@@ -725,7 +780,7 @@ def _visualization_node(state: AgentState) -> dict[str, Any]:
         state,
         run,
         agent_output={**run, "chart": chart},
-        evidence=[],
+        evidence=[visualization_evidence],
         limitations=limitations,
     )
     reasoning = _reasoning_entry(
@@ -759,7 +814,9 @@ def _visualization_node(state: AgentState) -> dict[str, Any]:
 
 def _composer_node(state: AgentState) -> dict[str, Any]:
     request = state["request"]
-    answer = compose_with_llm(
+    diagnostics: dict[str, Any] = {}
+    answer = state.get("answer", "") if state.get("halted") else ""
+    answer = answer or compose_with_llm(
         question=request.message,
         plan=state["plan"],
         answer_parts=state.get("answer_parts", []),
@@ -767,6 +824,7 @@ def _composer_node(state: AgentState) -> dict[str, Any]:
         limitations=state.get("limitations", []),
         reflection=state.get("reflection", {}),
         conversation_history=state.get("conversation_history", []),
+        diagnostics=diagnostics,
     )
     status = state.get("status", "succeeded")
     if status == "ready":
@@ -790,11 +848,7 @@ def _composer_node(state: AgentState) -> dict[str, Any]:
             "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
             "data": {
                 "answer": answer,
-                "execution_mode": (
-                    "deterministic_fallback"
-                    if state.get("reflection", {}).get("fallback_used")
-                    else "llm_chat_completions"
-                ),
+                "execution_mode": diagnostics.get("execution_mode", "grounded_clarification"),
                 "model": get_settings().openai_model,
                 "reasoning": reasoning,
             },
@@ -822,8 +876,9 @@ def _answer_supervisor_node(state: AgentState) -> dict[str, Any]:
                 limitations.append(issue)
     termination_reason = state.get("termination_reason")
     status = state.get("status", "succeeded")
-    if not review["approved"] and termination_reason != "human_review_required":
-        termination_reason = "answer_review_failed"
+    if not review["approved"]:
+        if termination_reason != "human_review_required":
+            termination_reason = "answer_review_failed"
         status = "failed"
 
     reasoning = _reasoning_entry(
@@ -872,6 +927,12 @@ def _reflection_node(state: AgentState) -> dict[str, Any]:
         agent_reflections=state.get("agent_reflections", []),
         supervisor_reviews=state.get("supervisor_reviews", []),
         conversation_history=state.get("conversation_history", []),
+        request_contract={
+            "intent": state["plan"].intent,
+            "slots": {key: asdict(value) for key, value in state["plan"].slots.items()},
+            "success_criteria": state["plan"].success_criteria,
+            "coverage": requirement_coverage(state["plan"], state.get("active_results", {})),
+        },
     )
     reflection["execution_mode"] = (
         "deterministic_fallback"
@@ -887,6 +948,8 @@ def _reflection_node(state: AgentState) -> dict[str, Any]:
     replan_budget = state.get("replan_budget_remaining", 0)
     replan_feedback = list(state.get("replan_feedback", []))
     forced_agent = None
+    pending_agents = list(state.get("pending_agents", []))
+    invalidation = {}
 
     if action == "retry_target":
         target_reflection = next(
@@ -915,6 +978,13 @@ def _reflection_node(state: AgentState) -> dict[str, Any]:
             retry_counts[str(retry_target)] = retry_counts.get(str(retry_target), 0) + 1
             retry_budget -= 1
             forced_agent = str(retry_target)
+            pending_agents = [name for name in downstream_agents(state["plan"], [forced_agent])
+                              if name != forced_agent and name in state.get("active_results", {})]
+            refreshed = _prepare_agent_attempt(state, forced_agent)
+            invalidation = {key: refreshed[key] for key in (
+                "active_results", "evidence", "answer_parts", "chart",
+            ) if key in refreshed}
+            limitations = list(refreshed.get("limitations", limitations))
     elif action == "replan":
         if replan_budget <= 0:
             action = "human_review"
@@ -970,6 +1040,8 @@ def _reflection_node(state: AgentState) -> dict[str, Any]:
         },
     )
     return {
+        **invalidation,
+        "pending_agents": pending_agents,
         "limitations": limitations,
         "reflection": reflection,
         "reflection_decisions": [*state.get("reflection_decisions", []), decision],
@@ -995,15 +1067,31 @@ def _agent_supervisor_node(state: AgentState) -> dict[str, Any]:
     agent_name = state["current_agent"]
     retry_counts = dict(state.get("retry_counts", {}))
     allowed_alternates = _allowed_alternate_agents(state, agent_name)
+    execution_context = {
+        "question": state["request"].message,
+        "active_results": {
+            name: {key: value for key, value in result.items() if key != "metadata"}
+            for name, result in state.get("active_results", {}).items()
+        },
+        "coverage": requirement_coverage(state["plan"], state.get("active_results", {})),
+        "remaining_steps": [asdict(step) for step in state["plan"].execution_steps[
+            state.get("execution_cursor", 0):]],
+        "retry_counts": retry_counts,
+    }
+    policy_args = {
+        "retry_count": retry_counts.get(agent_name, 0),
+        "retry_budget_remaining": state.get("retry_budget_remaining", 0),
+        "replan_budget_remaining": state.get("replan_budget_remaining", 0),
+        "alternate_budget_remaining": state.get("alternate_budget_remaining", 0),
+        "allowed_alternate_agents": allowed_alternates,
+        "execution_context": execution_context,
+    }
     decision = review_agent_result(
         state["plan"],
         reflection,
-        retry_count=retry_counts.get(agent_name, 0),
-        retry_budget_remaining=state.get("retry_budget_remaining", 0),
-        replan_budget_remaining=state.get("replan_budget_remaining", 0),
-        alternate_budget_remaining=state.get("alternate_budget_remaining", 0),
-        allowed_alternate_agents=allowed_alternates,
+        **policy_args,
     )
+    decision = enforce_recovery_policy(decision, reflection=reflection, **policy_args)
     action = decision["action"]
     retry_budget = state.get("retry_budget_remaining", 0)
     replan_count = state.get("replan_count", 0)
@@ -1014,9 +1102,26 @@ def _agent_supervisor_node(state: AgentState) -> dict[str, Any]:
     replan_feedback = list(state.get("replan_feedback", []))
     execution_cursor = state.get("execution_cursor", 0)
 
-    if action == "retry_same_agent":
+    pending_agents = list(state.get("pending_agents", []))
+    completed_alternates = list(state.get("completed_alternates", []))
+    if action == "retry_agents":
+        # Refresh downstream consumers, too, if their producer is being rerun.
+        refresh = [name for name in downstream_agents(state["plan"], decision["retry_agents"])
+                   if name in state.get("active_results", {})]
+        pending_agents = list(dict.fromkeys([*refresh, *pending_agents]))
+        for target in decision["retry_agents"]:
+            retry_counts[target] = retry_counts.get(target, 0) + 1
+            retry_budget -= 1
+        halted = False
+    elif action == "compose":
+        execution_cursor = len(state["plan"].execution_steps)
+        pending_agents = []
+    elif action == "retry_same_agent":
         retry_counts[agent_name] = retry_counts.get(agent_name, 0) + 1
         retry_budget -= 1
+        refresh = [name for name in downstream_agents(state["plan"], [agent_name])
+                   if name != agent_name and name in state.get("active_results", {})]
+        pending_agents = list(dict.fromkeys([*refresh, *pending_agents]))
         halted = False
     elif action == "replan":
         replan_count += 1
@@ -1028,16 +1133,15 @@ def _agent_supervisor_node(state: AgentState) -> dict[str, Any]:
                 "reflection": reflection,
                 "supervisor_reason": decision["reason"],
                 "planner_feedback": decision.get("planner_feedback"),
+                "previous_plan": asdict(state["plan"]),
+                "execution_context": execution_context,
             }
         )
     elif action == "alternate_agent":
         alternate_budget -= 1
         forced_agent = decision["alternate_agent"]
         halted = False
-        for index in range(execution_cursor, len(state["plan"].execution_steps)):
-            if state["plan"].execution_steps[index].agent == forced_agent:
-                execution_cursor = index + 1
-                break
+        completed_alternates.append(forced_agent)
 
     reviews = [dict(item) for item in state.get("supervisor_reviews", [])]
     review_id = state["current_review_id"]
@@ -1068,7 +1172,19 @@ def _agent_supervisor_node(state: AgentState) -> dict[str, Any]:
             "reason": decision["reason"],
         },
     )
+    invalidation = {}
+    if action in {"retry_agents", "retry_same_agent"}:
+        targets = decision["retry_agents"] if action == "retry_agents" else [agent_name]
+        invalidated = state
+        for target in targets:
+            invalidated = _prepare_agent_attempt(invalidated, target)
+        invalidation = {key: invalidated[key] for key in (
+            "active_results", "evidence", "answer_parts", "chart", "limitations",
+        ) if key in invalidated}
     return {
+        **invalidation,
+        "pending_agents": pending_agents,
+        "completed_alternates": completed_alternates,
         "recovery_action": action,
         "alternate_agent": decision.get("alternate_agent"),
         "forced_agent": forced_agent,
@@ -1087,7 +1203,8 @@ def _agent_supervisor_node(state: AgentState) -> dict[str, Any]:
         ],
         "limitations": list(
             dict.fromkeys(
-                [*state.get("limitations", []), *decision.get("limitations", [])]
+                [*invalidation.get("limitations", state.get("limitations", [])),
+                 *decision.get("limitations", [])]
             )
         ),
         "reasoning_state": [*state.get("reasoning_state", []), reasoning],
@@ -1127,6 +1244,19 @@ def _agent_reflection_patch(
         limitations=limitations,
         required=required,
     )
+    answer_parts = [str(run.get("summary", ""))]
+    if agent_name == "rag":
+        answer_parts = _rag_answer_parts([Evidence.model_validate(item) for item in evidence])
+    handoff = _handoff(state, agent_name)
+    run.setdefault("metadata", {})["handoff"] = handoff
+    active_results = dict(state.get("active_results", {}))
+    active_results[agent_name] = {
+        "agent": agent_name, "status": run["status"], "summary": run["summary"],
+        "evidence": evidence,
+        "limitations": [item for item in limitations if item not in state.get("limitations", [])],
+        "answer_parts": answer_parts,
+        "agent_output": {key: value for key, value in agent_output.items() if key != "metadata"},
+    }
     agent_reflections = [*state.get("agent_reflections", []), reflection]
     supervisor_reviews = list(state.get("supervisor_reviews", []))
     current_review_id = len(supervisor_reviews) + 1
@@ -1143,6 +1273,7 @@ def _agent_reflection_patch(
             }
         )
     return {
+        "active_results": active_results,
         "agent_reflections": agent_reflections,
         "current_reflection": reflection,
         "supervisor_reviews": supervisor_reviews,
@@ -1206,7 +1337,7 @@ def _allowed_alternate_agents(state: AgentState, agent_name: str) -> list[str]:
         "impact": [],
         "visualization": [],
     }.get(agent_name, [])
-    attempted = {run["agent"] for run in state.get("agent_runs", [])}
+    attempted = set(state.get("active_results", {}))
     return [candidate for candidate in candidates if candidate not in attempted]
 
 
@@ -1221,12 +1352,7 @@ AGENT_NEXT_NODE = {
 
 def _route_after_agent_result(state: AgentState, *, agent_name: str) -> str:
     reflection = state.get("current_reflection", {})
-    if (
-        reflection.get("agent_name") == agent_name
-        and reflection.get("decision") == "needs_supervisor_review"
-    ):
-        return "review"
-    return "dispatch"
+    return "review" if reflection.get("agent_name") == agent_name else "dispatch"
 
 
 def _route_dispatcher(state: AgentState) -> str:
@@ -1236,6 +1362,10 @@ def _route_dispatcher(state: AgentState) -> str:
 def _route_recovery_action(state: AgentState) -> str:
     action = state.get("recovery_action", "continue")
     current_agent = state.get("current_agent", "visualization")
+    if action == "compose":
+        return "reflection"
+    if action == "retry_agents":
+        return "dispatcher"
     if action == "retry_same_agent":
         return current_agent
     if action == "replan":
@@ -1354,6 +1484,9 @@ def initial_graph_state(
         "agent_reflections": [],
         "supervisor_reviews": [],
         "supervisor_decisions": [],
+        "active_results": {},
+        "pending_agents": [],
+        "completed_alternates": [],
         "retry_counts": {},
         "retry_budget_remaining": 2,
         "replan_count": 0,
@@ -1366,3 +1499,58 @@ def initial_graph_state(
         "reflection_decisions": [],
         "answer_review": {},
     }
+
+
+def _scoped_request(state: AgentState) -> ChatRequest:
+    return state["request"].model_copy(update=resolved_request_context(state["plan"].slots))
+
+
+def _handoff(state: AgentState, agent: str) -> dict[str, Any]:
+    return build_handoff(
+        state["plan"], agent, state.get("active_results", {}),
+        feedback=[*state.get("replan_feedback", []), *state.get("supervisor_decisions", [])],
+    )
+
+
+def _prepare_agent_attempt(state: AgentState, agent: str) -> AgentState:
+    """Retain run history, but remove obsolete evidence from the active answer."""
+    active = dict(state.get("active_results", {}))
+    if agent not in active:
+        return state
+    invalid = downstream_agents(state["plan"], [agent]) or [agent]
+    obsolete = [active.pop(name) for name in invalid if name in active]
+    old_evidence = [item for result in obsolete for item in result.get("evidence", [])]
+    old_summaries = [part for result in obsolete for part in result.get("answer_parts", [])]
+    old_summaries.extend(item.get("content") for item in state.get("evidence", [])
+                         if item.get("source_type") == "diagnosis_synthesis"
+                         and set(invalid) & {"text2sql", "rag", "case_search"})
+    updated = dict(state)
+    updated["active_results"] = active
+    obsolete_limits = {item for result in obsolete for item in result.get("limitations", [])}
+    retained_limits = {item for result in active.values() for item in result.get("limitations", [])}
+    updated["limitations"] = [item for item in state.get("limitations", [])
+                              if item not in obsolete_limits or item in retained_limits
+                              or item in state["plan"].limitations]
+    updated["evidence"] = [item for item in state.get("evidence", []) if item not in old_evidence
+                           and not (item.get("source_type") == "diagnosis_synthesis"
+                                    and set(invalid) & {"text2sql", "rag", "case_search"})]
+    updated["answer_parts"] = [part for part in state.get("answer_parts", []) if part not in old_summaries]
+    if "visualization" in invalid:
+        updated["chart"] = None
+    return updated
+
+
+def _result_scope_issues(plan: PlannerDecision, result: Text2SQLResult) -> list[str]:
+    """A successful tool call must not move known user scope to another target."""
+    if result.status != "succeeded" or result.plan is None:
+        return []
+    expected_fab = plan.slots.get("fab_id")
+    issues = []
+    if expected_fab and result.plan.fab_id and expected_fab.value != result.plan.fab_id:
+        issues.append(f"FAB scope mismatch: requested {expected_fab.value}, returned {result.plan.fab_id}.")
+    for key in ("products", "toolgroups", "area", "date_start", "date_end", "date_basis"):
+        expected = plan.slots.get(key)
+        actual = result.plan.slots.get(key)
+        if expected and actual and expected.value != actual.value:
+            issues.append(f"Scope mismatch for {key}: requested {expected.value}, returned {actual.value}.")
+    return issues

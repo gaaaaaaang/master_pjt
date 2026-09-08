@@ -22,8 +22,12 @@ def retrieve_knowledge(
     *,
     knowledge_base: str | None = None,
     store_path: Path | None = None,
+    execution_context: dict[str, Any] | None = None,
 ) -> list[Evidence]:
     """Route a general RAG request to the relevant FAB knowledge base."""
+    from app.agents.execution import scoped_retrieval_query
+
+    query = scoped_retrieval_query(query, execution_context)
     selected_base = knowledge_base or _select_knowledge_base(query)
     return _retrieve_from_store(query, top_k, knowledge_base=selected_base, store_path=store_path)
 

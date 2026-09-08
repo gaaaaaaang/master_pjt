@@ -451,3 +451,18 @@ Planner 승인 후에는 고정 agent chain을 순회하지 않고 `execution_st
 
 - Text2SQL sub-agent의 LangGraph state, node, prompt, validation, fallback 설계는
   `docs/text2sql_agent_design.md`를 기준으로 합니다.
+
+## Planner / Supervisor 실행 계약 v2 (2026-09-08)
+
+`PlannerDecision`은 공통 slot 파서의 `IntentAnalysis`, 원문 span을 가진 LLM 보완 slot,
+`answer_requirements`, `success_criteria`, 단계별 `depends_on`/`input_requirements`를 포함한다.
+Supervisor는 모든 실행 결과를 검토하며 `continue`, `retry_same_agent`, `retry_agents`,
+`replan`, `alternate_agent`, `compose`를 선택한다. `compose`는 수집 요건을 건너뛸 수 없다.
+
+Graph는 `active_results`와 감사용 실행 이력을 구분한다. 후속 agent에는 원 질문·확정 scope·
+현재 시도의 근거와 한계·수정 지시를 handoff로 전달한다. 생산자 재실행 시 이전 근거와 소비자
+결과를 무효화하고 필요한 소비자를 재계산한다. 최종 Reflection은 같은 요청 계약을 검토하고,
+Composer와 Answer Supervisor가 답변 요건과 근거·한계를 보존한다.
+
+상세 제한, 최초 실패, 실제 LLM 및 기준 브랜치 DB 비교:
+`docs/planner_supervisor_hackathon_20260908.md`.
