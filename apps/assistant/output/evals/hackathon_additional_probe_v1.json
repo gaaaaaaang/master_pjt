@@ -1,0 +1,1312 @@
+{
+  "kind": "development_semantic_regression_not_holdout",
+  "cases": 2,
+  "passed": 2,
+  "results": [
+    {
+      "id": "fab11_pm_settings_by_area",
+      "question": "fab11에서 설비군과 매칭되는 PM 모델 설정 건수를 공정 영역별로 집계해줘. 실제 PM 발생 횟수가 아니라 설정 행 수야. 영역과 건수만 보여줘.",
+      "category": "metadata_join",
+      "reference_sql": "SELECT t.area, COUNT(p.source_row_id) FROM fab11.pm_fab11 p JOIN fab11.toolgroups_fab11 t ON p.type_name=t.toolgroup GROUP BY t.area ORDER BY t.area",
+      "reference_rows": [
+        {
+          "area": "Def_Met",
+          "count": 14
+        },
+        {
+          "area": "Dielectric",
+          "count": 30
+        },
+        {
+          "area": "Diffusion",
+          "count": 20
+        },
+        {
+          "area": "Dry_Etch",
+          "count": 63
+        },
+        {
+          "area": "Implant",
+          "count": 27
+        },
+        {
+          "area": "Litho",
+          "count": 33
+        },
+        {
+          "area": "Litho_Met",
+          "count": 8
+        },
+        {
+          "area": "Planar",
+          "count": 18
+        },
+        {
+          "area": "TF",
+          "count": 33
+        },
+        {
+          "area": "TF_Met",
+          "count": 4
+        },
+        {
+          "area": "Wet_Etch",
+          "count": 42
+        }
+      ],
+      "reference_stable": true,
+      "strict_result_matches_reference": true,
+      "result_matches_reference": true,
+      "ignored_context_columns": [],
+      "passed": true,
+      "seconds": 7.924,
+      "llm_calls": [
+        {
+          "schema": "fab_semantic_plan",
+          "seconds": 2.843,
+          "input_characters": 33599
+        },
+        {
+          "schema": "fab_semantic_plan",
+          "seconds": 2.019,
+          "input_characters": 34893
+        },
+        {
+          "schema": "fab_text2sql_direct_sql",
+          "seconds": 2.948,
+          "input_characters": 34260
+        }
+      ],
+      "result": {
+        "status": "succeeded",
+        "query_type": "status",
+        "answer": "AutoSched report 기준으로 11개 상태 행을 조회했습니다.",
+        "sql": "SELECT tg.area, COUNT(pm.source_row_id) AS pm_model_count\nFROM fab11.pm_fab11 pm\nINNER JOIN fab11.toolgroups_fab11 tg ON pm.type_name = tg.toolgroup\nGROUP BY tg.area\nORDER BY tg.area ASC;",
+        "rows": [
+          {
+            "area": "Def_Met",
+            "pm_model_count": 14
+          },
+          {
+            "area": "Dielectric",
+            "pm_model_count": 30
+          },
+          {
+            "area": "Diffusion",
+            "pm_model_count": 20
+          },
+          {
+            "area": "Dry_Etch",
+            "pm_model_count": 63
+          },
+          {
+            "area": "Implant",
+            "pm_model_count": 27
+          },
+          {
+            "area": "Litho",
+            "pm_model_count": 33
+          },
+          {
+            "area": "Litho_Met",
+            "pm_model_count": 8
+          },
+          {
+            "area": "Planar",
+            "pm_model_count": 18
+          },
+          {
+            "area": "TF",
+            "pm_model_count": 33
+          },
+          {
+            "area": "TF_Met",
+            "pm_model_count": 4
+          },
+          {
+            "area": "Wet_Etch",
+            "pm_model_count": 42
+          }
+        ],
+        "columns": [
+          "area",
+          "pm_model_count"
+        ],
+        "row_count": 11,
+        "confidence": 0.98,
+        "limitations": [
+          "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다.",
+          "live/current factory state로 해석하면 안 됩니다.",
+          "Area identity is model-driven and does not reflect real-time factory status.",
+          "This reports the count of PM model definitions per area, not observed PM events."
+        ],
+        "plan": {
+          "query_type": "status",
+          "template_id": null,
+          "fab_id": "fab11",
+          "data_source_type": "model_master",
+          "slots": {
+            "metric": {
+              "value": "pm_percent",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "pm_percent"
+            },
+            "metrics": {
+              "value": "pm_percent",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "pm_percent"
+            },
+            "master_domain": {
+              "value": "pm",
+              "source": "parser",
+              "confidence": 0.8,
+              "raw_text": "pm"
+            },
+            "fab_id": {
+              "value": "fab11",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab11에서 설비군과 매칭되는 PM 모델 설정 건수를 공정 영역별로 집계해줘. 실제 PM 발생 횟수가 아니라 설정 행 수야. 영역과 건수만 보여줘."
+            }
+          },
+          "limitations": [
+            "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다.",
+            "live/current factory state로 해석하면 안 됩니다.",
+            "Area identity is model-driven and does not reflect real-time factory status.",
+            "This reports the count of PM model definitions per area, not observed PM events."
+          ],
+          "source_tables": [
+            "fab11.pm_fab11",
+            "fab11.toolgroups_fab11"
+          ],
+          "select_items": [
+            "tg.area",
+            "COUNT(pm.source_row_id) AS pm_model_count"
+          ],
+          "filters": [],
+          "group_by": [
+            "tg.area"
+          ],
+          "order_by": [
+            "tg.area ASC"
+          ],
+          "aggregation": "COUNT(pm.source_row_id)",
+          "expected_result_shape": "one row per area (area, pm_model_count)",
+          "chart_intent": null,
+          "semantic_plan": {
+            "supported": true,
+            "reason": "",
+            "tables": [
+              "fab11.pm_fab11",
+              "fab11.toolgroups_fab11"
+            ],
+            "projections": [
+              {
+                "table": "fab11.toolgroups_fab11",
+                "column": "area"
+              }
+            ],
+            "aggregates": [
+              {
+                "source": {
+                  "table": "fab11.pm_fab11",
+                  "column": "source_row_id"
+                },
+                "function": "count",
+                "alias": "pm_model_count"
+              }
+            ],
+            "group_by": [
+              {
+                "table": "fab11.toolgroups_fab11",
+                "column": "area"
+              }
+            ],
+            "filters": [],
+            "joins": [
+              {
+                "left": {
+                  "table": "fab11.pm_fab11",
+                  "column": "type_name"
+                },
+                "right": {
+                  "table": "fab11.toolgroups_fab11",
+                  "column": "toolgroup"
+                },
+                "kind": "inner"
+              }
+            ],
+            "latest_by": [],
+            "time_basis": "model master (static)",
+            "result_grain": "one row per area",
+            "limitations": [
+              "Area identity is model-driven and does not reflect real-time factory status.",
+              "This reports the count of PM model definitions per area, not observed PM events."
+            ],
+            "order_by": [
+              {
+                "output": "area",
+                "direction": "asc"
+              }
+            ],
+            "result_limit": null
+          },
+          "grounding": {
+            "version": "metadata-ranking-v1",
+            "total_tables": 20,
+            "selected_tables": 6,
+            "total_columns": 429,
+            "selected_columns": 101,
+            "broadened_no_match": false,
+            "ranking": [
+              {
+                "table_ref": "fab11.pm_fab11",
+                "score": 232.0,
+                "reasons": [
+                  "explicit_table",
+                  "aliases:pm",
+                  "description:pm",
+                  "request_slots"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab11.toolgroups_fab11",
+                "score": 6.0,
+                "reasons": [
+                  "aliases:설비군"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab11.live_process_snapshots_fab11",
+                "score": 2.0,
+                "reasons": [
+                  "description:공정"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab11.breakdown_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": true
+              },
+              {
+                "table_ref": "fab11.live_process_events_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": true
+              },
+              {
+                "table_ref": "fab11.lotrelease_engineering_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": true
+              },
+              {
+                "table_ref": "fab11.lotrelease_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.lotrelease_variable_due_dates_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.route_product_10_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.route_product_1_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.route_product_2_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.route_product_3_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.route_product_4_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.route_product_5_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.route_product_6_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.route_product_7_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.route_product_8_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.route_product_9_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.setups_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab11.transport_fab11",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              }
+            ]
+          },
+          "generation_attempts": [
+            {
+              "attempt": 1,
+              "action": "focused_generation",
+              "status": "unsupported",
+              "sql": null,
+              "issues": [
+                "count_rows requires one source table and the '*' row marker"
+              ],
+              "tables": [
+                "fab11.pm_fab11",
+                "fab11.toolgroups_fab11",
+                "fab11.live_process_snapshots_fab11",
+                "fab11.breakdown_fab11",
+                "fab11.live_process_events_fab11",
+                "fab11.lotrelease_engineering_fab11"
+              ],
+              "semantic_plan": {
+                "supported": true,
+                "reason": "",
+                "tables": [
+                  "fab11.pm_fab11",
+                  "fab11.toolgroups_fab11"
+                ],
+                "projections": [
+                  {
+                    "table": "fab11.toolgroups_fab11",
+                    "column": "area"
+                  }
+                ],
+                "aggregates": [
+                  {
+                    "source": {
+                      "table": "fab11.pm_fab11",
+                      "column": "*"
+                    },
+                    "function": "count_rows",
+                    "alias": "pm_model_count"
+                  }
+                ],
+                "group_by": [
+                  {
+                    "table": "fab11.toolgroups_fab11",
+                    "column": "area"
+                  }
+                ],
+                "filters": [],
+                "joins": [
+                  {
+                    "left": {
+                      "table": "fab11.pm_fab11",
+                      "column": "type_name"
+                    },
+                    "right": {
+                      "table": "fab11.toolgroups_fab11",
+                      "column": "toolgroup"
+                    },
+                    "kind": "inner"
+                  }
+                ],
+                "latest_by": [],
+                "time_basis": "model master (static)",
+                "result_grain": "one row per area",
+                "limitations": [
+                  "Area identity is model-driven and does not reflect real-time factory status.",
+                  "This reports the count of PM model definitions per area, not observed PM events."
+                ],
+                "order_by": [
+                  {
+                    "output": "area",
+                    "direction": "asc"
+                  }
+                ],
+                "result_limit": null
+              },
+              "grounding": {
+                "version": "metadata-ranking-v1",
+                "total_tables": 20,
+                "selected_tables": 6,
+                "total_columns": 429,
+                "selected_columns": 101,
+                "broadened_no_match": false,
+                "ranking": [
+                  {
+                    "table_ref": "fab11.pm_fab11",
+                    "score": 232.0,
+                    "reasons": [
+                      "explicit_table",
+                      "aliases:pm",
+                      "description:pm",
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.toolgroups_fab11",
+                    "score": 6.0,
+                    "reasons": [
+                      "aliases:설비군"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.live_process_snapshots_fab11",
+                    "score": 2.0,
+                    "reasons": [
+                      "description:공정"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.breakdown_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.live_process_events_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.lotrelease_engineering_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.lotrelease_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.lotrelease_variable_due_dates_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_10_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_1_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_2_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_3_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_4_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_5_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_6_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_7_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_8_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_9_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.setups_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.transport_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  }
+                ]
+              }
+            },
+            {
+              "attempt": 2,
+              "action": "validation_repair",
+              "status": "succeeded",
+              "sql": "SELECT tg.area, COUNT(pm.source_row_id) AS pm_model_count\nFROM fab11.pm_fab11 pm\nINNER JOIN fab11.toolgroups_fab11 tg ON pm.type_name = tg.toolgroup\nGROUP BY tg.area\nORDER BY tg.area ASC;",
+              "issues": [
+                "현재 결과는 SMT2020 General Data 기반 simulation/model input 기준입니다.",
+                "live/current factory state로 해석하면 안 됩니다.",
+                "Area identity is model-driven and does not reflect real-time factory status.",
+                "This reports the count of PM model definitions per area, not observed PM events."
+              ],
+              "tables": [
+                "fab11.pm_fab11",
+                "fab11.toolgroups_fab11",
+                "fab11.live_process_snapshots_fab11",
+                "fab11.breakdown_fab11",
+                "fab11.live_process_events_fab11",
+                "fab11.lotrelease_engineering_fab11"
+              ],
+              "semantic_plan": {
+                "supported": true,
+                "reason": "",
+                "tables": [
+                  "fab11.pm_fab11",
+                  "fab11.toolgroups_fab11"
+                ],
+                "projections": [
+                  {
+                    "table": "fab11.toolgroups_fab11",
+                    "column": "area"
+                  }
+                ],
+                "aggregates": [
+                  {
+                    "source": {
+                      "table": "fab11.pm_fab11",
+                      "column": "source_row_id"
+                    },
+                    "function": "count",
+                    "alias": "pm_model_count"
+                  }
+                ],
+                "group_by": [
+                  {
+                    "table": "fab11.toolgroups_fab11",
+                    "column": "area"
+                  }
+                ],
+                "filters": [],
+                "joins": [
+                  {
+                    "left": {
+                      "table": "fab11.pm_fab11",
+                      "column": "type_name"
+                    },
+                    "right": {
+                      "table": "fab11.toolgroups_fab11",
+                      "column": "toolgroup"
+                    },
+                    "kind": "inner"
+                  }
+                ],
+                "latest_by": [],
+                "time_basis": "model master (static)",
+                "result_grain": "one row per area",
+                "limitations": [
+                  "Area identity is model-driven and does not reflect real-time factory status.",
+                  "This reports the count of PM model definitions per area, not observed PM events."
+                ],
+                "order_by": [
+                  {
+                    "output": "area",
+                    "direction": "asc"
+                  }
+                ],
+                "result_limit": null
+              },
+              "grounding": {
+                "version": "metadata-ranking-v1",
+                "total_tables": 20,
+                "selected_tables": 6,
+                "total_columns": 429,
+                "selected_columns": 101,
+                "broadened_no_match": false,
+                "ranking": [
+                  {
+                    "table_ref": "fab11.pm_fab11",
+                    "score": 232.0,
+                    "reasons": [
+                      "explicit_table",
+                      "aliases:pm",
+                      "description:pm",
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.toolgroups_fab11",
+                    "score": 6.0,
+                    "reasons": [
+                      "aliases:설비군"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.live_process_snapshots_fab11",
+                    "score": 2.0,
+                    "reasons": [
+                      "description:공정"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.breakdown_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.live_process_events_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.lotrelease_engineering_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab11.lotrelease_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.lotrelease_variable_due_dates_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_10_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_1_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_2_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_3_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_4_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_5_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_6_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_7_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_8_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.route_product_9_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.setups_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab11.transport_fab11",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fab12_non_rework_lowest_queue",
+      "question": "fab12 시뮬레이션 전체 기간에서 rework_flag가 false인 이벤트의 영역별 queue_minutes 평균을 구해줘. 평균이 작은 하위 2개 영역만, 평균 오름차순이고 동률은 area 오름차순이야. 영역과 평균만 표시하고 반올림하지 마.",
+      "category": "filtered_aggregate_ranking",
+      "reference_sql": "SELECT area, AVG(queue_minutes) AS mean_queue FROM fab12.live_process_events_fab12 WHERE rework_flag=false GROUP BY area ORDER BY mean_queue ASC,area ASC LIMIT 2",
+      "reference_rows": [
+        {
+          "area": "cmp",
+          "mean_queue": "24.6082317073170732"
+        },
+        {
+          "area": "photo",
+          "mean_queue": "25.2152852852852853"
+        }
+      ],
+      "reference_stable": true,
+      "strict_result_matches_reference": true,
+      "result_matches_reference": true,
+      "ignored_context_columns": [],
+      "passed": true,
+      "seconds": 6.322,
+      "llm_calls": [
+        {
+          "schema": "fab_semantic_plan",
+          "seconds": 3.334,
+          "input_characters": 39077
+        },
+        {
+          "schema": "fab_text2sql_direct_sql",
+          "seconds": 2.93,
+          "input_characters": 38968
+        }
+      ],
+      "result": {
+        "status": "succeeded",
+        "query_type": "status",
+        "answer": "시뮬레이션 공정 데이터 기준으로 2개 행을 조회했습니다.",
+        "sql": "SELECT area, AVG(queue_minutes) AS avg_queue_minutes\nFROM fab12.live_process_events_fab12\nWHERE rework_flag = false\nGROUP BY area\nORDER BY avg_queue_minutes ASC, area ASC\nLIMIT 2;",
+        "rows": [
+          {
+            "area": "cmp",
+            "avg_queue_minutes": "24.6082317073170732"
+          },
+          {
+            "area": "photo",
+            "avg_queue_minutes": "25.2152852852852853"
+          }
+        ],
+        "columns": [
+          "area",
+          "avg_queue_minutes"
+        ],
+        "row_count": 2,
+        "confidence": 0.98,
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "Simulation data; not actual factory measurements.",
+          "AVG is an unweighted mean per area, not a pooled mean across areas."
+        ],
+        "plan": {
+          "query_type": "status",
+          "template_id": null,
+          "fab_id": "fab12",
+          "data_source_type": "simulation_snapshot",
+          "slots": {
+            "ranking_direction": {
+              "value": "ASC",
+              "source": "parser",
+              "confidence": 0.95,
+              "raw_text": "ASC"
+            },
+            "top_n": {
+              "value": "2",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "2"
+            },
+            "fab_id": {
+              "value": "fab12",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab12 시뮬레이션 전체 기간에서 rework_flag가 false인 이벤트의 영역별 queue_minutes 평균을 구해줘. 평균이 작은 하위 2개 영역만, 평균 오름차순이고 동률은 area 오름차순이야. 영역과 평균만 표시하고 반올림하지 마."
+            }
+          },
+          "limitations": [
+            "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+            "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+            "Simulation data; not actual factory measurements.",
+            "AVG is an unweighted mean per area, not a pooled mean across areas."
+          ],
+          "source_tables": [
+            "fab12.live_process_events_fab12"
+          ],
+          "select_items": [
+            "area",
+            "AVG(queue_minutes) AS avg_queue_minutes"
+          ],
+          "filters": [
+            {
+              "field": "rework_flag",
+              "operator": "=",
+              "value": "false"
+            }
+          ],
+          "group_by": [
+            "area"
+          ],
+          "order_by": [
+            "avg_queue_minutes ASC",
+            "area ASC"
+          ],
+          "aggregation": "AVG(queue_minutes) per area",
+          "expected_result_shape": "table: area | avg_queue_minutes",
+          "chart_intent": null,
+          "semantic_plan": {
+            "supported": true,
+            "reason": "The request matches simulation event data schema. 'fab12.live_process_events_fab12' contains area, queue_minutes and rework_flag for events. Filters exclude rework events (rework_flag=false). Compute area-average (AVG) of queue_minutes per area. Rank average by ascending value (ties: area ascending). Display area and average (not rounded). Limit output to 2 areas with smallest averages.",
+            "tables": [
+              "fab12.live_process_events_fab12"
+            ],
+            "projections": [
+              {
+                "table": "fab12.live_process_events_fab12",
+                "column": "area"
+              }
+            ],
+            "aggregates": [
+              {
+                "source": {
+                  "table": "fab12.live_process_events_fab12",
+                  "column": "queue_minutes"
+                },
+                "function": "avg",
+                "alias": "avg_queue_minutes"
+              }
+            ],
+            "group_by": [
+              {
+                "table": "fab12.live_process_events_fab12",
+                "column": "area"
+              }
+            ],
+            "filters": [
+              {
+                "source": {
+                  "table": "fab12.live_process_events_fab12",
+                  "column": "rework_flag"
+                },
+                "operator": "eq",
+                "values": [
+                  "false"
+                ]
+              }
+            ],
+            "joins": [],
+            "latest_by": [],
+            "time_basis": "event interval_end (simulation entire period)",
+            "result_grain": "area-level unweighted mean of queue_minutes for non-rework events (per area, for all available simulation intervals)",
+            "limitations": [
+              "Simulation data; not actual factory measurements.",
+              "AVG is an unweighted mean per area, not a pooled mean across areas."
+            ],
+            "order_by": [
+              {
+                "output": "avg_queue_minutes",
+                "direction": "asc"
+              },
+              {
+                "output": "area",
+                "direction": "asc"
+              }
+            ],
+            "result_limit": 2
+          },
+          "grounding": {
+            "version": "metadata-ranking-v1",
+            "total_tables": 14,
+            "selected_tables": 6,
+            "total_columns": 247,
+            "selected_columns": 151,
+            "broadened_no_match": false,
+            "ranking": [
+              {
+                "table_ref": "fab12.live_process_events_fab12",
+                "score": 36.0,
+                "reasons": [
+                  "columns:area,queue_minutes,rework_flag",
+                  "request_slots"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab12.live_process_snapshots_fab12",
+                "score": 36.0,
+                "reasons": [
+                  "aliases:시뮬레이션",
+                  "columns:area",
+                  "description:시뮬레이션",
+                  "request_slots"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab12.route_product_3_fab12",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab12.route_product_4_fab12",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab12.route_product_e3_fab12",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab12.toolgroups_fab12",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab12.breakdown_fab12",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab12.lotrelease_engineering_fab12",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab12.lotrelease_fab12",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab12.lotrelease_variable_due_dates_fab12",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab12.pm_fab12",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab12.setup_matrix_implant_gas_fab12",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab12.setups_fab12",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab12.transport_fab12",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              }
+            ]
+          },
+          "generation_attempts": [
+            {
+              "attempt": 1,
+              "action": "focused_generation",
+              "status": "succeeded",
+              "sql": "SELECT area, AVG(queue_minutes) AS avg_queue_minutes\nFROM fab12.live_process_events_fab12\nWHERE rework_flag = false\nGROUP BY area\nORDER BY avg_queue_minutes ASC, area ASC\nLIMIT 2;",
+              "issues": [
+                "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+                "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+                "Simulation data; not actual factory measurements.",
+                "AVG is an unweighted mean per area, not a pooled mean across areas."
+              ],
+              "tables": [
+                "fab12.live_process_events_fab12",
+                "fab12.live_process_snapshots_fab12",
+                "fab12.route_product_3_fab12",
+                "fab12.route_product_4_fab12",
+                "fab12.route_product_e3_fab12",
+                "fab12.toolgroups_fab12"
+              ],
+              "semantic_plan": {
+                "supported": true,
+                "reason": "The request matches simulation event data schema. 'fab12.live_process_events_fab12' contains area, queue_minutes and rework_flag for events. Filters exclude rework events (rework_flag=false). Compute area-average (AVG) of queue_minutes per area. Rank average by ascending value (ties: area ascending). Display area and average (not rounded). Limit output to 2 areas with smallest averages.",
+                "tables": [
+                  "fab12.live_process_events_fab12"
+                ],
+                "projections": [
+                  {
+                    "table": "fab12.live_process_events_fab12",
+                    "column": "area"
+                  }
+                ],
+                "aggregates": [
+                  {
+                    "source": {
+                      "table": "fab12.live_process_events_fab12",
+                      "column": "queue_minutes"
+                    },
+                    "function": "avg",
+                    "alias": "avg_queue_minutes"
+                  }
+                ],
+                "group_by": [
+                  {
+                    "table": "fab12.live_process_events_fab12",
+                    "column": "area"
+                  }
+                ],
+                "filters": [
+                  {
+                    "source": {
+                      "table": "fab12.live_process_events_fab12",
+                      "column": "rework_flag"
+                    },
+                    "operator": "eq",
+                    "values": [
+                      "false"
+                    ]
+                  }
+                ],
+                "joins": [],
+                "latest_by": [],
+                "time_basis": "event interval_end (simulation entire period)",
+                "result_grain": "area-level unweighted mean of queue_minutes for non-rework events (per area, for all available simulation intervals)",
+                "limitations": [
+                  "Simulation data; not actual factory measurements.",
+                  "AVG is an unweighted mean per area, not a pooled mean across areas."
+                ],
+                "order_by": [
+                  {
+                    "output": "avg_queue_minutes",
+                    "direction": "asc"
+                  },
+                  {
+                    "output": "area",
+                    "direction": "asc"
+                  }
+                ],
+                "result_limit": 2
+              },
+              "grounding": {
+                "version": "metadata-ranking-v1",
+                "total_tables": 14,
+                "selected_tables": 6,
+                "total_columns": 247,
+                "selected_columns": 151,
+                "broadened_no_match": false,
+                "ranking": [
+                  {
+                    "table_ref": "fab12.live_process_events_fab12",
+                    "score": 36.0,
+                    "reasons": [
+                      "columns:area,queue_minutes,rework_flag",
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.live_process_snapshots_fab12",
+                    "score": 36.0,
+                    "reasons": [
+                      "aliases:시뮬레이션",
+                      "columns:area",
+                      "description:시뮬레이션",
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.route_product_3_fab12",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.route_product_4_fab12",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.route_product_e3_fab12",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.toolgroups_fab12",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab12.breakdown_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.lotrelease_engineering_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.lotrelease_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.lotrelease_variable_due_dates_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.pm_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.setup_matrix_implant_gas_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.setups_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab12.transport_fab12",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

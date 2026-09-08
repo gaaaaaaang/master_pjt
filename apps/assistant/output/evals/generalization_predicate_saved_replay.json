@@ -1,0 +1,133 @@
+{
+  "kind": "normalized_plan_saved_sql_replay_no_new_llm_calls",
+  "cases": 21,
+  "passed": 21,
+  "results": [
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "latest_fab12",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "area_mean_fab11",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "event_kind_fab13",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "max_queue_fab10",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "top_wip_fab13",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "rework_count_fab12",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "empty_area_fab11",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "time_mean_fab11",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_adjudicated_probes_v1.json",
+      "id": "a01",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_adjudicated_probes_v1.json",
+      "id": "a02",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t01",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t02",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t05",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t15",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t16",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t17",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t18",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t19",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t20",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v2.json",
+      "id": "t06",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v2.json",
+      "id": "t18",
+      "passed": true,
+      "error": null
+    }
+  ]
+}

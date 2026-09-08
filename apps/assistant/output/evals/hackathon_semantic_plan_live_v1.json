@@ -1,0 +1,501 @@
+{
+  "status": "succeeded",
+  "query_type": "master_data_lookup",
+  "answer": "시뮬레이션 공정 데이터 기준으로 108개 행을 조회했습니다.",
+  "sql": "SELECT area, avg_queue_minutes FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' GROUP BY area, avg_queue_minutes ORDER BY area ASC LIMIT 200",
+  "rows": [
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "29.88"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "31.25"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "33.20"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "37.02"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "37.36"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "38.51"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "39.60"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "39.97"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "45.31"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "47.34"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "50.32"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "51.14"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "52.97"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "61.36"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "61.70"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "62.04"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "67.68"
+    },
+    {
+      "area": "cmp",
+      "avg_queue_minutes": "72.30"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "24.54"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "27.96"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "34.78"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "35.89"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "38.02"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "40.58"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "42.05"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "43.42"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "43.69"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "44.21"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "55.25"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "56.34"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "56.54"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "76.28"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "77.43"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "84.90"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "91.41"
+    },
+    {
+      "area": "deposition",
+      "avg_queue_minutes": "125.20"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "34.30"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "38.12"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "41.06"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "41.39"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "42.41"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "47.66"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "51.75"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "66.12"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "75.19"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "78.11"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "78.36"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "80.74"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "84.47"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "86.83"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "94.36"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "101.40"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "138.48"
+    },
+    {
+      "area": "etch",
+      "avg_queue_minutes": "530.39"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "23.44"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "27.30"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "27.75"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "29.59"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "33.21"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "37.15"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "44.89"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "45.16"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "47.30"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "48.23"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "50.30"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "50.70"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "62.77"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "65.71"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "76.67"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "98.86"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "107.26"
+    },
+    {
+      "area": "implant",
+      "avg_queue_minutes": "122.19"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "14.88"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "25.76"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "46.71"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "55.48"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "60.56"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "62.06"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "63.41"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "66.05"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "67.13"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "68.19"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "68.37"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "69.69"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "73.48"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "75.56"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "78.95"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "88.69"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "92.51"
+    },
+    {
+      "area": "metrology",
+      "avg_queue_minutes": "324.29"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "16.94"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "23.20"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "49.83"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "52.97"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "53.84"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "56.84"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "59.32"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "61.53"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "61.72"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "69.47"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "70.82"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "75.22"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "82.32"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "95.92"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "123.55"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "145.02"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "164.77"
+    },
+    {
+      "area": "photo",
+      "avg_queue_minutes": "574.50"
+    }
+  ],
+  "columns": [
+    "area",
+    "avg_queue_minutes"
+  ],
+  "row_count": 108,
+  "confidence": 1.0,
+  "limitations": [
+    "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+    "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+    "이 결과는 시뮬레이션 생성 데이터이며, 평균·비율값으로 영역별 원본값을 그대로 제공합니다. 시점/기간 전체나 영역 전체의 재집계(sum/avg) 등은 허용되지 않습니다."
+  ],
+  "plan": {
+    "query_type": "master_data_lookup",
+    "template_id": null,
+    "fab_id": "fab11",
+    "data_source_type": "simulation_snapshot",
+    "slots": {
+      "fab_id": {
+        "value": "fab11",
+        "source": "explicit_user",
+        "confidence": 1.0,
+        "raw_text": "fab11 시뮬레이션에서 영역별 평균 대기시간을 조회해줘"
+      }
+    },
+    "limitations": [
+      "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+      "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+      "이 결과는 시뮬레이션 생성 데이터이며, 평균·비율값으로 영역별 원본값을 그대로 제공합니다. 시점/기간 전체나 영역 전체의 재집계(sum/avg) 등은 허용되지 않습니다."
+    ],
+    "source_tables": [
+      "fab11.live_process_snapshots_fab11"
+    ],
+    "select_items": [
+      "area",
+      "avg_queue_minutes"
+    ],
+    "filters": [
+      {
+        "field": "fab11.live_process_snapshots_fab11.fab_id",
+        "operator": "=",
+        "value": "fab11"
+      }
+    ],
+    "group_by": [
+      "fab11.live_process_snapshots_fab11.area",
+      "fab11.live_process_snapshots_fab11.avg_queue_minutes"
+    ],
+    "order_by": [
+      "fab11.live_process_snapshots_fab11.area ASC"
+    ],
+    "aggregation": null,
+    "expected_result_shape": "table",
+    "chart_intent": {
+      "type": "bar",
+      "x": "area",
+      "y": "avg_queue_minutes",
+      "x_title": "공정 영역",
+      "y_title": "평균 대기시간 (분)",
+      "series": null
+    }
+  }
+}

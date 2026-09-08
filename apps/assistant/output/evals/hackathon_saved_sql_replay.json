@@ -1,0 +1,34 @@
+[
+  {
+    "id": "latest_fab12",
+    "passed": true
+  },
+  {
+    "id": "area_mean_fab11",
+    "passed": true
+  },
+  {
+    "id": "event_kind_fab13",
+    "passed": true
+  },
+  {
+    "id": "max_queue_fab10",
+    "passed": true
+  },
+  {
+    "id": "top_wip_fab13",
+    "passed": true
+  },
+  {
+    "id": "rework_count_fab12",
+    "passed": true
+  },
+  {
+    "id": "empty_area_fab11",
+    "passed": true
+  },
+  {
+    "id": "time_mean_fab11",
+    "passed": true
+  }
+]

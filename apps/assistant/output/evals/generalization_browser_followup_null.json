@@ -1,0 +1,17 @@
+{
+  "kind": "observed browser end-to-end second explicit question in same conversation",
+  "observed_at": "2026-09-07T22:34:37.625617+00:00",
+  "request_context_fab": "fab10",
+  "previous_question_filter": "lot_id IS NULL",
+  "question": "fab13 시뮬레이션 전체 상세 이벤트에서 equipment_id가 NULL이 아닌 행 개수만 알려줘.",
+  "observed_status": "succeeded",
+  "observed_sql": "SELECT COUNT(*) AS row_count FROM fab13.live_process_events_fab13 WHERE fab_id = 'fab13' AND equipment_id IS NOT NULL;",
+  "observed_rows": [
+    {
+      "row_count": 2592
+    }
+  ],
+  "observed_final_answer": "fab13 시뮬레이션 전체 상세 이벤트에서 equipment_id가 NULL이 아닌 행 개수는 2,592개입니다.",
+  "observed_run_completed": true,
+  "previous_lot_id_predicate_absent": true
+}

@@ -1,0 +1,15 @@
+{
+  "kind": "observed browser retry after planner metadata-discovery fix",
+  "observed_at": "2026-09-07T22:41:41.616369+00:00",
+  "same_question_as_failed_attempt": true,
+  "additional_table_hint_supplied": false,
+  "question": "fab12 시뮬레이션 스냅샷 중 2026-09-07 00:00 UTC 이상 06:00 UTC 미만의 lot_starts 합계 하나만 구해줘.",
+  "observed_run_completed": true,
+  "observed_sql": "SELECT SUM(lot_starts) AS total_lot_starts FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end >= '2026-09-07 00:00:00+00' AND interval_end < '2026-09-07 06:00:00+00';",
+  "observed_rows": [
+    {
+      "total_lot_starts": 443
+    }
+  ],
+  "observed_final_answer_summary": "합계 443, interval_end 기준, 시뮬레이션 데이터이며 실제 생산 실적과 다를 수 있음을 명시함."
+}

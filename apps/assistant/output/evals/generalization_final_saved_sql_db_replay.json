@@ -1,0 +1,323 @@
+{
+  "kind": "saved successful SQL/current-plan/actual-DB replay; no new LLM generation",
+  "at": "2026-09-07T22:28:30.564358+00:00",
+  "cases": 51,
+  "passed": 50,
+  "results": [
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "latest_fab12",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "area_mean_fab11",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "event_kind_fab13",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "max_queue_fab10",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "top_wip_fab13",
+      "passed": false,
+      "error": "ValueError: Question requests a specific top-N result count; preserve it in result_limit"
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "rework_count_fab12",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "empty_area_fab11",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "hackathon_semantic_regression_v4.json",
+      "id": "time_mean_fab11",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t01",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t02",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t15",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t16",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t17",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t19",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v1.json",
+      "id": "t20",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v2.json",
+      "id": "t06",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_recheck_v2.json",
+      "id": "t18",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_adjudicated_probes_v1.json",
+      "id": "a01",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_adjudicated_probes_v1.json",
+      "id": "a02",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t02",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t03",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t04",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t05",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t06",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t07",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t09",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t10",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t11",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t12",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t13",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t14",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t15",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t16",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t17",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t18",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t19",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_tuning_candidate_v2.json",
+      "id": "t20",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_targeted_repairs.json",
+      "id": "repair_latest_marker",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_targeted_repairs.json",
+      "id": "repair_matching_settings",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v01",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v02",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v03",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v05",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v06",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v07",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v08",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v09",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v10",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v11",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v13",
+      "passed": true,
+      "error": null
+    },
+    {
+      "file": "generalization_first_heldout_validation.json",
+      "id": "v14",
+      "passed": true,
+      "error": null
+    }
+  ],
+  "prior_round": {
+    "cases": 8,
+    "passed": 7
+  },
+  "current_round": {
+    "cases": 43,
+    "passed": 43
+  },
+  "legacy_rejection_note": "top_wip_fab13 from prior round semantic_regression_v4 predates the mandatory top-N plan fields. Its saved plan lacks result_limit. Current validation correctly rejects this legacy plan rather than weakening the new ranking contract."
+}

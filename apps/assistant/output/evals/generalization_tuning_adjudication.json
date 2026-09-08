@@ -1,0 +1,11 @@
+{
+  "frozen_fixture_unchanged": true,
+  "t05": {
+    "classification": "ambiguous_time_basis",
+    "reason": "Question does not specify interval_start vs interval_end. Frozen oracle uses interval_end while generation used fully contained intervals. Raw score retained; excluded from unambiguous semantic denominator."
+  },
+  "t08": {
+    "classification": "incorrect_reference_relationship",
+    "reason": "Actual breakdown.type_name denotes area for original area-scoped settings, not toolgroup. Frozen exact toolgroup join returns empty. Raw score retained; corrected business probe separate."
+  }
+}

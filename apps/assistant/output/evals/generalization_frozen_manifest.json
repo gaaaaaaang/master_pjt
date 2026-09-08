@@ -1,0 +1,14 @@
+{
+  "tuning": {
+    "file": "apps/assistant/tests/fixtures/text2sql_generalization_tuning_20260908.json",
+    "cases": 24,
+    "answerable": 20,
+    "sha256": "6dbd58115fd2f5171601cf1cc82749ba41e4a534e93b82f835386134e4aa5cb0"
+  },
+  "validation": {
+    "file": "apps/assistant/tests/fixtures/text2sql_generalization_validation_20260908.json",
+    "cases": 16,
+    "answerable": 14,
+    "sha256": "4ddaecfe3c6752084d8aaf8cbd18bae87e818959e8e8dfcdaaba47b093070f4b"
+  }
+}

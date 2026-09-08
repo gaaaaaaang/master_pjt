@@ -1,0 +1,62 @@
+{
+  "kind": "final saved SQL/plan replay; no LLM/DB calls; not new execution accuracy",
+  "passed": 11,
+  "cases": 11,
+  "results": [
+    {
+      "artifact": "hackathon_semantic_regression_v4.json",
+      "id": "latest_fab12",
+      "passed": true
+    },
+    {
+      "artifact": "hackathon_semantic_regression_v4.json",
+      "id": "area_mean_fab11",
+      "passed": true
+    },
+    {
+      "artifact": "hackathon_semantic_regression_v4.json",
+      "id": "event_kind_fab13",
+      "passed": true
+    },
+    {
+      "artifact": "hackathon_semantic_regression_v4.json",
+      "id": "max_queue_fab10",
+      "passed": true
+    },
+    {
+      "artifact": "hackathon_semantic_regression_v4.json",
+      "id": "top_wip_fab13",
+      "passed": true
+    },
+    {
+      "artifact": "hackathon_semantic_regression_v4.json",
+      "id": "rework_count_fab12",
+      "passed": true
+    },
+    {
+      "artifact": "hackathon_semantic_regression_v4.json",
+      "id": "empty_area_fab11",
+      "passed": true
+    },
+    {
+      "artifact": "hackathon_semantic_regression_v4.json",
+      "id": "time_mean_fab11",
+      "passed": true
+    },
+    {
+      "artifact": "hackathon_additional_probe_v1.json",
+      "id": "fab11_pm_settings_by_area",
+      "passed": true
+    },
+    {
+      "artifact": "hackathon_additional_probe_v1.json",
+      "id": "fab12_non_rework_lowest_queue",
+      "passed": true
+    },
+    {
+      "artifact": "hackathon_ranking_contract_live.json",
+      "id": "top_wip_fab13",
+      "passed": true
+    }
+  ]
+}

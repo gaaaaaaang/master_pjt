@@ -1,0 +1,647 @@
+{
+  "kind": "development_semantic_regression_not_holdout",
+  "cases": 1,
+  "passed": 0,
+  "results": [
+    {
+      "id": "top_wip_fab13",
+      "question": "fab13 시뮬레이션 최신 스냅샷에서 WIP가 가장 큰 영역 3개와 wip_lots를 내림차순으로 보여줘. 동률은 area 오름차순.",
+      "category": "ranking",
+      "reference_sql": "SELECT area,wip_lots FROM fab13.live_process_snapshots_fab13 WHERE interval_end=(SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13) ORDER BY wip_lots DESC,area LIMIT 3",
+      "reference_rows": [
+        {
+          "area": "metrology",
+          "wip_lots": 439
+        },
+        {
+          "area": "cmp",
+          "wip_lots": 353
+        },
+        {
+          "area": "etch",
+          "wip_lots": 352
+        }
+      ],
+      "reference_stable": true,
+      "result_matches_reference": false,
+      "passed": false,
+      "seconds": 6.917,
+      "llm_calls": [
+        {
+          "schema": "fab_semantic_plan",
+          "seconds": 3.595,
+          "input_characters": 41094
+        },
+        {
+          "schema": "fab_text2sql_direct_sql",
+          "seconds": 3.206,
+          "input_characters": 40640
+        }
+      ],
+      "result": {
+        "status": "succeeded",
+        "query_type": "status",
+        "answer": "시뮬레이션 공정 데이터 기준으로 3개 행을 조회했습니다.",
+        "sql": "SELECT area, wip_lots, interval_end FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end = (SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13') ORDER BY wip_lots DESC, area ASC LIMIT 3",
+        "rows": [
+          {
+            "area": "metrology",
+            "wip_lots": 439,
+            "interval_end": "2026-09-07 14:00:00+00:00"
+          },
+          {
+            "area": "cmp",
+            "wip_lots": 353,
+            "interval_end": "2026-09-07 14:00:00+00:00"
+          },
+          {
+            "area": "etch",
+            "wip_lots": 352,
+            "interval_end": "2026-09-07 14:00:00+00:00"
+          }
+        ],
+        "columns": [
+          "area",
+          "wip_lots",
+          "interval_end"
+        ],
+        "row_count": 3,
+        "confidence": 0.98,
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "wip_lots는 해당 시점 area별 독립 snapshot 수치이며, 풀/누적값이 아닙니다.",
+          "동률은 area 알파벳 오름차순으로 정렬합니다."
+        ],
+        "plan": {
+          "query_type": "status",
+          "template_id": null,
+          "fab_id": "fab13",
+          "data_source_type": "simulation_snapshot",
+          "slots": {
+            "metric": {
+              "value": "wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "wiplotavg"
+            },
+            "metrics": {
+              "value": "wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "wiplotavg"
+            },
+            "ranking_direction": {
+              "value": "DESC",
+              "source": "parser",
+              "confidence": 0.9,
+              "raw_text": "DESC"
+            },
+            "fab_id": {
+              "value": "fab13",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab13 시뮬레이션 최신 스냅샷에서 WIP가 가장 큰 영역 3개와 wip_lots를 내림차순으로 보여줘. 동률은 area 오름차순."
+            }
+          },
+          "limitations": [
+            "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+            "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+            "wip_lots는 해당 시점 area별 독립 snapshot 수치이며, 풀/누적값이 아닙니다.",
+            "동률은 area 알파벳 오름차순으로 정렬합니다."
+          ],
+          "source_tables": [
+            "fab13.live_process_snapshots_fab13",
+            "fab13.live_process_snapshots_fab13"
+          ],
+          "select_items": [
+            "area",
+            "wip_lots",
+            "interval_end"
+          ],
+          "filters": [
+            {
+              "field": "fab_id",
+              "operator": "=",
+              "value": "fab13"
+            }
+          ],
+          "group_by": [],
+          "order_by": [
+            "wip_lots DESC",
+            "area ASC"
+          ],
+          "aggregation": null,
+          "expected_result_shape": "top-n rows, area-level",
+          "chart_intent": null,
+          "semantic_plan": {
+            "supported": true,
+            "reason": "Query requests top-3 simulation snapshot area-level WIP from the latest snapshot, validly supported using fab13.live_process_snapshots_fab13 by explicit timestamp.",
+            "tables": [
+              "fab13.live_process_snapshots_fab13"
+            ],
+            "projections": [
+              {
+                "table": "fab13.live_process_snapshots_fab13",
+                "column": "area"
+              },
+              {
+                "table": "fab13.live_process_snapshots_fab13",
+                "column": "wip_lots"
+              },
+              {
+                "table": "fab13.live_process_snapshots_fab13",
+                "column": "interval_end"
+              }
+            ],
+            "aggregates": [],
+            "group_by": [],
+            "filters": [
+              {
+                "source": {
+                  "table": "fab13.live_process_snapshots_fab13",
+                  "column": "fab_id"
+                },
+                "operator": "eq",
+                "values": [
+                  "fab13"
+                ]
+              }
+            ],
+            "joins": [],
+            "latest_by": [
+              {
+                "table": "fab13.live_process_snapshots_fab13",
+                "column": "interval_end"
+              }
+            ],
+            "time_basis": "latest simulation snapshot",
+            "result_grain": "area-level per latest snapshot",
+            "limitations": [
+              "wip_lots is a snapshot (not pooled) area count; ties resolved by area alphabetical order"
+            ],
+            "order_by": [
+              {
+                "output": "wip_lots",
+                "direction": "desc"
+              },
+              {
+                "output": "area",
+                "direction": "asc"
+              }
+            ],
+            "result_limit": 3
+          },
+          "grounding": {
+            "version": "metadata-ranking-v1",
+            "total_tables": 23,
+            "selected_tables": 6,
+            "total_columns": 516,
+            "selected_columns": 162,
+            "broadened_no_match": false,
+            "ranking": [
+              {
+                "table_ref": "fab13.live_process_snapshots_fab13",
+                "score": 50.0,
+                "reasons": [
+                  "aliases:시뮬레이션,스냅샷",
+                  "columns:area,wip_lots",
+                  "description:wip,시뮬레이션,영역",
+                  "request_slots"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab13.live_process_events_fab13",
+                "score": 28.0,
+                "reasons": [
+                  "columns:area",
+                  "request_slots"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab13.route_product_10_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab13.route_product_1_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab13.route_product_2_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab13.route_product_3_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": true
+              },
+              {
+                "table_ref": "fab13.route_product_4_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_5_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_6_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_7_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_8_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_9_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_e1_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_e2_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.route_product_e3_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.toolgroups_fab13",
+                "score": 4.0,
+                "reasons": [
+                  "columns:area"
+                ],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.breakdown_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.lotrelease_engineering_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.lotrelease_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.lotrelease_variable_due_dates_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.pm_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.setups_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              },
+              {
+                "table_ref": "fab13.transport_fab13",
+                "score": 0.0,
+                "reasons": [],
+                "selected": false
+              }
+            ]
+          },
+          "generation_attempts": [
+            {
+              "attempt": 1,
+              "action": "focused_generation",
+              "status": "succeeded",
+              "sql": "SELECT area, wip_lots, interval_end FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end = (SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13') ORDER BY wip_lots DESC, area ASC LIMIT 3",
+              "issues": [
+                "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+                "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+                "wip_lots는 해당 시점 area별 독립 snapshot 수치이며, 풀/누적값이 아닙니다.",
+                "동률은 area 알파벳 오름차순으로 정렬합니다."
+              ],
+              "tables": [
+                "fab13.live_process_snapshots_fab13",
+                "fab13.live_process_events_fab13",
+                "fab13.route_product_10_fab13",
+                "fab13.route_product_1_fab13",
+                "fab13.route_product_2_fab13",
+                "fab13.route_product_3_fab13"
+              ],
+              "semantic_plan": {
+                "supported": true,
+                "reason": "Query requests top-3 simulation snapshot area-level WIP from the latest snapshot, validly supported using fab13.live_process_snapshots_fab13 by explicit timestamp.",
+                "tables": [
+                  "fab13.live_process_snapshots_fab13"
+                ],
+                "projections": [
+                  {
+                    "table": "fab13.live_process_snapshots_fab13",
+                    "column": "area"
+                  },
+                  {
+                    "table": "fab13.live_process_snapshots_fab13",
+                    "column": "wip_lots"
+                  },
+                  {
+                    "table": "fab13.live_process_snapshots_fab13",
+                    "column": "interval_end"
+                  }
+                ],
+                "aggregates": [],
+                "group_by": [],
+                "filters": [
+                  {
+                    "source": {
+                      "table": "fab13.live_process_snapshots_fab13",
+                      "column": "fab_id"
+                    },
+                    "operator": "eq",
+                    "values": [
+                      "fab13"
+                    ]
+                  }
+                ],
+                "joins": [],
+                "latest_by": [
+                  {
+                    "table": "fab13.live_process_snapshots_fab13",
+                    "column": "interval_end"
+                  }
+                ],
+                "time_basis": "latest simulation snapshot",
+                "result_grain": "area-level per latest snapshot",
+                "limitations": [
+                  "wip_lots is a snapshot (not pooled) area count; ties resolved by area alphabetical order"
+                ],
+                "order_by": [
+                  {
+                    "output": "wip_lots",
+                    "direction": "desc"
+                  },
+                  {
+                    "output": "area",
+                    "direction": "asc"
+                  }
+                ],
+                "result_limit": 3
+              },
+              "grounding": {
+                "version": "metadata-ranking-v1",
+                "total_tables": 23,
+                "selected_tables": 6,
+                "total_columns": 516,
+                "selected_columns": 162,
+                "broadened_no_match": false,
+                "ranking": [
+                  {
+                    "table_ref": "fab13.live_process_snapshots_fab13",
+                    "score": 50.0,
+                    "reasons": [
+                      "aliases:시뮬레이션,스냅샷",
+                      "columns:area,wip_lots",
+                      "description:wip,시뮬레이션,영역",
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.live_process_events_fab13",
+                    "score": 28.0,
+                    "reasons": [
+                      "columns:area",
+                      "request_slots"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.route_product_10_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.route_product_1_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.route_product_2_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.route_product_3_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": true
+                  },
+                  {
+                    "table_ref": "fab13.route_product_4_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_5_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_6_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_7_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_8_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_9_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_e1_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_e2_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.route_product_e3_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.toolgroups_fab13",
+                    "score": 4.0,
+                    "reasons": [
+                      "columns:area"
+                    ],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.breakdown_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.lotrelease_engineering_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.lotrelease_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.lotrelease_variable_due_dates_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.pm_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.setups_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  },
+                  {
+                    "table_ref": "fab13.transport_fab13",
+                    "score": 0.0,
+                    "reasons": [],
+                    "selected": false
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

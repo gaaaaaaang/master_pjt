@@ -1,0 +1,7 @@
+{
+  "apps/assistant/src/app/sub_agent/text2sql.py": "38b347d6af33559fa8ff53382ad1005d1bb2b0aab096b0f4faa12469b19a124a",
+  "apps/assistant/src/app/sub_agent/semantic_plan.py": "5520afbf10cf345589873fb95876d94218cf1b43d4a34dff68969f153e997e4e",
+  "apps/assistant/src/app/db/metadata_catalog.py": "0a18e5412d6b734f58a762d938a399ac58e9921ae8f09764d089d98afd7af96c",
+  "apps/assistant/src/app/db/schema_retrieval.py": "7b116226325219ffc77fd90124dc95859592189c1bdb4914fb73080e5d134a7a",
+  "apps/assistant/src/app/db/fab_catalog.py": "36dd9c0b978063e70d155ba00dc0b3a1b73cd4b44ba46a7ee7dac3783ce3bd31"
+}
