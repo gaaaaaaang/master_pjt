@@ -550,3 +550,10 @@ Local composite gate 실행:
 - SC-001 endpoint는 AutoSched `.rep` 적재와 LLM direct SQL validation 이후 연결한다.
 - 현재 LLM API key 인증 실패 시 Text2SQL은 `failed`로 종료하고 SQL을 생성하지 않는다.
 - Planner, Supervisor, Self-reflection, Composer는 모두 Azure Chat Completions를 호출한다.
+
+## 2026-09-08 RAG 통합 충돌 해결
+
+- [x] `feat/adv_integrate`의 대화 메모리, 동적 라우팅/재시도, 진단/영향 분석, 새 채팅 UI와 RAG 하이브리드 검색을 병합.
+- [x] 원문 검증 답변을 일반 최종 검토가 재작성하지 않도록 보호하고 SSE에 인용·사용량·대화 기록 유지.
+- [x] v2 corpus의 실제 절차/페이지로 검색 정답 ID 이전. 구어체 검색 확장, 목차 감점, incident issue 정합성 필터 적용. 평가 임계값은 유지.
+- [x] 통합 Python 468개, 웹 25개 테스트 및 웹 빌드 통과. 외부 API 보고서는 병합 전 실행 결과이며 통합 후 유료 API 재실행은 하지 않음.

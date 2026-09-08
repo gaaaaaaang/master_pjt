@@ -43,9 +43,7 @@ SUPERVISOR_OUTPUT_SCHEMA = {
         "answer": {"type": ["string", "null"]},
         "limitations": {"type": "array", "items": {"type": "string"}},
     },
-    "required": [
-        "proceed", "status", "selected_sub_agents", "reason", "answer", "limitations"
-    ],
+    "required": ["proceed", "status", "selected_sub_agents", "reason", "answer", "limitations"],
 }
 
 AGENT_RECOVERY_OUTPUT_SCHEMA = {
@@ -110,6 +108,9 @@ class SupervisorResult:
     reflection_decisions: list[dict[str, Any]] = field(default_factory=list)
     termination_reason: str | None = None
     reflection: dict[str, Any] = field(default_factory=dict)
+    citations: list[dict[str, Any]] = field(default_factory=list)
+    grounding: dict[str, Any] = field(default_factory=dict)
+    model_usage: dict[str, Any] = field(default_factory=dict)
     answer_review: dict[str, Any] = field(default_factory=dict)
     prompt_version: str = SUPERVISOR_PROMPT_VERSION
     prompt_contract: str = SUPERVISOR_SYSTEM_PROMPT
@@ -125,7 +126,7 @@ def review_plan(
     try:
         output = (llm_client or AzureAgentClient()).complete_json(
             system_prompt=SUPERVISOR_SYSTEM_PROMPT,
-            input_data={"question": question, "planner_decision": asdict(plan)},
+            input_data={"question": question, "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}}},
             output_schema=SUPERVISOR_OUTPUT_SCHEMA,
             schema_name="fab_supervisor_decision",
         )
@@ -144,6 +145,20 @@ def review_plan(
         if output["status"] == "ready" and output["proceed"]
         else list(output["selected_sub_agents"])
     )
+    # Reject contradictory authorization instead of treating status=ready as approval.
+    if not output["proceed"] and output["status"] == "ready":
+        output = {
+            **output,
+            "status": "unsupported",
+            "selected_sub_agents": [],
+            "answer": output.get("answer")
+            or "실행 계획이 승인되지 않아 조회를 진행하지 않았습니다.",
+            "limitations": [
+                *output["limitations"],
+                "Supervisor 실행 승인과 상태가 일치하지 않습니다.",
+            ],
+        }
+        selected = []
     selected_set = set(selected)
     reviewed = replace(
         plan,
@@ -171,7 +186,7 @@ def review_agent_result(
         output = (llm_client or AzureAgentClient()).complete_json(
             system_prompt=AGENT_RECOVERY_SYSTEM_PROMPT,
             input_data={
-                "planner_decision": asdict(plan),
+                "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}},
                 "agent_reflection": reflection,
                 "retry_count": retry_count,
                 "retry_budget_remaining": retry_budget_remaining,
@@ -246,7 +261,7 @@ def review_final_answer(
             system_prompt=ANSWER_SUPERVISOR_SYSTEM_PROMPT,
             input_data={
                 "question": question,
-                "planner_decision": asdict(plan),
+                "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}},
                 "final_answer": answer,
                 "evidence": evidence,
                 "limitations": limitations,
@@ -333,5 +348,8 @@ class Supervisor:
             reflection_decisions=state.get("reflection_decisions", []),
             termination_reason=state.get("termination_reason"),
             reflection=state.get("reflection", {}),
+            citations=state.get("citations", []),
+            grounding=state.get("grounding", {}),
+            model_usage=state.get("model_usage", {}),
             answer_review=state.get("answer_review", {}),
         )

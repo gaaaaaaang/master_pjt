@@ -1,0 +1,172 @@
+{
+  "retrieval_replayed_from": "apps/assistant/output/evals/rag_chat_extension_reviewed.json",
+  "cases": [
+    {
+      "id": "ext_hold_deadline",
+      "seconds": 4.223,
+      "result": {
+        "answer": "문서는 검색했지만 답변의 인용 근거를 검증하지 못했습니다. 제공된 원문 근거를 확인해 주세요.",
+        "status": "insufficient",
+        "citations": [],
+        "validation": "rejected",
+        "review": {
+          "stage": "quote_validation",
+          "error_type": "ValueError",
+          "reason": "Quote must exist verbatim in the cited source."
+        }
+      },
+      "model_usage": {
+        "call_count": 1,
+        "failed_calls": 0,
+        "reported_total_tokens": 2674,
+        "unreported_usage_calls": 0,
+        "calls": [
+          {
+            "kind": "fab_grounded_answer",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 2161,
+            "output_tokens": 513,
+            "total_tokens": 2674,
+            "seconds": 4.223
+          }
+        ]
+      },
+      "model_outputs": [
+        {
+          "schema": "fab_grounded_answer",
+          "output": {
+            "status": "supported",
+            "claims": [
+              {
+                "text": "품질 영향 가능성이 있고 원인 범위가 확정되지 않은 경우 hold한다. 공정 spec 위반, 장비 alarm 후 처리 lot, material 의심 lot, recipe mismatch lot은 우선 hold 후보가 된다. 납기 압박은 품질 hold 해제의 단독 사유가 될 수 없다.",
+                "sources": [
+                  {
+                    "chunk_id": "4456402d14afcca1262205d0",
+                    "quote": "품질 영향 가능성이 있고 원인 범위가 확정되지 않은 경우 hold한다.\n공정 spec 위반, 장비 alarm 후 처리 lot, material 의심 lot, recipe mismatch lot은 우선 hold 후보가 된다.\n납기 압박은 품질 hold 해제의 단독 사유가 될 수 없다."
+                  }
+                ]
+              },
+              {
+                "text": "품질 hold lot을 단순 납기 사유로 override release하지 않는다.",
+                "sources": [
+                  {
+                    "chunk_id": "4fd61e7115454c5005988769",
+                    "quote": "품질 hold lot을 단순 납기 사유로 override release하지 않는다."
+                  }
+                ]
+              },
+              {
+                "text": "hold 해제(Release)는 원인 분석이 완료되고 lot disposition이 승인된다. 필요 시 re-measure, rework, engineering evaluation, qualification 결과가 pass여야 한다.",
+                "sources": [
+                  {
+                    "chunk_id": "a8da225ce8c69f5a646c038b",
+                    "quote": "원인 분석이 완료되고 lot disposition이 승인된다.\n필요 시 re-measure, rework, engineering evaluation, qualification 결과가 pass여야 한다."
+                  }
+                ]
+              },
+              {
+                "text": "Release 유형에는 normal release(추가 제약 없이 진행), conditional release(특정 operation/toolgroup 사용 조건), engineering release(추적 대상 lot으로 지정하여 모니터링)가 있다.",
+                "sources": [
+                  {
+                    "chunk_id": "a8da225ce8c69f5a646c038b",
+                    "quote": "normal release는 추가 제약 없이 진행한다.\nconditional release는 특정 operation 또는 toolgroup 사용 조건을 붙인다.\nengineering release는 추적 대상 lot으로 지정해 모니터링한다."
+                  }
+                ]
+              },
+              {
+                "text": "Reject(해제 거부)는 risk remains(위험이 남아있음) 상태에서 continue hold(계속 hold)로 남긴다.",
+                "sources": [
+                  {
+                    "chunk_id": "a8da225ce8c69f5a646c038b",
+                    "quote": "Reject\nrisk remains\ncontinue hold"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ext_autosched_attach",
+      "seconds": 3.659,
+      "result": {
+        "answer": "문서는 검색했지만 답변의 인용 근거를 검증하지 못했습니다. 제공된 원문 근거를 확인해 주세요.",
+        "status": "insufficient",
+        "citations": [],
+        "validation": "rejected",
+        "review": {
+          "stage": "quote_validation",
+          "error_type": "ValueError",
+          "reason": "Quote must exist verbatim in the cited source."
+        }
+      },
+      "model_usage": {
+        "call_count": 1,
+        "failed_calls": 0,
+        "reported_total_tokens": 2441,
+        "unreported_usage_calls": 0,
+        "calls": [
+          {
+            "kind": "fab_grounded_answer",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 2019,
+            "output_tokens": 422,
+            "total_tokens": 2441,
+            "seconds": 3.658
+          }
+        ]
+      },
+      "model_outputs": [
+        {
+          "schema": "fab_grounded_answer",
+          "output": {
+            "status": "supported",
+            "claims": [
+              {
+                "text": "attach.txt의 CALNAME, CALTYPE, RESTYPE, RESNAME은 각 downtime event(unscheduled 또는 scheduled)를 해당 도구 그룹에 연결한다. 여기서 CALNAME은 이벤트 이름, CALTYPE은 이벤트 유형(down 또는 pm), RESTYPE은 자원 유형, RESNAME은 자원명을 의미한다.",
+                "sources": [
+                  {
+                    "chunk_id": "1debf89e0a2e7fd6e4b9b0d6",
+                    "quote": "The file attach.txt (see Figure 6) is used to connect each downtime event (unscheduled or scheduled) represented by the name (CALNAME) with the CALTYPE (here down or pm) to a group of tools. The latter is defined by the resource type (RESTYPE) and its name (RESNAME)."
+                  }
+                ]
+              },
+              {
+                "text": "CALNAME은 downcal.txt와 pmcal.txt에 명시된 down time event의 이름으로, 각 이벤트를 식별한다.",
+                "sources": [
+                  {
+                    "chunk_id": "ca687929dd50e8b1ceb76a88",
+                    "quote": "CALNAME stands for the name of the down time event as described in the files downcal.txt and pmcal.txt."
+                  }
+                ]
+              },
+              {
+                "text": "CALTYPE은 이벤트 유형으로, 예를 들어 down은 breakdown, pm은 예방보전(정기점검) 사건임을 나타낸다.",
+                "sources": [
+                  {
+                    "chunk_id": "1debf89e0a2e7fd6e4b9b0d6",
+                    "quote": "with the CALTYPE (here down or pm)"
+                  }
+                ]
+              },
+              {
+                "text": "RESTYPE은 자원 유형(예: stnfam 등), RESNAME은 해당 도구 그룹의 이름을 가리킨다.",
+                "sources": [
+                  {
+                    "chunk_id": "a79e6c7f4dba523160c536e0",
+                    "quote": "used RESTYPE is stnfam and the RESNAME is the name of the tool group (see file 'attach.txt' or Figure 6, line 92)."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "artifact_format": "compact.v1",
+  "omitted_debug_fields": "Duplicate final events, repeated per-evidence retrieval traces, intermediate usage call lists and prompt_contract; final evidence, per-run trace, outcomes and final usage remain."
+}

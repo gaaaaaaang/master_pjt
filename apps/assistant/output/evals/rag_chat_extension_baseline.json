@@ -1,0 +1,1786 @@
+{
+  "scope": "Real FastAPI routes via in-process ASGI; real LLM and Milvus; no deployed-server/load test.",
+  "git_head": "382c56b025eb0e02e96c4a7d6053d8a82c349bfd",
+  "fixture_sha256": "258e03ec26e36543f8d5beea6d8127f5e9dfbbb0f5c066ebd1cd68df2c645801",
+  "mode": "stream",
+  "cases": [
+    {
+      "id": "ext_pm_approval",
+      "query": "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+      "seconds": 17.191,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [
+        "PB-EQ-002"
+      ],
+      "missing_units": [],
+      "complete_retrieval": true,
+      "rag_count": 1,
+      "review_rubric": "Engineer 승인 없이는 연기 불가, 단기 연기 시 low risk/manager approval, qualification 또는 dummy run 결과.",
+      "final": {
+        "conversation_id": "8e27fe00-6945-4c82-9151-07b906f3d794",
+        "status": "succeeded",
+        "query_type": "knowledge_lookup",
+        "answer": "매뉴얼 기준 PM(Preventive Maintenance) 일정 연기가 필요한 경우, 엔지니어(Engineer)의 승인이 반드시 필요하며 엔지니어 승인 없이 연기는 허용되지 않습니다. 만약 PM의 짧은 지연이며 위험도가 낮은 경우에는 매니저의 추가 승인과 리스크 메모 작성이 필요합니다.\n\nPM 수행 전후에는 영향받는 제품과 lot 우선순위를 Scheduler가 재계산해야 하며, 복구 기록으로 PM 이후 qualification 또는 dummy run 결과를 반드시 기록해야 합니다. 복구 완료 조건은 PM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm 해제, 그리고 PM 지연으로 인한 WIP backlog 정상화입니다.\n\n이 답변은 시뮬레이션 근거 문서(semiconductor_fab_incident_response_playbook_kr.pdf, page 8)에 기반한 일반 리뷰 지침이며, 실제 FAB의 SOP 및 각 사이트 내규에 따라 절차·승인자가 다를 수 있으니 반드시 현장 공식 절차를 재확인하시기 바랍니다.",
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "답변은 매뉴얼 기준의 일반 지침 제공, 실제 FAB별 내규/운영상세는 상이할 수 있음",
+          "질문의 일부 주제에 대한 문서 근거가 부족합니다: recovery",
+          "검색 문서는 시뮬레이션 참조 자료이며 실제 사내 SOP가 아닙니다.",
+          "Playbook evidence is simulation/schematic, not live SOP; always confirm with site-specific procedures.",
+          "Incident playbook answers must be framed as review guidance, not automatic execution.",
+          "Some recovery details may not be fully described in the referenced document."
+        ],
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "매뉴얼에 따라 PM(Preventive Maintenance) 연기 승인 권한자와 필수 복구 기록 확인",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "incident_playbook에서 PM(Preventive Maintenance) 일정 연기 승인 절차와 복구 기록 요건 추출",
+                  "required": true,
+                  "reason": "사용자가 일정 연기 시 권한자와 필요 기록(매뉴얼 기준)을 묻고 있음"
+                }
+              ],
+              "slots": {},
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 3464
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "08. PM 지연과 설비 가용성 저하",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n08. PM 지연과 설비 가용성 저하\n8 / 25\n08. PM 지연과 설비 가용성 저하\nPreventive Maintenance Delay\nplaybook_id\nPB-EQ-002\nissue_type\npm_delay\ntrigger\nPM overdue\nowner\nEngineer\ndecision\nrun vs stop\ntags\npm,availability\n감지 조건\n-\nPM due time이 초과되었거나 PM 예정 시간과 hot lot 처리 계획이 충돌한다.\n-\n동일 area 내 병렬 tool 수가 부족해져 대기 시간이 증가한다.\n즉시 조치\n-\nPM 연기는 Engineer 승인 없이는 허용하지 않는다.\n-\nPM 수행 전후로 영향 product와 lot priority를 Scheduler가 재계산한다.\n-\nPM 이후 qualification 또는 dummy run 결과를 기록한다.\n복구 조건\n-\nPM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화.\nDecision\nAllowed When\nEvidence\nPM execute now\nquality or safety risk\nPM due / alarm\nPM short delay\nlow risk and manager approval\nrisk memo\nTool stop\nqualification needed\nengineer sign-off\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "7",
+              "concepts": [
+                "hot_lot",
+                "pm",
+                "queue_time",
+                "recovery",
+                "wip"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "pm_delay",
+              "page_number": 8,
+              "playbook_ids": [
+                "PB-EQ-002"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "08. PM 지연과 설비 가용성 저하",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.5117698311805725,
+              "score": 3.1419,
+              "retrieval_features": {
+                "term_coverage": 0.5,
+                "concept_matches": [
+                  "pm",
+                  "recovery"
+                ],
+                "focus_matches": [
+                  "pm"
+                ],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.047726,
+                "relevance_grade": 3,
+                "relevance_reason": "PM 연기 승인 주체(Engineer)와 복구 기록에 대한 구체적 근거를 명확하게 제시함."
+              },
+              "retrieval_ranks": {
+                "0": 1,
+                "1": 5,
+                "2": 9,
+                "3": 1
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "826a8c8ba9e44f729a587f08",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf"
+            }
+          }
+        ],
+        "plan": {
+          "status": "ready",
+          "query_type": "knowledge_lookup",
+          "intent": "매뉴얼에 따라 PM(Preventive Maintenance) 연기 승인 권한자와 필수 복구 기록 확인",
+          "selected_sub_agents": [
+            "rag"
+          ],
+          "execution_steps": [
+            {
+              "agent": "rag",
+              "action": "incident_playbook에서 PM(Preventive Maintenance) 일정 연기 승인 절차와 복구 기록 요건 추출",
+              "required": true,
+              "reason": "사용자가 일정 연기 시 권한자와 필요 기록(매뉴얼 기준)을 묻고 있음"
+            }
+          ],
+          "slots": {},
+          "rag_knowledge_base": "incident_playbook",
+          "missing_slots": [],
+          "clarification_question": null,
+          "limitations": [
+            "답변은 매뉴얼 기준의 일반 지침 제공, 실제 FAB별 내규/운영상세는 상이할 수 있음",
+            "답변은 매뉴얼 기준의 일반 지침 제공, 실제 FAB별 내규/운영상세는 상이할 수 있음"
+          ],
+          "prompt_version": "planner.v1"
+        },
+        "agent_runs": [
+          {
+            "agent": "rag",
+            "status": "succeeded",
+            "summary": "1개 지식 근거를 조회했습니다.",
+            "metadata": {
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v1",
+                "plan": {
+                  "query": "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "pm",
+                    "recovery"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "pm",
+                    "예정일",
+                    "넘겼지만",
+                    "급한",
+                    "lot",
+                    "매뉴얼상",
+                    "누가",
+                    "연기",
+                    "승인",
+                    "복구",
+                    "기록",
+                    "필요해",
+                    "concept:pm",
+                    "concept:recovery"
+                  ],
+                  "subqueries": [
+                    "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                    "정기 보전",
+                    "복구"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "bm25:subquery1",
+                  "bm25:subquery2",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 25,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 1,
+                "context_chars": 882,
+                "covered_concepts": [
+                  "pm"
+                ],
+                "uncovered_concepts": [
+                  "recovery"
+                ],
+                "latency_ms": 5206.931
+              }
+            }
+          }
+        ],
+        "reflection": {
+          "is_supported": true,
+          "warnings": [
+            "Playbook evidence is simulation/schematic, not live SOP; always confirm with site-specific procedures.",
+            "Incident playbook answers must be framed as review guidance, not automatic execution.",
+            "Some recovery details may not be fully described in the referenced document."
+          ],
+          "composer_instructions": [
+            "Base answer strictly on retrieved playbook content. Approval for PM delay requires Engineer in principle, and is not permitted without this approval.",
+            "Restate that after PM execution (whether delayed or not), qualification or dummy run results must be recorded as recovery evidence.",
+            "Note that for any 'short' PM delay with low risk, manager approval and risk memo documentation is also required.",
+            "Remind user that specifics can differ by fab/site, and to use this response as general procedural guidance—not operational authority."
+          ],
+          "evidence_count": 2,
+          "limitation_count": 3,
+          "deterministic_warnings": [
+            "Incident playbook answers must be framed as review guidance, not automatic action."
+          ],
+          "execution_mode": "llm_chat_completions",
+          "model": "gpt-4.1",
+          "retry_budget_remaining": 0,
+          "elapsed_ms": 14236
+        },
+        "retry_budget_remaining": 0,
+        "elapsed_ms": 17178
+      },
+      "events": [
+        {
+          "event": "trace",
+          "payload": {
+            "type": "run_started",
+            "node": "input",
+            "message": "질문을 접수했습니다.",
+            "data": {
+              "conversation_id": "8e27fe00-6945-4c82-9151-07b906f3d794",
+              "retry_budget_remaining": 0,
+              "timeout_seconds": 120,
+              "elapsed_ms": 0
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "planner",
+            "message": "knowledge_lookup 질의로 분류하고 실행 계획을 만들었습니다.",
+            "data": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "incident_playbook에서 PM(Preventive Maintenance) 일정 연기 승인 절차와 복구 기록 요건 추출",
+                  "required": true,
+                  "reason": "사용자가 일정 연기 시 권한자와 필요 기록(매뉴얼 기준)을 묻고 있음"
+                }
+              ],
+              "slots": {},
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 3464
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "supervisor",
+            "message": "rag",
+            "data": {
+              "status": "ready",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "reason": "질문은 매뉴얼에 규정된 PM 연기 승인 권한자와 복구 기록 절차를 묻고 있으므로, incident_playbook에서 지침을 검색하는 RAG를 먼저 실행해야 합니다.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 5295
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "tool_completed",
+            "node": "rag",
+            "message": "1개 지식 근거를 조회했습니다.",
+            "data": {
+              "status": "succeeded",
+              "knowledge_base": "incident_playbook",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 10514
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "reflection",
+            "message": "근거, 의도 일치, 데이터 한계를 검증했습니다.",
+            "data": {
+              "is_supported": true,
+              "warnings": [
+                "Playbook evidence is simulation/schematic, not live SOP; always confirm with site-specific procedures.",
+                "Incident playbook answers must be framed as review guidance, not automatic execution.",
+                "Some recovery details may not be fully described in the referenced document."
+              ],
+              "composer_instructions": [
+                "Base answer strictly on retrieved playbook content. Approval for PM delay requires Engineer in principle, and is not permitted without this approval.",
+                "Restate that after PM execution (whether delayed or not), qualification or dummy run results must be recorded as recovery evidence.",
+                "Note that for any 'short' PM delay with low risk, manager approval and risk memo documentation is also required.",
+                "Remind user that specifics can differ by fab/site, and to use this response as general procedural guidance—not operational authority."
+              ],
+              "evidence_count": 2,
+              "limitation_count": 3,
+              "deterministic_warnings": [
+                "Incident playbook answers must be framed as review guidance, not automatic action."
+              ],
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 14236
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "composer",
+            "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
+            "data": {
+              "answer": "매뉴얼 기준 PM(Preventive Maintenance) 일정 연기가 필요한 경우, 엔지니어(Engineer)의 승인이 반드시 필요하며 엔지니어 승인 없이 연기는 허용되지 않습니다. 만약 PM의 짧은 지연이며 위험도가 낮은 경우에는 매니저의 추가 승인과 리스크 메모 작성이 필요합니다.\n\nPM 수행 전후에는 영향받는 제품과 lot 우선순위를 Scheduler가 재계산해야 하며, 복구 기록으로 PM 이후 qualification 또는 dummy run 결과를 반드시 기록해야 합니다. 복구 완료 조건은 PM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm 해제, 그리고 PM 지연으로 인한 WIP backlog 정상화입니다.\n\n이 답변은 시뮬레이션 근거 문서(semiconductor_fab_incident_response_playbook_kr.pdf, page 8)에 기반한 일반 리뷰 지침이며, 실제 FAB의 SOP 및 각 사이트 내규에 따라 절차·승인자가 다를 수 있으니 반드시 현장 공식 절차를 재확인하시기 바랍니다.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 17178
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ext_hold_deadline",
+      "query": "납기가 급하면 품질 영향이 의심되는 lot을 Hold에서 풀어도 되나? 매뉴얼의 보류 조건과 해제 조건을 비교해줘.",
+      "seconds": 20.955,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [
+        "PB-HL-001",
+        "PB-HL-002"
+      ],
+      "missing_units": [],
+      "complete_retrieval": true,
+      "rag_count": 5,
+      "review_rubric": "납기만으로 해제 불가; 원인 분석 및 disposition 승인. 확정된 품질 영향만 Hold한다는 표현 금지.",
+      "final": {
+        "conversation_id": "543727ce-6a24-48b1-98f8-ba83823d7525",
+        "status": "succeeded",
+        "query_type": "knowledge_lookup",
+        "answer": "매뉴얼에 따르면 품질 영향이 의심되는 lot은 원인 범위가 확정되지 않으면 우선 hold(보류)해야 하며, 공정 spec 위반, 장비 alarm 후 처리 lot, material 의심 lot, recipe mismatch lot 등이 hold 후보입니다. 납기 압박은 품질 hold 해제의 단독 사유가 될 수 없음이 명확히 명시되어 있습니다(semiconductor_fab_incident_response_playbook_kr.pdf, page=13, 18).\n\nHold 해제(Release) 조건은 다음과 같습니다:\n- 원인 분석이 완료되고 lot disposition이 엔지니어에 의해 공식 승인되어야 합니다.\n- 필요 시 측정(re-measure), 재작업(rework), 엔지니어링 평가, qualification 결과가 \"pass\"여야 합니다.\n- 위험이 완전히 해소되지 않으면 hold를 지속해야 하며, 해제 후 후속 공정 queue time이나 timelink 위반 여부는 Scheduler가 별도 검토합니다(semiconductor_fab_incident_response_playbook_kr.pdf, page=14).\n\n정리:\n- 보류 조건: 품질 영향 가능성이 있으며 원인 불명 또는 범위 확정 전, 공정 spec 위반/장비 alarm/material 의심/recipe mismatch 등(semiconductor_fab_incident_response_playbook_kr.pdf, page=13)\n- 해제 조건: 원인 분석 완료 및 disposition 승인, 필요 시 품질 rework/qual 통과, 위험 완전 해소(semiconductor_fab_incident_response_playbook_kr.pdf, page=14)\n- 납기 압박은 해제 단독 사유가 될 수 없음(semiconductor_fab_incident_response_playbook_kr.pdf, page=13, 18)\n\n본 답변은 시뮬레이션 매뉴얼 기준이며, 실제 운영 fab에서는 품질/제조 책임자 및 엔지니어의 공식 승인과 현업 정책을 반드시 준수해야 합니다.",
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "본 답변은 매뉴얼과 절차 내 공식 지침을 기반으로 하며, 실제 품질·제조 담당자의 승인 또는 정책 변경이 필요할 수 있음",
+          "검색 문서는 시뮬레이션 참조 자료이며 실제 사내 SOP가 아닙니다.",
+          "본 답변은 시뮬레이션 기준 매뉴얼을 근거로 하며, 실제 fab에서의 정책이나 예외 승인은 반드시 해당 fab의 품질 책임자/엔지니어 승인 및 현업 지침을 따라야 함.",
+          "증빙된 문서들은 simulation_reference로, 실제 운영/live fab 정책과 다소 차이가 있을 수 있음."
+        ],
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "납기와 관련해 품질 이슈가 의심되는 lot의 Hold 해제 가능성, 그리고 관련 매뉴얼의 보류 및 해제 조건 설명 요청",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "매뉴얼 내 품질 Hold 및 해제 기준에 대한 안내 및 관련 지침 제공",
+                  "required": true,
+                  "reason": "사용자의 매뉴얼 비교 요청은 과정 지식 및 정책에 기반한 답변이 필요하기 때문"
+                }
+              ],
+              "slots": {},
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2668
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "13. Lot Hold 판단",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n13. Lot Hold 판단\n13 / 25\n13. Lot Hold 판단\nWhen to Hold a Lot\nplaybook_id\nPB-HL-001\nissue_type\nlot_hold\ntrigger\nquality or process risk\nowner\nEngineer\ndecision\nhold\ntags\nhold,containment\n이슈 감지\n품질 영향?\n납기 영향?\nLOT HOLD\n조건부 진행\n재스케줄\n모니터링\nHold 조건\n-\n품질 영향 가능성이 있고 원인 범위가 확정되지 않은 경우 hold한다.\n-\n공정 spec 위반, 장비 alarm 후 처리 lot, material 의심 lot, recipe mismatch lot은 우선 hold 후보가 된다.\n-\n납기 압박은 품질 hold 해제의 단독 사유가 될 수 없다.\n필수 기록\n-\nhold reason, affected operation, suspect tool, suspect time window, owner, expected next review time을 기록한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "12",
+              "concepts": [
+                "lot_hold",
+                "lot_release",
+                "recovery"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "lot_hold",
+              "page_number": 13,
+              "playbook_ids": [
+                "PB-HL-001"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "13. Lot Hold 판단",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.6567297577857971,
+              "score": 3.1164,
+              "retrieval_features": {
+                "term_coverage": 0.4375,
+                "concept_matches": [
+                  "lot_hold"
+                ],
+                "focus_matches": [
+                  "lot_hold"
+                ],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.032787,
+                "relevance_grade": 3,
+                "relevance_reason": "납기 압박만으로 품질 hold 해제가 불가함을 명확히 언급하며 hold/해제 조건 모두 구체적으로 서술됨."
+              },
+              "retrieval_ranks": {
+                "0": 1,
+                "1": 1
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "4456402d14afcca1262205d0",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf"
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "18. Dispatching Rule Override",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n18. Dispatching Rule Override\n18 / 25\n18. Dispatching Rule Override\n자동 규칙을 임시 변경하는 경우\nplaybook_id\nPB-SC-001\nissue_type\ndispatch_override\ntrigger\nrule conflict\nowner\nScheduler\ndecision\nmanual override\ntags\ndispatch,schedule\n허용 조건\n-\nSuperHotLotFIRST, reservation, least setup time 같은 규칙이 품질 또는 납기 목표와 충돌할 때 임시 override를 검토한다.\n-\noverride는 시작 시각, 종료 조건, 영향 lot, 승인자를 반드시 남긴다.\n금지 조건\n-\n품질 hold lot을 단순 납기 사유로 override release하지 않는다.\n-\n대체 tool qualification이 불명확한 상태에서 dispatch만 변경하지 않는다.\nOverride Case\nApprover\nEnd Condition\nHot lot queue\nScheduler\nhot lot passes bottleneck\nQuality containment\nEngineer\ndisposition complete\nTool recovery\nEngineer\nqual pass\nMaterial limit\nManager\nshortage cleared\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "17",
+              "concepts": [
+                "bottleneck",
+                "dispatch",
+                "hot_lot",
+                "recovery",
+                "setup"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "dispatch_override",
+              "page_number": 18,
+              "playbook_ids": [
+                "PB-SC-001"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "18. Dispatching Rule Override",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.4570334255695343,
+              "score": 3.0,
+              "retrieval_features": {
+                "term_coverage": 0.375,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.030536,
+                "relevance_grade": 3,
+                "relevance_reason": "품질 hold lot은 단순 납기 사유로 release 금지 명확히 언급, 해제/금지 조건 균형 있게 명시."
+              },
+              "retrieval_ranks": {
+                "0": 5,
+                "1": 6
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "4fd61e7115454c5005988769",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf"
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "14. Lot Release 판단",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n14. Lot Release 판단\n14 / 25\n14. Lot Release 판단\nRelease from Hold\nplaybook_id\nPB-HL-002\nissue_type\nlot_release\ntrigger\nreview complete\nowner\nEngineer\ndecision\nrelease\ntags\nrelease,disposition\nRelease 조건\n-\n원인 분석이 완료되고 lot disposition이 승인된다.\n-\n필요 시 re-measure, rework, engineering evaluation, qualification 결과가 pass여야 한다.\n-\nrelease 후 downstream 공정의 queue time과 timelink 위반 여부를 Scheduler가 확인한다.\nRelease 유형\n-\nnormal release는 추가 제약 없이 진행한다.\n-\nconditional release는 특정 operation 또는 toolgroup 사용 조건을 붙인다.\n-\nengineering release는 추적 대상 lot으로 지정해 모니터링한다.\nRelease Type\nCondition\nFollow-up\nNormal\nrisk cleared\nstandard dispatch\nConditional\nlimited risk\nrestricted route\nEngineering\nneeds observation\nenhanced tracking\nReject\nrisk remains\ncontinue hold\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "13",
+              "concepts": [
+                "dispatch",
+                "lot_release",
+                "queue_time",
+                "recovery",
+                "rework"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "lot_release",
+              "page_number": 14,
+              "playbook_ids": [
+                "PB-HL-002"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "14. Lot Release 판단",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.56275475025177,
+              "score": 3.0,
+              "retrieval_features": {
+                "term_coverage": 0.1875,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.028787,
+                "relevance_grade": 3,
+                "relevance_reason": "release 조건(원인 분석, disposition 승인)과 여러 release 유형, reject 조건을 구체적으로 비교 설명함."
+              },
+              "retrieval_ranks": {
+                "0": 19,
+                "1": 2
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "a8da225ce8c69f5a646c038b",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf"
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "05. 공통 대응 프로세스",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n05. 공통 대응 프로세스\n5 / 25\n05. 공통 대응 프로세스\nDetect - Classify - Contain - Recover - Learn\nplaybook_id\nPB-GEN-004\nissue_type\nall\nseverity\nS1-S4\nfirst_action\nlog event\nowner\nOperator\ntags\nworkflow\nEvent Log\nSeverity\nContainment\nSchedule Fix\nRecovery Check\nRCA Update\n기본 절차\n-\n모든 돌발상황은 발생 시각, fab, area, toolgroup, lot, product, 현재 step을 먼저 기록한다.\n-\n품질 영향 가능성이 있으면 lot을 즉시 격리하거나 hold 후보로 전환한다.\n-\n납기 영향 가능성이 있으면 Scheduler가 대체 toolgroup과 dispatching rule 변경 가능성을 검토한다.\n-\n복구 후에는 RCA와 prevention rule 업데이트를 완료해야 한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "4",
+              "concepts": [
+                "dispatch",
+                "lot_hold",
+                "rca",
+                "recovery"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "all",
+              "page_number": 5,
+              "playbook_ids": [
+                "PB-GEN-004"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "05. 공통 대응 프로세스",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.39446741342544556,
+              "score": 2.0604,
+              "retrieval_features": {
+                "term_coverage": 0.375,
+                "concept_matches": [
+                  "lot_hold"
+                ],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.028612,
+                "relevance_grade": 2,
+                "relevance_reason": "품질 영향이 있으면 hold를 권장하나, 해제 조건 비교는 구체적으로 언급하지 않음."
+              },
+              "retrieval_ranks": {
+                "0": 4,
+                "1": 17
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "448e9fe7c0a26836a9eb0b32",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf"
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "17. Queue Time / Timelink 위반 대응",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n17. Queue Time / Timelink 위반 대응\n17 / 25\n17. Queue Time / Timelink 위반 대응\nTime-sensitive Operation Control\nplaybook_id\nPB-QT-001\nissue_type\nqueue_time_risk\ntrigger\ntime window close\nowner\nScheduler\ndecision\nexpedite or hold\ntags\nqueue,time\nTime Alert\nFind Lot\nReserve Tool\nRun / Hold\nCheck Quality\nClose\n감지 조건\n-\n이전 operation 완료 후 다음 operation까지 허용 시간이 임박하거나 초과된다.\n-\n병목, 장비 고장, hot lot insertion으로 time-sensitive lot의 대기가 길어진다.\n대응 절차\n-\nScheduler는 time window가 가장 짧은 lot을 우선 배정한다.\n-\nEngineer는 queue time 초과 lot의 품질 영향과 rework 가능성을 판단한다.\n-\nOperator는 해당 lot의 physical location과 carrier 상태를 확인한다.\n복구 조건\n-\ntime-sensitive lot 처리 완료 또는 disposition 결정 완료.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "16",
+              "concepts": [
+                "bottleneck",
+                "equipment_down",
+                "hot_lot",
+                "queue_time",
+                "recovery",
+                "rework"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "queue_time_risk",
+              "page_number": 17,
+              "playbook_ids": [
+                "PB-QT-001"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "17. Queue Time / Timelink 위반 대응",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.5055931210517883,
+              "score": 2.0,
+              "retrieval_features": {
+                "term_coverage": 0.3125,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.030366,
+                "relevance_grade": 2,
+                "relevance_reason": "queue time risk 상황에서 엔지니어가 품질 영향 여부에 따라 hold/release 판단함을 언급하나, 조건 비교 구체성은 부족함."
+              },
+              "retrieval_ranks": {
+                "0": 9,
+                "1": 3
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "6068e37d81afe3b918a7dfae",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf"
+            }
+          }
+        ],
+        "plan": {
+          "status": "ready",
+          "query_type": "knowledge_lookup",
+          "intent": "납기와 관련해 품질 이슈가 의심되는 lot의 Hold 해제 가능성, 그리고 관련 매뉴얼의 보류 및 해제 조건 설명 요청",
+          "selected_sub_agents": [
+            "rag"
+          ],
+          "execution_steps": [
+            {
+              "agent": "rag",
+              "action": "매뉴얼 내 품질 Hold 및 해제 기준에 대한 안내 및 관련 지침 제공",
+              "required": true,
+              "reason": "사용자의 매뉴얼 비교 요청은 과정 지식 및 정책에 기반한 답변이 필요하기 때문"
+            }
+          ],
+          "slots": {},
+          "rag_knowledge_base": "incident_playbook",
+          "missing_slots": [],
+          "clarification_question": null,
+          "limitations": [
+            "본 답변은 매뉴얼과 절차 내 공식 지침을 기반으로 하며, 실제 품질·제조 담당자의 승인 또는 정책 변경이 필요할 수 있음",
+            "본 답변은 매뉴얼과 절차 내 공식 지침을 기반으로 하며, 실제 품질·제조 담당자의 승인 또는 정책 변경이 필요할 수 있음"
+          ],
+          "prompt_version": "planner.v1"
+        },
+        "agent_runs": [
+          {
+            "agent": "rag",
+            "status": "succeeded",
+            "summary": "5개 지식 근거를 조회했습니다.",
+            "metadata": {
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v1",
+                "plan": {
+                  "query": "납기가 급하면 품질 영향이 의심되는 lot을 Hold에서 풀어도 되나? 매뉴얼의 보류 조건과 해제 조건을 비교해줘.",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "lot_hold"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "납기",
+                    "급하면",
+                    "품질",
+                    "영향",
+                    "의심되",
+                    "lot",
+                    "hold",
+                    "에서",
+                    "풀어",
+                    "되나",
+                    "매뉴얼의",
+                    "보류",
+                    "조건",
+                    "해제",
+                    "조건",
+                    "비교해줘",
+                    "concept:lot_hold"
+                  ],
+                  "subqueries": [
+                    "납기가 급하면 품질 영향이 의심되는 lot을 Hold에서 풀어도 되나? 매뉴얼의 보류 조건과 해제 조건을 비교해줘."
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 25,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 5,
+                "context_chars": 3973,
+                "covered_concepts": [
+                  "lot_hold"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 8228.713
+              }
+            }
+          }
+        ],
+        "reflection": {
+          "is_supported": true,
+          "warnings": [
+            "본 답변은 시뮬레이션 기준 매뉴얼을 근거로 하며, 실제 fab에서의 정책이나 예외 승인은 반드시 해당 fab의 품질 책임자/엔지니어 승인 및 현업 지침을 따라야 함.",
+            "증빙된 문서들은 simulation_reference로, 실제 운영/live fab 정책과 다소 차이가 있을 수 있음."
+          ],
+          "composer_instructions": [
+            "납기 압박만을 사유로 품질 영향 의심 lot의 hold 해제를 진행해서는 안 됨(Playbook PB-HL-001, PB-SC-001).",
+            "Hold 해제 조건은 원인 분석 종료 및 disposition 승인, 필요시 re-measure/rework/Evaluation/qual 결과 pass 등이 모두 요구됨(Playbook PB-HL-002).",
+            "보류(hold) 조건은 품질 영향이 명확하지 않거나 원인 불명시 적용. 납기 단독 사유는 인정되지 않음.",
+            "해당 lot의 해제 승인 전, 품질/공정 리스크가 완전히 배제되었는지 엔지니어와 품질 부서에서 공식적으로 판단해야 함."
+          ],
+          "evidence_count": 6,
+          "limitation_count": 2,
+          "deterministic_warnings": [],
+          "execution_mode": "llm_chat_completions",
+          "model": "gpt-4.1",
+          "retry_budget_remaining": 0,
+          "elapsed_ms": 17280
+        },
+        "retry_budget_remaining": 0,
+        "elapsed_ms": 20940
+      },
+      "events": [
+        {
+          "event": "trace",
+          "payload": {
+            "type": "run_started",
+            "node": "input",
+            "message": "질문을 접수했습니다.",
+            "data": {
+              "conversation_id": "543727ce-6a24-48b1-98f8-ba83823d7525",
+              "retry_budget_remaining": 0,
+              "timeout_seconds": 120,
+              "elapsed_ms": 0
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "planner",
+            "message": "knowledge_lookup 질의로 분류하고 실행 계획을 만들었습니다.",
+            "data": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "매뉴얼 내 품질 Hold 및 해제 기준에 대한 안내 및 관련 지침 제공",
+                  "required": true,
+                  "reason": "사용자의 매뉴얼 비교 요청은 과정 지식 및 정책에 기반한 답변이 필요하기 때문"
+                }
+              ],
+              "slots": {},
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2668
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "supervisor",
+            "message": "rag",
+            "data": {
+              "status": "ready",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "reason": "사용자의 질문은 매뉴얼 내 공식 보류 및 해제 기준에 대한 설명과 비교를 요청하고 있으며, 해당 지침 및 정책은 RAG(incident_playbook) 기반 지식 조회로 충분히 대응 가능하다. Planner의 결정과 일치함.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 4629
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "tool_completed",
+            "node": "rag",
+            "message": "5개 지식 근거를 조회했습니다.",
+            "data": {
+              "status": "succeeded",
+              "knowledge_base": "incident_playbook",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 12865
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "reflection",
+            "message": "근거, 의도 일치, 데이터 한계를 검증했습니다.",
+            "data": {
+              "is_supported": true,
+              "warnings": [
+                "본 답변은 시뮬레이션 기준 매뉴얼을 근거로 하며, 실제 fab에서의 정책이나 예외 승인은 반드시 해당 fab의 품질 책임자/엔지니어 승인 및 현업 지침을 따라야 함.",
+                "증빙된 문서들은 simulation_reference로, 실제 운영/live fab 정책과 다소 차이가 있을 수 있음."
+              ],
+              "composer_instructions": [
+                "납기 압박만을 사유로 품질 영향 의심 lot의 hold 해제를 진행해서는 안 됨(Playbook PB-HL-001, PB-SC-001).",
+                "Hold 해제 조건은 원인 분석 종료 및 disposition 승인, 필요시 re-measure/rework/Evaluation/qual 결과 pass 등이 모두 요구됨(Playbook PB-HL-002).",
+                "보류(hold) 조건은 품질 영향이 명확하지 않거나 원인 불명시 적용. 납기 단독 사유는 인정되지 않음.",
+                "해당 lot의 해제 승인 전, 품질/공정 리스크가 완전히 배제되었는지 엔지니어와 품질 부서에서 공식적으로 판단해야 함."
+              ],
+              "evidence_count": 6,
+              "limitation_count": 2,
+              "deterministic_warnings": [],
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 17280
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "composer",
+            "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
+            "data": {
+              "answer": "매뉴얼에 따르면 품질 영향이 의심되는 lot은 원인 범위가 확정되지 않으면 우선 hold(보류)해야 하며, 공정 spec 위반, 장비 alarm 후 처리 lot, material 의심 lot, recipe mismatch lot 등이 hold 후보입니다. 납기 압박은 품질 hold 해제의 단독 사유가 될 수 없음이 명확히 명시되어 있습니다(semiconductor_fab_incident_response_playbook_kr.pdf, page=13, 18).\n\nHold 해제(Release) 조건은 다음과 같습니다:\n- 원인 분석이 완료되고 lot disposition이 엔지니어에 의해 공식 승인되어야 합니다.\n- 필요 시 측정(re-measure), 재작업(rework), 엔지니어링 평가, qualification 결과가 \"pass\"여야 합니다.\n- 위험이 완전히 해소되지 않으면 hold를 지속해야 하며, 해제 후 후속 공정 queue time이나 timelink 위반 여부는 Scheduler가 별도 검토합니다(semiconductor_fab_incident_response_playbook_kr.pdf, page=14).\n\n정리:\n- 보류 조건: 품질 영향 가능성이 있으며 원인 불명 또는 범위 확정 전, 공정 spec 위반/장비 alarm/material 의심/recipe mismatch 등(semiconductor_fab_incident_response_playbook_kr.pdf, page=13)\n- 해제 조건: 원인 분석 완료 및 disposition 승인, 필요 시 품질 rework/qual 통과, 위험 완전 해소(semiconductor_fab_incident_response_playbook_kr.pdf, page=14)\n- 납기 압박은 해제 단독 사유가 될 수 없음(semiconductor_fab_incident_response_playbook_kr.pdf, page=13, 18)\n\n본 답변은 시뮬레이션 매뉴얼 기준이며, 실제 운영 fab에서는 품질/제조 책임자 및 엔지니어의 공식 승인과 현업 정책을 반드시 준수해야 합니다.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 20940
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ext_unknown_threshold",
+      "query": "이 매뉴얼에서 장비가 멈춘 뒤 정확히 몇 분 이내에 반드시 재가동해야 하는지 숫자만 알려줘.",
+      "seconds": 13.696,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [],
+      "missing_units": [],
+      "complete_retrieval": false,
+      "rag_count": 0,
+      "review_rubric": "해당 숫자 없음. 관련 고장 절차가 검색되어도 임의 분 수 생성 금지.",
+      "final": {
+        "conversation_id": "b0aa8316-44ef-445e-b993-fd04edf244b3",
+        "status": "data_unavailable",
+        "query_type": "knowledge_lookup",
+        "answer": "매뉴얼에서 장비가 멈춘 뒤 반드시 몇 분 이내에 재가동해야 하는지에 대한 정확한 수치는 문서 근거를 찾지 못했습니다.",
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "매뉴얼에 정확한 수치가 명확히 정의되어 있어야만 정답 제공 가능",
+          "여러 시나리오(장비별 등)로 나뉠 수 있음",
+          "질문을 뒷받침하는 문서 근거를 찾지 못했습니다.",
+          "도구 요약에 따르면 매뉴얼에 명확한 수치 근거를 찾지 못했습니다.",
+          "정확한 재가동 시간(분)의 값은 증빙되지 않아 답변이 확정적으로 지원되지 않습니다."
+        ],
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "매뉴얼에서 장비가 정지 후 반드시 몇 분 이내에 재가동해야 하는지 수치로 확인",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "incident_playbook에서 장비 정지 시 필수 재가동 시간(분) 수치만 추출",
+                  "required": true,
+                  "reason": "‘재가동 시간’은 매뉴얼/지침의 수치 정보이므로 RAG incident_playbook이 적합"
+                }
+              ],
+              "slots": {},
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2637
+            }
+          }
+        ],
+        "plan": {
+          "status": "ready",
+          "query_type": "knowledge_lookup",
+          "intent": "매뉴얼에서 장비가 정지 후 반드시 몇 분 이내에 재가동해야 하는지 수치로 확인",
+          "selected_sub_agents": [
+            "rag"
+          ],
+          "execution_steps": [
+            {
+              "agent": "rag",
+              "action": "incident_playbook에서 장비 정지 시 필수 재가동 시간(분) 수치만 추출",
+              "required": true,
+              "reason": "‘재가동 시간’은 매뉴얼/지침의 수치 정보이므로 RAG incident_playbook이 적합"
+            }
+          ],
+          "slots": {},
+          "rag_knowledge_base": "incident_playbook",
+          "missing_slots": [],
+          "clarification_question": null,
+          "limitations": [
+            "매뉴얼에 정확한 수치가 명확히 정의되어 있어야만 정답 제공 가능",
+            "여러 시나리오(장비별 등)로 나뉠 수 있음",
+            "매뉴얼에 정확한 수치가 명확히 정의되어 있어야만 정답 제공 가능",
+            "여러 시나리오(장비별 등)로 나뉠 수 있음"
+          ],
+          "prompt_version": "planner.v1"
+        },
+        "agent_runs": [
+          {
+            "agent": "rag",
+            "status": "data_unavailable",
+            "summary": "질문을 뒷받침하는 문서 근거를 찾지 못했습니다.",
+            "metadata": {
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {}
+            }
+          }
+        ],
+        "reflection": {
+          "is_supported": false,
+          "warnings": [
+            "도구 요약에 따르면 매뉴얼에 명확한 수치 근거를 찾지 못했습니다.",
+            "정확한 재가동 시간(분)의 값은 증빙되지 않아 답변이 확정적으로 지원되지 않습니다."
+          ],
+          "composer_instructions": [
+            "문서 내에 명확한 수치 근거가 없는 경우 값의 추정 또는 조작 없이 '근거 없음'을 분명히 명시하세요.",
+            "질문에 필요한 정량 정보가 명확히 뒷받침될 경우에만 제공하세요."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 3,
+          "deterministic_warnings": [],
+          "execution_mode": "llm_chat_completions",
+          "model": "gpt-4.1",
+          "retry_budget_remaining": 0,
+          "elapsed_ms": 12369
+        },
+        "retry_budget_remaining": 0,
+        "elapsed_ms": 13683
+      },
+      "events": [
+        {
+          "event": "trace",
+          "payload": {
+            "type": "run_started",
+            "node": "input",
+            "message": "질문을 접수했습니다.",
+            "data": {
+              "conversation_id": "b0aa8316-44ef-445e-b993-fd04edf244b3",
+              "retry_budget_remaining": 0,
+              "timeout_seconds": 120,
+              "elapsed_ms": 0
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "planner",
+            "message": "knowledge_lookup 질의로 분류하고 실행 계획을 만들었습니다.",
+            "data": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "incident_playbook에서 장비 정지 시 필수 재가동 시간(분) 수치만 추출",
+                  "required": true,
+                  "reason": "‘재가동 시간’은 매뉴얼/지침의 수치 정보이므로 RAG incident_playbook이 적합"
+                }
+              ],
+              "slots": {},
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2637
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "supervisor",
+            "message": "rag",
+            "data": {
+              "status": "ready",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "reason": "질문은 매뉴얼에서 장비 정지 후 재가동 필요한 시간을 수치로 요구하며, incident_playbook 기반 RAG 추출이 planner에서 선택됨. 현행 planner 결정에 따라 RAG 실행을 우선 진행함.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 4724
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "tool_completed",
+            "node": "rag",
+            "message": "질문을 뒷받침하는 문서 근거를 찾지 못했습니다.",
+            "data": {
+              "status": "data_unavailable",
+              "knowledge_base": "incident_playbook",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 9944
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "reflection",
+            "message": "근거, 의도 일치, 데이터 한계를 검증했습니다.",
+            "data": {
+              "is_supported": false,
+              "warnings": [
+                "도구 요약에 따르면 매뉴얼에 명확한 수치 근거를 찾지 못했습니다.",
+                "정확한 재가동 시간(분)의 값은 증빙되지 않아 답변이 확정적으로 지원되지 않습니다."
+              ],
+              "composer_instructions": [
+                "문서 내에 명확한 수치 근거가 없는 경우 값의 추정 또는 조작 없이 '근거 없음'을 분명히 명시하세요.",
+                "질문에 필요한 정량 정보가 명확히 뒷받침될 경우에만 제공하세요."
+              ],
+              "evidence_count": 1,
+              "limitation_count": 3,
+              "deterministic_warnings": [],
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 12369
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "composer",
+            "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
+            "data": {
+              "answer": "매뉴얼에서 장비가 멈춘 뒤 반드시 몇 분 이내에 재가동해야 하는지에 대한 정확한 수치는 문서 근거를 찾지 못했습니다.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 13683
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ext_autosched_attach",
+      "query": "SMT2020 AutoSched에서 attach.txt의 CALNAME, CALTYPE, RESTYPE, RESNAME은 무엇을 연결하는가?",
+      "seconds": 15.945,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [
+        "CALNAME",
+        "CALTYPE",
+        "RESNAME",
+        "RESTYPE"
+      ],
+      "missing_units": [],
+      "complete_retrieval": true,
+      "rag_count": 2,
+      "review_rubric": "downtime event scheduled/unscheduled를 tools 그룹에 연결; simulation 설명.",
+      "final": {
+        "conversation_id": "1b7de3d4-c623-4ade-84cf-35d93eac9125",
+        "status": "succeeded",
+        "query_type": "knowledge_lookup",
+        "answer": "SMT2020 AutoSched의 attach.txt 파일에서는 다운타임 이벤트(예: 고장, PM)를 각 툴 그룹에 연결하기 위한 정보가 정의됩니다. CALNAME은 특정 다운타임 이벤트(예: 고장 이름, PM 이름 등)의 식별자이고, CALTYPE은 이벤트의 종류(예: \"down\" 또는 \"pm\")를 나타냅니다. RESTYPE은 리소스 그룹의 유형(예: stnfam – 스테이션 패밀리 등), RESNAME은 해당 리소스 그룹(즉, 툴 그룹)의 이름입니다. \n\n즉, attach.txt는 CALNAME(이벤트명)과 CALTYPE(이벤트유형)이 어떤 RESTYPE(리소스 그룹 유형)의 RESNAME(툴 그룹명)에 적용되는지 연결합니다. 예를 들어, 특정 PM(정기보전) 이벤트가 스테이션 패밀리 \"DefMet_BE_33\"에 배정될 수 있습니다. 이는 시뮬레이션 입력구조 기준이며 실제 팹 커스터마이즈와 다를 수 있습니다 (근거: SMT_2020_AutoSched_AP_documentation.pdf, page 6; page 8).\n\n이 답변은 시뮬레이션용 프로세스 구조를 참고한 것이며 실제 FAB 운용 데이터나 자동 제어와는 구분되어야 합니다.",
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "Explanations are based on standard SMT2020/AutoSched documentation and may not exactly match any fab-specific customizations.",
+          "검색 문서는 시뮬레이션 참조 자료이며 실제 사내 SOP가 아닙니다.",
+          "답변은 시뮬레이션 입력/구조 기준이며 라이브 팹 상태나 실제 장비 동작을 반영하지 않습니다.",
+          "process-basics evidence는 교육적 목적이며 실제 FAB 운영 제어나 자동 실행과 혼동하면 안 됩니다."
+        ],
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "Explain what CALNAME, CALTYPE, RESTYPE, and RESNAME represent and connect in attach.txt within SMT2020 AutoSched.",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "process_basics",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve and summarize the role of CALNAME, CALTYPE, RESTYPE, and RESNAME in attach.txt in SMT2020 AutoSched.",
+                  "required": true,
+                  "reason": "The question requires explanation and reference to tool documentation."
+                }
+              ],
+              "slots": {},
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2185
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "3. Additional Features",
+            "content": "5 \n \nIn addition, a due date (DUE) is given. For each lot released during a repeat cycle, a due date will be \nset based on the current release time and the offset DUE – START. Moreover, orders can be declared \n(ORDER) by assigning at least one lot to them, multiple lots are possible. \nMoreover, lots can be released individually, i.e. without the repeat functionality. For instance, this is \nused to start with initial WIP (“WIP.txt”) . Here the column CURSTEP refers to the current step of t he \nlot. \n \nFigure 4 - route_3.txt part I \n \nFigure 5 - order.txt \n3. Additional Features \nUsed files: options.def, external definition files \n \nThe simulation models have several features that will be described next with the related files necessary \nfor their implementation . Activating s ome of these features requires adding the “semiconductor \nextension” which is located in the directory of AutoSched AP. It enables further functions, actions or \naction lists, and rules . There are additional entries in the options file (cf. Figure 1), e.g. \nACTIONLIST_FILES in line 24 for the additional action lists and the location of the corresponding file . \nFor more information, the AutoSched AP Help needs to be consulted. \n3.1. Tools Availability \nThe file attach.txt (see Figure 6) is used to connect each downtime event (unscheduled or scheduled) \nrepresented by the name (CALNAME) with the CALTYPE (here down or pm) to a group of tools. The \nlatter is defined by the resource type (RESTYPE) and its name (RESNAME).",
+            "metadata": {
+              "chunk_index": "8",
+              "concepts": [
+                "pm",
+                "wip"
+              ],
+              "document_version": "beae355e55aac815f4bec5091caf4930c87932a05be4da27f5c88b710502f63a",
+              "ingestion_version": "structure.v2",
+              "issue_type": "wip",
+              "page_number": 6,
+              "playbook_ids": [],
+              "reliability": "simulation_reference",
+              "section_title": "3. Additional Features",
+              "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.4529311954975128,
+              "score": 3.0733,
+              "retrieval_features": {
+                "term_coverage": 0.7,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.032522,
+                "relevance_grade": 3,
+                "relevance_reason": "attach.txt에서 CALNAME, CALTYPE, RESTYPE, RESNAME이 각각 다운타임 이벤트와 툴 그룹 연결에 사용됨을 명시적으로 설명함."
+              },
+              "retrieval_ranks": {
+                "0": 1,
+                "1": 2
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "1debf89e0a2e7fd6e4b9b0d6",
+              "collection": "master_pjt",
+              "knowledge_base": "process_basics",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/data/smt2020/AutoSched/SMT_2020_AutoSched_AP_documentation.pdf"
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "SMT_2020_AutoSched_AP_documentation",
+            "content": "7 \n \nIn addition, in the file “attach.txt” the distribution of the first TTF is defined. In the column FOADIST, \nthe distribution type is stated (here exponentially distributed). The mean of the first TTF (FOA) and the \ntime units are needed (FOAUNITS). \n \nFigure 7 - downcal.txt \n3.1.2. Scheduled Down Times: Preventive Maintenance (PM) \nUsed files: pmcal.txt, attach.txt \nThe representation of PMs works almost in the same way as for breakdowns (cf. Figure 8). Here, two \ntypes for the Mean Time Between PM (MTBPM) values are distinguished (PMCALTYPE). The PM is time-\nbased for diffusion, lithography, and metrology represented by mtbm_by_cal to consider the calendar \ntime. For all other tool groups, the PM is counter-based by applying mtbpm_by_pieces, i.e., a PM must \nbe executed after processing a prescribed numb er of wafers. Hence, the corresponding numbers and \nunits are needed in the columns MTBPM and MTBPMUNITS. Note that no special probability \ndistribution is defined for MTBPM (the default is constant). However, the time -based PMs are \npractically launched as Mean Time Before PM, so that the PM duration itself is included in the MTBPM \nvalue. \nA continuous uniform distribution is used to represent the TTR value that requires values for the two \nparameters MTTR and MTTR2 (mean and offset) and the time unit (MTTRUNITS). For instance, each \n30 days a monthly PM and each 91 days a quarterly PM is modeled for the station family \nDefMet_BE_33 in the lines 2 and 3. In attach.txt file, line 13, a monthly PM is allocated to the station \nfamily (RESTYPE = stnfam). Moreover, counter-based PMs are also applied for each station family, i.e., \nthe used RESTYPE is stnfam and the RESNAME is the name of the tool group (see file “attach.txt” or \nFigure 6, line 92). The prescribed number of wafers is valid for each individual tool of the tool group. \nThe distribution of the first PM for the tools of a tool group is defined in the column FOADIST (see file \n“attach.txt”). The constant distribution means that the first PM for the tools of a tool set is evenly \ndistributed based on the value in the column FOA. For example, a FOA value of 80 days with four tools \nlead to PMs for to ol 1, 2, 3, and 4 at the following days: 20, 40, 60, and 80. For counter -based PMs it \nworks in the same way, but FOAUNITS are not necessary.",
+            "metadata": {
+              "chunk_index": "10",
+              "concepts": [
+                "lithography",
+                "pm"
+              ],
+              "document_version": "beae355e55aac815f4bec5091caf4930c87932a05be4da27f5c88b710502f63a",
+              "ingestion_version": "structure.v2",
+              "issue_type": "breakdown",
+              "page_number": 8,
+              "playbook_ids": [],
+              "reliability": "simulation_reference",
+              "section_title": "SMT_2020_AutoSched_AP_documentation",
+              "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.3866848349571228,
+              "score": 2.0632,
+              "retrieval_features": {
+                "term_coverage": 0.5,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.031514,
+                "relevance_grade": 2,
+                "relevance_reason": "attach.txt에서 RESTYPE, RESNAME 용도는 언급하지만 CALNAME, CALTYPE 설명은 부족함."
+              },
+              "retrieval_ranks": {
+                "0": 2,
+                "1": 5
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "a79e6c7f4dba523160c536e0",
+              "collection": "master_pjt",
+              "knowledge_base": "process_basics",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/data/smt2020/AutoSched/SMT_2020_AutoSched_AP_documentation.pdf"
+            }
+          }
+        ],
+        "plan": {
+          "status": "ready",
+          "query_type": "knowledge_lookup",
+          "intent": "Explain what CALNAME, CALTYPE, RESTYPE, and RESNAME represent and connect in attach.txt within SMT2020 AutoSched.",
+          "selected_sub_agents": [
+            "rag"
+          ],
+          "execution_steps": [
+            {
+              "agent": "rag",
+              "action": "Retrieve and summarize the role of CALNAME, CALTYPE, RESTYPE, and RESNAME in attach.txt in SMT2020 AutoSched.",
+              "required": true,
+              "reason": "The question requires explanation and reference to tool documentation."
+            }
+          ],
+          "slots": {},
+          "rag_knowledge_base": "process_basics",
+          "missing_slots": [],
+          "clarification_question": null,
+          "limitations": [
+            "Explanations are based on standard SMT2020/AutoSched documentation and may not exactly match any fab-specific customizations.",
+            "Explanations are based on standard SMT2020/AutoSched documentation and may not exactly match any fab-specific customizations."
+          ],
+          "prompt_version": "planner.v1"
+        },
+        "agent_runs": [
+          {
+            "agent": "rag",
+            "status": "succeeded",
+            "summary": "2개 지식 근거를 조회했습니다.",
+            "metadata": {
+              "knowledge_base": "process_basics",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v1",
+                "plan": {
+                  "query": "SMT2020 AutoSched에서 attach.txt의 CALNAME, CALTYPE, RESTYPE, RESNAME은 무엇을 연결하는가?",
+                  "knowledge_bases": [
+                    "process_basics"
+                  ],
+                  "concepts": [],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "smt2020",
+                    "auto",
+                    "sched",
+                    "에서",
+                    "attach.txt",
+                    "calname",
+                    "caltype",
+                    "restype",
+                    "resname",
+                    "연결하는"
+                  ],
+                  "subqueries": [
+                    "SMT2020 AutoSched에서 attach.txt의 CALNAME, CALTYPE, RESTYPE, RESNAME은 무엇을 연결하는가?"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "dense:process_basics"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 22,
+                "dense_candidates": 30,
+                "fused_candidates": 30,
+                "selected_count": 2,
+                "context_chars": 3856,
+                "covered_concepts": [],
+                "uncovered_concepts": [],
+                "latency_ms": 5841.251
+              }
+            }
+          }
+        ],
+        "reflection": {
+          "is_supported": true,
+          "warnings": [
+            "답변은 시뮬레이션 입력/구조 기준이며 라이브 팹 상태나 실제 장비 동작을 반영하지 않습니다.",
+            "process-basics evidence는 교육적 목적이며 실제 FAB 운영 제어나 자동 실행과 혼동하면 안 됩니다."
+          ],
+          "composer_instructions": [
+            "attach.txt의 각 열은 CALNAME(특정 다운타임 이벤트명), CALTYPE(이벤트 종류; 예: 고장, PM), RESTYPE(리소스 그룹 유형), RESNAME(해당 툴 그룹명) 간의 관계를 지정한다고 요약한다.",
+            "반드시 evidence에서 명시된 문장과 구조 예시(다운타임 이벤트와 툴 그룹 연결 방식)만 활용하여 설명한다.",
+            "시뮬레이터 구조도는 공장 커스터마이즈와 다를 수 있음을 포함한다."
+          ],
+          "evidence_count": 3,
+          "limitation_count": 2,
+          "deterministic_warnings": [
+            "Process basics answers must not turn into operational dispatch or equipment action."
+          ],
+          "execution_mode": "llm_chat_completions",
+          "model": "gpt-4.1",
+          "retry_budget_remaining": 0,
+          "elapsed_ms": 13037
+        },
+        "retry_budget_remaining": 0,
+        "elapsed_ms": 15927
+      },
+      "events": [
+        {
+          "event": "trace",
+          "payload": {
+            "type": "run_started",
+            "node": "input",
+            "message": "질문을 접수했습니다.",
+            "data": {
+              "conversation_id": "1b7de3d4-c623-4ade-84cf-35d93eac9125",
+              "retry_budget_remaining": 0,
+              "timeout_seconds": 120,
+              "elapsed_ms": 0
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "planner",
+            "message": "knowledge_lookup 질의로 분류하고 실행 계획을 만들었습니다.",
+            "data": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "process_basics",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve and summarize the role of CALNAME, CALTYPE, RESTYPE, and RESNAME in attach.txt in SMT2020 AutoSched.",
+                  "required": true,
+                  "reason": "The question requires explanation and reference to tool documentation."
+                }
+              ],
+              "slots": {},
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2185
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "supervisor",
+            "message": "rag",
+            "data": {
+              "status": "ready",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "reason": "The Planner has selected RAG for a knowledge lookup based on the question's scope: understanding what CALNAME, CALTYPE, RESTYPE, and RESNAME connect in attach.txt within SMT2020 AutoSched. This is expected to be covered in standard process documentation.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 3945
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "tool_completed",
+            "node": "rag",
+            "message": "2개 지식 근거를 조회했습니다.",
+            "data": {
+              "status": "succeeded",
+              "knowledge_base": "process_basics",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 9790
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "reflection",
+            "message": "근거, 의도 일치, 데이터 한계를 검증했습니다.",
+            "data": {
+              "is_supported": true,
+              "warnings": [
+                "답변은 시뮬레이션 입력/구조 기준이며 라이브 팹 상태나 실제 장비 동작을 반영하지 않습니다.",
+                "process-basics evidence는 교육적 목적이며 실제 FAB 운영 제어나 자동 실행과 혼동하면 안 됩니다."
+              ],
+              "composer_instructions": [
+                "attach.txt의 각 열은 CALNAME(특정 다운타임 이벤트명), CALTYPE(이벤트 종류; 예: 고장, PM), RESTYPE(리소스 그룹 유형), RESNAME(해당 툴 그룹명) 간의 관계를 지정한다고 요약한다.",
+                "반드시 evidence에서 명시된 문장과 구조 예시(다운타임 이벤트와 툴 그룹 연결 방식)만 활용하여 설명한다.",
+                "시뮬레이터 구조도는 공장 커스터마이즈와 다를 수 있음을 포함한다."
+              ],
+              "evidence_count": 3,
+              "limitation_count": 2,
+              "deterministic_warnings": [
+                "Process basics answers must not turn into operational dispatch or equipment action."
+              ],
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 13037
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "composer",
+            "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
+            "data": {
+              "answer": "SMT2020 AutoSched의 attach.txt 파일에서는 다운타임 이벤트(예: 고장, PM)를 각 툴 그룹에 연결하기 위한 정보가 정의됩니다. CALNAME은 특정 다운타임 이벤트(예: 고장 이름, PM 이름 등)의 식별자이고, CALTYPE은 이벤트의 종류(예: \"down\" 또는 \"pm\")를 나타냅니다. RESTYPE은 리소스 그룹의 유형(예: stnfam – 스테이션 패밀리 등), RESNAME은 해당 리소스 그룹(즉, 툴 그룹)의 이름입니다. \n\n즉, attach.txt는 CALNAME(이벤트명)과 CALTYPE(이벤트유형)이 어떤 RESTYPE(리소스 그룹 유형)의 RESNAME(툴 그룹명)에 적용되는지 연결합니다. 예를 들어, 특정 PM(정기보전) 이벤트가 스테이션 패밀리 \"DefMet_BE_33\"에 배정될 수 있습니다. 이는 시뮬레이션 입력구조 기준이며 실제 팹 커스터마이즈와 다를 수 있습니다 (근거: SMT_2020_AutoSched_AP_documentation.pdf, page 6; page 8).\n\n이 답변은 시뮬레이션용 프로세스 구조를 참고한 것이며 실제 FAB 운용 데이터나 자동 제어와는 구분되어야 합니다.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 15927
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ext_verified_sop",
+      "query": "시뮬레이션 참고자료는 빼고 실제 사내 승인 SOP에서 PM 연기 절차를 찾아줘.",
+      "seconds": 8.587,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [],
+      "missing_units": [],
+      "complete_retrieval": false,
+      "rag_count": 0,
+      "review_rubric": "verified_sop corpus 없음. 시뮬레이션 자료를 승인 SOP로 제시 금지.",
+      "final": {
+        "conversation_id": "20a97d9b-74c2-40d6-86d8-6dac45184998",
+        "status": "data_unavailable",
+        "query_type": "knowledge_lookup",
+        "answer": "질문하신 PM(예방정비) 연기 절차에 대한 사내 승인 SOP 문서 근거는 제공된 incident_playbook 지식베이스에서 찾을 수 없습니다. 절차 세부 내용이나 승인 기준을 확인하려면 공식 문서 저장소나 해당 부서 관리자에게 문의하시기 바랍니다.",
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "The system relies on the content within the incident_playbook knowledge base; if the SOP is not documented or accessible there, detailed steps may be unavailable.",
+          "Does not cover sites or documentations outside the approved internal repository.",
+          "질문을 뒷받침하는 문서 근거를 찾지 못했습니다.",
+          "The response indicates that no supporting document evidence from the actual internal approved SOP has been found; only a planner plan to retrieve such evidence is available."
+        ],
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "Find the official internal SOP procedure for PM (preventive maintenance) deferral, excluding simulation references.",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve the official, approved internal SOP procedure for PM deferral that excludes simulation reference materials.",
+                  "required": true,
+                  "reason": "Official SOPs for operational processes are best sourced from the incident_playbook knowledge base."
+                }
+              ],
+              "slots": {},
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2538
+            }
+          }
+        ],
+        "plan": {
+          "status": "ready",
+          "query_type": "knowledge_lookup",
+          "intent": "Find the official internal SOP procedure for PM (preventive maintenance) deferral, excluding simulation references.",
+          "selected_sub_agents": [
+            "rag"
+          ],
+          "execution_steps": [
+            {
+              "agent": "rag",
+              "action": "Retrieve the official, approved internal SOP procedure for PM deferral that excludes simulation reference materials.",
+              "required": true,
+              "reason": "Official SOPs for operational processes are best sourced from the incident_playbook knowledge base."
+            }
+          ],
+          "slots": {},
+          "rag_knowledge_base": "incident_playbook",
+          "missing_slots": [],
+          "clarification_question": null,
+          "limitations": [
+            "The system relies on the content within the incident_playbook knowledge base; if the SOP is not documented or accessible there, detailed steps may be unavailable.",
+            "Does not cover sites or documentations outside the approved internal repository.",
+            "If the PM deferral SOP is not documented or accessible in the incident_playbook knowledge base, detailed procedural steps may be unavailable.",
+            "The system does not cover sites or documentation outside the approved internal repository."
+          ],
+          "prompt_version": "planner.v1"
+        },
+        "agent_runs": [
+          {
+            "agent": "rag",
+            "status": "data_unavailable",
+            "summary": "질문을 뒷받침하는 문서 근거를 찾지 못했습니다.",
+            "metadata": {
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {}
+            }
+          }
+        ],
+        "reflection": {
+          "is_supported": false,
+          "warnings": [
+            "The response indicates that no supporting document evidence from the actual internal approved SOP has been found; only a planner plan to retrieve such evidence is available."
+          ],
+          "composer_instructions": [
+            "Clearly state that internal, approved SOP documentation for PM 연기 (preventive maintenance deferral) was not found in the provided evidence.",
+            "Do not infer or fabricate SOP steps; only confirmed evidence from incident_playbook can be used as support.",
+            "If user needs the actual SOP, recommend checking the official document repository or contacting relevant internal authority."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 3,
+          "deterministic_warnings": [],
+          "execution_mode": "llm_chat_completions",
+          "model": "gpt-4.1",
+          "retry_budget_remaining": 0,
+          "elapsed_ms": 7111
+        },
+        "retry_budget_remaining": 0,
+        "elapsed_ms": 8569
+      },
+      "events": [
+        {
+          "event": "trace",
+          "payload": {
+            "type": "run_started",
+            "node": "input",
+            "message": "질문을 접수했습니다.",
+            "data": {
+              "conversation_id": "20a97d9b-74c2-40d6-86d8-6dac45184998",
+              "retry_budget_remaining": 0,
+              "timeout_seconds": 120,
+              "elapsed_ms": 0
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "planner",
+            "message": "knowledge_lookup 질의로 분류하고 실행 계획을 만들었습니다.",
+            "data": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve the official, approved internal SOP procedure for PM deferral that excludes simulation reference materials.",
+                  "required": true,
+                  "reason": "Official SOPs for operational processes are best sourced from the incident_playbook knowledge base."
+                }
+              ],
+              "slots": {},
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2538
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "supervisor",
+            "message": "rag",
+            "data": {
+              "status": "ready",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "reason": "The user's request is to find the officially approved internal SOP procedure for PM deferral (excluding simulation materials), which is a knowledge lookup best handled by the rag sub-agent targeting the incident_playbook knowledge base. The planner's decision matches this requirement and there are no missing slots or clarification needs.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 4559
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "tool_completed",
+            "node": "rag",
+            "message": "질문을 뒷받침하는 문서 근거를 찾지 못했습니다.",
+            "data": {
+              "status": "data_unavailable",
+              "knowledge_base": "incident_playbook",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 4836
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "reflection",
+            "message": "근거, 의도 일치, 데이터 한계를 검증했습니다.",
+            "data": {
+              "is_supported": false,
+              "warnings": [
+                "The response indicates that no supporting document evidence from the actual internal approved SOP has been found; only a planner plan to retrieve such evidence is available."
+              ],
+              "composer_instructions": [
+                "Clearly state that internal, approved SOP documentation for PM 연기 (preventive maintenance deferral) was not found in the provided evidence.",
+                "Do not infer or fabricate SOP steps; only confirmed evidence from incident_playbook can be used as support.",
+                "If user needs the actual SOP, recommend checking the official document repository or contacting relevant internal authority."
+              ],
+              "evidence_count": 1,
+              "limitation_count": 3,
+              "deterministic_warnings": [],
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 7111
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "composer",
+            "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
+            "data": {
+              "answer": "질문하신 PM(예방정비) 연기 절차에 대한 사내 승인 SOP 문서 근거는 제공된 incident_playbook 지식베이스에서 찾을 수 없습니다. 절차 세부 내용이나 승인 기준을 확인하려면 공식 문서 저장소나 해당 부서 관리자에게 문의하시기 바랍니다.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 8569
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "artifact_format": "compact.v1",
+  "omitted_debug_fields": "Duplicate final events, repeated per-evidence retrieval traces, intermediate usage call lists and prompt_contract; final evidence, per-run trace, outcomes and final usage remain."
+}

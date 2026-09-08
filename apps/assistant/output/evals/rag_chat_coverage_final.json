@@ -1,0 +1,2186 @@
+{
+  "scope": "Real FastAPI routes via in-process ASGI; real LLM and Milvus; no deployed-server/load test.",
+  "git_head": "365d8889c4b4ee2dcb64f467c802ef876029f746",
+  "fixture_sha256": "258e03ec26e36543f8d5beea6d8127f5e9dfbbb0f5c066ebd1cd68df2c645801",
+  "source_sha256": "67a0d233335237a1dce35ff4f73c183217306ac2386b324f58055d3c1a7f2185",
+  "corpus_sha256": "5cd581ec05cf94505e16ec00177d917b094c3e4461784f9da2bb1222e5cf9dca",
+  "manifest_sha256": "de09cc862649ef8538098083359c7b805d1a678606903ec74f26dbab309f35bf",
+  "started_at_utc": "2026-09-07T22:16:13.892973+00:00",
+  "endpoint": "https://skax.ai-talentlab.com",
+  "mode": "stream",
+  "cases": [
+    {
+      "id": "ext_pm_approval",
+      "query": "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+      "seconds": 16.128,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [
+        "PB-EQ-002"
+      ],
+      "missing_units": [],
+      "complete_retrieval": true,
+      "rag_count": 2,
+      "review_rubric": "Engineer 승인 없이는 연기 불가, 단기 연기 시 low risk/manager approval, qualification 또는 dummy run 결과.",
+      "final": {
+        "conversation_id": "c8268655-5c74-425c-bf38-6ae49434fab9",
+        "status": "succeeded",
+        "query_type": "knowledge_lookup",
+        "answer": "PM 연기는 Engineer 승인 없이는 허용되지 않는다. [1]\n\nPM 단기 연기 가능 조건은 리스크가 낮고 manager 승인, 그리고 risk memo 작성이 필요하다. [2]\n\nPM 이후 복구 기록으로 qualification 또는 dummy run 결과를 기록해야 한다. [3]\n\n복구 조건은 PM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화이다. [4]\n\nEngineer는 hold/release 승인, qualification 조건, RCA를 담당한다. [5]\n\nManager는 중대 이슈의 납기/품질 리스크 승인 역할을 가진다. [6]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[3] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[4] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[5] semiconductor_fab_incident_response_playbook_kr.pdf, p.4\n[6] semiconductor_fab_incident_response_playbook_kr.pdf, p.4",
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "Response is based on available incident playbook/manual documentation, not live system data",
+          "If local variations exist, user may need to consult site-specific policy",
+          "Response will reflect incident playbook/manual documentation, not live system or historical database evidence.",
+          "Local site variations may exist; user should check site-specific policies for any differences.",
+          "검색 문서는 시뮬레이션 참조 자료이며 실제 사내 SOP가 아닙니다."
+        ],
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "Requesting documented approval process and required recovery records for PM postponement in urgent situations",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve documented process from incident_playbook regarding approval authority and required recovery records when PM postponement is requested for urgent lots",
+                  "required": true,
+                  "reason": "User is asking for manual procedure and approval conditions, not for live FAB or database evidence"
+                }
+              ],
+              "slots": {},
+              "model_usage": {
+                "call_count": 1,
+                "failed_calls": 0,
+                "reported_total_tokens": 929,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 775,
+                    "output_tokens": 154,
+                    "total_tokens": 929,
+                    "seconds": 1.97
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 1972
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "08. PM 지연과 설비 가용성 저하",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n08. PM 지연과 설비 가용성 저하\n8 / 25\n08. PM 지연과 설비 가용성 저하\nPreventive Maintenance Delay\nplaybook_id\nPB-EQ-002\nissue_type\npm_delay\ntrigger\nPM overdue\nowner\nEngineer\ndecision\nrun vs stop\ntags\npm,availability\n감지 조건\n-\nPM due time이 초과되었거나 PM 예정 시간과 hot lot 처리 계획이 충돌한다.\n-\n동일 area 내 병렬 tool 수가 부족해져 대기 시간이 증가한다.\n즉시 조치\n-\nPM 연기는 Engineer 승인 없이는 허용하지 않는다.\n-\nPM 수행 전후로 영향 product와 lot priority를 Scheduler가 재계산한다.\n-\nPM 이후 qualification 또는 dummy run 결과를 기록한다.\n복구 조건\n-\nPM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화.\nDecision\nAllowed When\nEvidence\nPM execute now\nquality or safety risk\nPM due / alarm\nPM short delay\nlow risk and manager approval\nrisk memo\nTool stop\nqualification needed\nengineer sign-off\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "7",
+              "concepts": [
+                "hot_lot",
+                "pm",
+                "queue_time",
+                "recovery",
+                "wip"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "pm_delay",
+              "page_number": 8,
+              "playbook_ids": [
+                "PB-EQ-002"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "08. PM 지연과 설비 가용성 저하",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.5117698311805725,
+              "score": 3.1419,
+              "retrieval_features": {
+                "term_coverage": 0.5,
+                "concept_matches": [
+                  "pm",
+                  "recovery"
+                ],
+                "focus_matches": [
+                  "pm"
+                ],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.047726,
+                "relevance_grade": 3,
+                "relevance_reason": "엔지니어 승인 필요, 연기·복구 시 기록 항목 등 매뉴얼상 요구사항을 직접 명시함."
+              },
+              "retrieval_ranks": {
+                "0": 1,
+                "1": 5,
+                "2": 9,
+                "3": 1
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "826a8c8ba9e44f729a587f08",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "pm",
+                    "recovery"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "pm",
+                    "예정일",
+                    "넘겼지만",
+                    "급한",
+                    "lot",
+                    "매뉴얼상",
+                    "누가",
+                    "연기",
+                    "승인",
+                    "복구",
+                    "기록",
+                    "필요해",
+                    "concept:pm",
+                    "concept:recovery"
+                  ],
+                  "subqueries": [
+                    "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                    "정기 보전",
+                    "복구"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "bm25:subquery1",
+                  "bm25:subquery2",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 25,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 2,
+                "context_chars": 1613,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "pm",
+                  "recovery"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5830.037
+              },
+              "retrieval_limitations": []
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "04. 역할 정의와 RACI",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n04. 역할 정의와 RACI\n4 / 25\n04. 역할 정의와 RACI\nOperator, Scheduler, Engineer, Manager의 판단 경계\nplaybook_id\nPB-GEN-003\nissue_type\nall\nrole_model\nRACI\ndecision\nshared\nescalation\nyes\ntags\nrole,raci\nTask\nOperator\nScheduler\nEngineer\nManager\nDetect / log\nR\nC\nC\nI\nHold decision\nC\nC\nA/R\nI\nSchedule recovery\nI\nA/R\nC\nI\nRCA approval\nC\nI\nR\nA\n역할 원칙\n-\nOperator는 감지, 현장 확인, 초기 기록, 설비 상태 전환을 담당한다.\n-\nScheduler는 lot 우선순위, 대체 설비 배정, release 조정, hot lot 영향 평가를 담당한다.\n-\nEngineer는 원인 판단, hold/release 승인, qualification 조건, RCA를 담당한다.\n-\nManager는 중대 이슈의 납기/품질 리스크 승인과 고객 영향 커뮤니케이션을 담당한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "3",
+              "concepts": [
+                "alternate",
+                "escalation",
+                "hot_lot",
+                "rca",
+                "recovery"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "all",
+              "page_number": 4,
+              "playbook_ids": [
+                "PB-GEN-003"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "04. 역할 정의와 RACI",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.42548686265945435,
+              "score": 2.0524,
+              "retrieval_features": {
+                "term_coverage": 0.2857,
+                "concept_matches": [
+                  "recovery"
+                ],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.038197,
+                "relevance_grade": 2,
+                "relevance_reason": "역할(RACI)상 엔지니어, 매니저의 승인 권한 및 의사결정 경계 일부 근거 제공."
+              },
+              "retrieval_ranks": {
+                "0": 2,
+                "2": 10,
+                "3": 7
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "4d8eb02555561b087798a125",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "pm",
+                    "recovery"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "pm",
+                    "예정일",
+                    "넘겼지만",
+                    "급한",
+                    "lot",
+                    "매뉴얼상",
+                    "누가",
+                    "연기",
+                    "승인",
+                    "복구",
+                    "기록",
+                    "필요해",
+                    "concept:pm",
+                    "concept:recovery"
+                  ],
+                  "subqueries": [
+                    "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                    "정기 보전",
+                    "복구"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "bm25:subquery1",
+                  "bm25:subquery2",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 25,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 2,
+                "context_chars": 1613,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "pm",
+                  "recovery"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5830.037
+              },
+              "retrieval_limitations": []
+            }
+          }
+        ],
+        "plan": {
+          "status": "ready",
+          "query_type": "knowledge_lookup",
+          "intent": "Requesting documented approval process and required recovery records for PM postponement in urgent situations",
+          "selected_sub_agents": [
+            "rag"
+          ],
+          "execution_steps": [
+            {
+              "agent": "rag",
+              "action": "Retrieve documented process from incident_playbook regarding approval authority and required recovery records when PM postponement is requested for urgent lots",
+              "required": true,
+              "reason": "User is asking for manual procedure and approval conditions, not for live FAB or database evidence"
+            }
+          ],
+          "slots": {},
+          "rag_knowledge_base": "incident_playbook",
+          "missing_slots": [],
+          "clarification_question": null,
+          "limitations": [
+            "Response is based on available incident playbook/manual documentation, not live system data",
+            "If local variations exist, user may need to consult site-specific policy",
+            "Response will reflect incident playbook/manual documentation, not live system or historical database evidence.",
+            "Local site variations may exist; user should check site-specific policies for any differences."
+          ],
+          "prompt_version": "planner.v2",
+          "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use knowledge_lookup with RAG for concepts, document facts, manual procedures, approval\n  conditions and comparisons of policies. Manual guidance, including hypothetical incidents,\n  does not require a FAB or a database query. It is not a request to execute production actions.\n- Use diagnosis only when the user asks about causes of an actual observed factory situation,\n  not when comparing documented Hold/Release rules. Select the minimum evidence tools needed.\n- For a specific document fact or approved parameter lookup, first try RAG rather than asking\n  for unrequested FAB, lot, supplier or recipe details. Retrieval determines whether the fact\n  exists in the available documents. Missing evidence is not ambiguity in the user's intent.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions."
+        },
+        "agent_runs": [
+          {
+            "agent": "rag",
+            "status": "succeeded",
+            "summary": "2개 지식 근거를 조회했습니다.",
+            "metadata": {
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "pm",
+                    "recovery"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "pm",
+                    "예정일",
+                    "넘겼지만",
+                    "급한",
+                    "lot",
+                    "매뉴얼상",
+                    "누가",
+                    "연기",
+                    "승인",
+                    "복구",
+                    "기록",
+                    "필요해",
+                    "concept:pm",
+                    "concept:recovery"
+                  ],
+                  "subqueries": [
+                    "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                    "정기 보전",
+                    "복구"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "bm25:subquery1",
+                  "bm25:subquery2",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 25,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 2,
+                "context_chars": 1613,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "pm",
+                  "recovery"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5830.037
+              }
+            }
+          }
+        ],
+        "reflection": {
+          "execution_mode": "post_generation_grounded_review"
+        },
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 2,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM short delay low risk and manager approval risk memo",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 3,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 이후 qualification 또는 dummy run 결과를 기록한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 4,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 5,
+            "chunk_id": "4d8eb02555561b087798a125",
+            "quote": "Engineer는 원인 판단, hold/release 승인, qualification 조건, RCA를 담당한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 4
+          },
+          {
+            "number": 6,
+            "chunk_id": "4d8eb02555561b087798a125",
+            "quote": "Manager는 중대 이슈의 납기/품질 리스크 승인과 고객 영향 커뮤니케이션을 담당한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 4
+          }
+        ],
+        "grounding": {
+          "status": "supported",
+          "validation": "verified_quotes_and_model_review",
+          "citations": [
+            {
+              "number": 1,
+              "chunk_id": "826a8c8ba9e44f729a587f08",
+              "quote": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 8
+            },
+            {
+              "number": 2,
+              "chunk_id": "826a8c8ba9e44f729a587f08",
+              "quote": "PM short delay low risk and manager approval risk memo",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 8
+            },
+            {
+              "number": 3,
+              "chunk_id": "826a8c8ba9e44f729a587f08",
+              "quote": "PM 이후 qualification 또는 dummy run 결과를 기록한다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 8
+            },
+            {
+              "number": 4,
+              "chunk_id": "826a8c8ba9e44f729a587f08",
+              "quote": "PM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 8
+            },
+            {
+              "number": 5,
+              "chunk_id": "4d8eb02555561b087798a125",
+              "quote": "Engineer는 원인 판단, hold/release 승인, qualification 조건, RCA를 담당한다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 4
+            },
+            {
+              "number": 6,
+              "chunk_id": "4d8eb02555561b087798a125",
+              "quote": "Manager는 중대 이슈의 납기/품질 리스크 승인과 고객 영향 커뮤니케이션을 담당한다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 4
+            }
+          ],
+          "review": {
+            "complete": true,
+            "coverage": [
+              {
+                "requirement": "누가 연기 승인? (Who approves PM delay?)",
+                "covered": true,
+                "reason": "PM short delay requires manager approval and, in general, PM delay is not allowed without Engineer approval."
+              },
+              {
+                "requirement": "PM 연기 시 어떤 복구 기록 필요? (What recovery records are required after PM delay?)",
+                "covered": true,
+                "reason": "Qualification or dummy run results must be recorded after PM."
+              }
+            ],
+            "checks": [
+              {
+                "claim_index": 0,
+                "supported": true,
+                "reason": "Direct statement: 'PM 연기는 Engineer 승인 없이는 허용하지 않는다.'"
+              },
+              {
+                "claim_index": 1,
+                "supported": true,
+                "reason": "Decision table: 'PM short delay' requires 'low risk and manager approval' and 'risk memo'."
+              },
+              {
+                "claim_index": 2,
+                "supported": true,
+                "reason": "Explicit statement: 'PM 이후 qualification 또는 dummy run 결과를 기록한다.'"
+              },
+              {
+                "claim_index": 3,
+                "supported": true,
+                "reason": "Recovery conditions list all elements: PM 작업 완료, 설비 상태 AVAILABLE, alarm clear, WIP backlog 정상화."
+              },
+              {
+                "claim_index": 4,
+                "supported": true,
+                "reason": "Role definitions specify Engineer handles hold/release approval, qualification conditions, and RCA."
+              },
+              {
+                "claim_index": 5,
+                "supported": true,
+                "reason": "Manager role states approval of major delivery/quality risk."
+              }
+            ]
+          },
+          "version": "source_spans.v3"
+        },
+        "model_usage": {
+          "call_count": 6,
+          "failed_calls": 0,
+          "reported_total_tokens": 11481,
+          "unreported_usage_calls": 0,
+          "calls": [
+            {
+              "kind": "fab_planner_decision",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 775,
+              "output_tokens": 154,
+              "total_tokens": 929,
+              "seconds": 1.97
+            },
+            {
+              "kind": "fab_supervisor_decision",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 551,
+              "output_tokens": 109,
+              "total_tokens": 660,
+              "seconds": 2.678
+            },
+            {
+              "kind": "embeddings",
+              "model": "text-embedding-3-large",
+              "succeeded": true,
+              "input_tokens": 54,
+              "output_tokens": null,
+              "total_tokens": 54,
+              "seconds": 0.188
+            },
+            {
+              "kind": "fab_rag_rerank",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 4448,
+              "output_tokens": 571,
+              "total_tokens": 5019,
+              "seconds": 5.124
+            },
+            {
+              "kind": "fab_grounded_answer",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 2463,
+              "output_tokens": 291,
+              "total_tokens": 2754,
+              "seconds": 2.55
+            },
+            {
+              "kind": "fab_grounded_review",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 1790,
+              "output_tokens": 275,
+              "total_tokens": 2065,
+              "seconds": 3.06
+            }
+          ]
+        },
+        "retry_budget_remaining": 0,
+        "elapsed_ms": 16115
+      },
+      "events": [
+        {
+          "event": "trace",
+          "payload": {
+            "type": "run_started",
+            "node": "input",
+            "message": "질문을 접수했습니다.",
+            "data": {
+              "conversation_id": "c8268655-5c74-425c-bf38-6ae49434fab9",
+              "retry_budget_remaining": 0,
+              "timeout_seconds": 120,
+              "elapsed_ms": 0
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "planner",
+            "message": "knowledge_lookup 질의로 분류하고 실행 계획을 만들었습니다.",
+            "data": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve documented process from incident_playbook regarding approval authority and required recovery records when PM postponement is requested for urgent lots",
+                  "required": true,
+                  "reason": "User is asking for manual procedure and approval conditions, not for live FAB or database evidence"
+                }
+              ],
+              "slots": {},
+              "model_usage": {
+                "call_count": 1,
+                "failed_calls": 0,
+                "reported_total_tokens": 929,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 775,
+                    "output_tokens": 154,
+                    "total_tokens": 929,
+                    "seconds": 1.97
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 1972
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "supervisor",
+            "message": "rag",
+            "data": {
+              "status": "ready",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "reason": "The user's question specifically requests documented procedures on PM postponement approval and recovery records, which are best answered by consulting the incident playbook/manual. No live data lookup is required, and the planner has correctly selected only the RAG sub-agent.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "model_usage": {
+                "call_count": 2,
+                "failed_calls": 0,
+                "reported_total_tokens": 1589,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 775,
+                    "output_tokens": 154,
+                    "total_tokens": 929,
+                    "seconds": 1.97
+                  },
+                  {
+                    "kind": "fab_supervisor_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 551,
+                    "output_tokens": 109,
+                    "total_tokens": 660,
+                    "seconds": 2.678
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 4652
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "tool_completed",
+            "node": "rag",
+            "message": "2개 지식 근거를 조회했습니다.",
+            "data": {
+              "status": "succeeded",
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "pm",
+                    "recovery"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "pm",
+                    "예정일",
+                    "넘겼지만",
+                    "급한",
+                    "lot",
+                    "매뉴얼상",
+                    "누가",
+                    "연기",
+                    "승인",
+                    "복구",
+                    "기록",
+                    "필요해",
+                    "concept:pm",
+                    "concept:recovery"
+                  ],
+                  "subqueries": [
+                    "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                    "정기 보전",
+                    "복구"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "bm25:subquery1",
+                  "bm25:subquery2",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 25,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 2,
+                "context_chars": 1613,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "pm",
+                  "recovery"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5830.037
+              },
+              "evidence_count": 2,
+              "model_usage": {
+                "call_count": 4,
+                "failed_calls": 0,
+                "reported_total_tokens": 6662,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 775,
+                    "output_tokens": 154,
+                    "total_tokens": 929,
+                    "seconds": 1.97
+                  },
+                  {
+                    "kind": "fab_supervisor_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 551,
+                    "output_tokens": 109,
+                    "total_tokens": 660,
+                    "seconds": 2.678
+                  },
+                  {
+                    "kind": "embeddings",
+                    "model": "text-embedding-3-large",
+                    "succeeded": true,
+                    "input_tokens": 54,
+                    "output_tokens": null,
+                    "total_tokens": 54,
+                    "seconds": 0.188
+                  },
+                  {
+                    "kind": "fab_rag_rerank",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 4448,
+                    "output_tokens": 571,
+                    "total_tokens": 5019,
+                    "seconds": 5.124
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 10495
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "composer",
+            "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
+            "data": {
+              "answer": "PM 연기는 Engineer 승인 없이는 허용되지 않는다. [1]\n\nPM 단기 연기 가능 조건은 리스크가 낮고 manager 승인, 그리고 risk memo 작성이 필요하다. [2]\n\nPM 이후 복구 기록으로 qualification 또는 dummy run 결과를 기록해야 한다. [3]\n\n복구 조건은 PM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화이다. [4]\n\nEngineer는 hold/release 승인, qualification 조건, RCA를 담당한다. [5]\n\nManager는 중대 이슈의 납기/품질 리스크 승인 역할을 가진다. [6]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[3] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[4] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[5] semiconductor_fab_incident_response_playbook_kr.pdf, p.4\n[6] semiconductor_fab_incident_response_playbook_kr.pdf, p.4",
+              "grounding": {
+                "status": "supported",
+                "validation": "verified_quotes_and_model_review",
+                "citations": [
+                  {
+                    "number": 1,
+                    "chunk_id": "826a8c8ba9e44f729a587f08",
+                    "quote": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 8
+                  },
+                  {
+                    "number": 2,
+                    "chunk_id": "826a8c8ba9e44f729a587f08",
+                    "quote": "PM short delay low risk and manager approval risk memo",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 8
+                  },
+                  {
+                    "number": 3,
+                    "chunk_id": "826a8c8ba9e44f729a587f08",
+                    "quote": "PM 이후 qualification 또는 dummy run 결과를 기록한다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 8
+                  },
+                  {
+                    "number": 4,
+                    "chunk_id": "826a8c8ba9e44f729a587f08",
+                    "quote": "PM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 8
+                  },
+                  {
+                    "number": 5,
+                    "chunk_id": "4d8eb02555561b087798a125",
+                    "quote": "Engineer는 원인 판단, hold/release 승인, qualification 조건, RCA를 담당한다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 4
+                  },
+                  {
+                    "number": 6,
+                    "chunk_id": "4d8eb02555561b087798a125",
+                    "quote": "Manager는 중대 이슈의 납기/품질 리스크 승인과 고객 영향 커뮤니케이션을 담당한다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 4
+                  }
+                ],
+                "review": {
+                  "complete": true,
+                  "coverage": [
+                    {
+                      "requirement": "누가 연기 승인? (Who approves PM delay?)",
+                      "covered": true,
+                      "reason": "PM short delay requires manager approval and, in general, PM delay is not allowed without Engineer approval."
+                    },
+                    {
+                      "requirement": "PM 연기 시 어떤 복구 기록 필요? (What recovery records are required after PM delay?)",
+                      "covered": true,
+                      "reason": "Qualification or dummy run results must be recorded after PM."
+                    }
+                  ],
+                  "checks": [
+                    {
+                      "claim_index": 0,
+                      "supported": true,
+                      "reason": "Direct statement: 'PM 연기는 Engineer 승인 없이는 허용하지 않는다.'"
+                    },
+                    {
+                      "claim_index": 1,
+                      "supported": true,
+                      "reason": "Decision table: 'PM short delay' requires 'low risk and manager approval' and 'risk memo'."
+                    },
+                    {
+                      "claim_index": 2,
+                      "supported": true,
+                      "reason": "Explicit statement: 'PM 이후 qualification 또는 dummy run 결과를 기록한다.'"
+                    },
+                    {
+                      "claim_index": 3,
+                      "supported": true,
+                      "reason": "Recovery conditions list all elements: PM 작업 완료, 설비 상태 AVAILABLE, alarm clear, WIP backlog 정상화."
+                    },
+                    {
+                      "claim_index": 4,
+                      "supported": true,
+                      "reason": "Role definitions specify Engineer handles hold/release approval, qualification conditions, and RCA."
+                    },
+                    {
+                      "claim_index": 5,
+                      "supported": true,
+                      "reason": "Manager role states approval of major delivery/quality risk."
+                    }
+                  ]
+                },
+                "version": "source_spans.v3"
+              },
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "model_usage": {
+                "call_count": 6,
+                "failed_calls": 0,
+                "reported_total_tokens": 11481,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 775,
+                    "output_tokens": 154,
+                    "total_tokens": 929,
+                    "seconds": 1.97
+                  },
+                  {
+                    "kind": "fab_supervisor_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 551,
+                    "output_tokens": 109,
+                    "total_tokens": 660,
+                    "seconds": 2.678
+                  },
+                  {
+                    "kind": "embeddings",
+                    "model": "text-embedding-3-large",
+                    "succeeded": true,
+                    "input_tokens": 54,
+                    "output_tokens": null,
+                    "total_tokens": 54,
+                    "seconds": 0.188
+                  },
+                  {
+                    "kind": "fab_rag_rerank",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 4448,
+                    "output_tokens": 571,
+                    "total_tokens": 5019,
+                    "seconds": 5.124
+                  },
+                  {
+                    "kind": "fab_grounded_answer",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 2463,
+                    "output_tokens": 291,
+                    "total_tokens": 2754,
+                    "seconds": 2.55
+                  },
+                  {
+                    "kind": "fab_grounded_review",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 1790,
+                    "output_tokens": 275,
+                    "total_tokens": 2065,
+                    "seconds": 3.06
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 16115
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ext_knowledge_update",
+      "query": "재발 방지 내용을 지식 문서에 반영할 때 필요한 검토와 버전 관리 기준은?",
+      "seconds": 19.363,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [
+        "PB-KB-001"
+      ],
+      "missing_units": [],
+      "complete_retrieval": true,
+      "rag_count": 3,
+      "review_rubric": "문서에서 확인된 KB 업데이트 기준만 답할 것.",
+      "final": {
+        "conversation_id": "6d08f4da-8b52-43e8-9e41-56d2f29b53a9",
+        "status": "succeeded",
+        "query_type": "knowledge_lookup",
+        "answer": "재발 방지를 지식 문서에 반영할 때, 복구 후 RCA와 prevention rule 업데이트를 완료해야 한다. [1]\n\n새로운 원인 유형, 새로운 조치, 기존 playbook과 다른 판단이 발생하면 Knowledge Base 업데이트 후보로 등록한다. [2]\n\nRAG 문서에는 사례 요약과 함께 실제 수치보다 판단 기준과 증거 필드를 우선 저장한다. [3]\n\n지식 문서 업데이트 시 한 청크에는 하나의 이슈와 하나의 주요 의사결정만 담는다. [4]\n\nKB Field는 chunk_title이 구체적이고 검색 가능해야 하며, tags는 5-8 keywords, source는 공개/시뮬레이트/내부, validity는 draft/reviewed/approved로 관리한다. [5]\n\n버전 관리 기준으로는 Generated(공개자료 기반 초안), Reviewed(도메인 전문가 검토), Approved(현장 SOP 맵핑), Retired(비검색) 상태가 구분되어야 한다. [6]\n\n문서 사용 전에는 회사별 품질 시스템, EHS, MES, 승인 체계, 고객 계약 조건에 맞춰 검토해야 한다. [7]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.5\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[3] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[4] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[5] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[6] semiconductor_fab_incident_response_playbook_kr.pdf, p.25\n[7] semiconductor_fab_incident_response_playbook_kr.pdf, p.25",
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "답변은 제공된 매뉴얼 및 플레이북 지식 문서에 따라 제한될 수 있음",
+          "공장 또는 회사마다 세부 절차가 다를 수 있음",
+          "답변은 제공된 incident_playbook 지식 문서 기준에 따라 제한될 수 있음",
+          "공장 또는 회사마다 세부 절차가 상이할 수 있음",
+          "검색 문서는 시뮬레이션 참조 자료이며 실제 사내 SOP가 아닙니다."
+        ],
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "지식 문서에 재발 방지 내용을 반영할 때 필요한 검토 및 버전 관리 기준 안내 요청",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "지식 문서에 재발 방지 내용을 반영할 때 필요한 검토 및 버전 관리 기준을 incident_playbook에서 검색 및 안내",
+                  "required": true,
+                  "reason": "문서 관리 기준 및 검토 프로세스는 지식 문서 가이드라인 및 매뉴얼에 의해 결정됨"
+                }
+              ],
+              "slots": {},
+              "model_usage": {
+                "call_count": 1,
+                "failed_calls": 0,
+                "reported_total_tokens": 953,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 768,
+                    "output_tokens": 185,
+                    "total_tokens": 953,
+                    "seconds": 2.007
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2009
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "23. Knowledge Base 업데이트",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n23. Knowledge Base 업데이트\n23 / 25\n23. Knowledge Base 업데이트\nRAG 플레이북을 계속 개선하는 방법\nplaybook_id\nPB-KB-001\nissue_type\nkb_update\ntrigger\ncase closure\nowner\nData team\ndecision\nadd/update\ntags\nrag,kb\n업데이트 기준\n-\n새로운 원인 유형, 새로운 조치, 기존 playbook과 다른 판단이 발생하면 KB 업데이트 후보로 등록한다.\n-\nRAG 문서에는 사례 요약과 함께 실제 수치보다 판단 기준과 증거 필드를 우선 저장한다.\n품질 기준\n-\n한 청크에는 하나의 이슈와 하나의 주요 의사결정만 담는다.\n-\n태그는 issue_type, fab_area, role, action, recovery_condition 중심으로 붙인다.\nKB Field\nRule\nchunk_title\nspecific and searchable\ntags\n5-8 keywords\nsource\npublic/simulated/internal\nvalidity\ndraft/reviewed/approved\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "22",
+              "concepts": [
+                "kb_update",
+                "recovery"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "kb_update",
+              "page_number": 23,
+              "playbook_ids": [
+                "PB-KB-001"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "23. Knowledge Base 업데이트",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.41193467378616333,
+              "score": 3.0,
+              "retrieval_features": {
+                "term_coverage": 0.1,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.031778,
+                "relevance_grade": 3,
+                "relevance_reason": "새로운 원인, 조치, 기존과 다른 판단이 발생하면 업데이트 후보 등록 등 구체적으로 검토와 버전 관리 기준을 명시함."
+              },
+              "retrieval_ranks": {
+                "0": 5,
+                "1": 1
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "a839a587bd93bf6554de1924",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "재발 방지 내용을 지식 문서에 반영할 때 필요한 검토와 버전 관리 기준은?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "rca"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "재발",
+                    "방지",
+                    "지식",
+                    "문서",
+                    "반영할",
+                    "필요한",
+                    "검토",
+                    "버전",
+                    "관리",
+                    "concept:rca"
+                  ],
+                  "subqueries": [
+                    "재발 방지 내용을 지식 문서에 반영할 때 필요한 검토와 버전 관리 기준은?"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 11,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 3,
+                "context_chars": 2588,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "rca"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5978.76
+              },
+              "retrieval_limitations": []
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "05. 공통 대응 프로세스",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n05. 공통 대응 프로세스\n5 / 25\n05. 공통 대응 프로세스\nDetect - Classify - Contain - Recover - Learn\nplaybook_id\nPB-GEN-004\nissue_type\nall\nseverity\nS1-S4\nfirst_action\nlog event\nowner\nOperator\ntags\nworkflow\nEvent Log\nSeverity\nContainment\nSchedule Fix\nRecovery Check\nRCA Update\n기본 절차\n-\n모든 돌발상황은 발생 시각, fab, area, toolgroup, lot, product, 현재 step을 먼저 기록한다.\n-\n품질 영향 가능성이 있으면 lot을 즉시 격리하거나 hold 후보로 전환한다.\n-\n납기 영향 가능성이 있으면 Scheduler가 대체 toolgroup과 dispatching rule 변경 가능성을 검토한다.\n-\n복구 후에는 RCA와 prevention rule 업데이트를 완료해야 한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "4",
+              "concepts": [
+                "dispatch",
+                "lot_hold",
+                "rca",
+                "recovery"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "all",
+              "page_number": 5,
+              "playbook_ids": [
+                "PB-GEN-004"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "05. 공통 대응 프로세스",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.29922357201576233,
+              "score": 2.033,
+              "retrieval_features": {
+                "term_coverage": 0.1,
+                "concept_matches": [
+                  "rca"
+                ],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.030303,
+                "relevance_grade": 2,
+                "relevance_reason": "RCA와 prevention rule 업데이트가 복구 후 절차로 언급되어 관련성을 부분적으로 충족함."
+              },
+              "retrieval_ranks": {
+                "0": 6,
+                "1": 6
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "448e9fe7c0a26836a9eb0b32",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "재발 방지 내용을 지식 문서에 반영할 때 필요한 검토와 버전 관리 기준은?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "rca"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "재발",
+                    "방지",
+                    "지식",
+                    "문서",
+                    "반영할",
+                    "필요한",
+                    "검토",
+                    "버전",
+                    "관리",
+                    "concept:rca"
+                  ],
+                  "subqueries": [
+                    "재발 방지 내용을 지식 문서에 반영할 때 필요한 검토와 버전 관리 기준은?"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 11,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 3,
+                "context_chars": 2588,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "rca"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5978.76
+              },
+              "retrieval_limitations": []
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "25. 참고문헌과 사용상 주의",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n25. 참고문헌과 사용상 주의\n25 / 25\n25. 참고문헌과 사용상 주의\n공개 자료 기반 생성 문서\nplaybook_id\nPB-REF-001\nissue_type\nreferences\nsource\npublic\nstatus\ngenerated\nowner\nproject team\ntags\nreferences\n참고문헌\n-\nKopp et al., SMT2020 - A Semiconductor Manufacturing Testbed. IEEE TSM, 2020.\n-\nUCI Machine Learning Repository. SECOM dataset. DOI: 10.24432/C54305.\n-\nImprovement of Hold Lot Management - A Case Study of A Company. NYCU repository.\n-\nConstructing a production exception handling system for the semiconductor manufacturing process. Kybernetes, 2011.\n-\nFab-Wide Scheduling of Semiconductor Plants: Industrial Deployment Case Study. WSC, 2022.\n-\nChung and Jang. WIP balancing for throughput maximization in semiconductor fabrication. IEEE TSM, 2009.\n주의\n-\n이 문서는 실제 FAB 내부 절차서가 아니며 교육, 시뮬레이션, RAG 프로토타입을 위한 초안이다.\n-\n실제 생산 적용 전에는 회사별 품질 시스템, EHS, MES, 승인 체계, 고객 계약 조건에 맞춰 검토해야 한다.\nDocument Status\nMeaning\nGenerated\npublic-source-based draft\nReviewed\ndomain expert checked\nApproved\nsite-specific SOP mapped\nRetired\nnot for retrieval\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "24",
+              "concepts": [
+                "recovery",
+                "wip"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "references",
+              "page_number": 25,
+              "playbook_ids": [
+                "PB-REF-001"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "25. 참고문헌과 사용상 주의",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.37169721722602844,
+              "score": 2.0,
+              "retrieval_features": {
+                "term_coverage": 0.1,
+                "concept_matches": [],
+                "focus_matches": [],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.031754,
+                "relevance_grade": 2,
+                "relevance_reason": "문서 상태(Generated, Reviewed, Approved)와 회사별 검토 필요성을 언급, 관리 방식 일부 설명함."
+              },
+              "retrieval_ranks": {
+                "0": 4,
+                "1": 2
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "257568723d1a8c49f324db49",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "재발 방지 내용을 지식 문서에 반영할 때 필요한 검토와 버전 관리 기준은?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "rca"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "재발",
+                    "방지",
+                    "지식",
+                    "문서",
+                    "반영할",
+                    "필요한",
+                    "검토",
+                    "버전",
+                    "관리",
+                    "concept:rca"
+                  ],
+                  "subqueries": [
+                    "재발 방지 내용을 지식 문서에 반영할 때 필요한 검토와 버전 관리 기준은?"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 11,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 3,
+                "context_chars": 2588,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "rca"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5978.76
+              },
+              "retrieval_limitations": []
+            }
+          }
+        ],
+        "plan": {
+          "status": "ready",
+          "query_type": "knowledge_lookup",
+          "intent": "지식 문서에 재발 방지 내용을 반영할 때 필요한 검토 및 버전 관리 기준 안내 요청",
+          "selected_sub_agents": [
+            "rag"
+          ],
+          "execution_steps": [
+            {
+              "agent": "rag",
+              "action": "지식 문서에 재발 방지 내용을 반영할 때 필요한 검토 및 버전 관리 기준을 incident_playbook에서 검색 및 안내",
+              "required": true,
+              "reason": "문서 관리 기준 및 검토 프로세스는 지식 문서 가이드라인 및 매뉴얼에 의해 결정됨"
+            }
+          ],
+          "slots": {},
+          "rag_knowledge_base": "incident_playbook",
+          "missing_slots": [],
+          "clarification_question": null,
+          "limitations": [
+            "답변은 제공된 매뉴얼 및 플레이북 지식 문서에 따라 제한될 수 있음",
+            "공장 또는 회사마다 세부 절차가 다를 수 있음",
+            "답변은 제공된 incident_playbook 지식 문서 기준에 따라 제한될 수 있음",
+            "공장 또는 회사마다 세부 절차가 상이할 수 있음"
+          ],
+          "prompt_version": "planner.v2",
+          "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use knowledge_lookup with RAG for concepts, document facts, manual procedures, approval\n  conditions and comparisons of policies. Manual guidance, including hypothetical incidents,\n  does not require a FAB or a database query. It is not a request to execute production actions.\n- Use diagnosis only when the user asks about causes of an actual observed factory situation,\n  not when comparing documented Hold/Release rules. Select the minimum evidence tools needed.\n- For a specific document fact or approved parameter lookup, first try RAG rather than asking\n  for unrequested FAB, lot, supplier or recipe details. Retrieval determines whether the fact\n  exists in the available documents. Missing evidence is not ambiguity in the user's intent.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions."
+        },
+        "agent_runs": [
+          {
+            "agent": "rag",
+            "status": "succeeded",
+            "summary": "3개 지식 근거를 조회했습니다.",
+            "metadata": {
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "재발 방지 내용을 지식 문서에 반영할 때 필요한 검토와 버전 관리 기준은?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "rca"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "재발",
+                    "방지",
+                    "지식",
+                    "문서",
+                    "반영할",
+                    "필요한",
+                    "검토",
+                    "버전",
+                    "관리",
+                    "concept:rca"
+                  ],
+                  "subqueries": [
+                    "재발 방지 내용을 지식 문서에 반영할 때 필요한 검토와 버전 관리 기준은?"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 11,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 3,
+                "context_chars": 2588,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "rca"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5978.76
+              }
+            }
+          }
+        ],
+        "reflection": {
+          "execution_mode": "post_generation_grounded_review"
+        },
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "448e9fe7c0a26836a9eb0b32",
+            "quote": "복구 후에는 RCA와 prevention rule 업데이트를 완료해야 한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 5
+          },
+          {
+            "number": 2,
+            "chunk_id": "a839a587bd93bf6554de1924",
+            "quote": "새로운 원인 유형, 새로운 조치, 기존 playbook과 다른 판단이 발생하면 KB 업데이트 후보로 등록한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 23
+          },
+          {
+            "number": 3,
+            "chunk_id": "a839a587bd93bf6554de1924",
+            "quote": "RAG 문서에는 사례 요약과 함께 실제 수치보다 판단 기준과 증거 필드를 우선 저장한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 23
+          },
+          {
+            "number": 4,
+            "chunk_id": "a839a587bd93bf6554de1924",
+            "quote": "한 청크에는 하나의 이슈와 하나의 주요 의사결정만 담는다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 23
+          },
+          {
+            "number": 5,
+            "chunk_id": "a839a587bd93bf6554de1924",
+            "quote": "KB Field Rule chunk_title specific and searchable tags 5-8 keywords source public/simulated/internal validity draft/reviewed/approved RAG note: 검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 23
+          },
+          {
+            "number": 6,
+            "chunk_id": "257568723d1a8c49f324db49",
+            "quote": "Document Status Meaning Generated public-source-based draft Reviewed domain expert checked Approved site-specific SOP mapped Retired not for retrieval RAG note: 검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 25
+          },
+          {
+            "number": 7,
+            "chunk_id": "257568723d1a8c49f324db49",
+            "quote": "실제 생산 적용 전에는 회사별 품질 시스템, EHS, MES, 승인 체계, 고객 계약 조건에 맞춰 검토해야 한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 25
+          }
+        ],
+        "grounding": {
+          "status": "supported",
+          "validation": "verified_quotes_and_model_review",
+          "citations": [
+            {
+              "number": 1,
+              "chunk_id": "448e9fe7c0a26836a9eb0b32",
+              "quote": "복구 후에는 RCA와 prevention rule 업데이트를 완료해야 한다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 5
+            },
+            {
+              "number": 2,
+              "chunk_id": "a839a587bd93bf6554de1924",
+              "quote": "새로운 원인 유형, 새로운 조치, 기존 playbook과 다른 판단이 발생하면 KB 업데이트 후보로 등록한다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 23
+            },
+            {
+              "number": 3,
+              "chunk_id": "a839a587bd93bf6554de1924",
+              "quote": "RAG 문서에는 사례 요약과 함께 실제 수치보다 판단 기준과 증거 필드를 우선 저장한다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 23
+            },
+            {
+              "number": 4,
+              "chunk_id": "a839a587bd93bf6554de1924",
+              "quote": "한 청크에는 하나의 이슈와 하나의 주요 의사결정만 담는다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 23
+            },
+            {
+              "number": 5,
+              "chunk_id": "a839a587bd93bf6554de1924",
+              "quote": "KB Field Rule chunk_title specific and searchable tags 5-8 keywords source public/simulated/internal validity draft/reviewed/approved RAG note: 검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 23
+            },
+            {
+              "number": 6,
+              "chunk_id": "257568723d1a8c49f324db49",
+              "quote": "Document Status Meaning Generated public-source-based draft Reviewed domain expert checked Approved site-specific SOP mapped Retired not for retrieval RAG note: 검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 25
+            },
+            {
+              "number": 7,
+              "chunk_id": "257568723d1a8c49f324db49",
+              "quote": "실제 생산 적용 전에는 회사별 품질 시스템, EHS, MES, 승인 체계, 고객 계약 조건에 맞춰 검토해야 한다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 25
+            }
+          ],
+          "review": {
+            "complete": true,
+            "coverage": [
+              {
+                "requirement": "재발 방지 내용을 지식 문서에 반영할 때 필요 검토: 복구 후 RCA, prevention rule 업데이트 완료 필요 여부",
+                "covered": true,
+                "reason": "출처에 복구 후 RCA와 prevention rule 업데이트가 명시됨."
+              },
+              {
+                "requirement": "지식 문서 업데이트 시 등록 조건: 새로운 원인 유형/조치/판단 여부",
+                "covered": true,
+                "reason": "출처에 해당 조건 발생 시 KB 업데이트 후보로 등록한다고 명시."
+              },
+              {
+                "requirement": "RAG 문서용 저장 필드: 수치보다 판단 기준과 증거 우선 여부",
+                "covered": true,
+                "reason": "RAG 문서에는 판단 기준과 증거 필드 우선 저장이 명확히 언급됨."
+              },
+              {
+                "requirement": "지식 문서 청크당 단일 이슈와 의사결정만 포함하는지",
+                "covered": true,
+                "reason": "한 청크에 하나의 이슈와 주요 의사결정만 담는다고 출처에 명시됨."
+              },
+              {
+                "requirement": "KB Field 관리 기준(검색 가능 chunk_title, tag/출처/validity 구조 등)",
+                "covered": true,
+                "reason": "출처에 chunk_title/tags/source/validity 관련 규정이 명시되어 있음."
+              },
+              {
+                "requirement": "버전 관리 기준(Generated/Reviewed/Approved/Retired) 구분 존재 여부",
+                "covered": true,
+                "reason": "Document Status 구분이 출처에 상세하게 명시됨."
+              },
+              {
+                "requirement": "문서 사용 전 회사별 품질/EHS/MES/승인 체계 및 고객 계약 조건에 따른 검토 필요 여부",
+                "covered": true,
+                "reason": "실제 생산 적용 전 관련 시스템과 조건에 맞춘 검토 필요가 출처에 명확히 언급됨."
+              }
+            ],
+            "checks": [
+              {
+                "claim_index": 0,
+                "supported": true,
+                "reason": "출처에서 복구 후 RCA와 prevention rule 업데이트 완료 요구를 명시."
+              },
+              {
+                "claim_index": 1,
+                "supported": true,
+                "reason": "새 원인/조치/판단 발생 시 KB 업데이트 후보로 등록 명시."
+              },
+              {
+                "claim_index": 2,
+                "supported": true,
+                "reason": "RAG 문서에 판단 기준 및 증거 필드 우선 저장 요구가 있음."
+              },
+              {
+                "claim_index": 3,
+                "supported": true,
+                "reason": "한 청크에 하나의 이슈와 주요 의사결정만 담는다고 출처에 있음."
+              },
+              {
+                "claim_index": 4,
+                "supported": true,
+                "reason": "chunk_title의 구체성과 tags/source/validity 관리 기준이 출처에 명확히 규정됨."
+              },
+              {
+                "claim_index": 5,
+                "supported": true,
+                "reason": "Document Status에 버전 관리 기준 각 구분이 출처에 직접 설명됨."
+              },
+              {
+                "claim_index": 6,
+                "supported": true,
+                "reason": "생산 적용 전 품질/EHS/승인 체계/고객 조건 등 검토 요구가 출처에 있음."
+              }
+            ]
+          },
+          "version": "source_spans.v3"
+        },
+        "model_usage": {
+          "call_count": 6,
+          "failed_calls": 0,
+          "reported_total_tokens": 13378,
+          "unreported_usage_calls": 0,
+          "calls": [
+            {
+              "kind": "fab_planner_decision",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 768,
+              "output_tokens": 185,
+              "total_tokens": 953,
+              "seconds": 2.007
+            },
+            {
+              "kind": "fab_supervisor_decision",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 575,
+              "output_tokens": 105,
+              "total_tokens": 680,
+              "seconds": 2.075
+            },
+            {
+              "kind": "embeddings",
+              "model": "text-embedding-3-large",
+              "succeeded": true,
+              "input_tokens": 35,
+              "output_tokens": null,
+              "total_tokens": 35,
+              "seconds": 0.197
+            },
+            {
+              "kind": "fab_rag_rerank",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 4614,
+              "output_tokens": 630,
+              "total_tokens": 5244,
+              "seconds": 5.749
+            },
+            {
+              "kind": "fab_grounded_answer",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 3189,
+              "output_tokens": 424,
+              "total_tokens": 3613,
+              "seconds": 3.124
+            },
+            {
+              "kind": "fab_grounded_review",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 2237,
+              "output_tokens": 616,
+              "total_tokens": 2853,
+              "seconds": 6.141
+            }
+          ]
+        },
+        "retry_budget_remaining": 0,
+        "elapsed_ms": 19345
+      },
+      "events": [
+        {
+          "event": "trace",
+          "payload": {
+            "type": "run_started",
+            "node": "input",
+            "message": "질문을 접수했습니다.",
+            "data": {
+              "conversation_id": "6d08f4da-8b52-43e8-9e41-56d2f29b53a9",
+              "retry_budget_remaining": 0,
+              "timeout_seconds": 120,
+              "elapsed_ms": 0
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "planner",
+            "message": "knowledge_lookup 질의로 분류하고 실행 계획을 만들었습니다.",
+            "data": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "지식 문서에 재발 방지 내용을 반영할 때 필요한 검토 및 버전 관리 기준을 incident_playbook에서 검색 및 안내",
+                  "required": true,
+                  "reason": "문서 관리 기준 및 검토 프로세스는 지식 문서 가이드라인 및 매뉴얼에 의해 결정됨"
+                }
+              ],
+              "slots": {},
+              "model_usage": {
+                "call_count": 1,
+                "failed_calls": 0,
+                "reported_total_tokens": 953,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 768,
+                    "output_tokens": 185,
+                    "total_tokens": 953,
+                    "seconds": 2.007
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2009
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "supervisor",
+            "message": "rag",
+            "data": {
+              "status": "ready",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "reason": "문서 관리 기준과 검토 프로세스는 incident_playbook 등의 지식 문서 내 규정에 따라 안내 가능하므로, RAG로 플레이북 내 관련 기준을 검색하여 안내.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "model_usage": {
+                "call_count": 2,
+                "failed_calls": 0,
+                "reported_total_tokens": 1633,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 768,
+                    "output_tokens": 185,
+                    "total_tokens": 953,
+                    "seconds": 2.007
+                  },
+                  {
+                    "kind": "fab_supervisor_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 575,
+                    "output_tokens": 105,
+                    "total_tokens": 680,
+                    "seconds": 2.075
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 4085
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "tool_completed",
+            "node": "rag",
+            "message": "3개 지식 근거를 조회했습니다.",
+            "data": {
+              "status": "succeeded",
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "재발 방지 내용을 지식 문서에 반영할 때 필요한 검토와 버전 관리 기준은?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "rca"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "재발",
+                    "방지",
+                    "지식",
+                    "문서",
+                    "반영할",
+                    "필요한",
+                    "검토",
+                    "버전",
+                    "관리",
+                    "concept:rca"
+                  ],
+                  "subqueries": [
+                    "재발 방지 내용을 지식 문서에 반영할 때 필요한 검토와 버전 관리 기준은?"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 11,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 3,
+                "context_chars": 2588,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "rca"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5978.76
+              },
+              "evidence_count": 3,
+              "model_usage": {
+                "call_count": 4,
+                "failed_calls": 0,
+                "reported_total_tokens": 6912,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 768,
+                    "output_tokens": 185,
+                    "total_tokens": 953,
+                    "seconds": 2.007
+                  },
+                  {
+                    "kind": "fab_supervisor_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 575,
+                    "output_tokens": 105,
+                    "total_tokens": 680,
+                    "seconds": 2.075
+                  },
+                  {
+                    "kind": "embeddings",
+                    "model": "text-embedding-3-large",
+                    "succeeded": true,
+                    "input_tokens": 35,
+                    "output_tokens": null,
+                    "total_tokens": 35,
+                    "seconds": 0.197
+                  },
+                  {
+                    "kind": "fab_rag_rerank",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 4614,
+                    "output_tokens": 630,
+                    "total_tokens": 5244,
+                    "seconds": 5.749
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 10071
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "composer",
+            "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
+            "data": {
+              "answer": "재발 방지를 지식 문서에 반영할 때, 복구 후 RCA와 prevention rule 업데이트를 완료해야 한다. [1]\n\n새로운 원인 유형, 새로운 조치, 기존 playbook과 다른 판단이 발생하면 Knowledge Base 업데이트 후보로 등록한다. [2]\n\nRAG 문서에는 사례 요약과 함께 실제 수치보다 판단 기준과 증거 필드를 우선 저장한다. [3]\n\n지식 문서 업데이트 시 한 청크에는 하나의 이슈와 하나의 주요 의사결정만 담는다. [4]\n\nKB Field는 chunk_title이 구체적이고 검색 가능해야 하며, tags는 5-8 keywords, source는 공개/시뮬레이트/내부, validity는 draft/reviewed/approved로 관리한다. [5]\n\n버전 관리 기준으로는 Generated(공개자료 기반 초안), Reviewed(도메인 전문가 검토), Approved(현장 SOP 맵핑), Retired(비검색) 상태가 구분되어야 한다. [6]\n\n문서 사용 전에는 회사별 품질 시스템, EHS, MES, 승인 체계, 고객 계약 조건에 맞춰 검토해야 한다. [7]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.5\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[3] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[4] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[5] semiconductor_fab_incident_response_playbook_kr.pdf, p.23\n[6] semiconductor_fab_incident_response_playbook_kr.pdf, p.25\n[7] semiconductor_fab_incident_response_playbook_kr.pdf, p.25",
+              "grounding": {
+                "status": "supported",
+                "validation": "verified_quotes_and_model_review",
+                "citations": [
+                  {
+                    "number": 1,
+                    "chunk_id": "448e9fe7c0a26836a9eb0b32",
+                    "quote": "복구 후에는 RCA와 prevention rule 업데이트를 완료해야 한다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 5
+                  },
+                  {
+                    "number": 2,
+                    "chunk_id": "a839a587bd93bf6554de1924",
+                    "quote": "새로운 원인 유형, 새로운 조치, 기존 playbook과 다른 판단이 발생하면 KB 업데이트 후보로 등록한다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 23
+                  },
+                  {
+                    "number": 3,
+                    "chunk_id": "a839a587bd93bf6554de1924",
+                    "quote": "RAG 문서에는 사례 요약과 함께 실제 수치보다 판단 기준과 증거 필드를 우선 저장한다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 23
+                  },
+                  {
+                    "number": 4,
+                    "chunk_id": "a839a587bd93bf6554de1924",
+                    "quote": "한 청크에는 하나의 이슈와 하나의 주요 의사결정만 담는다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 23
+                  },
+                  {
+                    "number": 5,
+                    "chunk_id": "a839a587bd93bf6554de1924",
+                    "quote": "KB Field Rule chunk_title specific and searchable tags 5-8 keywords source public/simulated/internal validity draft/reviewed/approved RAG note: 검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 23
+                  },
+                  {
+                    "number": 6,
+                    "chunk_id": "257568723d1a8c49f324db49",
+                    "quote": "Document Status Meaning Generated public-source-based draft Reviewed domain expert checked Approved site-specific SOP mapped Retired not for retrieval RAG note: 검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 25
+                  },
+                  {
+                    "number": 7,
+                    "chunk_id": "257568723d1a8c49f324db49",
+                    "quote": "실제 생산 적용 전에는 회사별 품질 시스템, EHS, MES, 승인 체계, 고객 계약 조건에 맞춰 검토해야 한다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 25
+                  }
+                ],
+                "review": {
+                  "complete": true,
+                  "coverage": [
+                    {
+                      "requirement": "재발 방지 내용을 지식 문서에 반영할 때 필요 검토: 복구 후 RCA, prevention rule 업데이트 완료 필요 여부",
+                      "covered": true,
+                      "reason": "출처에 복구 후 RCA와 prevention rule 업데이트가 명시됨."
+                    },
+                    {
+                      "requirement": "지식 문서 업데이트 시 등록 조건: 새로운 원인 유형/조치/판단 여부",
+                      "covered": true,
+                      "reason": "출처에 해당 조건 발생 시 KB 업데이트 후보로 등록한다고 명시."
+                    },
+                    {
+                      "requirement": "RAG 문서용 저장 필드: 수치보다 판단 기준과 증거 우선 여부",
+                      "covered": true,
+                      "reason": "RAG 문서에는 판단 기준과 증거 필드 우선 저장이 명확히 언급됨."
+                    },
+                    {
+                      "requirement": "지식 문서 청크당 단일 이슈와 의사결정만 포함하는지",
+                      "covered": true,
+                      "reason": "한 청크에 하나의 이슈와 주요 의사결정만 담는다고 출처에 명시됨."
+                    },
+                    {
+                      "requirement": "KB Field 관리 기준(검색 가능 chunk_title, tag/출처/validity 구조 등)",
+                      "covered": true,
+                      "reason": "출처에 chunk_title/tags/source/validity 관련 규정이 명시되어 있음."
+                    },
+                    {
+                      "requirement": "버전 관리 기준(Generated/Reviewed/Approved/Retired) 구분 존재 여부",
+                      "covered": true,
+                      "reason": "Document Status 구분이 출처에 상세하게 명시됨."
+                    },
+                    {
+                      "requirement": "문서 사용 전 회사별 품질/EHS/MES/승인 체계 및 고객 계약 조건에 따른 검토 필요 여부",
+                      "covered": true,
+                      "reason": "실제 생산 적용 전 관련 시스템과 조건에 맞춘 검토 필요가 출처에 명확히 언급됨."
+                    }
+                  ],
+                  "checks": [
+                    {
+                      "claim_index": 0,
+                      "supported": true,
+                      "reason": "출처에서 복구 후 RCA와 prevention rule 업데이트 완료 요구를 명시."
+                    },
+                    {
+                      "claim_index": 1,
+                      "supported": true,
+                      "reason": "새 원인/조치/판단 발생 시 KB 업데이트 후보로 등록 명시."
+                    },
+                    {
+                      "claim_index": 2,
+                      "supported": true,
+                      "reason": "RAG 문서에 판단 기준 및 증거 필드 우선 저장 요구가 있음."
+                    },
+                    {
+                      "claim_index": 3,
+                      "supported": true,
+                      "reason": "한 청크에 하나의 이슈와 주요 의사결정만 담는다고 출처에 있음."
+                    },
+                    {
+                      "claim_index": 4,
+                      "supported": true,
+                      "reason": "chunk_title의 구체성과 tags/source/validity 관리 기준이 출처에 명확히 규정됨."
+                    },
+                    {
+                      "claim_index": 5,
+                      "supported": true,
+                      "reason": "Document Status에 버전 관리 기준 각 구분이 출처에 직접 설명됨."
+                    },
+                    {
+                      "claim_index": 6,
+                      "supported": true,
+                      "reason": "생산 적용 전 품질/EHS/승인 체계/고객 조건 등 검토 요구가 출처에 있음."
+                    }
+                  ]
+                },
+                "version": "source_spans.v3"
+              },
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "model_usage": {
+                "call_count": 6,
+                "failed_calls": 0,
+                "reported_total_tokens": 13378,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 768,
+                    "output_tokens": 185,
+                    "total_tokens": 953,
+                    "seconds": 2.007
+                  },
+                  {
+                    "kind": "fab_supervisor_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 575,
+                    "output_tokens": 105,
+                    "total_tokens": 680,
+                    "seconds": 2.075
+                  },
+                  {
+                    "kind": "embeddings",
+                    "model": "text-embedding-3-large",
+                    "succeeded": true,
+                    "input_tokens": 35,
+                    "output_tokens": null,
+                    "total_tokens": 35,
+                    "seconds": 0.197
+                  },
+                  {
+                    "kind": "fab_rag_rerank",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 4614,
+                    "output_tokens": 630,
+                    "total_tokens": 5244,
+                    "seconds": 5.749
+                  },
+                  {
+                    "kind": "fab_grounded_answer",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 3189,
+                    "output_tokens": 424,
+                    "total_tokens": 3613,
+                    "seconds": 3.124
+                  },
+                  {
+                    "kind": "fab_grounded_review",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 2237,
+                    "output_tokens": 616,
+                    "total_tokens": 2853,
+                    "seconds": 6.141
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 19344
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

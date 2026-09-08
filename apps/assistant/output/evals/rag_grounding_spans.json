@@ -1,0 +1,564 @@
+{
+  "retrieval_replayed_from": "apps/assistant/output/evals/rag_chat_extension_v2.json",
+  "cases": [
+    {
+      "id": "ext_hold_deadline",
+      "seconds": 8.608,
+      "result": {
+        "answer": "납기 압박은 품질 hold 해제의 단독 사유가 될 수 없다. [1]\n\n품질 hold lot을 단순 납기 사유로 override release하지 않는다. [2]\n\n품질 영향 가능성이 있고 원인 범위가 확정되지 않은 경우 hold한다. [3]\n\n원인 분석이 완료되고 lot disposition이 승인된다. [4]\n\n필요 시 re-measure, rework, engineering evaluation, qualification 결과가 pass여야 한다. [5]\n\nrelease 후 downstream 공정의 queue time과 timelink 위반 여부를 Scheduler가 확인한다. [6]\n\nnormal release는 추가 제약 없이 진행한다. [7]\n\nconditional release는 특정 operation 또는 toolgroup 사용 조건을 붙인다. [8]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.13\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.18\n[3] semiconductor_fab_incident_response_playbook_kr.pdf, p.13\n[4] semiconductor_fab_incident_response_playbook_kr.pdf, p.14\n[5] semiconductor_fab_incident_response_playbook_kr.pdf, p.14\n[6] semiconductor_fab_incident_response_playbook_kr.pdf, p.14\n[7] semiconductor_fab_incident_response_playbook_kr.pdf, p.14\n[8] semiconductor_fab_incident_response_playbook_kr.pdf, p.14",
+        "status": "supported",
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "4456402d14afcca1262205d0",
+            "quote": "납기 압박은 품질 hold 해제의 단독 사유가 될 수 없다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 13
+          },
+          {
+            "number": 2,
+            "chunk_id": "4fd61e7115454c5005988769",
+            "quote": "품질 hold lot을 단순 납기 사유로 override release하지 않는다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 18
+          },
+          {
+            "number": 3,
+            "chunk_id": "4456402d14afcca1262205d0",
+            "quote": "품질 영향 가능성이 있고 원인 범위가 확정되지 않은 경우 hold한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 13
+          },
+          {
+            "number": 4,
+            "chunk_id": "a8da225ce8c69f5a646c038b",
+            "quote": "원인 분석이 완료되고 lot disposition이 승인된다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 14
+          },
+          {
+            "number": 5,
+            "chunk_id": "a8da225ce8c69f5a646c038b",
+            "quote": "필요 시 re-measure, rework, engineering evaluation, qualification 결과가 pass여야 한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 14
+          },
+          {
+            "number": 6,
+            "chunk_id": "a8da225ce8c69f5a646c038b",
+            "quote": "release 후 downstream 공정의 queue time과 timelink 위반 여부를 Scheduler가 확인한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 14
+          },
+          {
+            "number": 7,
+            "chunk_id": "a8da225ce8c69f5a646c038b",
+            "quote": "normal release는 추가 제약 없이 진행한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 14
+          },
+          {
+            "number": 8,
+            "chunk_id": "a8da225ce8c69f5a646c038b",
+            "quote": "conditional release는 특정 operation 또는 toolgroup 사용 조건을 붙인다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 14
+          }
+        ],
+        "validation": "verified_quotes_and_model_review",
+        "review": {
+          "complete": true,
+          "checks": [
+            {
+              "claim_index": 0,
+              "supported": true,
+              "reason": "Source explicitly states that delivery pressure alone cannot justify quality hold release."
+            },
+            {
+              "claim_index": 1,
+              "supported": true,
+              "reason": "Source clearly prohibits override release for quality hold lot based only on delivery reasons."
+            },
+            {
+              "claim_index": 2,
+              "supported": true,
+              "reason": "Source confirms holding if impact is possible and root cause is not fully defined."
+            },
+            {
+              "claim_index": 3,
+              "supported": true,
+              "reason": "Source states lot can be released after root cause analysis and approved disposition."
+            },
+            {
+              "claim_index": 4,
+              "supported": true,
+              "reason": "Source states re-measure, rework, engineering evaluation, qualification must pass if needed."
+            },
+            {
+              "claim_index": 5,
+              "supported": true,
+              "reason": "Source states scheduler checks queue time and timelink after release."
+            },
+            {
+              "claim_index": 6,
+              "supported": true,
+              "reason": "Source directly states normal release proceeds without additional restrictions."
+            },
+            {
+              "claim_index": 7,
+              "supported": true,
+              "reason": "Source states conditional release involves specific operation or toolgroup restrictions."
+            }
+          ]
+        }
+      },
+      "model_usage": {
+        "call_count": 2,
+        "failed_calls": 0,
+        "reported_total_tokens": 7160,
+        "unreported_usage_calls": 0,
+        "calls": [
+          {
+            "kind": "fab_grounded_answer",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 4058,
+            "output_tokens": 385,
+            "total_tokens": 4443,
+            "seconds": 5.848
+          },
+          {
+            "kind": "fab_grounded_review",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 2501,
+            "output_tokens": 216,
+            "total_tokens": 2717,
+            "seconds": 2.754
+          }
+        ]
+      },
+      "model_outputs": [
+        {
+          "schema": "fab_grounded_answer",
+          "output": {
+            "status": "supported",
+            "claims": [
+              {
+                "text": "납기 압박은 품질 hold 해제의 단독 사유가 될 수 없다.",
+                "sources": [
+                  {
+                    "quote_id": "4456402d14afcca1262205d0:7"
+                  }
+                ]
+              },
+              {
+                "text": "품질 hold lot을 단순 납기 사유로 override release하지 않는다.",
+                "sources": [
+                  {
+                    "quote_id": "4fd61e7115454c5005988769:6"
+                  }
+                ]
+              },
+              {
+                "text": "품질 영향 가능성이 있고 원인 범위가 확정되지 않은 경우 hold한다.",
+                "sources": [
+                  {
+                    "quote_id": "4456402d14afcca1262205d0:5"
+                  }
+                ]
+              },
+              {
+                "text": "원인 분석이 완료되고 lot disposition이 승인된다.",
+                "sources": [
+                  {
+                    "quote_id": "a8da225ce8c69f5a646c038b:3"
+                  }
+                ]
+              },
+              {
+                "text": "필요 시 re-measure, rework, engineering evaluation, qualification 결과가 pass여야 한다.",
+                "sources": [
+                  {
+                    "quote_id": "a8da225ce8c69f5a646c038b:4"
+                  }
+                ]
+              },
+              {
+                "text": "release 후 downstream 공정의 queue time과 timelink 위반 여부를 Scheduler가 확인한다.",
+                "sources": [
+                  {
+                    "quote_id": "a8da225ce8c69f5a646c038b:5"
+                  }
+                ]
+              },
+              {
+                "text": "normal release는 추가 제약 없이 진행한다.",
+                "sources": [
+                  {
+                    "quote_id": "a8da225ce8c69f5a646c038b:7"
+                  }
+                ]
+              },
+              {
+                "text": "conditional release는 특정 operation 또는 toolgroup 사용 조건을 붙인다.",
+                "sources": [
+                  {
+                    "quote_id": "a8da225ce8c69f5a646c038b:8"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "schema": "fab_grounded_review",
+          "output": {
+            "complete": true,
+            "checks": [
+              {
+                "claim_index": 0,
+                "supported": true,
+                "reason": "Source explicitly states that delivery pressure alone cannot justify quality hold release."
+              },
+              {
+                "claim_index": 1,
+                "supported": true,
+                "reason": "Source clearly prohibits override release for quality hold lot based only on delivery reasons."
+              },
+              {
+                "claim_index": 2,
+                "supported": true,
+                "reason": "Source confirms holding if impact is possible and root cause is not fully defined."
+              },
+              {
+                "claim_index": 3,
+                "supported": true,
+                "reason": "Source states lot can be released after root cause analysis and approved disposition."
+              },
+              {
+                "claim_index": 4,
+                "supported": true,
+                "reason": "Source states re-measure, rework, engineering evaluation, qualification must pass if needed."
+              },
+              {
+                "claim_index": 5,
+                "supported": true,
+                "reason": "Source states scheduler checks queue time and timelink after release."
+              },
+              {
+                "claim_index": 6,
+                "supported": true,
+                "reason": "Source directly states normal release proceeds without additional restrictions."
+              },
+              {
+                "claim_index": 7,
+                "supported": true,
+                "reason": "Source states conditional release involves specific operation or toolgroup restrictions."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ext_autosched_attach",
+      "seconds": 8.474,
+      "result": {
+        "answer": "attach.txt의 CALNAME은 downcal.txt와 pmcal.txt에서 설명된 다운타임 이벤트의 이름을 의미한다. [1]\n\nCALTYPE은 down 혹은 pm과 같은 다운타임(이벤트) 타입을 의미한다. [2]\n\nRESTYPE은 연결시킬 자원 타입을 의미하며, 예를 들어 stnfam(스테이션 패밀리)이 해당된다. [3] [4]\n\nRESNAME은 해당 자원(예: 툴 그룹)의 이름이다. [3] [4]\n\n따라서 attach.txt의 각 행은 CALNAME(다운타임 이벤트)을 CALTYPE(다운타임 종류)과 함께 RESTYPE(자원 타입)/RESNAME(자원명)의 툴 그룹 혹은 자원에 연결한다. [2] [3]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] SMT_2020_AutoSched_AP_documentation.pdf, p.7\n[2] SMT_2020_AutoSched_AP_documentation.pdf, p.6\n[3] SMT_2020_AutoSched_AP_documentation.pdf, p.6\n[4] SMT_2020_AutoSched_AP_documentation.pdf, p.8",
+        "status": "supported",
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "ca687929dd50e8b1ceb76a88",
+            "quote": "6 Note that CALNAME stands for the name of the down time event as described in the files downcal.txt and pmcal.txt.",
+            "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+            "page_number": 7
+          },
+          {
+            "number": 2,
+            "chunk_id": "1debf89e0a2e7fd6e4b9b0d6",
+            "quote": "Tools Availability The file attach.txt (see Figure 6) is used to connect each downtime event (unscheduled or scheduled) represented by the name (CALNAME) with the CALTYPE (here down or pm) to a group of tools.",
+            "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+            "page_number": 6
+          },
+          {
+            "number": 3,
+            "chunk_id": "1debf89e0a2e7fd6e4b9b0d6",
+            "quote": "The latter is defined by the resource type (RESTYPE) and its name (RESNAME).",
+            "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+            "page_number": 6
+          },
+          {
+            "number": 4,
+            "chunk_id": "a79e6c7f4dba523160c536e0",
+            "quote": "Moreover, counter-based PMs are also applied for each station family, i.e., the used RESTYPE is stnfam and the RESNAME is the name of the tool group (see file \"attach.txt\" or Figure 6, line 92).",
+            "source_document": "SMT_2020_AutoSched_AP_documentation.pdf",
+            "page_number": 8
+          }
+        ],
+        "validation": "verified_quotes_and_model_review",
+        "review": {
+          "complete": true,
+          "checks": [
+            {
+              "claim_index": 0,
+              "supported": true,
+              "reason": "Quote directly states CALNAME is the name of the downtime event described in downcal.txt and pmcal.txt."
+            },
+            {
+              "claim_index": 1,
+              "supported": true,
+              "reason": "Quote confirms CALTYPE refers to types like down or pm as downtime event types."
+            },
+            {
+              "claim_index": 2,
+              "supported": true,
+              "reason": "Quotes specifically explain RESTYPE is the resource type such as stnfam (station family)."
+            },
+            {
+              "claim_index": 3,
+              "supported": true,
+              "reason": "Quotes directly state RESNAME is the name of the resource, e.g., tool group."
+            },
+            {
+              "claim_index": 4,
+              "supported": true,
+              "reason": "Quotes confirm attach.txt connects CALNAME and CALTYPE to RESTYPE/RESNAME tool group or resource."
+            }
+          ]
+        }
+      },
+      "model_usage": {
+        "call_count": 2,
+        "failed_calls": 0,
+        "reported_total_tokens": 7610,
+        "unreported_usage_calls": 0,
+        "calls": [
+          {
+            "kind": "fab_grounded_answer",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 4440,
+            "output_tokens": 407,
+            "total_tokens": 4847,
+            "seconds": 6.033
+          },
+          {
+            "kind": "fab_grounded_review",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 2573,
+            "output_tokens": 190,
+            "total_tokens": 2763,
+            "seconds": 2.437
+          }
+        ]
+      },
+      "model_outputs": [
+        {
+          "schema": "fab_grounded_answer",
+          "output": {
+            "status": "supported",
+            "claims": [
+              {
+                "text": "attach.txt의 CALNAME은 downcal.txt와 pmcal.txt에서 설명된 다운타임 이벤트의 이름을 의미한다.",
+                "sources": [
+                  {
+                    "quote_id": "ca687929dd50e8b1ceb76a88:0"
+                  }
+                ]
+              },
+              {
+                "text": "CALTYPE은 down 혹은 pm과 같은 다운타임(이벤트) 타입을 의미한다.",
+                "sources": [
+                  {
+                    "quote_id": "1debf89e0a2e7fd6e4b9b0d6:16"
+                  }
+                ]
+              },
+              {
+                "text": "RESTYPE은 연결시킬 자원 타입을 의미하며, 예를 들어 stnfam(스테이션 패밀리)이 해당된다.",
+                "sources": [
+                  {
+                    "quote_id": "1debf89e0a2e7fd6e4b9b0d6:17"
+                  },
+                  {
+                    "quote_id": "a79e6c7f4dba523160c536e0:15"
+                  }
+                ]
+              },
+              {
+                "text": "RESNAME은 해당 자원(예: 툴 그룹)의 이름이다.",
+                "sources": [
+                  {
+                    "quote_id": "1debf89e0a2e7fd6e4b9b0d6:17"
+                  },
+                  {
+                    "quote_id": "a79e6c7f4dba523160c536e0:15"
+                  }
+                ]
+              },
+              {
+                "text": "따라서 attach.txt의 각 행은 CALNAME(다운타임 이벤트)을 CALTYPE(다운타임 종류)과 함께 RESTYPE(자원 타입)/RESNAME(자원명)의 툴 그룹 혹은 자원에 연결한다.",
+                "sources": [
+                  {
+                    "quote_id": "1debf89e0a2e7fd6e4b9b0d6:16"
+                  },
+                  {
+                    "quote_id": "1debf89e0a2e7fd6e4b9b0d6:17"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "schema": "fab_grounded_review",
+          "output": {
+            "complete": true,
+            "checks": [
+              {
+                "claim_index": 0,
+                "supported": true,
+                "reason": "Quote directly states CALNAME is the name of the downtime event described in downcal.txt and pmcal.txt."
+              },
+              {
+                "claim_index": 1,
+                "supported": true,
+                "reason": "Quote confirms CALTYPE refers to types like down or pm as downtime event types."
+              },
+              {
+                "claim_index": 2,
+                "supported": true,
+                "reason": "Quotes specifically explain RESTYPE is the resource type such as stnfam (station family)."
+              },
+              {
+                "claim_index": 3,
+                "supported": true,
+                "reason": "Quotes directly state RESNAME is the name of the resource, e.g., tool group."
+              },
+              {
+                "claim_index": 4,
+                "supported": true,
+                "reason": "Quotes confirm attach.txt connects CALNAME and CALTYPE to RESTYPE/RESNAME tool group or resource."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ext_pm_approval",
+      "seconds": 3.965,
+      "result": {
+        "answer": "PM 연기는 Engineer 승인 없이는 허용하지 않는다. [1]\n\nPM 이후 qualification 또는 dummy run 결과를 기록한다. [2]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.8",
+        "status": "supported",
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 2,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 이후 qualification 또는 dummy run 결과를 기록한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          }
+        ],
+        "validation": "verified_quotes_and_model_review",
+        "review": {
+          "complete": true,
+          "checks": [
+            {
+              "claim_index": 0,
+              "supported": true,
+              "reason": "직접 인용된 구문이 Engineer 승인 없이는 PM 연기가 허용되지 않음을 명확히 언급한다."
+            },
+            {
+              "claim_index": 1,
+              "supported": true,
+              "reason": "매뉴얼이 명시적으로 PM 이후 qualification 또는 dummy run 결과 기록을 요구함을 보여준다."
+            }
+          ]
+        }
+      },
+      "model_usage": {
+        "call_count": 2,
+        "failed_calls": 0,
+        "reported_total_tokens": 2262,
+        "unreported_usage_calls": 0,
+        "calls": [
+          {
+            "kind": "fab_grounded_answer",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 1314,
+            "output_tokens": 88,
+            "total_tokens": 1402,
+            "seconds": 2.396
+          },
+          {
+            "kind": "fab_grounded_review",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 777,
+            "output_tokens": 83,
+            "total_tokens": 860,
+            "seconds": 1.568
+          }
+        ]
+      },
+      "model_outputs": [
+        {
+          "schema": "fab_grounded_answer",
+          "output": {
+            "status": "supported",
+            "claims": [
+              {
+                "text": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+                "sources": [
+                  {
+                    "quote_id": "826a8c8ba9e44f729a587f08:6"
+                  }
+                ]
+              },
+              {
+                "text": "PM 이후 qualification 또는 dummy run 결과를 기록한다.",
+                "sources": [
+                  {
+                    "quote_id": "826a8c8ba9e44f729a587f08:8"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "schema": "fab_grounded_review",
+          "output": {
+            "complete": true,
+            "checks": [
+              {
+                "claim_index": 0,
+                "supported": true,
+                "reason": "직접 인용된 구문이 Engineer 승인 없이는 PM 연기가 허용되지 않음을 명확히 언급한다."
+              },
+              {
+                "claim_index": 1,
+                "supported": true,
+                "reason": "매뉴얼이 명시적으로 PM 이후 qualification 또는 dummy run 결과 기록을 요구함을 보여준다."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "artifact_format": "compact.v1",
+  "omitted_debug_fields": "Duplicate final events, repeated per-evidence retrieval traces, intermediate usage call lists and prompt_contract; final evidence, per-run trace, outcomes and final usage remain."
+}

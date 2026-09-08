@@ -4,11 +4,26 @@ from typing import Protocol
 
 import httpx
 
+from app.agents.usage import model_call, reported_usage
 from app.config import get_settings
 
 
 class EmbeddingClient(Protocol):
     def embed_texts(self, texts: list[str]) -> list[list[float]]: ...
+
+
+class RequestEmbeddingCache:
+    """Reuse the identical query across KB searches within one retrieval request only."""
+
+    def __init__(self, client: EmbeddingClient):
+        self.client = client
+        self._vectors: dict[tuple[str, ...], list[list[float]]] = {}
+
+    def embed_texts(self, texts: list[str]) -> list[list[float]]:
+        key = tuple(texts)
+        if key not in self._vectors:
+            self._vectors[key] = self.client.embed_texts(texts)
+        return [list(vector) for vector in self._vectors[key]]
 
 
 class AzureEmbeddingClient:
@@ -23,6 +38,10 @@ class AzureEmbeddingClient:
     def embed_texts(self, texts: list[str]) -> list[list[float]]:
         if not texts:
             return []
+        with model_call("embeddings", self.model):
+            return self._embed_texts(texts)
+
+    def _embed_texts(self, texts: list[str]) -> list[list[float]]:
         if not self.api_key:
             raise RuntimeError("OPENAI_API_KEY is not configured.")
 
@@ -48,5 +67,18 @@ class AzureEmbeddingClient:
                 ) from exc
 
         body = response.json()
-        vectors = [item["embedding"] for item in sorted(body["data"], key=lambda item: item["index"])]
-        return vectors
+        reported_usage(body.get("usage"))
+        return ordered_vectors(body, len(texts))
+
+
+def ordered_vectors(body, expected_count: int) -> list[list[float]]:
+    rows = body.get("data") if isinstance(body, dict) else None
+    if not isinstance(rows, list) or len(rows) != expected_count:
+        raise ValueError("Embedding response count does not match input.")
+    if any(not isinstance(row, dict) or type(row.get("index")) is not int for row in rows):
+        raise ValueError("Embedding response requires integer input indexes.")
+    if sorted(row["index"] for row in rows) != list(range(expected_count)):
+        raise ValueError("Embedding response indexes are missing or duplicated.")
+    if any(not isinstance(row.get("embedding"), list) for row in rows):
+        raise ValueError("Embedding response is missing a vector.")
+    return [row["embedding"] for row in sorted(rows, key=lambda row: row["index"])]

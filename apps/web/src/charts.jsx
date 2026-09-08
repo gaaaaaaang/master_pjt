@@ -364,4 +364,3 @@ function GroupedBarChart({ spec }) {
     </figure>
   );
 }
-

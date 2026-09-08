@@ -1,0 +1,1863 @@
+{
+  "backend": "actual_azure_embeddings_milvus_llm",
+  "model": "gpt-4.1",
+  "embedding_model": "text-embedding-3-large",
+  "case_ids": [
+    "pm",
+    "multi",
+    "exact",
+    "q01",
+    "q15",
+    "q23",
+    "q28",
+    "unknown_recipe",
+    "q30"
+  ],
+  "scope": "Explicit fixture KB; Composer tested separately. Not a full Planner/Supervisor test.",
+  "local": {
+    "evaluation_version": "evidence_units.v2",
+    "top_k": 3,
+    "case_count": 9,
+    "metrics": {
+      "hit_rate": 0.42857142857142855,
+      "recall_at_k": 0.42857142857142855,
+      "mrr": 0.42857142857142855,
+      "ndcg": 0.42857142857142855,
+      "complete_evidence_rate": 0.42857142857142855,
+      "abstention_accuracy": 1.0,
+      "answerable_count": 7,
+      "unanswerable_count": 2
+    },
+    "by_split": {
+      "challenge": {
+        "hit_rate": 0.0,
+        "recall_at_k": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "complete_evidence_rate": 0.0,
+        "abstention_accuracy": 1.0,
+        "answerable_count": 4,
+        "unanswerable_count": 1
+      },
+      "development": {
+        "hit_rate": 1.0,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "complete_evidence_rate": 1.0,
+        "abstention_accuracy": 1.0,
+        "answerable_count": 2,
+        "unanswerable_count": 1
+      },
+      "holdout": {
+        "hit_rate": 1.0,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "complete_evidence_rate": 1.0,
+        "abstention_accuracy": null,
+        "answerable_count": 1,
+        "unanswerable_count": 0
+      }
+    },
+    "cases": [
+      {
+        "id": "pm",
+        "split": "development",
+        "query": "예방정비 일정이 지연되었을 때 어떻게 대응해?",
+        "answerable": true,
+        "hit": true,
+        "coverage": 1.0,
+        "complete": true,
+        "rr": 1.0,
+        "ndcg": 1.0,
+        "abstained": false,
+        "missing_units": [],
+        "chunks": [
+          "826a8c8ba9e44f729a587f08",
+          "9ba6a61997def9b3b5e224d8",
+          "d10adf524831c6774d823097"
+        ],
+        "latency_ms": 128.615
+      },
+      {
+        "id": "multi",
+        "split": "development",
+        "query": "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+        "answerable": true,
+        "hit": true,
+        "coverage": 1.0,
+        "complete": true,
+        "rr": 1.0,
+        "ndcg": 1.0,
+        "abstained": false,
+        "missing_units": [],
+        "chunks": [
+          "949c72912ec914f87682d1ce",
+          "4456402d14afcca1262205d0",
+          "6068e37d81afe3b918a7dfae"
+        ],
+        "latency_ms": 17.301
+      },
+      {
+        "id": "exact",
+        "split": "holdout",
+        "query": "PB-QT-001",
+        "answerable": true,
+        "hit": true,
+        "coverage": 1.0,
+        "complete": true,
+        "rr": 1.0,
+        "ndcg": 1.0,
+        "abstained": false,
+        "missing_units": [],
+        "chunks": [
+          "6068e37d81afe3b918a7dfae"
+        ],
+        "latency_ms": 7.787
+      },
+      {
+        "id": "q01",
+        "split": "challenge",
+        "query": "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록",
+        "answerable": true,
+        "hit": false,
+        "coverage": 0.0,
+        "complete": false,
+        "rr": 0,
+        "ndcg": 0.0,
+        "abstained": true,
+        "missing_units": [
+          "PB-EQ-001"
+        ],
+        "chunks": [],
+        "latency_ms": 7.732
+      },
+      {
+        "id": "q15",
+        "split": "challenge",
+        "query": "소모품 재고가 바닥나 생산 투입이 막혔어",
+        "answerable": true,
+        "hit": false,
+        "coverage": 0.0,
+        "complete": false,
+        "rr": 0,
+        "ndcg": 0.0,
+        "abstained": true,
+        "missing_units": [
+          "PB-MT-001"
+        ],
+        "chunks": [],
+        "latency_ms": 7.879
+      },
+      {
+        "id": "q23",
+        "split": "challenge",
+        "query": "다른 장비로 우회하기 전 qualification 점검",
+        "answerable": true,
+        "hit": false,
+        "coverage": 0.0,
+        "complete": false,
+        "rr": 0,
+        "ndcg": 0.0,
+        "abstained": true,
+        "missing_units": [
+          "PB-ALT-001"
+        ],
+        "chunks": [],
+        "latency_ms": 8.856
+      },
+      {
+        "id": "q28",
+        "split": "challenge",
+        "query": "사건 종료 뒤 플레이북에 새 판단 기준을 추가하려면",
+        "answerable": true,
+        "hit": false,
+        "coverage": 0.0,
+        "complete": false,
+        "rr": 0,
+        "ndcg": 0.0,
+        "abstained": true,
+        "missing_units": [
+          "PB-KB-001"
+        ],
+        "chunks": [],
+        "latency_ms": 7.888
+      },
+      {
+        "id": "unknown_recipe",
+        "split": "development",
+        "query": "최신 EUV 레지스트의 최적 노광량 숫자를 알려줘",
+        "answerable": false,
+        "hit": false,
+        "coverage": 0,
+        "complete": false,
+        "rr": 0,
+        "ndcg": 0,
+        "abstained": true,
+        "missing_units": [],
+        "chunks": [],
+        "latency_ms": 7.042
+      },
+      {
+        "id": "q30",
+        "split": "challenge",
+        "query": "실제 사내 승인된 SOP의 장비 고장 대응 절차",
+        "answerable": false,
+        "hit": false,
+        "coverage": 0,
+        "complete": false,
+        "rr": 0,
+        "ndcg": 0,
+        "abstained": true,
+        "missing_units": [],
+        "chunks": [],
+        "latency_ms": 6.705
+      }
+    ]
+  },
+  "live": {
+    "evaluation_version": "evidence_units.v2",
+    "top_k": 3,
+    "case_count": 9,
+    "metrics": {
+      "hit_rate": 0.5714285714285714,
+      "recall_at_k": 0.5714285714285714,
+      "mrr": 0.5714285714285714,
+      "ndcg": 0.5714285714285714,
+      "complete_evidence_rate": 0.5714285714285714,
+      "abstention_accuracy": 1.0,
+      "answerable_count": 7,
+      "unanswerable_count": 2
+    },
+    "by_split": {
+      "challenge": {
+        "hit_rate": 0.25,
+        "recall_at_k": 0.25,
+        "mrr": 0.25,
+        "ndcg": 0.25,
+        "complete_evidence_rate": 0.25,
+        "abstention_accuracy": 1.0,
+        "answerable_count": 4,
+        "unanswerable_count": 1
+      },
+      "development": {
+        "hit_rate": 1.0,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "complete_evidence_rate": 1.0,
+        "abstention_accuracy": 1.0,
+        "answerable_count": 2,
+        "unanswerable_count": 1
+      },
+      "holdout": {
+        "hit_rate": 1.0,
+        "recall_at_k": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "complete_evidence_rate": 1.0,
+        "abstention_accuracy": null,
+        "answerable_count": 1,
+        "unanswerable_count": 0
+      }
+    },
+    "cases": [
+      {
+        "id": "pm",
+        "split": "development",
+        "query": "예방정비 일정이 지연되었을 때 어떻게 대응해?",
+        "answerable": true,
+        "hit": true,
+        "coverage": 1.0,
+        "complete": true,
+        "rr": 1.0,
+        "ndcg": 1.0,
+        "abstained": false,
+        "missing_units": [],
+        "chunks": [
+          "826a8c8ba9e44f729a587f08"
+        ],
+        "latency_ms": 11583.951
+      },
+      {
+        "id": "multi",
+        "split": "development",
+        "query": "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+        "answerable": true,
+        "hit": true,
+        "coverage": 1.0,
+        "complete": true,
+        "rr": 1.0,
+        "ndcg": 1.0,
+        "abstained": false,
+        "missing_units": [],
+        "chunks": [
+          "949c72912ec914f87682d1ce",
+          "4456402d14afcca1262205d0",
+          "448e9fe7c0a26836a9eb0b32"
+        ],
+        "latency_ms": 10088.651
+      },
+      {
+        "id": "exact",
+        "split": "holdout",
+        "query": "PB-QT-001",
+        "answerable": true,
+        "hit": true,
+        "coverage": 1.0,
+        "complete": true,
+        "rr": 1.0,
+        "ndcg": 1.0,
+        "abstained": false,
+        "missing_units": [],
+        "chunks": [
+          "6068e37d81afe3b918a7dfae"
+        ],
+        "latency_ms": 11145.353
+      },
+      {
+        "id": "q01",
+        "split": "challenge",
+        "query": "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록",
+        "answerable": true,
+        "hit": false,
+        "coverage": 0.0,
+        "complete": false,
+        "rr": 0,
+        "ndcg": 0.0,
+        "abstained": false,
+        "missing_units": [
+          "PB-EQ-001"
+        ],
+        "chunks": [
+          "448e9fe7c0a26836a9eb0b32",
+          "4456402d14afcca1262205d0",
+          "4d8eb02555561b087798a125"
+        ],
+        "latency_ms": 10278.332
+      },
+      {
+        "id": "q15",
+        "split": "challenge",
+        "query": "소모품 재고가 바닥나 생산 투입이 막혔어",
+        "answerable": true,
+        "hit": true,
+        "coverage": 1.0,
+        "complete": true,
+        "rr": 1.0,
+        "ndcg": 1.0,
+        "abstained": false,
+        "missing_units": [],
+        "chunks": [
+          "945772ffc0887bda7adabd95",
+          "4fd61e7115454c5005988769"
+        ],
+        "latency_ms": 11510.067
+      },
+      {
+        "id": "q23",
+        "split": "challenge",
+        "query": "다른 장비로 우회하기 전 qualification 점검",
+        "answerable": true,
+        "hit": false,
+        "coverage": 0.0,
+        "complete": false,
+        "rr": 0,
+        "ndcg": 0.0,
+        "abstained": true,
+        "missing_units": [
+          "PB-ALT-001"
+        ],
+        "chunks": [],
+        "latency_ms": 10444.387
+      },
+      {
+        "id": "q28",
+        "split": "challenge",
+        "query": "사건 종료 뒤 플레이북에 새 판단 기준을 추가하려면",
+        "answerable": true,
+        "hit": false,
+        "coverage": 0.0,
+        "complete": false,
+        "rr": 0,
+        "ndcg": 0.0,
+        "abstained": false,
+        "missing_units": [
+          "PB-KB-001"
+        ],
+        "chunks": [
+          "448e9fe7c0a26836a9eb0b32"
+        ],
+        "latency_ms": 10543.669
+      },
+      {
+        "id": "unknown_recipe",
+        "split": "development",
+        "query": "최신 EUV 레지스트의 최적 노광량 숫자를 알려줘",
+        "answerable": false,
+        "hit": false,
+        "coverage": 0,
+        "complete": false,
+        "rr": 0,
+        "ndcg": 0,
+        "abstained": true,
+        "missing_units": [],
+        "chunks": [],
+        "latency_ms": 9975.453
+      },
+      {
+        "id": "q30",
+        "split": "challenge",
+        "query": "실제 사내 승인된 SOP의 장비 고장 대응 절차",
+        "answerable": false,
+        "hit": false,
+        "coverage": 0,
+        "complete": false,
+        "rr": 0,
+        "ndcg": 0,
+        "abstained": true,
+        "missing_units": [],
+        "chunks": [],
+        "latency_ms": 255.402
+      }
+    ]
+  },
+  "details": [
+    {
+      "query": "예방정비 일정이 지연되었을 때 어떻게 대응해?",
+      "seconds": 11.581,
+      "evidence": [
+        {
+          "source_type": "rag_chunk",
+          "title": "08. PM 지연과 설비 가용성 저하",
+          "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n08. PM 지연과 설비 가용성 저하\n8 / 25\n08. PM 지연과 설비 가용성 저하\nPreventive Maintenance Delay\nplaybook_id\nPB-EQ-002\nissue_type\npm_delay\ntrigger\nPM overdue\nowner\nEngineer\ndecision\nrun vs stop\ntags\npm,availability\n감지 조건\n-\nPM due time이 초과되었거나 PM 예정 시간과 hot lot 처리 계획이 충돌한다.\n-\n동일 area 내 병렬 tool 수가 부족해져 대기 시간이 증가한다.\n즉시 조치\n-\nPM 연기는 Engineer 승인 없이는 허용하지 않는다.\n-\nPM 수행 전후로 영향 product와 lot priority를 Scheduler가 재계산한다.\n-\nPM 이후 qualification 또는 dummy run 결과를 기록한다.\n복구 조건\n-\nPM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화.\nDecision\nAllowed When\nEvidence\nPM execute now\nquality or safety risk\nPM due / alarm\nPM short delay\nlow risk and manager approval\nrisk memo\nTool stop\nqualification needed\nengineer sign-off\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+          "metadata": {
+            "chunk_index": "7",
+            "concepts": [
+              "hot_lot",
+              "pm",
+              "queue_time",
+              "recovery",
+              "wip"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "pm_delay",
+            "page_number": 8,
+            "playbook_ids": [
+              "PB-EQ-002"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "08. PM 지연과 설비 가용성 저하",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "dense_score": 0.4734469950199127,
+            "score": 3.0932,
+            "retrieval_features": {
+              "term_coverage": 0.2,
+              "concept_matches": [
+                "pm"
+              ],
+              "focus_matches": [
+                "pm"
+              ],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.031778,
+              "relevance_grade": 3,
+              "relevance_reason": "이 청크는 예방정비(PM) 일정이 지연된 경우의 감지 조건, 즉시 조치(엔지니어 승인 없이는 연기 불가, 스케줄러의 lot priority 재계산 등), 승인 기준, 복구 조건 등 구체적인 대응 방법을 상세하게 제시한다. 질의의 주요 요청사항에 대해 직접적으로 증거를 제공한다."
+            },
+            "retrieval_ranks": {
+              "0": 5,
+              "1": 1
+            },
+            "retrieval_mode": "hybrid",
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "collection": "master_pjt",
+            "knowledge_base": "incident_playbook",
+            "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+            "retrieval_trace": {
+              "pipeline_version": "hybrid.v1",
+              "plan": {
+                "query": "예방정비 일정이 지연되었을 때 어떻게 대응해?",
+                "knowledge_bases": [
+                  "incident_playbook"
+                ],
+                "concepts": [
+                  "pm"
+                ],
+                "excluded_concepts": [],
+                "exact_ids": [],
+                "fab_ids": [],
+                "terms": [
+                  "예방정비",
+                  "일정",
+                  "지연되었",
+                  "대응해",
+                  "concept:pm"
+                ],
+                "subqueries": [
+                  "예방정비 일정이 지연되었을 때 어떻게 대응해?"
+                ],
+                "require_verified": false
+              },
+              "retrieval_mode": "hybrid",
+              "reranker": "llm.v1",
+              "candidate_limit": 30,
+              "retrieval_channels": [
+                "bm25:original",
+                "dense:incident_playbook"
+              ],
+              "reranked_count": 12,
+              "lexical_candidates": 5,
+              "dense_candidates": 25,
+              "fused_candidates": 25,
+              "selected_count": 1,
+              "context_chars": 882,
+              "covered_concepts": [
+                "pm"
+              ],
+              "uncovered_concepts": [],
+              "latency_ms": 11580.211
+            },
+            "retrieval_limitations": []
+          }
+        }
+      ],
+      "trace": {
+        "pipeline_version": "hybrid.v1",
+        "plan": {
+          "query": "예방정비 일정이 지연되었을 때 어떻게 대응해?",
+          "knowledge_bases": [
+            "incident_playbook"
+          ],
+          "concepts": [
+            "pm"
+          ],
+          "excluded_concepts": [],
+          "exact_ids": [],
+          "fab_ids": [],
+          "terms": [
+            "예방정비",
+            "일정",
+            "지연되었",
+            "대응해",
+            "concept:pm"
+          ],
+          "subqueries": [
+            "예방정비 일정이 지연되었을 때 어떻게 대응해?"
+          ],
+          "require_verified": false
+        },
+        "retrieval_mode": "hybrid",
+        "reranker": "llm.v1",
+        "candidate_limit": 30,
+        "retrieval_channels": [
+          "bm25:original",
+          "dense:incident_playbook"
+        ],
+        "reranked_count": 12,
+        "lexical_candidates": 5,
+        "dense_candidates": 25,
+        "fused_candidates": 25,
+        "selected_count": 1,
+        "context_chars": 882,
+        "covered_concepts": [
+          "pm"
+        ],
+        "uncovered_concepts": [],
+        "latency_ms": 11580.211
+      }
+    },
+    {
+      "query": "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+      "seconds": 10.087,
+      "evidence": [
+        {
+          "source_type": "rag_chunk",
+          "title": "07. 장비 고장 대응",
+          "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n07. 장비 고장 대응\n7 / 25\n07. 장비 고장 대응\nEquipment Down / Unexpected Shutdown\nplaybook_id\nPB-EQ-001\nissue_type\nequipment_down\ntrigger\ntool status DOWN\nowner\nOperator\ndecision\nhold or reroute\ntags\nequipment,breakdown\nAlarm\nStop Tool\nFind Affected Lots\nHold/Reroute\nQual Pass\nRelease\n감지 조건\n-\ntool status가 DOWN으로 전환되거나 breakdown event가 발생한다.\n-\nqueue length와 WIP age가 급증하고 해당 toolgroup의 start rate가 0에 가까워진다.\n역할별 대응\n-\nOperator는 설비 상태, 마지막 처리 lot, chamber, recipe, alarm code를 기록한다.\n-\nEngineer는 품질 영향 lot을 식별하고 hold 필요 여부를 결정한다.\n-\nScheduler는 대체 toolgroup 가능 여부와 hot lot 우선순위를 재평가한다.\n복구 조건\n-\n수리 완료, qualification pass, 첫 생산 lot 모니터링 통과, 영향 lot disposition 완료.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+          "metadata": {
+            "chunk_index": "6",
+            "concepts": [
+              "equipment_down",
+              "hot_lot",
+              "recovery",
+              "wip"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "equipment_down",
+            "page_number": 7,
+            "playbook_ids": [
+              "PB-EQ-001"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "07. 장비 고장 대응",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "dense_score": 0.4959549009799957,
+            "score": 3.1586,
+            "retrieval_features": {
+              "term_coverage": 0.75,
+              "concept_matches": [
+                "equipment_down"
+              ],
+              "focus_matches": [
+                "equipment_down"
+              ],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.048295,
+              "relevance_grade": 3,
+              "relevance_reason": "설비 고장 대응 절차에서 알람 감지 → 설비 정지 → 영향 lot 식별 및 hold/reroute 결정 등 초기 대응과 Lot Hold 절차(엔지니어가 품질 영향 lot hold 필요 결정)에 대해 구체적으로 서술되어 있어, 두 요청을 직접적으로 모두 다룸."
+            },
+            "retrieval_ranks": {
+              "0": 1,
+              "1": 1,
+              "2": 6,
+              "3": 2
+            },
+            "retrieval_mode": "hybrid",
+            "chunk_id": "949c72912ec914f87682d1ce",
+            "collection": "master_pjt",
+            "knowledge_base": "incident_playbook",
+            "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+            "retrieval_trace": {
+              "pipeline_version": "hybrid.v1",
+              "plan": {
+                "query": "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+                "knowledge_bases": [
+                  "incident_playbook"
+                ],
+                "concepts": [
+                  "equipment_down",
+                  "lot_hold"
+                ],
+                "excluded_concepts": [],
+                "exact_ids": [],
+                "fab_ids": [],
+                "terms": [
+                  "설비",
+                  "고장",
+                  "초기",
+                  "대응",
+                  "lot",
+                  "hold",
+                  "concept:equipment_down",
+                  "concept:lot_hold"
+                ],
+                "subqueries": [
+                  "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+                  "설비 고장",
+                  "lot hold"
+                ],
+                "require_verified": false
+              },
+              "retrieval_mode": "hybrid",
+              "reranker": "llm.v1",
+              "candidate_limit": 30,
+              "retrieval_channels": [
+                "bm25:original",
+                "bm25:subquery1",
+                "bm25:subquery2",
+                "dense:incident_playbook"
+              ],
+              "reranked_count": 12,
+              "lexical_candidates": 23,
+              "dense_candidates": 25,
+              "fused_candidates": 25,
+              "selected_count": 3,
+              "context_chars": 2193,
+              "covered_concepts": [
+                "equipment_down",
+                "lot_hold"
+              ],
+              "uncovered_concepts": [],
+              "latency_ms": 10084.832
+            },
+            "retrieval_limitations": []
+          }
+        },
+        {
+          "source_type": "rag_chunk",
+          "title": "13. Lot Hold 판단",
+          "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n13. Lot Hold 판단\n13 / 25\n13. Lot Hold 판단\nWhen to Hold a Lot\nplaybook_id\nPB-HL-001\nissue_type\nlot_hold\ntrigger\nquality or process risk\nowner\nEngineer\ndecision\nhold\ntags\nhold,containment\n이슈 감지\n품질 영향?\n납기 영향?\nLOT HOLD\n조건부 진행\n재스케줄\n모니터링\nHold 조건\n-\n품질 영향 가능성이 있고 원인 범위가 확정되지 않은 경우 hold한다.\n-\n공정 spec 위반, 장비 alarm 후 처리 lot, material 의심 lot, recipe mismatch lot은 우선 hold 후보가 된다.\n-\n납기 압박은 품질 hold 해제의 단독 사유가 될 수 없다.\n필수 기록\n-\nhold reason, affected operation, suspect tool, suspect time window, owner, expected next review time을 기록한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+          "metadata": {
+            "chunk_index": "12",
+            "concepts": [
+              "lot_hold",
+              "lot_release",
+              "recovery"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "lot_hold",
+            "page_number": 13,
+            "playbook_ids": [
+              "PB-HL-001"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "13. Lot Hold 판단",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "dense_score": 0.5177210569381714,
+            "score": 3.1202,
+            "retrieval_features": {
+              "term_coverage": 0.375,
+              "concept_matches": [
+                "lot_hold"
+              ],
+              "focus_matches": [
+                "lot_hold"
+              ],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.039742,
+              "relevance_grade": 3,
+              "relevance_reason": "Lot Hold 판단 절차를 구체적으로 제공하며 설비 고장 상황(공정 spec 위반, 장비 alarm 후 처리 lot 등)을 Hold 후보로 명시하고, 필요 기록, hold 조건 등 실제 절차에 대한 명확한 설명이 있어 주 요청을 충족함."
+            },
+            "retrieval_ranks": {
+              "0": 6,
+              "2": 1,
+              "3": 1
+            },
+            "retrieval_mode": "hybrid",
+            "chunk_id": "4456402d14afcca1262205d0",
+            "collection": "master_pjt",
+            "knowledge_base": "incident_playbook",
+            "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+            "retrieval_trace": {
+              "pipeline_version": "hybrid.v1",
+              "plan": {
+                "query": "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+                "knowledge_bases": [
+                  "incident_playbook"
+                ],
+                "concepts": [
+                  "equipment_down",
+                  "lot_hold"
+                ],
+                "excluded_concepts": [],
+                "exact_ids": [],
+                "fab_ids": [],
+                "terms": [
+                  "설비",
+                  "고장",
+                  "초기",
+                  "대응",
+                  "lot",
+                  "hold",
+                  "concept:equipment_down",
+                  "concept:lot_hold"
+                ],
+                "subqueries": [
+                  "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+                  "설비 고장",
+                  "lot hold"
+                ],
+                "require_verified": false
+              },
+              "retrieval_mode": "hybrid",
+              "reranker": "llm.v1",
+              "candidate_limit": 30,
+              "retrieval_channels": [
+                "bm25:original",
+                "bm25:subquery1",
+                "bm25:subquery2",
+                "dense:incident_playbook"
+              ],
+              "reranked_count": 12,
+              "lexical_candidates": 23,
+              "dense_candidates": 25,
+              "fused_candidates": 25,
+              "selected_count": 3,
+              "context_chars": 2193,
+              "covered_concepts": [
+                "equipment_down",
+                "lot_hold"
+              ],
+              "uncovered_concepts": [],
+              "latency_ms": 10084.832
+            },
+            "retrieval_limitations": []
+          }
+        },
+        {
+          "source_type": "rag_chunk",
+          "title": "05. 공통 대응 프로세스",
+          "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n05. 공통 대응 프로세스\n5 / 25\n05. 공통 대응 프로세스\nDetect - Classify - Contain - Recover - Learn\nplaybook_id\nPB-GEN-004\nissue_type\nall\nseverity\nS1-S4\nfirst_action\nlog event\nowner\nOperator\ntags\nworkflow\nEvent Log\nSeverity\nContainment\nSchedule Fix\nRecovery Check\nRCA Update\n기본 절차\n-\n모든 돌발상황은 발생 시각, fab, area, toolgroup, lot, product, 현재 step을 먼저 기록한다.\n-\n품질 영향 가능성이 있으면 lot을 즉시 격리하거나 hold 후보로 전환한다.\n-\n납기 영향 가능성이 있으면 Scheduler가 대체 toolgroup과 dispatching rule 변경 가능성을 검토한다.\n-\n복구 후에는 RCA와 prevention rule 업데이트를 완료해야 한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+          "metadata": {
+            "chunk_index": "4",
+            "concepts": [
+              "dispatch",
+              "lot_hold",
+              "rca",
+              "recovery"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "all",
+            "page_number": 5,
+            "playbook_ids": [
+              "PB-GEN-004"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "05. 공통 대응 프로세스",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "dense_score": 0.4603850841522217,
+            "score": 2.0801,
+            "retrieval_features": {
+              "term_coverage": 0.5,
+              "concept_matches": [
+                "lot_hold"
+              ],
+              "focus_matches": [],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.038473,
+              "relevance_grade": 2,
+              "relevance_reason": "공통 대응 프로세스에서 품질 영향시 lot 즉시 hold 등 lot hold 개념과 기본적인 돌발 설비 대응 흐름을 언급하나, 구체적 초기 대응 및 lot hold 절차의 세부 내용까지는 언급하지 않아 완전한 근거는 아님."
+            },
+            "retrieval_ranks": {
+              "0": 5,
+              "2": 3,
+              "3": 6
+            },
+            "retrieval_mode": "hybrid",
+            "chunk_id": "448e9fe7c0a26836a9eb0b32",
+            "collection": "master_pjt",
+            "knowledge_base": "incident_playbook",
+            "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+            "retrieval_trace": {
+              "pipeline_version": "hybrid.v1",
+              "plan": {
+                "query": "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+                "knowledge_bases": [
+                  "incident_playbook"
+                ],
+                "concepts": [
+                  "equipment_down",
+                  "lot_hold"
+                ],
+                "excluded_concepts": [],
+                "exact_ids": [],
+                "fab_ids": [],
+                "terms": [
+                  "설비",
+                  "고장",
+                  "초기",
+                  "대응",
+                  "lot",
+                  "hold",
+                  "concept:equipment_down",
+                  "concept:lot_hold"
+                ],
+                "subqueries": [
+                  "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+                  "설비 고장",
+                  "lot hold"
+                ],
+                "require_verified": false
+              },
+              "retrieval_mode": "hybrid",
+              "reranker": "llm.v1",
+              "candidate_limit": 30,
+              "retrieval_channels": [
+                "bm25:original",
+                "bm25:subquery1",
+                "bm25:subquery2",
+                "dense:incident_playbook"
+              ],
+              "reranked_count": 12,
+              "lexical_candidates": 23,
+              "dense_candidates": 25,
+              "fused_candidates": 25,
+              "selected_count": 3,
+              "context_chars": 2193,
+              "covered_concepts": [
+                "equipment_down",
+                "lot_hold"
+              ],
+              "uncovered_concepts": [],
+              "latency_ms": 10084.832
+            },
+            "retrieval_limitations": []
+          }
+        }
+      ],
+      "trace": {
+        "pipeline_version": "hybrid.v1",
+        "plan": {
+          "query": "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+          "knowledge_bases": [
+            "incident_playbook"
+          ],
+          "concepts": [
+            "equipment_down",
+            "lot_hold"
+          ],
+          "excluded_concepts": [],
+          "exact_ids": [],
+          "fab_ids": [],
+          "terms": [
+            "설비",
+            "고장",
+            "초기",
+            "대응",
+            "lot",
+            "hold",
+            "concept:equipment_down",
+            "concept:lot_hold"
+          ],
+          "subqueries": [
+            "설비 고장 초기 대응과 Lot Hold 절차를 함께 설명해",
+            "설비 고장",
+            "lot hold"
+          ],
+          "require_verified": false
+        },
+        "retrieval_mode": "hybrid",
+        "reranker": "llm.v1",
+        "candidate_limit": 30,
+        "retrieval_channels": [
+          "bm25:original",
+          "bm25:subquery1",
+          "bm25:subquery2",
+          "dense:incident_playbook"
+        ],
+        "reranked_count": 12,
+        "lexical_candidates": 23,
+        "dense_candidates": 25,
+        "fused_candidates": 25,
+        "selected_count": 3,
+        "context_chars": 2193,
+        "covered_concepts": [
+          "equipment_down",
+          "lot_hold"
+        ],
+        "uncovered_concepts": [],
+        "latency_ms": 10084.832
+      }
+    },
+    {
+      "query": "PB-QT-001",
+      "seconds": 11.143,
+      "evidence": [
+        {
+          "source_type": "rag_chunk",
+          "title": "17. Queue Time / Timelink 위반 대응",
+          "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n17. Queue Time / Timelink 위반 대응\n17 / 25\n17. Queue Time / Timelink 위반 대응\nTime-sensitive Operation Control\nplaybook_id\nPB-QT-001\nissue_type\nqueue_time_risk\ntrigger\ntime window close\nowner\nScheduler\ndecision\nexpedite or hold\ntags\nqueue,time\nTime Alert\nFind Lot\nReserve Tool\nRun / Hold\nCheck Quality\nClose\n감지 조건\n-\n이전 operation 완료 후 다음 operation까지 허용 시간이 임박하거나 초과된다.\n-\n병목, 장비 고장, hot lot insertion으로 time-sensitive lot의 대기가 길어진다.\n대응 절차\n-\nScheduler는 time window가 가장 짧은 lot을 우선 배정한다.\n-\nEngineer는 queue time 초과 lot의 품질 영향과 rework 가능성을 판단한다.\n-\nOperator는 해당 lot의 physical location과 carrier 상태를 확인한다.\n복구 조건\n-\ntime-sensitive lot 처리 완료 또는 disposition 결정 완료.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+          "metadata": {
+            "chunk_index": "16",
+            "concepts": [
+              "bottleneck",
+              "equipment_down",
+              "hot_lot",
+              "queue_time",
+              "recovery",
+              "rework"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "queue_time_risk",
+            "page_number": 17,
+            "playbook_ids": [
+              "PB-QT-001"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "17. Queue Time / Timelink 위반 대응",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "dense_score": 0.36608245968818665,
+            "score": 3.4033,
+            "retrieval_features": {
+              "term_coverage": 1.0,
+              "concept_matches": [],
+              "focus_matches": [],
+              "excluded_matches": [],
+              "exact_id_match": true,
+              "structural_noise": false,
+              "fusion_score": 0.032787,
+              "relevance_grade": 3,
+              "relevance_reason": "해당 문서는 playbook_id 가 'PB-QT-001'로 명확히 일치하며, 주요 감지 조건, 대응 절차, 복구 조건 등을 구체적으로 설명하여 문의의 핵심 요구사항을 직접적으로 뒷받침한다."
+            },
+            "retrieval_ranks": {
+              "0": 1,
+              "1": 1
+            },
+            "retrieval_mode": "hybrid",
+            "chunk_id": "6068e37d81afe3b918a7dfae",
+            "collection": "master_pjt",
+            "knowledge_base": "incident_playbook",
+            "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+            "retrieval_trace": {
+              "pipeline_version": "hybrid.v1",
+              "plan": {
+                "query": "PB-QT-001",
+                "knowledge_bases": [
+                  "incident_playbook"
+                ],
+                "concepts": [],
+                "excluded_concepts": [],
+                "exact_ids": [
+                  "PB-QT-001"
+                ],
+                "fab_ids": [],
+                "terms": [
+                  "pb-qt-001"
+                ],
+                "subqueries": [
+                  "PB-QT-001"
+                ],
+                "require_verified": false
+              },
+              "retrieval_mode": "hybrid",
+              "reranker": "llm.v1",
+              "candidate_limit": 30,
+              "retrieval_channels": [
+                "bm25:original",
+                "dense:incident_playbook"
+              ],
+              "reranked_count": 12,
+              "lexical_candidates": 1,
+              "dense_candidates": 25,
+              "fused_candidates": 25,
+              "selected_count": 1,
+              "context_chars": 821,
+              "covered_concepts": [],
+              "uncovered_concepts": [],
+              "latency_ms": 11141.538
+            },
+            "retrieval_limitations": []
+          }
+        }
+      ],
+      "trace": {
+        "pipeline_version": "hybrid.v1",
+        "plan": {
+          "query": "PB-QT-001",
+          "knowledge_bases": [
+            "incident_playbook"
+          ],
+          "concepts": [],
+          "excluded_concepts": [],
+          "exact_ids": [
+            "PB-QT-001"
+          ],
+          "fab_ids": [],
+          "terms": [
+            "pb-qt-001"
+          ],
+          "subqueries": [
+            "PB-QT-001"
+          ],
+          "require_verified": false
+        },
+        "retrieval_mode": "hybrid",
+        "reranker": "llm.v1",
+        "candidate_limit": 30,
+        "retrieval_channels": [
+          "bm25:original",
+          "dense:incident_playbook"
+        ],
+        "reranked_count": 12,
+        "lexical_candidates": 1,
+        "dense_candidates": 25,
+        "fused_candidates": 25,
+        "selected_count": 1,
+        "context_chars": 821,
+        "covered_concepts": [],
+        "uncovered_concepts": [],
+        "latency_ms": 11141.538
+      }
+    },
+    {
+      "query": "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록",
+      "seconds": 10.275,
+      "evidence": [
+        {
+          "source_type": "rag_chunk",
+          "title": "05. 공통 대응 프로세스",
+          "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n05. 공통 대응 프로세스\n5 / 25\n05. 공통 대응 프로세스\nDetect - Classify - Contain - Recover - Learn\nplaybook_id\nPB-GEN-004\nissue_type\nall\nseverity\nS1-S4\nfirst_action\nlog event\nowner\nOperator\ntags\nworkflow\nEvent Log\nSeverity\nContainment\nSchedule Fix\nRecovery Check\nRCA Update\n기본 절차\n-\n모든 돌발상황은 발생 시각, fab, area, toolgroup, lot, product, 현재 step을 먼저 기록한다.\n-\n품질 영향 가능성이 있으면 lot을 즉시 격리하거나 hold 후보로 전환한다.\n-\n납기 영향 가능성이 있으면 Scheduler가 대체 toolgroup과 dispatching rule 변경 가능성을 검토한다.\n-\n복구 후에는 RCA와 prevention rule 업데이트를 완료해야 한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+          "metadata": {
+            "chunk_index": "4",
+            "concepts": [
+              "dispatch",
+              "lot_hold",
+              "rca",
+              "recovery"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "all",
+            "page_number": 5,
+            "playbook_ids": [
+              "PB-GEN-004"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "05. 공통 대응 프로세스",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "dense_score": 0.31278035044670105,
+            "score": 3.0,
+            "retrieval_features": {
+              "term_coverage": 0.0,
+              "concept_matches": [],
+              "focus_matches": [],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.015385,
+              "relevance_grade": 3,
+              "relevance_reason": "공통 돌발상황 대응 프로세스에서 모든 이벤트 발생 시 작업자가 즉시 기록해야 할 항목(시각, fab, area, lot 등)을 구체적으로 명시하며, 챔버 멈춤과 같이 갑작스러운 이벤트에 맞는 최초 기록 사항을 직접적으로 제시한다."
+            },
+            "retrieval_ranks": {
+              "1": 5
+            },
+            "retrieval_mode": "hybrid",
+            "chunk_id": "448e9fe7c0a26836a9eb0b32",
+            "collection": "master_pjt",
+            "knowledge_base": "incident_playbook",
+            "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+            "retrieval_trace": {
+              "pipeline_version": "hybrid.v1",
+              "plan": {
+                "query": "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록",
+                "knowledge_bases": [
+                  "incident_playbook"
+                ],
+                "concepts": [],
+                "excluded_concepts": [],
+                "exact_ids": [],
+                "fab_ids": [],
+                "terms": [
+                  "챔버",
+                  "갑자기",
+                  "멈췄는데",
+                  "작업자",
+                  "처음",
+                  "남겨야",
+                  "기록"
+                ],
+                "subqueries": [
+                  "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록"
+                ],
+                "require_verified": false
+              },
+              "retrieval_mode": "hybrid",
+              "reranker": "llm.v1",
+              "candidate_limit": 30,
+              "retrieval_channels": [
+                "bm25:original",
+                "dense:incident_playbook"
+              ],
+              "reranked_count": 12,
+              "lexical_candidates": 2,
+              "dense_candidates": 25,
+              "fused_candidates": 25,
+              "selected_count": 3,
+              "context_chars": 2102,
+              "covered_concepts": [],
+              "uncovered_concepts": [],
+              "latency_ms": 10273.361
+            },
+            "retrieval_limitations": []
+          }
+        },
+        {
+          "source_type": "rag_chunk",
+          "title": "13. Lot Hold 판단",
+          "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n13. Lot Hold 판단\n13 / 25\n13. Lot Hold 판단\nWhen to Hold a Lot\nplaybook_id\nPB-HL-001\nissue_type\nlot_hold\ntrigger\nquality or process risk\nowner\nEngineer\ndecision\nhold\ntags\nhold,containment\n이슈 감지\n품질 영향?\n납기 영향?\nLOT HOLD\n조건부 진행\n재스케줄\n모니터링\nHold 조건\n-\n품질 영향 가능성이 있고 원인 범위가 확정되지 않은 경우 hold한다.\n-\n공정 spec 위반, 장비 alarm 후 처리 lot, material 의심 lot, recipe mismatch lot은 우선 hold 후보가 된다.\n-\n납기 압박은 품질 hold 해제의 단독 사유가 될 수 없다.\n필수 기록\n-\nhold reason, affected operation, suspect tool, suspect time window, owner, expected next review time을 기록한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+          "metadata": {
+            "chunk_index": "12",
+            "concepts": [
+              "lot_hold",
+              "lot_release",
+              "recovery"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "lot_hold",
+            "page_number": 13,
+            "playbook_ids": [
+              "PB-HL-001"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "13. Lot Hold 판단",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "dense_score": 0.2722621560096741,
+            "score": 2.0,
+            "retrieval_features": {
+              "term_coverage": 0.1429,
+              "concept_matches": [],
+              "focus_matches": [],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.028787,
+              "relevance_grade": 2,
+              "relevance_reason": "Lot Hold 상황에서 반드시 남겨야 할 기록(hold reason, affected operation, suspect tool 등)을 구체적으로 안내하지만, 챔버 멈춤의 신고·기록 절차 자체에 대해 전체적인 맥락 설명이 부족하다."
+            },
+            "retrieval_ranks": {
+              "0": 2,
+              "1": 19
+            },
+            "retrieval_mode": "hybrid",
+            "chunk_id": "4456402d14afcca1262205d0",
+            "collection": "master_pjt",
+            "knowledge_base": "incident_playbook",
+            "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+            "retrieval_trace": {
+              "pipeline_version": "hybrid.v1",
+              "plan": {
+                "query": "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록",
+                "knowledge_bases": [
+                  "incident_playbook"
+                ],
+                "concepts": [],
+                "excluded_concepts": [],
+                "exact_ids": [],
+                "fab_ids": [],
+                "terms": [
+                  "챔버",
+                  "갑자기",
+                  "멈췄는데",
+                  "작업자",
+                  "처음",
+                  "남겨야",
+                  "기록"
+                ],
+                "subqueries": [
+                  "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록"
+                ],
+                "require_verified": false
+              },
+              "retrieval_mode": "hybrid",
+              "reranker": "llm.v1",
+              "candidate_limit": 30,
+              "retrieval_channels": [
+                "bm25:original",
+                "dense:incident_playbook"
+              ],
+              "reranked_count": 12,
+              "lexical_candidates": 2,
+              "dense_candidates": 25,
+              "fused_candidates": 25,
+              "selected_count": 3,
+              "context_chars": 2102,
+              "covered_concepts": [],
+              "uncovered_concepts": [],
+              "latency_ms": 10273.361
+            },
+            "retrieval_limitations": []
+          }
+        },
+        {
+          "source_type": "rag_chunk",
+          "title": "04. 역할 정의와 RACI",
+          "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n04. 역할 정의와 RACI\n4 / 25\n04. 역할 정의와 RACI\nOperator, Scheduler, Engineer, Manager의 판단 경계\nplaybook_id\nPB-GEN-003\nissue_type\nall\nrole_model\nRACI\ndecision\nshared\nescalation\nyes\ntags\nrole,raci\nTask\nOperator\nScheduler\nEngineer\nManager\nDetect / log\nR\nC\nC\nI\nHold decision\nC\nC\nA/R\nI\nSchedule recovery\nI\nA/R\nC\nI\nRCA approval\nC\nI\nR\nA\n역할 원칙\n-\nOperator는 감지, 현장 확인, 초기 기록, 설비 상태 전환을 담당한다.\n-\nScheduler는 lot 우선순위, 대체 설비 배정, release 조정, hot lot 영향 평가를 담당한다.\n-\nEngineer는 원인 판단, hold/release 승인, qualification 조건, RCA를 담당한다.\n-\nManager는 중대 이슈의 납기/품질 리스크 승인과 고객 영향 커뮤니케이션을 담당한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+          "metadata": {
+            "chunk_index": "3",
+            "concepts": [
+              "alternate",
+              "escalation",
+              "hot_lot",
+              "rca",
+              "recovery"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "all",
+            "page_number": 4,
+            "playbook_ids": [
+              "PB-GEN-003"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "04. 역할 정의와 RACI",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "dense_score": 0.3386370837688446,
+            "score": 2.0,
+            "retrieval_features": {
+              "term_coverage": 0.1429,
+              "concept_matches": [],
+              "focus_matches": [],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.032522,
+              "relevance_grade": 2,
+              "relevance_reason": "Operator의 주요 역할에 '감지, 현장 확인, 초기 기록'이 포함된다고 설명하나, 실제로 어떤 내용을 기록해야 하는지 구체적으로 명시되어 있지 않다."
+            },
+            "retrieval_ranks": {
+              "0": 1,
+              "1": 2
+            },
+            "retrieval_mode": "hybrid",
+            "chunk_id": "4d8eb02555561b087798a125",
+            "collection": "master_pjt",
+            "knowledge_base": "incident_playbook",
+            "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+            "retrieval_trace": {
+              "pipeline_version": "hybrid.v1",
+              "plan": {
+                "query": "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록",
+                "knowledge_bases": [
+                  "incident_playbook"
+                ],
+                "concepts": [],
+                "excluded_concepts": [],
+                "exact_ids": [],
+                "fab_ids": [],
+                "terms": [
+                  "챔버",
+                  "갑자기",
+                  "멈췄는데",
+                  "작업자",
+                  "처음",
+                  "남겨야",
+                  "기록"
+                ],
+                "subqueries": [
+                  "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록"
+                ],
+                "require_verified": false
+              },
+              "retrieval_mode": "hybrid",
+              "reranker": "llm.v1",
+              "candidate_limit": 30,
+              "retrieval_channels": [
+                "bm25:original",
+                "dense:incident_playbook"
+              ],
+              "reranked_count": 12,
+              "lexical_candidates": 2,
+              "dense_candidates": 25,
+              "fused_candidates": 25,
+              "selected_count": 3,
+              "context_chars": 2102,
+              "covered_concepts": [],
+              "uncovered_concepts": [],
+              "latency_ms": 10273.361
+            },
+            "retrieval_limitations": []
+          }
+        }
+      ],
+      "trace": {
+        "pipeline_version": "hybrid.v1",
+        "plan": {
+          "query": "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록",
+          "knowledge_bases": [
+            "incident_playbook"
+          ],
+          "concepts": [],
+          "excluded_concepts": [],
+          "exact_ids": [],
+          "fab_ids": [],
+          "terms": [
+            "챔버",
+            "갑자기",
+            "멈췄는데",
+            "작업자",
+            "처음",
+            "남겨야",
+            "기록"
+          ],
+          "subqueries": [
+            "챔버가 갑자기 멈췄는데 작업자가 처음 남겨야 할 기록"
+          ],
+          "require_verified": false
+        },
+        "retrieval_mode": "hybrid",
+        "reranker": "llm.v1",
+        "candidate_limit": 30,
+        "retrieval_channels": [
+          "bm25:original",
+          "dense:incident_playbook"
+        ],
+        "reranked_count": 12,
+        "lexical_candidates": 2,
+        "dense_candidates": 25,
+        "fused_candidates": 25,
+        "selected_count": 3,
+        "context_chars": 2102,
+        "covered_concepts": [],
+        "uncovered_concepts": [],
+        "latency_ms": 10273.361
+      }
+    },
+    {
+      "query": "소모품 재고가 바닥나 생산 투입이 막혔어",
+      "seconds": 11.505,
+      "evidence": [
+        {
+          "source_type": "rag_chunk",
+          "title": "15. 자재 부족 대응",
+          "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n15. 자재 부족 대응\n15 / 25\n15. 자재 부족 대응\nMaterial Shortage / Consumable Constraint\nplaybook_id\nPB-MT-001\nissue_type\nmaterial_shortage\ntrigger\nstockout risk\nowner\nScheduler\ndecision\nprioritize\ntags\nmaterial,priority\nShortage\nLot Ranking\nAlt Material\nPlan Change\nArrival\nBacklog Clear\n감지 조건\n-\nphotoresist, gas, chemical, reticle, spare part 등의 available quantity가 계획 소요량보다 부족하다.\n-\n자재 부족으로 특정 operation의 release 가능 lot 수가 제한된다.\n대응 절차\n-\nScheduler는 customer due date, hot lot, engineering priority 기준으로 소비 우선순위를 정한다.\n-\nEngineer는 대체 자재 또는 대체 recipe 사용 가능성을 평가한다.\n-\nManager는 납기 영향이 큰 경우 고객 영향 범위를 승인한다.\n복구 조건\n-\n자재 입고 확인, 사용 가능성 승인, backlog 처리 계획 수립.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+          "metadata": {
+            "chunk_index": "14",
+            "concepts": [
+              "hot_lot",
+              "material_shortage",
+              "recovery"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "material_shortage",
+            "page_number": 15,
+            "playbook_ids": [
+              "PB-MT-001"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "15. 자재 부족 대응",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "dense_score": 0.41939815878868103,
+            "score": 3.0,
+            "retrieval_features": {
+              "term_coverage": 0.0,
+              "concept_matches": [],
+              "focus_matches": [],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.016393,
+              "relevance_grade": 3,
+              "relevance_reason": "이 문서는 소모품(예: photoresist, gas, 화학약품, spare part 등) 재고 부족에 따라 생산 가능 lot 수가 제한되고 생산 투입이 막히는 상황에 대해 명확히 다뤄진다. 스케줄링, 대체 자재 검토, 납기 영향 및 복구조건까지 절차적이고 구체적인 대응책을 명시하고 있어 요청 내용의 주요 근거를 직접적으로 뒷받침한다."
+            },
+            "retrieval_ranks": {
+              "1": 1
+            },
+            "retrieval_mode": "hybrid",
+            "chunk_id": "945772ffc0887bda7adabd95",
+            "collection": "master_pjt",
+            "knowledge_base": "incident_playbook",
+            "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+            "retrieval_trace": {
+              "pipeline_version": "hybrid.v1",
+              "plan": {
+                "query": "소모품 재고가 바닥나 생산 투입이 막혔어",
+                "knowledge_bases": [
+                  "incident_playbook"
+                ],
+                "concepts": [],
+                "excluded_concepts": [],
+                "exact_ids": [],
+                "fab_ids": [],
+                "terms": [
+                  "소모품",
+                  "재고",
+                  "바닥나",
+                  "생산",
+                  "투입",
+                  "막혔어"
+                ],
+                "subqueries": [
+                  "소모품 재고가 바닥나 생산 투입이 막혔어"
+                ],
+                "require_verified": false
+              },
+              "retrieval_mode": "hybrid",
+              "reranker": "llm.v1",
+              "candidate_limit": 30,
+              "retrieval_channels": [
+                "bm25:original",
+                "dense:incident_playbook"
+              ],
+              "reranked_count": 12,
+              "lexical_candidates": 6,
+              "dense_candidates": 25,
+              "fused_candidates": 25,
+              "selected_count": 2,
+              "context_chars": 1680,
+              "covered_concepts": [],
+              "uncovered_concepts": [],
+              "latency_ms": 11503.098
+            },
+            "retrieval_limitations": []
+          }
+        },
+        {
+          "source_type": "rag_chunk",
+          "title": "18. Dispatching Rule Override",
+          "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n18. Dispatching Rule Override\n18 / 25\n18. Dispatching Rule Override\n자동 규칙을 임시 변경하는 경우\nplaybook_id\nPB-SC-001\nissue_type\ndispatch_override\ntrigger\nrule conflict\nowner\nScheduler\ndecision\nmanual override\ntags\ndispatch,schedule\n허용 조건\n-\nSuperHotLotFIRST, reservation, least setup time 같은 규칙이 품질 또는 납기 목표와 충돌할 때 임시 override를 검토한다.\n-\noverride는 시작 시각, 종료 조건, 영향 lot, 승인자를 반드시 남긴다.\n금지 조건\n-\n품질 hold lot을 단순 납기 사유로 override release하지 않는다.\n-\n대체 tool qualification이 불명확한 상태에서 dispatch만 변경하지 않는다.\nOverride Case\nApprover\nEnd Condition\nHot lot queue\nScheduler\nhot lot passes bottleneck\nQuality containment\nEngineer\ndisposition complete\nTool recovery\nEngineer\nqual pass\nMaterial limit\nManager\nshortage cleared\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+          "metadata": {
+            "chunk_index": "17",
+            "concepts": [
+              "bottleneck",
+              "dispatch",
+              "hot_lot",
+              "recovery",
+              "setup"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "dispatch_override",
+            "page_number": 18,
+            "playbook_ids": [
+              "PB-SC-001"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "18. Dispatching Rule Override",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "dense_score": 0.2691941261291504,
+            "score": 2.0,
+            "retrieval_features": {
+              "term_coverage": 0.0,
+              "concept_matches": [],
+              "focus_matches": [],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.013333,
+              "relevance_grade": 2,
+              "relevance_reason": "Dispatching Rule Override와 자재 한계(material limit)로 인한 생산 중단 시 매니저 승인과 shortage cleared(부족분 해소)에 대한 절차를 언급한다. 하지만 직접적으로 주요 대응책 전체를 구체적으로 서술한 것은 아니므로 부분적인 근거를 제공한다."
+            },
+            "retrieval_ranks": {
+              "1": 15
+            },
+            "retrieval_mode": "hybrid",
+            "chunk_id": "4fd61e7115454c5005988769",
+            "collection": "master_pjt",
+            "knowledge_base": "incident_playbook",
+            "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+            "retrieval_trace": {
+              "pipeline_version": "hybrid.v1",
+              "plan": {
+                "query": "소모품 재고가 바닥나 생산 투입이 막혔어",
+                "knowledge_bases": [
+                  "incident_playbook"
+                ],
+                "concepts": [],
+                "excluded_concepts": [],
+                "exact_ids": [],
+                "fab_ids": [],
+                "terms": [
+                  "소모품",
+                  "재고",
+                  "바닥나",
+                  "생산",
+                  "투입",
+                  "막혔어"
+                ],
+                "subqueries": [
+                  "소모품 재고가 바닥나 생산 투입이 막혔어"
+                ],
+                "require_verified": false
+              },
+              "retrieval_mode": "hybrid",
+              "reranker": "llm.v1",
+              "candidate_limit": 30,
+              "retrieval_channels": [
+                "bm25:original",
+                "dense:incident_playbook"
+              ],
+              "reranked_count": 12,
+              "lexical_candidates": 6,
+              "dense_candidates": 25,
+              "fused_candidates": 25,
+              "selected_count": 2,
+              "context_chars": 1680,
+              "covered_concepts": [],
+              "uncovered_concepts": [],
+              "latency_ms": 11503.098
+            },
+            "retrieval_limitations": []
+          }
+        }
+      ],
+      "trace": {
+        "pipeline_version": "hybrid.v1",
+        "plan": {
+          "query": "소모품 재고가 바닥나 생산 투입이 막혔어",
+          "knowledge_bases": [
+            "incident_playbook"
+          ],
+          "concepts": [],
+          "excluded_concepts": [],
+          "exact_ids": [],
+          "fab_ids": [],
+          "terms": [
+            "소모품",
+            "재고",
+            "바닥나",
+            "생산",
+            "투입",
+            "막혔어"
+          ],
+          "subqueries": [
+            "소모품 재고가 바닥나 생산 투입이 막혔어"
+          ],
+          "require_verified": false
+        },
+        "retrieval_mode": "hybrid",
+        "reranker": "llm.v1",
+        "candidate_limit": 30,
+        "retrieval_channels": [
+          "bm25:original",
+          "dense:incident_playbook"
+        ],
+        "reranked_count": 12,
+        "lexical_candidates": 6,
+        "dense_candidates": 25,
+        "fused_candidates": 25,
+        "selected_count": 2,
+        "context_chars": 1680,
+        "covered_concepts": [],
+        "uncovered_concepts": [],
+        "latency_ms": 11503.098
+      }
+    },
+    {
+      "query": "다른 장비로 우회하기 전 qualification 점검",
+      "seconds": 10.44,
+      "evidence": [],
+      "trace": null
+    },
+    {
+      "query": "사건 종료 뒤 플레이북에 새 판단 기준을 추가하려면",
+      "seconds": 10.539,
+      "evidence": [
+        {
+          "source_type": "rag_chunk",
+          "title": "05. 공통 대응 프로세스",
+          "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n05. 공통 대응 프로세스\n5 / 25\n05. 공통 대응 프로세스\nDetect - Classify - Contain - Recover - Learn\nplaybook_id\nPB-GEN-004\nissue_type\nall\nseverity\nS1-S4\nfirst_action\nlog event\nowner\nOperator\ntags\nworkflow\nEvent Log\nSeverity\nContainment\nSchedule Fix\nRecovery Check\nRCA Update\n기본 절차\n-\n모든 돌발상황은 발생 시각, fab, area, toolgroup, lot, product, 현재 step을 먼저 기록한다.\n-\n품질 영향 가능성이 있으면 lot을 즉시 격리하거나 hold 후보로 전환한다.\n-\n납기 영향 가능성이 있으면 Scheduler가 대체 toolgroup과 dispatching rule 변경 가능성을 검토한다.\n-\n복구 후에는 RCA와 prevention rule 업데이트를 완료해야 한다.\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+          "metadata": {
+            "chunk_index": "4",
+            "concepts": [
+              "dispatch",
+              "lot_hold",
+              "rca",
+              "recovery"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "all",
+            "page_number": 5,
+            "playbook_ids": [
+              "PB-GEN-004"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "05. 공통 대응 프로세스",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "dense_score": 0.2568304240703583,
+            "score": 2.0,
+            "retrieval_features": {
+              "term_coverage": 0.0,
+              "concept_matches": [],
+              "focus_matches": [],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.013333,
+              "relevance_grade": 2,
+              "relevance_reason": "복구 후 RCA와 예방 규정(prevention rule) 업데이트를 완료해야 한다고 명시함. 이는 사건 종료 뒤 플레이북(즉, 운영 기준/결정 기준)에 '업데이트'를 추가할 필요성을 직접적으로 언급하여 일부 절차를 뒷받침한다. 단, 구체적인 추가 방법이나 작성 절차에 대한 상세 안내는 없다."
+            },
+            "retrieval_ranks": {
+              "1": 15
+            },
+            "retrieval_mode": "hybrid",
+            "chunk_id": "448e9fe7c0a26836a9eb0b32",
+            "collection": "master_pjt",
+            "knowledge_base": "incident_playbook",
+            "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+            "retrieval_trace": {
+              "pipeline_version": "hybrid.v1",
+              "plan": {
+                "query": "사건 종료 뒤 플레이북에 새 판단 기준을 추가하려면",
+                "knowledge_bases": [
+                  "incident_playbook"
+                ],
+                "concepts": [],
+                "excluded_concepts": [],
+                "exact_ids": [],
+                "fab_ids": [],
+                "terms": [
+                  "사건",
+                  "종료",
+                  "플레이북",
+                  "추가하려면"
+                ],
+                "subqueries": [
+                  "사건 종료 뒤 플레이북에 새 판단 기준을 추가하려면"
+                ],
+                "require_verified": false
+              },
+              "retrieval_mode": "hybrid",
+              "reranker": "llm.v1",
+              "candidate_limit": 30,
+              "retrieval_channels": [
+                "bm25:original",
+                "dense:incident_playbook"
+              ],
+              "reranked_count": 12,
+              "lexical_candidates": 6,
+              "dense_candidates": 25,
+              "fused_candidates": 25,
+              "selected_count": 1,
+              "context_chars": 676,
+              "covered_concepts": [],
+              "uncovered_concepts": [],
+              "latency_ms": 10536.965
+            },
+            "retrieval_limitations": []
+          }
+        }
+      ],
+      "trace": {
+        "pipeline_version": "hybrid.v1",
+        "plan": {
+          "query": "사건 종료 뒤 플레이북에 새 판단 기준을 추가하려면",
+          "knowledge_bases": [
+            "incident_playbook"
+          ],
+          "concepts": [],
+          "excluded_concepts": [],
+          "exact_ids": [],
+          "fab_ids": [],
+          "terms": [
+            "사건",
+            "종료",
+            "플레이북",
+            "추가하려면"
+          ],
+          "subqueries": [
+            "사건 종료 뒤 플레이북에 새 판단 기준을 추가하려면"
+          ],
+          "require_verified": false
+        },
+        "retrieval_mode": "hybrid",
+        "reranker": "llm.v1",
+        "candidate_limit": 30,
+        "retrieval_channels": [
+          "bm25:original",
+          "dense:incident_playbook"
+        ],
+        "reranked_count": 12,
+        "lexical_candidates": 6,
+        "dense_candidates": 25,
+        "fused_candidates": 25,
+        "selected_count": 1,
+        "context_chars": 676,
+        "covered_concepts": [],
+        "uncovered_concepts": [],
+        "latency_ms": 10536.965
+      }
+    },
+    {
+      "query": "최신 EUV 레지스트의 최적 노광량 숫자를 알려줘",
+      "seconds": 9.973,
+      "evidence": [],
+      "trace": null
+    },
+    {
+      "query": "실제 사내 승인된 SOP의 장비 고장 대응 절차",
+      "seconds": 0.254,
+      "evidence": [],
+      "trace": null
+    }
+  ],
+  "generations": [
+    {
+      "case_id": "pm",
+      "answer": "예방정비(PM) 일정이 지연될 경우 대응 방법은 다음과 같습니다.\n\n1. 트리거: 예방정비(PM) 예정 시간이 초과되었을 때, 혹은 PM 시간과 중요 lot(hot lot) 처리 계획이 충돌할 때입니다.\n2. 초기 점검:\n   - 엔지니어 승인 없이 PM 연기는 허용하지 않습니다.\n   - 같은 area의 병렬 tool 수 부족 시 대기시간을 확인합니다.\n   - PM 전후로 PM의 영향 제품과 lot 우선순위를 스케줄러가 재계산합니다.\n3. 승인 및 역할:\n   - PM 단기 연기를 원할 경우, 위험이 낮고 매니저 승인(risk memo)이 있어야 합니다.\n   - PM 강행은 품질 또는 안전 리스크가 있을 때, 엔지니어가 실행 결정합니다.\n   - 설비 정지 필요 시, 필요 qualification과 엔지니어 sign-off가 필요합니다.\n4. 복구 기준:\n   - PM 작업 완료\n   - 설비 상태가 AVAILABLE\n   - 관련 alarm이 클리어됨\n   - PM 지연으로 발생한 WIP 적체(backlog)가 정상화됨\n\n(출처: semiconductor_fab_incident_response_playbook_kr.pdf, p.8)\n\n※ 참고: 해당 자료는 시뮬레이션 참조 문서이며 실제 사내 SOP는 아닙니다.",
+      "seconds": 3.261,
+      "source_chunk_ids": [
+        "826a8c8ba9e44f729a587f08"
+      ]
+    },
+    {
+      "case_id": "multi",
+      "answer": "설비 고장 발생 시 초기 대응과 Lot Hold 절차를 아래와 같이 설명할 수 있습니다.\n\n1. 설비 고장 초기 대응 (장비 DOWN/예상치 못한 shutdown)\n- Trigger: Tool 상태가 DOWN으로 전환되거나 breakdown 이벤트가 발생하면 대응을 시작합니다.\n- 오퍼레이터(Operator)는 설비 상태, 마지막 처리 Lot, 챔버, Recipe, 알람 코드를 즉시 기록합니다.\n- 엔지니어(Engineer)는 품질 영향이 있는 Lot을 찾아서 Hold 필요 여부를 판단합니다.\n- 스케줄러(Scheduler)는 대체 Toolgroup 가능성과 Hot Lot 우선순위를 조정합니다.\n- 영향 Lot은 Hold 또는 Reroute(우회)하고, 설비는 정지(Alarm 후 Stop Tool)시킵니다.\n- 복구 조건: 수리 완료, Qualification Pass, 첫 생산 Lot 모니터링 성공, 영향 Lot Disposition(처분) 완료가 필요합니다. (출처: incident_response_playbook_kr.pdf, p.7)\n\n2. Lot Hold 판단 및 진행 절차\n- 품질 영향 가능성이 있으며 원인 범위가 명확하지 않은 경우 해당 Lot을 Hold합니다.\n- Hold 대상 Lot 예시: 공정 Spec 위반 Lot, 장비 Alarm 이후 처리된 Lot, 자재 의심 Lot, Recipe mismatch Lot 등입니다.\n- Hold 시에는 Hold 사유, 영향 Operation, 의심 Tool, 시간 범위, 담당자, 예상 재검토 시점을 반드시 기록해야 합니다.\n- 납기 압박만으로 품질 Hold를 해제할 수 없습니다. (출처: incident_response_playbook_kr.pdf, p.13)\n\n3. 공통 원칙\n- 모든 돌발 상황 발생 시, 시각/영역/Toolgroup/Lot/Product/공정단계를 우선 기록합니다.\n- 품질 영향이 확실할 경우 Lot은 즉시 격리(Hold)합니다. (출처: incident_response_playbook_kr.pdf, p.5)\n\n위 내용은 시뮬레이션 참조 자료로 실제 사내 SOP가 아닙니다.",
+      "seconds": 5.35,
+      "source_chunk_ids": [
+        "949c72912ec914f87682d1ce",
+        "4456402d14afcca1262205d0",
+        "448e9fe7c0a26836a9eb0b32"
+      ]
+    },
+    {
+      "case_id": "unknown_recipe",
+      "answer": "최신 EUV 레지스트의 최적 노광량(Exposure Dose)에 대한 구체적인 숫자 또는 공식 기준은 제공된 문서에서 찾지 못했습니다. 따라서 현재 공정 자료나 레시피 데이터 등이 없으므로 구체적인 값을 안내해드릴 수 없습니다.",
+      "seconds": 0.946,
+      "source_chunk_ids": []
+    }
+  ]
+}

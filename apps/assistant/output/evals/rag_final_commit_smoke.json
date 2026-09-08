@@ -1,0 +1,879 @@
+{
+  "scope": "Real FastAPI routes via in-process ASGI; real LLM and Milvus; no deployed-server/load test.",
+  "git_head": "f3e11b305b657f810878bc4491e8adcd4f587f6b",
+  "fixture_sha256": "258e03ec26e36543f8d5beea6d8127f5e9dfbbb0f5c066ebd1cd68df2c645801",
+  "source_sha256": "f28d3b0c1654ccd5b7f59785beb5c8814ec6e1a7e8d3e4a292b88d916325d2f1",
+  "corpus_sha256": "5cd581ec05cf94505e16ec00177d917b094c3e4461784f9da2bb1222e5cf9dca",
+  "manifest_sha256": "de09cc862649ef8538098083359c7b805d1a678606903ec74f26dbab309f35bf",
+  "started_at_utc": "2026-09-07T22:40:44.165863+00:00",
+  "endpoint": "https://skax.ai-talentlab.com",
+  "mode": "stream",
+  "cases": [
+    {
+      "id": "ext_pm_approval",
+      "query": "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+      "seconds": 15.296,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [
+        "PB-EQ-002"
+      ],
+      "missing_units": [],
+      "complete_retrieval": true,
+      "rag_count": 1,
+      "review_rubric": "Engineer 승인 없이는 연기 불가, 단기 연기 시 low risk/manager approval, qualification 또는 dummy run 결과.",
+      "final": {
+        "conversation_id": "9c16b9eb-1547-4ef2-acc9-c5d0acab2591",
+        "status": "succeeded",
+        "query_type": "knowledge_lookup",
+        "answer": "PM 연기는 manager approval이 필요하며, 위험 수준이 낮은 경우에만 허용된다. [1] [2]\n\nPM 연기 결정시 반드시 risk memo를 기록해야 한다. [1]\n\nPM 작업 완료 후에는 qualification 또는 dummy run 결과를 기록해야 한다. [3]\n\n복구 조건에는 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화가 포함된다. [4]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[3] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[4] semiconductor_fab_incident_response_playbook_kr.pdf, p.8",
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "Manual guidance availability depends on currently indexed playbooks and documents.",
+          "Actual site policy may require confirmation after retrieving documented facts.",
+          "검색 문서는 시뮬레이션 참조 자료이며 실제 사내 SOP가 아닙니다."
+        ],
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "Check manual rules for PM overdue approval authority and required recovery records for extending PM due to urgent lot.",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve relevant incident playbook/manual guidance for PM overdue approval and recovery record requirements in the case of urgent lots.",
+                  "required": true,
+                  "reason": "Manual guidance typically defines approval authority and documentation requirements for PM deviation situations."
+                }
+              ],
+              "slots": {},
+              "model_usage": {
+                "call_count": 1,
+                "failed_calls": 0,
+                "reported_total_tokens": 921,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 775,
+                    "output_tokens": 146,
+                    "total_tokens": 921,
+                    "seconds": 1.83
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 1832
+            }
+          },
+          {
+            "source_type": "rag_chunk",
+            "title": "08. PM 지연과 설비 가용성 저하",
+            "content": "Semiconductor FAB Incident Response Playbook\nRAG Reference / Simulation Use\n08. PM 지연과 설비 가용성 저하\n8 / 25\n08. PM 지연과 설비 가용성 저하\nPreventive Maintenance Delay\nplaybook_id\nPB-EQ-002\nissue_type\npm_delay\ntrigger\nPM overdue\nowner\nEngineer\ndecision\nrun vs stop\ntags\npm,availability\n감지 조건\n-\nPM due time이 초과되었거나 PM 예정 시간과 hot lot 처리 계획이 충돌한다.\n-\n동일 area 내 병렬 tool 수가 부족해져 대기 시간이 증가한다.\n즉시 조치\n-\nPM 연기는 Engineer 승인 없이는 허용하지 않는다.\n-\nPM 수행 전후로 영향 product와 lot priority를 Scheduler가 재계산한다.\n-\nPM 이후 qualification 또는 dummy run 결과를 기록한다.\n복구 조건\n-\nPM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화.\nDecision\nAllowed When\nEvidence\nPM execute now\nquality or safety risk\nPM due / alarm\nPM short delay\nlow risk and manager approval\nrisk memo\nTool stop\nqualification needed\nengineer sign-off\nRAG note:\n검색 시 playbook_id, issue_type, trigger_condition, owner_role, recovery_condition을 우선 인덱싱한다.",
+            "metadata": {
+              "chunk_index": "7",
+              "concepts": [
+                "hot_lot",
+                "pm",
+                "queue_time",
+                "recovery",
+                "wip"
+              ],
+              "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+              "fab_ids": [
+                "fab10",
+                "fab11",
+                "fab12",
+                "fab13"
+              ],
+              "ingestion_version": "structure.v2",
+              "issue_type": "pm_delay",
+              "page_number": 8,
+              "playbook_ids": [
+                "PB-EQ-002"
+              ],
+              "reliability": "simulation_reference",
+              "section_title": "08. PM 지연과 설비 가용성 저하",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "source_type": "pdf",
+              "dense_score": 0.5117698311805725,
+              "score": 3.1419,
+              "retrieval_features": {
+                "term_coverage": 0.5,
+                "concept_matches": [
+                  "pm",
+                  "recovery"
+                ],
+                "focus_matches": [
+                  "pm"
+                ],
+                "excluded_matches": [],
+                "exact_id_match": false,
+                "structural_noise": false,
+                "fusion_score": 0.047726,
+                "relevance_grade": 3,
+                "relevance_reason": "Engineer 승인 없이는 PM 연기가 불가하며, PM 이후 qualification 또는 dummy run 결과를 복구 기록으로 남겨야 함을 명확히 설명함."
+              },
+              "retrieval_ranks": {
+                "0": 1,
+                "1": 5,
+                "2": 9,
+                "3": 1
+              },
+              "retrieval_mode": "hybrid",
+              "chunk_id": "826a8c8ba9e44f729a587f08",
+              "collection": "master_pjt",
+              "knowledge_base": "incident_playbook",
+              "source": "/private/tmp/master_pjt_rag_adv/apps/assistant/output/pdf/semiconductor_fab_incident_response_playbook_kr.pdf",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "pm",
+                    "recovery"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "pm",
+                    "예정일",
+                    "넘겼지만",
+                    "급한",
+                    "lot",
+                    "매뉴얼상",
+                    "누가",
+                    "연기",
+                    "승인",
+                    "복구",
+                    "기록",
+                    "필요해",
+                    "concept:pm",
+                    "concept:recovery"
+                  ],
+                  "subqueries": [
+                    "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                    "정기 보전",
+                    "복구"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "bm25:subquery1",
+                  "bm25:subquery2",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 25,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 1,
+                "context_chars": 882,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "pm",
+                  "recovery"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5788.794
+              },
+              "retrieval_limitations": []
+            }
+          }
+        ],
+        "plan": {
+          "status": "ready",
+          "query_type": "knowledge_lookup",
+          "intent": "Check manual rules for PM overdue approval authority and required recovery records for extending PM due to urgent lot.",
+          "selected_sub_agents": [
+            "rag"
+          ],
+          "execution_steps": [
+            {
+              "agent": "rag",
+              "action": "Retrieve relevant incident playbook/manual guidance for PM overdue approval and recovery record requirements in the case of urgent lots.",
+              "required": true,
+              "reason": "Manual guidance typically defines approval authority and documentation requirements for PM deviation situations."
+            }
+          ],
+          "slots": {},
+          "rag_knowledge_base": "incident_playbook",
+          "missing_slots": [],
+          "clarification_question": null,
+          "limitations": [
+            "Manual guidance availability depends on currently indexed playbooks and documents.",
+            "Actual site policy may require confirmation after retrieving documented facts.",
+            "Manual guidance availability depends on currently indexed playbooks and documents.",
+            "Actual site policy may require confirmation after retrieving documented facts."
+          ],
+          "prompt_version": "planner.v2",
+          "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use knowledge_lookup with RAG for concepts, document facts, manual procedures, approval\n  conditions and comparisons of policies. Manual guidance, including hypothetical incidents,\n  does not require a FAB or a database query. It is not a request to execute production actions.\n- Use diagnosis only when the user asks about causes of an actual observed factory situation,\n  not when comparing documented Hold/Release rules. Select the minimum evidence tools needed.\n- For a specific document fact or approved parameter lookup, first try RAG rather than asking\n  for unrequested FAB, lot, supplier or recipe details. Retrieval determines whether the fact\n  exists in the available documents. Missing evidence is not ambiguity in the user's intent.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions."
+        },
+        "agent_runs": [
+          {
+            "agent": "rag",
+            "status": "succeeded",
+            "summary": "1개 지식 근거를 조회했습니다.",
+            "metadata": {
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "pm",
+                    "recovery"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "pm",
+                    "예정일",
+                    "넘겼지만",
+                    "급한",
+                    "lot",
+                    "매뉴얼상",
+                    "누가",
+                    "연기",
+                    "승인",
+                    "복구",
+                    "기록",
+                    "필요해",
+                    "concept:pm",
+                    "concept:recovery"
+                  ],
+                  "subqueries": [
+                    "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                    "정기 보전",
+                    "복구"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "bm25:subquery1",
+                  "bm25:subquery2",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 25,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 1,
+                "context_chars": 882,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "pm",
+                  "recovery"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5788.794
+              }
+            }
+          }
+        ],
+        "reflection": {
+          "execution_mode": "post_generation_grounded_review"
+        },
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM short delay low risk and manager approval risk memo",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 2,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 3,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 이후 qualification 또는 dummy run 결과를 기록한다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 4,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          }
+        ],
+        "grounding": {
+          "status": "supported",
+          "validation": "verified_quotes_and_model_review",
+          "citations": [
+            {
+              "number": 1,
+              "chunk_id": "826a8c8ba9e44f729a587f08",
+              "quote": "PM short delay low risk and manager approval risk memo",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 8
+            },
+            {
+              "number": 2,
+              "chunk_id": "826a8c8ba9e44f729a587f08",
+              "quote": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 8
+            },
+            {
+              "number": 3,
+              "chunk_id": "826a8c8ba9e44f729a587f08",
+              "quote": "PM 이후 qualification 또는 dummy run 결과를 기록한다.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 8
+            },
+            {
+              "number": 4,
+              "chunk_id": "826a8c8ba9e44f729a587f08",
+              "quote": "PM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화.",
+              "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+              "page_number": 8
+            }
+          ],
+          "review": {
+            "complete": true,
+            "coverage": [
+              {
+                "requirement": "PM 연기 승인 주체",
+                "covered": true,
+                "reason": "PM 연기는 'low risk and manager approval'이 명확하게 필요함."
+              },
+              {
+                "requirement": "PM 연기 필수 기록 (risk memo)",
+                "covered": true,
+                "reason": "PM short delay 결정시 risk memo가 요구됨."
+              },
+              {
+                "requirement": "PM 후 복구 기록 (qualification 또는 dummy run 결과)",
+                "covered": true,
+                "reason": "PM 이후 qualification 또는 dummy run 결과 기록 명시."
+              },
+              {
+                "requirement": "복구 요건: 설비 AVAILABLE, alarm clear, WIP backlog 정상화",
+                "covered": true,
+                "reason": "복구조건에 모두 포함되어 있음."
+              }
+            ],
+            "checks": [
+              {
+                "claim_index": 0,
+                "supported": true,
+                "reason": "PM 연기는 'low risk and manager approval'로, 반드시 manager 승인 필요함이 decision table에 명확히 나옴."
+              },
+              {
+                "claim_index": 1,
+                "supported": true,
+                "reason": "risk memo 요구사항은 decision table과 playbook에서 직접적으로 명시됨."
+              },
+              {
+                "claim_index": 2,
+                "supported": true,
+                "reason": "'PM 이후 qualification 또는 dummy run 결과를 기록' 명확하게 요구됨."
+              },
+              {
+                "claim_index": 3,
+                "supported": true,
+                "reason": "복구 조건에 설비 AVAILABLE, alarm clear, WIP backlog 정상화 모두 명시됨."
+              }
+            ]
+          },
+          "version": "source_spans.v3"
+        },
+        "model_usage": {
+          "call_count": 6,
+          "failed_calls": 0,
+          "reported_total_tokens": 10298,
+          "unreported_usage_calls": 0,
+          "calls": [
+            {
+              "kind": "fab_planner_decision",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 775,
+              "output_tokens": 146,
+              "total_tokens": 921,
+              "seconds": 1.83
+            },
+            {
+              "kind": "fab_supervisor_decision",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 542,
+              "output_tokens": 97,
+              "total_tokens": 639,
+              "seconds": 1.939
+            },
+            {
+              "kind": "embeddings",
+              "model": "text-embedding-3-large",
+              "succeeded": true,
+              "input_tokens": 54,
+              "output_tokens": null,
+              "total_tokens": 54,
+              "seconds": 0.214
+            },
+            {
+              "kind": "fab_rag_rerank",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 4448,
+              "output_tokens": 603,
+              "total_tokens": 5051,
+              "seconds": 4.977
+            },
+            {
+              "kind": "fab_grounded_answer",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 1810,
+              "output_tokens": 223,
+              "total_tokens": 2033,
+              "seconds": 2.139
+            },
+            {
+              "kind": "fab_grounded_review",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 1318,
+              "output_tokens": 282,
+              "total_tokens": 1600,
+              "seconds": 3.559
+            }
+          ]
+        },
+        "retry_budget_remaining": 0,
+        "elapsed_ms": 15282
+      },
+      "events": [
+        {
+          "event": "trace",
+          "payload": {
+            "type": "run_started",
+            "node": "input",
+            "message": "질문을 접수했습니다.",
+            "data": {
+              "conversation_id": "9c16b9eb-1547-4ef2-acc9-c5d0acab2591",
+              "retry_budget_remaining": 0,
+              "timeout_seconds": 120,
+              "elapsed_ms": 0
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "planner",
+            "message": "knowledge_lookup 질의로 분류하고 실행 계획을 만들었습니다.",
+            "data": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve relevant incident playbook/manual guidance for PM overdue approval and recovery record requirements in the case of urgent lots.",
+                  "required": true,
+                  "reason": "Manual guidance typically defines approval authority and documentation requirements for PM deviation situations."
+                }
+              ],
+              "slots": {},
+              "model_usage": {
+                "call_count": 1,
+                "failed_calls": 0,
+                "reported_total_tokens": 921,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 775,
+                    "output_tokens": 146,
+                    "total_tokens": 921,
+                    "seconds": 1.83
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 1832
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "supervisor",
+            "message": "rag",
+            "data": {
+              "status": "ready",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "reason": "The Planner has requested retrieval of documented guidance from the incident playbook/manual regarding PM overdue approval and required recovery records for PM extension due to urgent lots. This is a knowledge lookup task and corresponds to the selected 'rag' agent.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "model_usage": {
+                "call_count": 2,
+                "failed_calls": 0,
+                "reported_total_tokens": 1560,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 775,
+                    "output_tokens": 146,
+                    "total_tokens": 921,
+                    "seconds": 1.83
+                  },
+                  {
+                    "kind": "fab_supervisor_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 542,
+                    "output_tokens": 97,
+                    "total_tokens": 639,
+                    "seconds": 1.939
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 3773
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "tool_completed",
+            "node": "rag",
+            "message": "1개 지식 근거를 조회했습니다.",
+            "data": {
+              "status": "succeeded",
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [
+                    "pm",
+                    "recovery"
+                  ],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "pm",
+                    "예정일",
+                    "넘겼지만",
+                    "급한",
+                    "lot",
+                    "매뉴얼상",
+                    "누가",
+                    "연기",
+                    "승인",
+                    "복구",
+                    "기록",
+                    "필요해",
+                    "concept:pm",
+                    "concept:recovery"
+                  ],
+                  "subqueries": [
+                    "PM 예정일을 넘겼지만 급한 lot이 있어. 매뉴얼상 누가 연기를 승인하고 어떤 복구 기록이 필요해?",
+                    "정기 보전",
+                    "복구"
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "bm25:subquery1",
+                  "bm25:subquery2",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 25,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 1,
+                "context_chars": 882,
+                "budget_dropped_count": 0,
+                "covered_concepts": [
+                  "pm",
+                  "recovery"
+                ],
+                "uncovered_concepts": [],
+                "latency_ms": 5788.794
+              },
+              "evidence_count": 1,
+              "model_usage": {
+                "call_count": 4,
+                "failed_calls": 0,
+                "reported_total_tokens": 6665,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 775,
+                    "output_tokens": 146,
+                    "total_tokens": 921,
+                    "seconds": 1.83
+                  },
+                  {
+                    "kind": "fab_supervisor_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 542,
+                    "output_tokens": 97,
+                    "total_tokens": 639,
+                    "seconds": 1.939
+                  },
+                  {
+                    "kind": "embeddings",
+                    "model": "text-embedding-3-large",
+                    "succeeded": true,
+                    "input_tokens": 54,
+                    "output_tokens": null,
+                    "total_tokens": 54,
+                    "seconds": 0.214
+                  },
+                  {
+                    "kind": "fab_rag_rerank",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 4448,
+                    "output_tokens": 603,
+                    "total_tokens": 5051,
+                    "seconds": 4.977
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 9573
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "composer",
+            "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
+            "data": {
+              "answer": "PM 연기는 manager approval이 필요하며, 위험 수준이 낮은 경우에만 허용된다. [1] [2]\n\nPM 연기 결정시 반드시 risk memo를 기록해야 한다. [1]\n\nPM 작업 완료 후에는 qualification 또는 dummy run 결과를 기록해야 한다. [3]\n\n복구 조건에는 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화가 포함된다. [4]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[3] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[4] semiconductor_fab_incident_response_playbook_kr.pdf, p.8",
+              "grounding": {
+                "status": "supported",
+                "validation": "verified_quotes_and_model_review",
+                "citations": [
+                  {
+                    "number": 1,
+                    "chunk_id": "826a8c8ba9e44f729a587f08",
+                    "quote": "PM short delay low risk and manager approval risk memo",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 8
+                  },
+                  {
+                    "number": 2,
+                    "chunk_id": "826a8c8ba9e44f729a587f08",
+                    "quote": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 8
+                  },
+                  {
+                    "number": 3,
+                    "chunk_id": "826a8c8ba9e44f729a587f08",
+                    "quote": "PM 이후 qualification 또는 dummy run 결과를 기록한다.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 8
+                  },
+                  {
+                    "number": 4,
+                    "chunk_id": "826a8c8ba9e44f729a587f08",
+                    "quote": "PM 작업 완료, 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화.",
+                    "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+                    "page_number": 8
+                  }
+                ],
+                "review": {
+                  "complete": true,
+                  "coverage": [
+                    {
+                      "requirement": "PM 연기 승인 주체",
+                      "covered": true,
+                      "reason": "PM 연기는 'low risk and manager approval'이 명확하게 필요함."
+                    },
+                    {
+                      "requirement": "PM 연기 필수 기록 (risk memo)",
+                      "covered": true,
+                      "reason": "PM short delay 결정시 risk memo가 요구됨."
+                    },
+                    {
+                      "requirement": "PM 후 복구 기록 (qualification 또는 dummy run 결과)",
+                      "covered": true,
+                      "reason": "PM 이후 qualification 또는 dummy run 결과 기록 명시."
+                    },
+                    {
+                      "requirement": "복구 요건: 설비 AVAILABLE, alarm clear, WIP backlog 정상화",
+                      "covered": true,
+                      "reason": "복구조건에 모두 포함되어 있음."
+                    }
+                  ],
+                  "checks": [
+                    {
+                      "claim_index": 0,
+                      "supported": true,
+                      "reason": "PM 연기는 'low risk and manager approval'로, 반드시 manager 승인 필요함이 decision table에 명확히 나옴."
+                    },
+                    {
+                      "claim_index": 1,
+                      "supported": true,
+                      "reason": "risk memo 요구사항은 decision table과 playbook에서 직접적으로 명시됨."
+                    },
+                    {
+                      "claim_index": 2,
+                      "supported": true,
+                      "reason": "'PM 이후 qualification 또는 dummy run 결과를 기록' 명확하게 요구됨."
+                    },
+                    {
+                      "claim_index": 3,
+                      "supported": true,
+                      "reason": "복구 조건에 설비 AVAILABLE, alarm clear, WIP backlog 정상화 모두 명시됨."
+                    }
+                  ]
+                },
+                "version": "source_spans.v3"
+              },
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "model_usage": {
+                "call_count": 6,
+                "failed_calls": 0,
+                "reported_total_tokens": 10298,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 775,
+                    "output_tokens": 146,
+                    "total_tokens": 921,
+                    "seconds": 1.83
+                  },
+                  {
+                    "kind": "fab_supervisor_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 542,
+                    "output_tokens": 97,
+                    "total_tokens": 639,
+                    "seconds": 1.939
+                  },
+                  {
+                    "kind": "embeddings",
+                    "model": "text-embedding-3-large",
+                    "succeeded": true,
+                    "input_tokens": 54,
+                    "output_tokens": null,
+                    "total_tokens": 54,
+                    "seconds": 0.214
+                  },
+                  {
+                    "kind": "fab_rag_rerank",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 4448,
+                    "output_tokens": 603,
+                    "total_tokens": 5051,
+                    "seconds": 4.977
+                  },
+                  {
+                    "kind": "fab_grounded_answer",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 1810,
+                    "output_tokens": 223,
+                    "total_tokens": 2033,
+                    "seconds": 2.139
+                  },
+                  {
+                    "kind": "fab_grounded_review",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 1318,
+                    "output_tokens": 282,
+                    "total_tokens": 1600,
+                    "seconds": 3.559
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 15281
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "post_run_source_audit": {
+    "complete_for_pm_rubric": false,
+    "missing": [
+      "Engineer 승인 조건"
+    ],
+    "scope": "Agent comparison against source, separate from model review and citation existence."
+  }
+}

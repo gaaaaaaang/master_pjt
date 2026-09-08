@@ -451,3 +451,7 @@ Planner 승인 후에는 고정 agent chain을 순회하지 않고 `execution_st
 
 - Text2SQL sub-agent의 LangGraph state, node, prompt, validation, fallback 설계는
   `docs/text2sql_agent_design.md`를 기준으로 합니다.
+
+### RAG와 통합 그래프의 검증 경계 (2026-09-08)
+
+동적 dispatcher와 agent supervisor를 통해 RAG를 실행하며 검색 어댑터는 evidence, trace, limitations를 함께 반환한다. Incident 근거에는 선언된 issue와 질문의 정합성을 제공하고, 명시한 playbook ID는 해당 원문 조회를 유지한다. 문서 전용 Composer가 원문 span과 생성 후 주장을 검증한 경우 최종 supervisor는 검증 결과를 사용해 인용 연결을 보존한다. 실제 SQL/사례가 포함된 혼합 답변은 기존 최종 답변 검토를 수행하며 `not_applied_mixed_evidence`로 표시한다. SSE 최종 응답에는 대화 기록과 재시도 상태뿐 아니라 citations, grounding, model_usage가 포함되며 새 채팅 화면의 근거 탭에서 원문 인용을 확인할 수 있다.

@@ -1,14 +1,17 @@
 from __future__ import annotations
 
-import json
-import math
 import re
-from collections import Counter
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from app.config import get_settings
+from app.rag.embeddings import AzureEmbeddingClient, RequestEmbeddingCache
+from app.rag.ingest import load_chunks
+from app.rag.manifest import load_manifest, verify_manifest
 from app.rag.milvus_store import search_chunks
+from app.rag.rerank import AzureReranker
+from app.rag.search import SearchResult, search
 from app.schemas.chat import Evidence
 from app.sub_agent.issue_intent import negated_issue_types
 
@@ -16,16 +19,51 @@ INCIDENT_PLAYBOOK = "incident_playbook"
 PROCESS_BASICS = "process_basics"
 
 
+@dataclass
+class EvidenceResult:
+    evidence: list[Evidence]
+    trace: dict[str, Any]
+    limitations: list[str]
+
+
 def retrieve_knowledge(
     query: str,
     top_k: int = 5,
     *,
     knowledge_base: str | None = None,
+    fab_id: str | None = None,
     store_path: Path | None = None,
 ) -> list[Evidence]:
     """Route a general RAG request to the relevant FAB knowledge base."""
-    selected_base = knowledge_base or _select_knowledge_base(query)
-    return _retrieve_from_store(query, top_k, knowledge_base=selected_base, store_path=store_path)
+    return retrieve_evidence(
+        query, top_k, knowledge_base=knowledge_base, fab_id=fab_id, store_path=store_path
+    ).evidence
+
+
+def retrieve_evidence(
+    query: str,
+    top_k: int = 5,
+    *,
+    knowledge_base: str | None = None,
+    fab_id: str | None = None,
+    store_path: Path | None = None,
+) -> EvidenceResult:
+    """Keep trace and limitations available even when retrieval returns no evidence."""
+    result = retrieve_with_trace(
+        query, top_k, knowledge_base=knowledge_base, fab_id=fab_id, store_path=store_path
+    )
+    issue_intents = _query_issue_intents(_expand_query_terms(_tokenize(query)), query=query)
+    issue_intents.update(result.trace.get("plan", {}).get("concepts", []))
+    evidence = [
+        _to_evidence(chunk, chunk["metadata"]["score"], issue_intents=issue_intents, strict_issue_alignment=True)
+        for chunk in result.chunks
+    ]
+    if not result.trace.get("plan", {}).get("exact_ids"):
+        evidence = [item for item in evidence if item.metadata.get("knowledge_base") != INCIDENT_PLAYBOOK or item.metadata["issue_aligned"]]
+    for item in evidence:
+        item.metadata["retrieval_trace"] = result.trace
+        item.metadata["retrieval_limitations"] = result.limitations
+    return EvidenceResult(evidence, result.trace, result.limitations)
 
 
 def retrieve_incident_playbook(
@@ -65,238 +103,82 @@ def _retrieve_from_store(
     knowledge_base: str,
     store_path: Path | None = None,
 ) -> list[Evidence]:
-    if top_k <= 0:
-        return []
+    return retrieve_knowledge(query, top_k, knowledge_base=knowledge_base, store_path=store_path)
 
-    query_terms = _expand_query_terms(_tokenize(query))
-    issue_intents = _query_issue_intents(query_terms, query=query)
-    strict_issue_alignment = knowledge_base == INCIDENT_PLAYBOOK
+
+def retrieve_with_trace(
+    query: str,
+    top_k: int = 5,
+    *,
+    knowledge_base: str | None = None,
+    fab_id: str | None = None,
+    store_path: Path | None = None,
+) -> SearchResult:
     settings = get_settings()
-    if settings.vector_db_url and store_path is None:
-        searched_chunks = search_chunks(
+    selected_path = store_path or Path(settings.rag_local_store_path)
+    chunks = _load_local_chunks(selected_path)
+    use_dense = bool(settings.vector_db_url) and store_path is None
+    if not chunks and not use_dense and top_k > 0:
+        raise NotImplementedError(f"RAG store has no chunks: {selected_path}")
+
+    local_by_id = {chunk["chunk_id"]: chunk for chunk in chunks}
+    embedding_client = RequestEmbeddingCache(AzureEmbeddingClient()) if use_dense else None
+
+    def dense(query: str, base: str, limit: int):
+        if not settings.rag_index_manifest_path:
+            raise RuntimeError("A serving index manifest is required for hybrid search.")
+        manifest = load_manifest(Path(settings.rag_index_manifest_path))
+        verify_manifest(
+            manifest,
+            chunks,
+            embedding_model=settings.embedding_model,
+            embedding_revision=settings.embedding_revision,
+            dimension=settings.embedding_dimension,
+        )
+        candidates = search_chunks(
             query,
-            knowledge_base=knowledge_base,
-            top_k=top_k,
+            knowledge_base=base,
+            top_k=limit,
             uri=settings.vector_db_url,
             collection_name=settings.vector_db_collection,
+            index_version=manifest.index_version,
+            dimension=settings.embedding_dimension,
+            embedding_client=embedding_client,
         )
-        if not searched_chunks:
-            raise NotImplementedError(
-                f"Milvus RAG store has no chunks for knowledge_base={knowledge_base}: "
-                f"{settings.vector_db_collection}"
+        result = []
+        for candidate in candidates:
+            original = local_by_id.get(candidate["chunk_id"])
+            if original is None or original["knowledge_base"] != base:
+                continue
+            if candidate["content"] != original["content"]:
+                continue
+            result.append(
+                {
+                    **original,
+                    "metadata": {
+                        **original.get("metadata", {}),
+                        "dense_score": candidate["metadata"].get("score"),
+                    },
+                }
             )
-        return [
-            _to_evidence(
-                chunk,
-                float((chunk.get("metadata") or {}).get("score", 0.0)),
-                issue_intents=issue_intents,
-                strict_issue_alignment=strict_issue_alignment,
-            )
-            for chunk in searched_chunks
-            if _issue_alignment(chunk, issue_intents, strict_issue_alignment)
-        ]
+        return result
 
-    store_path = store_path or Path(settings.rag_local_store_path)
-    chunks = [
-        chunk
-        for chunk in _load_local_chunks(store_path)
-        if str(chunk.get("knowledge_base") or "") == knowledge_base
-    ]
-    if not chunks:
-        raise NotImplementedError(
-            f"RAG store has no chunks for knowledge_base={knowledge_base}: {store_path}"
-        )
-
-    chunk_terms = [_chunk_terms(chunk) for chunk in chunks]
-    document_frequency = Counter(
-        term for terms in chunk_terms for term in terms
+    return search(
+        query,
+        chunks,
+        knowledge_base=knowledge_base,
+        fab_id=fab_id,
+        top_k=top_k,
+        candidate_k=settings.rag_candidate_k,
+        context_chars=settings.rag_context_chars,
+        dense_search=dense if use_dense else None,
+        reranker=AzureReranker() if settings.rag_reranker == "llm" and store_path is None else None,
+        rerank_limit=settings.rag_rerank_limit,
     )
-    ranked = sorted(
-        (
-            (
-                _score_chunk(
-                    query_terms,
-                    chunk,
-                    terms,
-                    document_frequency=document_frequency,
-                    corpus_size=len(chunks),
-                    issue_intents=issue_intents,
-                    strict_issue_alignment=strict_issue_alignment,
-                ),
-                chunk,
-            )
-            for chunk, terms in zip(chunks, chunk_terms, strict=True)
-        ),
-        key=lambda item: (item[0], str(item[1].get("chunk_id") or "")),
-        reverse=True,
-    )
-    evidence = _dedupe_evidence(
-        [
-            _to_evidence(
-                chunk,
-                score,
-                issue_intents=issue_intents,
-                strict_issue_alignment=strict_issue_alignment,
-            )
-            for score, chunk in ranked
-            if score > 0
-        ]
-    )[:top_k]
-    return evidence
-
-
-def _select_knowledge_base(query: str) -> str:
-    terms = _expand_query_terms(_tokenize(query))
-    negated_issues = negated_issue_types(query, _ISSUE_QUERY_TERMS)
-    negated_terms = set().union(
-        *(_ISSUE_QUERY_TERMS[issue_type] for issue_type in negated_issues)
-    ) if negated_issues else set()
-    effective_terms = terms - negated_terms
-    incident_terms = {
-        "alarm",
-        "breakdown",
-        "down",
-        "hold",
-        "impact",
-        "queue",
-        "rca",
-        "time",
-        "wip",
-        "ontime",
-        "maintenance",
-        "pm",
-        "고장",
-        "알람",
-        "경보",
-        "멈추고",
-        "멈춤",
-        "정지",
-        "비가동",
-        "대응",
-        "병목",
-        "영향",
-        "위기",
-        "장애",
-        "조치",
-        "증가",
-        "악화",
-        "예방정비",
-        "정비",
-        "납기",
-    }
-    if effective_terms & incident_terms:
-        return INCIDENT_PLAYBOOK
-    return PROCESS_BASICS
 
 
 def _load_local_chunks(store_path: Path) -> list[dict[str, Any]]:
-    if not store_path.exists():
-        return []
-    chunks: list[dict[str, Any]] = []
-    with store_path.open("r", encoding="utf-8") as handle:
-        for line in handle:
-            line = line.strip()
-            if line:
-                chunks.append(json.loads(line))
-    return chunks
-
-
-def _score_chunk(
-    query_terms: set[str],
-    chunk: dict[str, Any],
-    haystack_terms: set[str],
-    *,
-    document_frequency: Counter[str],
-    corpus_size: int,
-    issue_intents: set[str],
-    strict_issue_alignment: bool,
-) -> float:
-    metadata = chunk.get("metadata") or {}
-    if not query_terms or not haystack_terms:
-        return 0.0
-
-    overlap = query_terms & haystack_terms
-    idf_total = sum(_idf(term, document_frequency, corpus_size) for term in query_terms)
-    lexical_coverage = (
-        sum(_idf(term, document_frequency, corpus_size) for term in overlap) / idf_total
-        if idf_total
-        else 0.0
-    )
-    metadata_terms = _expand_query_terms(_tokenize(" ".join(map(str, metadata.values()))))
-    metadata_coverage = len(query_terms & metadata_terms) / len(query_terms)
-    declared_issue_types = _declared_issue_types(chunk)
-    issue_match = any(
-        _issue_type_matches(intent, issue_type)
-        for intent in issue_intents
-        for issue_type in declared_issue_types
-    )
-    if not _issue_alignment(chunk, issue_intents, strict_issue_alignment):
-        return 0.0
-    identifier_terms = {term for term in query_terms if any(char.isdigit() for char in term)}
-    semantic_overlap = overlap - identifier_terms
-    if not semantic_overlap and not issue_match:
-        return 0.0
-    identifier_coverage = (
-        len(identifier_terms & haystack_terms) / len(identifier_terms) if identifier_terms else 0.0
-    )
-    score = (
-        lexical_coverage * 2.0
-        + metadata_coverage * 0.5
-        + identifier_coverage * 0.4
-        + (1.25 if issue_match else 0.0)
-    )
-    if _looks_like_table_of_contents(str(chunk.get("content") or "")):
-        score *= 0.45
-    return score
-
-
-def _declared_issue_types(chunk: dict[str, Any]) -> set[str]:
-    metadata = chunk.get("metadata") or {}
-    issue_types = {
-        value.strip()
-        for key in ("issue_type", "issue_types")
-        for value in str(metadata.get(key) or "").split(",")
-        if value.strip()
-    }
-    issue_types.update(
-        match.group(1).casefold()
-        for match in re.finditer(
-            r"\bissue_type\s+([a-z][a-z0-9_]*)",
-            str(chunk.get("content") or ""),
-            flags=re.IGNORECASE,
-        )
-    )
-    return {issue_type.casefold() for issue_type in issue_types}
-
-
-def _issue_alignment(
-    chunk: dict[str, Any],
-    issue_intents: set[str],
-    strict: bool,
-) -> bool:
-    if not strict or not issue_intents:
-        return True
-    declared_issue_types = _declared_issue_types(chunk)
-    specific_issue_types = {
-        issue_type for issue_type in declared_issue_types if issue_type.casefold() != "all"
-    }
-    return not specific_issue_types or any(
-        _issue_type_matches(intent, issue_type)
-        for intent in issue_intents
-        for issue_type in specific_issue_types
-    )
-
-
-def _chunk_terms(chunk: dict[str, Any]) -> set[str]:
-    metadata = chunk.get("metadata") or {}
-    return _tokenize(
-        f"{chunk.get('title', '')} {chunk.get('content', '')} "
-        f"{' '.join(map(str, metadata.values()))}"
-    )
-
-
-def _idf(term: str, document_frequency: Counter[str], corpus_size: int) -> float:
-    return math.log((corpus_size + 1) / (document_frequency[term] + 1)) + 1.0
+    return load_chunks(store_path) if store_path.exists() else []
 
 
 def _to_evidence(
@@ -344,6 +226,43 @@ def _to_evidence(
     )
 
 
+def _declared_issue_types(chunk: dict[str, Any]) -> set[str]:
+    metadata = chunk.get("metadata") or {}
+    issue_types = {
+        value.strip()
+        for key in ("issue_type", "issue_types")
+        for value in str(metadata.get(key) or "").split(",")
+        if value.strip()
+    }
+    issue_types.update(
+        match.group(1).casefold()
+        for match in re.finditer(
+            r"\bissue_type\s+([a-z][a-z0-9_]*)",
+            str(chunk.get("content") or ""),
+            flags=re.IGNORECASE,
+        )
+    )
+    return {issue_type.casefold() for issue_type in issue_types}
+
+
+def _issue_alignment(
+    chunk: dict[str, Any],
+    issue_intents: set[str],
+    strict: bool,
+) -> bool:
+    if not strict or not issue_intents:
+        return True
+    declared_issue_types = _declared_issue_types(chunk)
+    specific_issue_types = {
+        issue_type for issue_type in declared_issue_types if issue_type.casefold() != "all"
+    }
+    return not specific_issue_types or any(
+        _issue_type_matches(intent, issue_type)
+        for intent in issue_intents
+        for issue_type in specific_issue_types
+    )
+
+
 def _tokenize(text: str) -> set[str]:
     normalized = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", text)
     normalized = normalized.casefold().replace("_", " ")
@@ -385,23 +304,6 @@ def _query_issue_intents(query_terms: set[str], *, query: str = "") -> set[str]:
 def _issue_type_matches(intent: str, issue_type: str) -> bool:
     normalized = issue_type.casefold()
     return normalized == intent or normalized.startswith(f"{intent}_")
-
-
-def _dedupe_evidence(items: list[Evidence]) -> list[Evidence]:
-    seen = set()
-    output = []
-    for item in items:
-        key = item.metadata.get("chunk_id") or (item.title, item.content)
-        if key in seen:
-            continue
-        seen.add(key)
-        output.append(item)
-    return output
-
-
-def _looks_like_table_of_contents(content: str) -> bool:
-    dotted_lines = sum(1 for line in content.splitlines() if re.search(r"\.{8,}\s*\d+", line))
-    return dotted_lines >= 3
 
 
 _TERM_ALIASES = (

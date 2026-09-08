@@ -31,8 +31,8 @@
   {"id":"impact_compound_util_cycle","scenario_id":"SC-003","agent":"impact","question":"가동률이 5%p 감소하고 cycle time이 8% 증가하면 capacity와 납기 영향?","baseline_rows":[{"util_percent":80,"cycleavg":10,"lotcomps":1000}],"expected_status":"succeeded","expected_change_unit":"percentage_point","expected_estimate":"capacity_delta_percent","expected_estimates":["capacity_delta_percent","projected_cycle_time"],"expected_change_count":2},
   {"id":"impact_mixed_station_group_baseline","scenario_id":"SC-003","agent":"impact","question":"가동률이 5%p 감소하면 capacity 영향?","baseline_rows":[{"stngrp":"Dry_Etch_A","util_percent":80},{"stngrp":"Dry_Etch_B","util_percent":60}],"expected_status":"data_unavailable","expected_change_unit":"percentage_point","expected_mixed_dimensions":["stngrp"],"expected_limitation_contains":"서로 다른 대상/기간 차원"},
 
-  {"id":"rag_equipment_stop_paraphrase","scenario_id":"SC-002","agent":"rag","question":"장비가 갑자기 멈추고 대기 lot이 쌓일 때 무엇을 확인하지?","expected_top_id":"9d2e9484e37076e03ce06674"},
-  {"id":"rag_queue_residence_colloquial","scenario_id":"SC-002","agent":"rag","question":"대기열 체류가 길어졌는데 어디부터 봐야 해?","expected_top_id":"bc73f42bf307956be9b5d3a9"},
+  {"id":"rag_equipment_stop_paraphrase","scenario_id":"SC-002","agent":"rag","question":"장비가 갑자기 멈추고 대기 lot이 쌓일 때 무엇을 확인하지?","expected_top_id":"949c72912ec914f87682d1ce"},
+  {"id":"rag_queue_residence_colloquial","scenario_id":"SC-002","agent":"rag","question":"대기열 체류가 길어졌는데 어디부터 봐야 해?","expected_top_id":"6068e37d81afe3b918a7dfae"},
   {"id":"case_hyphen_station_paraphrase","scenario_id":"SC-002","agent":"case_search","question":"DE-BE-11 비가동률이 치솟은 비슷한 건 찾아줘","expected_top_id":"SIM-DOWN-004"},
   {"id":"case_equipment_stopped_colloquial","scenario_id":"SC-002","agent":"case_search","question":"장비가 자꾸 멈춰서 재공이 밀린 유사 사례","expected_top_id":"SIM-DOWN-004"},
 
