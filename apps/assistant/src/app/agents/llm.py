@@ -10,13 +10,14 @@ from app.config import get_settings
 
 
 class AzureAgentClient:
-    def __init__(self, *, timeout_seconds: float = 45.0) -> None:
+    def __init__(self, *, timeout_seconds: float = 45.0, temperature: float | None = None) -> None:
         settings = get_settings()
         self.api_key = settings.openai_api_key
         self.model = settings.openai_model
         self.endpoint = settings.openai_endpoint.rstrip("/")
         self.api_version = settings.openai_api_version
         self.timeout_seconds = timeout_seconds
+        self.temperature = temperature
 
     def complete_json(
         self,
@@ -60,6 +61,8 @@ class AzureAgentClient:
                 },
             },
         }
+        if self.temperature is not None:
+            payload["temperature"] = self.temperature
         try:
             with httpx.Client(timeout=self.timeout_seconds) as client:
                 response = client.post(
