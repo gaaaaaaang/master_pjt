@@ -1,0 +1,60 @@
+.......................................................F................ [ 10%]
+........................................................................ [ 21%]
+........................................................................ [ 32%]
+........................................................................ [ 43%]
+........................................................................ [ 54%]
+........................................................................ [ 65%]
+........................................................................ [ 76%]
+........................................................................ [ 87%]
+........................................................................ [ 98%]
+...........                                                              [100%]
+=================================== FAILURES ===================================
+______________ test_graph_requeries_after_old_missing_table_error ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10df391f0>
+
+    def test_graph_requeries_after_old_missing_table_error(monkeypatch):
+        def complete(_self, **kwargs):
+            if kwargs["schema_name"] == "fab_planner_decision":
+                return unavailable_plan()
+            if kwargs["schema_name"] == "fab_supervisor_decision":
+                return rejected_review()
+            raise RuntimeError("Use deterministic review/composition in this integration test")
+
+        monkeypatch.setattr("app.agents.graph.answer_question", answer_question)
+        monkeypatch.setattr("app.agents.llm.AzureAgentClient.complete_json", complete)
+        monkeypatch.setattr("app.sub_agent.text2sql.load_fab_catalog", lambda fab: group_tables([
+            catalog_row(fab, "toolgroups", "toolgroup", "text"),
+        ]))
+        queries = []
+
+        def execute(_self, sql, limit=None):
+            queries.append(sql)
+            return ReadOnlyQueryResult(["toolgroup", "area"],
+                                       [{"toolgroup": "DE_BE_11", "area": "Dry_Etch"}], 1, sql, 50)
+
+        monkeypatch.setattr("app.db.read_only.ReadOnlyQueryExecutor.execute", execute)
+        state = initial_graph_state(ChatRequest(message="fab10 Dry_Etch toolgroup 목록 보여줘"),
+                                    conversation_history=[{
+                                        "role": "assistant",
+                                        "content": "fab10.toolgroups_fab10 does not exist. All access denied.",
+                                    }])
+        result = build_agent_graph().invoke(state)
+>       assert len(queries) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+apps/assistant/tests/test_data_access_recovery.py:138: AssertionError
+=============================== warnings summary ===============================
+../../../Users/a11549/Desktop/skax-git/master_pjt/.venv/lib/python3.12/site-packages/langgraph/cache/base/__init__.py:8
+  /Users/a11549/Desktop/skax-git/master_pjt/.venv/lib/python3.12/site-packages/langgraph/cache/base/__init__.py:8: LangChainPendingDeprecationWarning: The default value of `allowed_objects` will change in a future version. Pass an explicit value (e.g., allowed_objects='messages' or allowed_objects='core') to suppress this warning.
+    from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
+
+../../../Users/a11549/Desktop/skax-git/master_pjt/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /Users/a11549/Desktop/skax-git/master_pjt/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED apps/assistant/tests/test_data_access_recovery.py::test_graph_requeries_after_old_missing_table_error
+1 failed, 658 passed, 2 warnings in 3.06s

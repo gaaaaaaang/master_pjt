@@ -67,6 +67,11 @@ Document lifecycle statuses are distinct from revision identifiers and change hi
 when version history is requested but absent, explicitly mark that part insufficient.
 For compound questions cover each requested part; mark partial if any requested part is missing.
 Prefer the specific procedure over generic role descriptions. Do not add unrelated background.
+Start each claim with the requested role, decision or field and answer that part directly.
+For role comparisons, group records and decisions under the roles explicitly stated in the
+specific procedure. Omit generic RACI duties when they repeat or broaden the requested task.
+For a comparison, describe BOTH sides; a prohibition on release does not explain when release
+is allowed. For field-link questions, explain the relationship before defining individual fields.
 For procedural decisions, combine applicable prose with decision-table rows: include each
 explicit approval, allowed-when condition and required record for the action asked about.
 Do not stop at the first matching prose sentence when a table adds another prerequisite.
@@ -140,7 +145,7 @@ class GroundedAnswer:
     citations: list[dict[str, Any]] = field(default_factory=list)
     validation: str = "verified_quotes"
     review: dict[str, Any] = field(default_factory=dict)
-    version: str = "source_spans.v4"
+    version: str = "source_spans.v7"
 
 
 def normalized(text: str) -> str:
@@ -363,7 +368,9 @@ def render_grounded(output: dict, sources: dict[str, dict]) -> GroundedAnswer:
     )
 
 
-def apply_review(output: dict, review: dict, sources: dict[str, dict]) -> GroundedAnswer:
+def apply_review(
+    output: dict, review: dict, sources: dict[str, dict], *, question: str = ""
+) -> GroundedAnswer:
     if not isinstance(review, dict) or set(review) != {"complete", "coverage", "checks"}:
         raise ValueError("Invalid grounding review.")
     if type(review["complete"]) is not bool or not isinstance(review["checks"], list):
@@ -394,6 +401,31 @@ def apply_review(output: dict, review: dict, sources: dict[str, dict]) -> Ground
         verdicts[index] = check["supported"]
     if set(verdicts) != set(range(count)):
         raise ValueError("Review must check every claim.")
+    # Lifecycle fields alone cannot establish revision policy. This absence check
+    # is deliberately narrow: matching terminology still requires model review.
+    version_terms = r"버전|개정|변경\s*이력|\bversion\b|\brevision\b|\bchangelog\b|change\s+history|\bv\d+\.\d+"
+    missing_version_policy = bool(
+        re.search(version_terms, question, re.IGNORECASE)
+        and not any(
+            re.search(version_terms, source["content"], re.IGNORECASE)
+            for source in sources.values()
+        )
+    )
+    if missing_version_policy:
+        review = deepcopy(review)
+        review["complete"] = False
+        review["coverage"].append({
+            "requirement": "버전·개정 이력 관리 기준",
+            "covered": False,
+            "reason": "원문에 버전·개정 이력 근거가 없으며 문서 상태로 대체할 수 없습니다.",
+        })
+        for check in review["checks"]:
+            index = check["claim_index"]
+            if re.search(version_terms, output["claims"][index]["text"], re.IGNORECASE):
+                verdicts[index] = False
+                check["supported"] = False
+                check["reason"] = "버전·개정 이력 주장에 대응하는 원문 근거가 없습니다."
+        coverage = review["coverage"]
     retained = [claim for i, claim in enumerate(output["claims"]) if verdicts[i]]
     complete = (
         review["complete"]
@@ -409,6 +441,9 @@ def apply_review(output: dict, review: dict, sources: dict[str, dict]) -> Ground
         sources,
     )
     result.review = review
+    if missing_version_policy:
+        result.answer += "\n\n버전 번호·개정 이력 관리 기준은 제공된 문서에서 확인되지 않습니다."
+        result.review["missing_version_policy"] = True
     result.validation = "verified_quotes_and_model_review"
     return result
 
@@ -449,6 +484,10 @@ def retain_procedural_requirements(
             if key in seen or key not in normalized(source["content"]):
                 continue
             seen.add(key)
+            # Only exact textual coverage is safe to deduplicate here. A cited
+            # quote alone does not prove its conditions survived the summary.
+            if key in normalized(result.answer):
+                continue
             citation = next(
                 (item for item in result.citations
                  if item["chunk_id"] == cid and normalized(item["quote"]) == key),
@@ -468,7 +507,7 @@ def retain_procedural_requirements(
                 f"원문: {key} [{citation['number']}] ({source['source_document']}{page})"
             )
     if additions:
-        result.answer = "인용한 절차의 명시적 승인·기록 조건(원문)\n" + "\n".join(additions) + "\n\n" + result.answer
+        result.answer += "\n\n인용한 절차의 추가 승인·기록 조건(원문)\n" + "\n".join(additions)
         result.review["extractive_requirement_count"] = len(additions)
     return result
 
@@ -490,18 +529,43 @@ def compose_grounded(
         "required": ["quote_id"],
     }
     stage = "generation_api"
+    generation_attempts = 0
+    validation_errors = []
     try:
         model = client or AzureAgentClient()
-        output = model.complete_json(
-            system_prompt=GROUNDING_PROMPT,
-            input_data={"question": question, "sources": documents},
-            output_schema=schema,
-            schema_name="fab_grounded_answer",
-        )
-        stage = "quote_validation"
-        output = resolve_quotes(output, quotes)
-        result = render_grounded(output, sources)
+        request = {"question": question, "sources": documents}
+        for attempt in range(2):
+            generation_attempts += 1
+            stage = "generation_api"
+            selected = model.complete_json(
+                system_prompt=GROUNDING_PROMPT,
+                input_data=request,
+                output_schema=schema,
+                schema_name="fab_grounded_answer",
+            )
+            stage = "quote_validation"
+            try:
+                output = resolve_quotes(selected, quotes)
+                result = render_grounded(output, sources)
+                break
+            except (ValueError, TypeError) as exc:
+                validation_errors.append(str(exc))
+                if attempt:
+                    raise
+                # Repair once from the same evidence; never relax quote/numeric
+                # validation or retry transport failures as a content problem.
+                request = {
+                    "question": question, "sources": documents,
+                    "previous_answer_untrusted": selected,
+                    "validation_error": str(exc),
+                    "repair_instruction": (
+                        "Return a corrected answer using the same source spans. Remove unsupported "
+                        "numbers and invalid references. Preserve the requested conditions. "
+                        "Use empty claims for insufficient evidence."
+                    ),
+                }
         if output["status"] == "insufficient":
+            result.review.update(generation_attempts=generation_attempts, validation_errors=validation_errors)
             return result
         stage = "review_api"
         review = model.complete_json(
@@ -519,7 +583,11 @@ def compose_grounded(
             schema_name="fab_grounded_review",
         )
         stage = "review_validation"
-        return retain_procedural_requirements(apply_review(output, review, sources), question, sources)
+        result = retain_procedural_requirements(
+            apply_review(output, review, sources, question=question), question, sources
+        )
+        result.review.update(generation_attempts=generation_attempts, validation_errors=validation_errors)
+        return result
     except (ValueError, TypeError, RuntimeError, httpx.HTTPError) as exc:
         # No unverified generated claim escapes. Keep evidence on the response for review.
         return GroundedAnswer(
@@ -528,6 +596,8 @@ def compose_grounded(
             validation="rejected",
             review={
                 "stage": stage,
+                "generation_attempts": generation_attempts,
+                "validation_errors": validation_errors,
                 "error_type": type(exc).__name__,
                 "reason": str(exc)
                 if stage in {"quote_validation", "review_validation"}

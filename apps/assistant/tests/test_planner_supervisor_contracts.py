@@ -731,5 +731,5 @@ def test_integrated_rag_handoff_preserves_trace_and_limitations(monkeypatch):
     assert seen[0][1] == "fab13"
     assert "fab10" not in seen[0][0] and "M13" not in seen[0][0]
     assert "fab13" in seen[0][0]
-    assert result.trace == {"plan": {}}
+    assert result.trace == {"plan": {}, "evidence_count": 0, "post_filter_dropped_count": 0}
     assert result.limitations == ["Index unavailable in this test."]

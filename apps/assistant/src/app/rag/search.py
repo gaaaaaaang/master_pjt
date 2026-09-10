@@ -160,6 +160,7 @@ def search(
     context_chars: int = 14000,
     reranker: Reranker | None = None,
     rerank_limit: int = 12,
+    candidate_filter: Callable[[Chunk], bool] | None = None,
 ) -> SearchResult:
     start = perf_counter()
     if candidate_k < 1 or candidate_k > 200:
@@ -170,7 +171,7 @@ def search(
         raise ValueError("rerank_limit must be between 1 and 40.")
     plan = apply_fab_scope(analyze_query(query, knowledge_base), fab_id)
     trace: dict[str, Any] = {
-        "pipeline_version": "hybrid.v2",
+        "pipeline_version": "hybrid.v3",
         "plan": asdict(plan),
         "retrieval_mode": "hybrid" if dense_search else "bm25",
         "reranker": "feature.v1",
@@ -178,6 +179,12 @@ def search(
     }
     if top_k <= 0 or not query.strip():
         return SearchResult([], trace)
+    # Apply serving eligibility before bounded candidate selection, so rejected
+    # issues cannot consume the slots needed by relevant lower-ranked documents.
+    if candidate_filter:
+        filtered = [chunk for chunk in chunks if candidate_filter(chunk)]
+        trace["issue_filtered_count"] = len(chunks) - len(filtered)
+        chunks = filtered
     top_k = min(top_k, 20)
     if re.fullmatch(r"(?:PB-[A-Z]+-\d+[\s,;]*)+", query.strip(), re.IGNORECASE):
         return _exact_lookup(chunks, plan, top_k, context_chars, trace, start)
@@ -197,7 +204,8 @@ def search(
         for base in plan.knowledge_bases:
             try:
                 candidates = [
-                    c for c in dense_search(query, base, candidate_k) if eligible(c, plan)
+                    c for c in dense_search(query, base, candidate_k)
+                    if eligible(c, plan) and (candidate_filter is None or candidate_filter(c))
                 ]
                 rankings.append(candidates)
                 weights.append(1.0)
