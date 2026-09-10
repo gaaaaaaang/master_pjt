@@ -1,0 +1,258 @@
+{
+  "before": {
+    "same_status_cases": 6,
+    "runs": 18,
+    "rejected": 0,
+    "repair_runs": 3,
+    "model_calls": 36,
+    "mean_seconds": 8.734916430554424,
+    "mean_characters": 804.6111111111111,
+    "macro_length_cv": 0.0934327608567539,
+    "all_quotes_valid": true,
+    "by_case": {
+      "ext_alternate": {
+        "statuses": [
+          "supported",
+          "supported",
+          "supported"
+        ],
+        "characters": [
+          1418,
+          1415,
+          919
+        ],
+        "length_cv": 0.1875215461424056,
+        "generation_claims": [
+          6,
+          7,
+          6
+        ]
+      },
+      "ext_equipment_record": {
+        "statuses": [
+          "supported",
+          "supported",
+          "supported"
+        ],
+        "characters": [
+          882,
+          890,
+          730
+        ],
+        "length_cv": 0.08826330130674508,
+        "generation_claims": [
+          5,
+          5,
+          4
+        ]
+      },
+      "ext_hold_deadline": {
+        "statuses": [
+          "supported",
+          "supported",
+          "supported"
+        ],
+        "characters": [
+          851,
+          1022,
+          1023
+        ],
+        "length_cv": 0.08375024800793535,
+        "generation_claims": [
+          6,
+          5,
+          6
+        ]
+      },
+      "ext_knowledge_update": {
+        "statuses": [
+          "partial",
+          "partial",
+          "partial"
+        ],
+        "characters": [
+          1097,
+          900,
+          954
+        ],
+        "length_cv": 0.08449581415364368,
+        "generation_claims": [
+          6,
+          6,
+          6
+        ]
+      },
+      "ext_pm_approval": {
+        "statuses": [
+          "supported",
+          "supported",
+          "supported"
+        ],
+        "characters": [
+          836,
+          627,
+          760
+        ],
+        "length_cv": 0.11656565552979364,
+        "generation_claims": [
+          4,
+          4,
+          4
+        ]
+      },
+      "ext_unknown_threshold": {
+        "statuses": [
+          "insufficient",
+          "insufficient",
+          "insufficient"
+        ],
+        "characters": [
+          53,
+          53,
+          53
+        ],
+        "length_cv": 0.0,
+        "generation_claims": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    "temperatures": [
+      null
+    ]
+  },
+  "after": {
+    "same_status_cases": 6,
+    "runs": 18,
+    "rejected": 0,
+    "repair_runs": 0,
+    "model_calls": 33,
+    "mean_seconds": 6.1599276018322495,
+    "mean_characters": 608.4444444444445,
+    "macro_length_cv": 0.057112112445345496,
+    "all_quotes_valid": true,
+    "by_case": {
+      "ext_alternate": {
+        "statuses": [
+          "supported",
+          "supported",
+          "supported"
+        ],
+        "characters": [
+          1208,
+          699,
+          620
+        ],
+        "length_cv": 0.3093419494556654,
+        "generation_claims": [
+          7,
+          3,
+          4
+        ]
+      },
+      "ext_equipment_record": {
+        "statuses": [
+          "supported",
+          "supported",
+          "supported"
+        ],
+        "characters": [
+          740,
+          739,
+          740
+        ],
+        "length_cv": 0.0006373202173830983,
+        "generation_claims": [
+          4,
+          5,
+          4
+        ]
+      },
+      "ext_hold_deadline": {
+        "statuses": [
+          "supported",
+          "supported",
+          "supported"
+        ],
+        "characters": [
+          831,
+          843,
+          829
+        ],
+        "length_cv": 0.007410002793044909,
+        "generation_claims": [
+          4,
+          4,
+          4
+        ]
+      },
+      "ext_knowledge_update": {
+        "statuses": [
+          "partial",
+          "partial",
+          "partial"
+        ],
+        "characters": [
+          729,
+          699,
+          698
+        ],
+        "length_cv": 0.020296753537527204,
+        "generation_claims": [
+          6,
+          6,
+          6
+        ]
+      },
+      "ext_pm_approval": {
+        "statuses": [
+          "supported",
+          "supported",
+          "supported"
+        ],
+        "characters": [
+          476,
+          471,
+          471
+        ],
+        "length_cv": 0.00498664866845238,
+        "generation_claims": [
+          3,
+          3,
+          3
+        ]
+      },
+      "ext_unknown_threshold": {
+        "statuses": [
+          "insufficient",
+          "insufficient",
+          "insufficient"
+        ],
+        "characters": [
+          53,
+          53,
+          53
+        ],
+        "length_cv": 0.0,
+        "generation_claims": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "temperatures": [
+      0.0
+    ]
+  },
+  "design": {
+    "fixed_source_per_arm": true,
+    "same_frozen_evidence": true,
+    "case_count": 6,
+    "repeats": 3,
+    "prompt_and_temperature_changed_together": true,
+    "not_independent_holdout": true
+  }
+}

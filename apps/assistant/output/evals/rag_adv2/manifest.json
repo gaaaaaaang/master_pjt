@@ -1,0 +1,24 @@
+{
+  "baseline_commit": "4ebf83350a706afb158653e0c51d5c43b60f9c9e",
+  "branch": "feat/rag_adv2",
+  "previous_thread": "01a07c24-3b25-7af2-884c-d31fb31bebd7",
+  "offline_top_k": 3,
+  "live_top_k": 5,
+  "offline_fixtures": {
+    "apps/assistant/tests/fixtures/rag_extension_eval.json": "258e03ec26e36543f8d5beea6d8127f5e9dfbbb0f5c066ebd1cd68df2c645801",
+    "apps/assistant/tests/fixtures/rag_search_eval.json": "e71c1198735f46560c00249418565ece03bbf24b4abc9a2be33e99624e785924",
+    "apps/assistant/tests/fixtures/rag_search_challenge.json": "4c5081f11a33852214b4a2bc876615eb4849df1bcf20e8bdd981656e8adfb6b2",
+    "apps/assistant/tests/fixtures/rag_cross_kb_eval.json": "7d7e401cd6a621345758568519e4245861552269146e728292f033114616859d"
+  },
+  "offline_corpora": {
+    "apps/assistant/output/rag/master_pjt.jsonl": "e1f598dd34aec69213fab5bb3100d9cc643d84d64ef4d9ff1cbd0199f650c62d",
+    "apps/assistant/output/rag/master_pjt_v2.jsonl": "5cd581ec05cf94505e16ec00177d917b094c3e4461784f9da2bb1222e5cf9dca"
+  },
+  "notes": [
+    "Development regression fixtures, not independent holdout.",
+    "Offline abstention tests empty retrieval; missing numbers can correctly have related evidence.",
+    "Live baseline is the preserved September 10 run, not a same-time rerun.",
+    "First sandbox live attempt stopped on DNS failure before any case was saved.",
+    "Ragas after initial preserves the discovered lifecycle/revision conflation before the final safeguard."
+  ]
+}

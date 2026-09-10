@@ -1,0 +1,148 @@
+{
+  "baseline": {
+    "metrics": {
+      "all": {
+        "faithfulness": 0.6466666666666667,
+        "answer_relevancy": 0.3097543734605167,
+        "llm_context_precision_without_reference": 0.5999999999646667
+      },
+      "answerable": {
+        "faithfulness": 0.8285714285714286,
+        "answer_relevancy": 0.4425062478007382,
+        "llm_context_precision_without_reference": 0.8571428570923809
+      },
+      "unanswerable": {
+        "faithfulness": 0.2222222222222222,
+        "answer_relevancy": 0.0,
+        "llm_context_precision_without_reference": 0.0
+      }
+    },
+    "statuses": {
+      "ext_pm_approval": "supported",
+      "ext_hold_deadline": "supported",
+      "ext_equipment_record": "supported",
+      "ext_alternate": "supported",
+      "ext_timelink": "supported",
+      "ext_knowledge_update": "insufficient",
+      "ext_autosched_attach": "supported",
+      "ext_unknown_threshold": "insufficient",
+      "ext_unknown_euv": "insufficient",
+      "ext_verified_sop": "insufficient"
+    },
+    "mean_generation_seconds": 4.6125020707972,
+    "source_sha256": "607d3d3a64679143db742ade8abf4f3a4fc492e31529db22284fc69685c015d6",
+    "corpus_sha256": "e1f598dd34aec69213fab5bb3100d9cc643d84d64ef4d9ff1cbd0199f650c62d"
+  },
+  "initial_v5": {
+    "metrics": {
+      "all": {
+        "faithfulness": 0.6426262626262627,
+        "answer_relevancy": 0.36095924237143534,
+        "llm_context_precision_without_reference": 0.6999999999646667
+      },
+      "answerable": {
+        "faithfulness": 0.8704184704184704,
+        "answer_relevancy": 0.515656060530622,
+        "llm_context_precision_without_reference": 0.9999999999495238
+      },
+      "unanswerable": {
+        "faithfulness": 0.1111111111111111,
+        "answer_relevancy": 0.0,
+        "llm_context_precision_without_reference": 0.0
+      }
+    },
+    "statuses": {
+      "ext_pm_approval": "supported",
+      "ext_hold_deadline": "supported",
+      "ext_equipment_record": "supported",
+      "ext_alternate": "supported",
+      "ext_timelink": "supported",
+      "ext_knowledge_update": "supported",
+      "ext_autosched_attach": "supported",
+      "ext_unknown_threshold": "insufficient",
+      "ext_unknown_euv": "insufficient",
+      "ext_verified_sop": "insufficient"
+    },
+    "mean_generation_seconds": 6.805073816599906,
+    "source_sha256": "0ee71ed2ef111fb3e8fbf7e2c92709d18a02fd2012fccf411644504d5e837270",
+    "corpus_sha256": "e1f598dd34aec69213fab5bb3100d9cc643d84d64ef4d9ff1cbd0199f650c62d"
+  },
+  "intermediate_v6": {
+    "metrics": {
+      "all": {
+        "faithfulness": 0.6160042735042734,
+        "answer_relevancy": 0.2159024570935805,
+        "llm_context_precision_without_reference": 0.5999999999696667
+      },
+      "answerable": {
+        "faithfulness": 0.7847680097680098,
+        "answer_relevancy": 0.3084320815622578,
+        "llm_context_precision_without_reference": 0.8571428570995238
+      },
+      "unanswerable": {
+        "faithfulness": 0.2222222222222222,
+        "answer_relevancy": 0.0,
+        "llm_context_precision_without_reference": 0.0
+      }
+    },
+    "statuses": {
+      "ext_pm_approval": "partial",
+      "ext_hold_deadline": "insufficient",
+      "ext_equipment_record": "supported",
+      "ext_alternate": "supported",
+      "ext_timelink": "supported",
+      "ext_knowledge_update": "partial",
+      "ext_autosched_attach": "supported",
+      "ext_unknown_threshold": "insufficient",
+      "ext_unknown_euv": "insufficient",
+      "ext_verified_sop": "insufficient"
+    },
+    "mean_generation_seconds": 6.289845475000038,
+    "source_sha256": "d2de17a5ee7b633a93706ddb526670017d0efdfb8c5a249da6d39cd64c1907ab",
+    "corpus_sha256": "e1f598dd34aec69213fab5bb3100d9cc643d84d64ef4d9ff1cbd0199f650c62d"
+  },
+  "final_v7": {
+    "metrics": {
+      "all": {
+        "faithfulness": 0.7133333333333334,
+        "answer_relevancy": 0.3247786900608535,
+        "llm_context_precision_without_reference": 0.7999999999596666
+      },
+      "answerable": {
+        "faithfulness": 0.9714285714285714,
+        "answer_relevancy": 0.4639695572297907,
+        "llm_context_precision_without_reference": 0.9999999999495238
+      },
+      "unanswerable": {
+        "faithfulness": 0.1111111111111111,
+        "answer_relevancy": 0.0,
+        "llm_context_precision_without_reference": 0.33333333331666665
+      }
+    },
+    "statuses": {
+      "ext_pm_approval": "supported",
+      "ext_hold_deadline": "supported",
+      "ext_equipment_record": "supported",
+      "ext_alternate": "supported",
+      "ext_timelink": "supported",
+      "ext_knowledge_update": "partial",
+      "ext_autosched_attach": "supported",
+      "ext_unknown_threshold": "insufficient",
+      "ext_unknown_euv": "insufficient",
+      "ext_verified_sop": "insufficient"
+    },
+    "mean_generation_seconds": 6.646519337302015,
+    "source_sha256": "2ce1df3c098ea0d65844b82131a046705cdc317cdf57d7bd6e2b08fa4a9e0bba",
+    "corpus_sha256": "e1f598dd34aec69213fab5bb3100d9cc643d84d64ef4d9ff1cbd0199f650c62d"
+  },
+  "verification": {
+    "identical_live_corpus_and_fixture": true,
+    "final_source_matches_report": true,
+    "final_citations_verified": 43,
+    "rag_tests_passed": 146,
+    "full_tests_passed": 658,
+    "preexisting_test_failures": 1,
+    "no_metric_errors": true,
+    "semantic_entailment_not_proven_by_quote_audit": true
+  }
+}

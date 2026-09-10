@@ -10,6 +10,7 @@ from app.rag.embeddings import AzureEmbeddingClient, RequestEmbeddingCache
 from app.rag.ingest import load_chunks
 from app.rag.manifest import load_manifest, verify_manifest
 from app.rag.milvus_store import search_chunks
+from app.rag.query import analyze_query
 from app.rag.rerank import AzureReranker
 from app.rag.search import SearchResult, search
 from app.schemas.chat import Evidence
@@ -66,6 +67,10 @@ def retrieve_evidence(
     ]
     if not result.trace.get("plan", {}).get("exact_ids"):
         evidence = [item for item in evidence if item.metadata.get("knowledge_base") != INCIDENT_PLAYBOOK or item.metadata["issue_aligned"]]
+    result.trace["evidence_count"] = len(evidence)
+    result.trace["post_filter_dropped_count"] = len(result.chunks) - len(evidence)
+    if not evidence and result.chunks:
+        result.limitations.append("검색 후보가 질문의 이슈와 맞지 않아 답변 근거에서 제외했습니다.")
     for item in evidence:
         item.metadata["retrieval_trace"] = result.trace
         item.metadata["retrieval_limitations"] = result.limitations
@@ -128,6 +133,14 @@ def retrieve_with_trace(
         raise NotImplementedError(f"RAG store has no chunks: {selected_path}")
 
     local_by_id = {chunk["chunk_id"]: chunk for chunk in chunks}
+    plan = analyze_query(query, knowledge_base)
+    issue_intents = _query_issue_intents(_expand_query_terms(_tokenize(query)), query=query)
+    issue_intents.update(plan.concepts)
+
+    def candidate_filter(chunk: dict[str, Any]) -> bool:
+        return bool(plan.exact_ids) or chunk.get("knowledge_base") != INCIDENT_PLAYBOOK or _issue_alignment(
+            chunk, issue_intents, strict=True
+        )
     embedding_client = RequestEmbeddingCache(AzureEmbeddingClient()) if use_dense else None
 
     def dense(query: str, base: str, limit: int):
@@ -180,6 +193,7 @@ def retrieve_with_trace(
         dense_search=dense if use_dense else None,
         reranker=AzureReranker() if settings.rag_reranker == "llm" and store_path is None else None,
         rerank_limit=settings.rag_rerank_limit,
+        candidate_filter=candidate_filter,
     )
 
 

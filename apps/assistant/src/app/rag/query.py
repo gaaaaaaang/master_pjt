@@ -7,7 +7,7 @@ from dataclasses import dataclass, replace
 from functools import lru_cache
 
 # Versioned domain vocabulary: aliases describe terminology, never causal relations.
-VOCABULARY_VERSION = "fab.v3"
+VOCABULARY_VERSION = "fab.v4"
 ALIASES = {
     "equipment_down": (
         "설비 고장", "장비가 멈", "장비가 자꾸 멈", "장비 알람", "장비가 갑자기 멈", "unexpected shutdown",
@@ -39,6 +39,8 @@ ALIASES = {
         "release from hold",
         "hold 해제",
         "보류 해제",
+        "해제 조건",
+        "hold에서 풀",
         "로트 해제",
         "lot release",
         "release 판단",
@@ -50,7 +52,10 @@ ALIASES = {
     "rca": ("rca", "5 why", "5why", "근본 원인", "재발방지", "재발 방지", "root cause"),
     "recovery": ("복구", "recovery"),
     "escalation": ("escalation", "에스컬레이션", "상황 보고", "커뮤니케이션"),
-    "kb_update": ("지식베이스", "지식 베이스", "knowledge base", "kb update", "kb_update"),
+    "kb_update": (
+        "지식베이스", "지식 베이스", "지식 문서", "지식문서", "knowledge base",
+        "kb update", "kb_update", "플레이북 업데이트", "playbook 개정",
+    ),
     "batching": ("batching", "배치 처리", "배치처리"),
     "rework": ("rework", "재작업"),
     "transport": ("transportation", "transport", "운반", "이송"),
