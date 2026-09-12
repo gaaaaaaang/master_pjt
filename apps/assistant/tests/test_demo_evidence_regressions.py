@@ -158,7 +158,8 @@ def test_failed_answer_review_keeps_raw_data_but_does_not_publish_rejected_claim
     assert result["status"] == "failed"
     assert "999" not in result["answer"]
     assert "999" in result["answer_review"]["rejected_answer"]
-    assert result["answer_review"]["presentation_fallback"] == "verified_query_rows_only"
+    assert "presentation_fallback" not in result["answer_review"]
+    assert "261" not in result["answer"]
     assert "wrong WIP" not in result["limitations"]
 
 
@@ -184,19 +185,17 @@ def test_downtime_answer_does_not_satisfy_a_utilization_question():
     assert _missing_question_metrics("비가동률은?", "Down은 5%입니다.") == []
 
 
-def test_composer_outage_retains_inherited_fab_and_selection_conditions(monkeypatch):
+def test_composer_outage_does_not_substitute_a_selection_answer(monkeypatch):
     from app.agents.llm_nodes import compose_with_llm
-    from app.agents.planner import create_plan
-    from app.sub_agent.reflection import _missing_selection_constraints
+    from test_planner_supervisor_contracts import plan_for
 
     class Offline:
         def complete_json(self, **kwargs):
             raise RuntimeError("injected outage")
 
     question = "그럼 지금 공정별 WIP 상위 3개를 보여줘"
-    plan = create_plan(question, fab="fab12", llm_client=Offline())
+    plan = plan_for(question, fab="fab12")
     monkeypatch.setattr("app.agents.llm_nodes.AzureAgentClient", Offline)
-    answer = compose_with_llm(question=question, plan=plan, answer_parts=["3개 행 조회"],
-                             evidence=[], limitations=["시뮬레이션 관측값"], reflection={})
-    assert "FAB12" in answer and "상위 3" in answer
-    assert _missing_selection_constraints(question, answer) == []
+    with pytest.raises(RuntimeError, match="injected outage"):
+        compose_with_llm(question=question, plan=plan, answer_parts=["3개 행 조회"],
+                         evidence=[], limitations=["시뮬레이션 관측값"], reflection={})

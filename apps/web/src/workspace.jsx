@@ -9,16 +9,12 @@ import { restoreWorkspaceUi } from './session-ui';
 import { STORE_KEY, readLegacy, loadConversations, saveConversations } from './workspace-storage';
 import { makePreview } from './preview';
 import './workspace.css';
+import examples from './default-questions.json';
 
 const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/$/, '');
 const previewKey = new URLSearchParams(window.location.search).get('preview');
 const isPreview = previewKey !== null;
-const examples = [
-  { icon: 'layers', title: '생산 현황', text: '지금 공정 상황이 궁금할 때', prompt: '{fab}의 공정별 현재 WIP 현황을 알려줘' },
-  { icon: 'search', title: '원인 찾기', text: '지표가 달라진 이유를 찾을 때', prompt: '{fab} etch 공정의 대기 시간이 늘어난 원인을 데이터와 문서 근거로 분석해 줘' },
-  { icon: 'chart', title: '추이 비교', text: '변화를 한눈에 보고 싶을 때', prompt: '{fab} 최근 7일 공정별 수율 추세를 그래프로 보여줘' },
-  { icon: 'book', title: '공정 지식', text: '관련 문서와 사례가 필요할 때', prompt: 'Cycle Time Degradation이 무엇인지 문서 근거로 설명해줘' },
-];
+
 function newConversation() { return { id: crypto.randomUUID(), title: '새 대화', updatedAt: Date.now(), context: { fab: '', line: '', process: '' }, messages: [] }; }
 function initialState() {
   if (isPreview) return [makePreview(previewKey)];
@@ -90,11 +86,18 @@ function Workspace() {
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 5000); return () => clearTimeout(timer); }, [notice]);
   useEffect(() => {
     if (isPreview) return;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    const health = API_BASE === '/api' ? '/health' : API_BASE.replace(/\/api$/, '') + '/health';
-    fetch(health, { signal: controller.signal }).then(r => setConnection(r.ok ? 'online' : 'offline')).catch(() => setConnection('offline')).finally(() => clearTimeout(timeout));
-    return () => { clearTimeout(timeout); controller.abort(); };
+    const health = API_BASE === '/api' ? '/health/ready' : API_BASE.replace(/\/api$/, '') + '/health/ready';
+    let stopped = false, controller, timeout, nextCheck;
+    const check = () => {
+      controller = new AbortController();
+      timeout = setTimeout(() => controller.abort(), 5000);
+      fetch(health, { signal: controller.signal })
+        .then(r => { if (!stopped) setConnection(r.ok ? 'online' : r.status === 503 ? 'degraded' : 'offline'); })
+        .catch(() => { if (!stopped) setConnection('offline'); })
+        .finally(() => { clearTimeout(timeout); if (!stopped) nextCheck = setTimeout(check, 30000); });
+    };
+    check();
+    return () => { stopped = true; clearTimeout(timeout); clearTimeout(nextCheck); controller.abort(); };
   }, []);
   useEffect(() => {
     const scroller = scrollRef.current;
@@ -159,7 +162,7 @@ function Workspace() {
         {conversations.filter(c => c.title.toLowerCase().includes(search.toLowerCase())).map(c => <button type="button" disabled={busy || !storageReady} className={`history-item ${c.id === active.id ? 'selected' : ''}`} key={c.id} onClick={() => choose(c.id)} aria-current={c.id === active.id ? 'page' : undefined}><Icon name="chat" size={17}/><span>{c.title}</span></button>)}
         {!conversations.some(c => c.title.toLowerCase().includes(search.toLowerCase())) && <p className="search-empty">검색한 대화가 없어요.</p>}
       </nav>
-      <div className="sidebar-footer"><div className="workspace-label"><span className="workspace-avatar">F</span><div><strong>FAB Workspace</strong><small>생산 운영 어시스턴트</small></div></div><p><span className={`connection-dot ${connection}`}/>{isPreview ? '디자인 미리보기' : connection === 'online' ? '서버에 연결되어 있어요' : connection === 'checking' ? '연결 확인 중' : '서버 연결 확인 필요'}</p></div>
+      <div className="sidebar-footer"><div className="workspace-label"><span className="workspace-avatar">F</span><div><strong>FAB Workspace</strong><small>생산 운영 어시스턴트</small></div></div><p><span className={`connection-dot ${connection}`}/>{isPreview ? '디자인 미리보기' : connection === 'online' ? '공정 데이터 조회 준비 완료' : connection === 'degraded' ? '공정 데이터 연결·적재 확인 필요' : connection === 'checking' ? '연결 확인 중' : '서버 연결 확인 필요'}</p></div>
     </aside>
     <main className="main-workspace" inert={mobile && sidebar}>
       <header className="topbar"><div className="topbar-title"><button className="icon-button mobile-menu" aria-label="대화 목록 열기" aria-expanded={sidebar} onClick={() => setSidebar(!sidebar)}><Icon name="menu"/></button><span className="topbar-product">어시스턴트</span><span className="topbar-divider">/</span><span className="conversation-title">{active.title}</span></div><div className="topbar-actions"><button aria-label="질문 가이드 열기" className="topbar-action" disabled={busy || !storageReady} onClick={() => setDrawer({ type: 'guide' })}><Icon name="book" size={18}/><span>질문 가이드</span></button><button aria-label="분석 결과 모아보기" className="topbar-action" onClick={() => setDrawer({ type: 'artifacts' })}><Icon name="layers" size={18}/><span>분석 결과</span>{artifacts.length > 0 && <span className="count">{artifacts.length}</span>}</button></div></header>

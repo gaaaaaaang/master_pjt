@@ -5,10 +5,8 @@ from pathlib import Path
 
 import pytest
 from app.rag.grounding import (
-    GroundedAnswer,
     apply_review,
     compose_grounded,
-    retain_procedural_requirements,
 )
 from app.rag.query import analyze_query
 from app.rag.search import search
@@ -67,25 +65,6 @@ def test_kb_update_and_both_hold_decisions_survive_serving(corpus):
         assert result.trace["evidence_count"] == len(result.evidence)
 
 
-def test_extract_preserves_missing_condition_without_repeating_exact_answer():
-    approval = "PM 연기는 Engineer 승인 없이는 허용하지 않는다."
-    recovery = "PM 이후 dummy run 결과를 기록한다."
-    sources = {"a": {
-        "content": approval + "\n" + recovery,
-        "source_document": "manual.txt", "page_number": 1,
-    }}
-    result = GroundedAnswer(approval + " [1]", "supported", citations=[{
-        "number": 1, "chunk_id": "a", "quote": approval,
-        "source_document": "manual.txt", "page_number": 1,
-    }])
-    result = retain_procedural_requirements(result, "승인과 복구 기록?", sources)
-    assert result.answer.startswith(approval)
-    assert result.answer.count(approval) == 1
-    assert recovery in result.answer
-    assert len(result.citations) == 2
-    assert result.review["extractive_requirement_count"] == 1
-
-
 @pytest.mark.parametrize("question", ["검토와 버전 관리 기준은?", "What is the revision policy?"])
 def test_lifecycle_status_cannot_be_presented_as_revision_policy(question):
     quote = "validity draft/reviewed/approved"
@@ -97,25 +76,16 @@ def test_lifecycle_status_cannot_be_presented_as_revision_policy(question):
         {"text": "버전은 draft/reviewed/approved로 관리합니다.",
          "sources": [{"chunk_id": "a", "quote": quote}]},
     ]}
-    review = {"complete": True,
-              "coverage": [{"requirement": question, "covered": True, "reason": "accepted"}],
-              "checks": [{"claim_index": i, "supported": True, "reason": "accepted"}
-                         for i in range(2)]}
+    review = {"complete": False,
+              "coverage": [{"requirement": question, "covered": False, "reason": "근거 없음"}],
+              "checks": [{"claim_index": 0, "supported": True, "reason": "원문"},
+                         {"claim_index": 1, "supported": False, "reason": "원문에 없음"}]}
     result = apply_review(output, review, sources, question=question)
     assert result.status == "partial"
     assert "문서 상태는" in result.answer
     assert "버전은 draft" not in result.answer
-    assert "확인되지 않습니다" in result.answer
-    assert result.review["checks"][1]["supported"] is False
-    assert review["complete"] is True  # Preserve the original model verdict for audit.
-    assert apply_review(output, review, sources, question="문서 상태는?").status == "supported"
-    version_quote = "Revision policy: record the revision identifier and change history."
-    sources["a"]["content"] += "\n" + version_quote
-    output["claims"][1] = {
-        "text": "개정 식별자와 변경 이력을 기록합니다.",
-        "sources": [{"chunk_id": "a", "quote": version_quote}],
-    }
-    assert apply_review(output, review, sources, question=question).status == "supported"
+    assert result.review == review
+    assert "missing_version_policy" not in result.review
 
 
 @pytest.mark.parametrize("repair_succeeds", [True, False])

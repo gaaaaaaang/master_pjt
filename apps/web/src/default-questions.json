@@ -1,0 +1,26 @@
+[
+  {
+    "icon": "layers",
+    "title": "생산 현황",
+    "text": "지금 공정 상황이 궁금할 때",
+    "prompt": "{fab}의 공정별 현재 WIP 현황을 알려줘"
+  },
+  {
+    "icon": "search",
+    "title": "원인 찾기",
+    "text": "지표가 달라진 이유를 찾을 때",
+    "prompt": "{fab} etch 공정의 대기 시간이 늘어난 원인을 데이터와 문서 근거로 분석해 줘"
+  },
+  {
+    "icon": "chart",
+    "title": "추이 비교",
+    "text": "변화를 한눈에 보고 싶을 때",
+    "prompt": "{fab} 최근 7일 공정별 수율 추세를 그래프로 보여줘"
+  },
+  {
+    "icon": "book",
+    "title": "공정 지식",
+    "text": "관련 문서와 사례가 필요할 때",
+    "prompt": "Cycle Time Degradation이 무엇인지 문서 근거로 설명해줘"
+  }
+]

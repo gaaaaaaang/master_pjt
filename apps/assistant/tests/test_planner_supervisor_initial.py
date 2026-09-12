@@ -13,8 +13,8 @@ from app.agents.supervisor import (
 from app.config import get_settings
 from app.schemas.chat import ChatRequest, Evidence
 from app.sub_agent.rag import PROCESS_BASICS, EvidenceResult
-from app.sub_agent.reflection import verify_response
 from app.sub_agent.text2sql import QueryPlan, Text2SQLResult
+from test_planner_supervisor_contracts import plan_for
 
 
 class RecordingLLM:
@@ -33,25 +33,15 @@ class FailingLLM:
         raise RuntimeError("temporary LLM outage")
 
 
-def test_planner_fallback_routes_context_metric_bare_selection_to_status() -> None:
-    plan = create_plan(
-        "그중 80% 이상만 상위 5개",
-        fab="fab10",
-        process="Dry_Etch",
-        metric="util_percent",
-        llm_client=FailingLLM(),
-    )
-
-    assert plan.status == "ready"
-    assert plan.query_type == "status"
-    assert plan.selected_sub_agents == ["text2sql"]
-    assert plan.slots["metric"].value == "util_percent"
+def test_planner_outage_does_not_invent_a_selection_plan() -> None:
+    with pytest.raises(RuntimeError, match="temporary LLM outage"):
+        create_plan("그중 80% 이상만 상위 5개", fab="fab10", process="Dry_Etch", metric="util_percent", llm_client=FailingLLM())
 
 
-def test_deterministic_composer_preserves_question_scope(monkeypatch) -> None:
+def test_composer_outage_cannot_replace_analysis_with_query_rows(monkeypatch) -> None:
     monkeypatch.setattr("app.agents.llm_nodes.AzureAgentClient", lambda: FailingLLM())
     question = "fab10 WIP과 ontime 2020년 1분기 월별 추세 보여줘"
-    plan = create_plan(question, llm_client=FailingLLM())
+    plan = plan_for(question)
     evidence = [
         {
             "source_type": "text2sql_plan",
@@ -73,31 +63,21 @@ def test_deterministic_composer_preserves_question_scope(monkeypatch) -> None:
     ]
     limitations = ["AutoSched report 기준입니다."]
 
-    answer = compose_with_llm(
-        question=question,
-        plan=plan,
-        answer_parts=["AutoSched report 추세 기준으로 1개 행을 조회했습니다."],
-        evidence=evidence,
-        limitations=limitations,
-        reflection={"action": "compose"},
-    )
-    verification = verify_response(
-        answer,
-        evidence=evidence,
-        limitations=limitations,
-        query_type="trend",
-        question=question,
-    )
-
-    assert "요청 범위: fab10, WIP, Ontime, 2020년 1분기" in answer
-    assert "wiplotavg=2273.83" in answer
-    assert verification["is_supported"] is True
+    with pytest.raises(RuntimeError, match="temporary LLM outage"):
+        compose_with_llm(
+            question=question,
+            plan=plan,
+            answer_parts=["AutoSched report 추세 기준으로 1개 행을 조회했습니다."],
+            evidence=evidence,
+            limitations=limitations,
+            reflection={"action": "compose"},
+        )
 
 
-def test_deterministic_composer_covers_multi_equipment_trend_series(monkeypatch) -> None:
+def test_composer_outage_cannot_replace_multi_equipment_analysis(monkeypatch) -> None:
     monkeypatch.setattr("app.agents.llm_nodes.AzureAgentClient", lambda: FailingLLM())
     question = "fab10 DE_BE_11과 DE_BE_12 utilization과 down 추세 알려줘"
-    plan = create_plan(question, llm_client=FailingLLM())
+    plan = plan_for(question)
     rows = [
         {"report_date": "2020-01-01", "stn": "DE_BE_11", "util_percent": 80, "down_percent": 5},
         {"report_date": "2020-01-02", "stn": "DE_BE_11", "util_percent": 82, "down_percent": 4},
@@ -129,24 +109,15 @@ def test_deterministic_composer_covers_multi_equipment_trend_series(monkeypatch)
         },
     ]
 
-    answer = compose_with_llm(
-        question=question,
-        plan=plan,
-        answer_parts=["AutoSched report 장비별 추세를 조회했습니다."],
-        evidence=evidence,
-        limitations=[],
-        reflection={"action": "compose"},
-    )
-    verification = verify_response(
-        answer,
-        evidence=evidence,
-        query_type="trend",
-        question=question,
-    )
-
-    assert plan.selected_sub_agents == ["text2sql", "visualization"]
-    assert verification["missing_trend_series"] == []
-    assert verification["is_supported"] is True
+    with pytest.raises(RuntimeError, match="temporary LLM outage"):
+        compose_with_llm(
+            question=question,
+            plan=plan,
+            answer_parts=["AutoSched report 장비별 추세를 조회했습니다."],
+            evidence=evidence,
+            limitations=[],
+            reflection={"action": "compose"},
+        )
 
 
 def test_planner_uses_chat_completions_structured_output() -> None:
@@ -179,13 +150,9 @@ def test_planner_uses_chat_completions_structured_output() -> None:
     assert llm.calls[0]["input_data"]["question"] == "fab10 toolgroup 조회"
 
 
-def test_planner_uses_deterministic_route_when_llm_is_unavailable() -> None:
-    plan = create_plan("왜 fab10 Queue Time이 늘었어?", llm_client=FailingLLM())
-
-    assert plan.execution_mode == "deterministic_fallback"
-    assert plan.query_type == "diagnosis"
-    assert plan.selected_sub_agents == ["text2sql", "rag", "case_search"]
-    assert all(step.required is False for step in plan.execution_steps)
+def test_planner_outage_does_not_invent_a_diagnosis_plan() -> None:
+    with pytest.raises(RuntimeError, match="temporary LLM outage"):
+        create_plan("왜 fab10 Queue Time이 늘었어?", llm_client=FailingLLM())
 
 
 @pytest.mark.parametrize(
@@ -207,27 +174,18 @@ def test_planner_uses_deterministic_route_when_llm_is_unavailable() -> None:
         ("CMP 공정이 뭐야?", "knowledge_lookup", ["rag"]),
     ],
 )
-def test_deterministic_fallback_covers_primary_scenario_routes(
+def test_model_outage_propagates_for_all_query_types(
     question: str,
     expected_type: str,
     expected_agents: list[str],
 ) -> None:
-    plan = create_plan(question, llm_client=FailingLLM())
-
-    assert plan.status == "ready"
-    assert plan.query_type == expected_type
-    assert plan.selected_sub_agents == expected_agents
+    with pytest.raises(RuntimeError, match="temporary LLM outage"):
+        create_plan(question, llm_client=FailingLLM())
 
 
-def test_deterministic_fallback_clarifies_ambiguous_release_date_basis() -> None:
-    plan = create_plan(
-        "fab10 Product_3 lotrelease 일별 추세 보여줘",
-        llm_client=FailingLLM(),
-    )
-
-    assert plan.status == "needs_clarification"
-    assert plan.missing_slots == ["date_basis"]
-    assert plan.selected_sub_agents == []
+def test_model_outage_does_not_invent_clarification() -> None:
+    with pytest.raises(RuntimeError, match="temporary LLM outage"):
+        create_plan("fab10 Product_3 lotrelease 일별 추세 보여줘", llm_client=FailingLLM())
 
 
 @pytest.mark.parametrize(
@@ -247,20 +205,17 @@ def test_deterministic_fallback_clarifies_ambiguous_release_date_basis() -> None
         ),
     ],
 )
-def test_deterministic_fallback_preserves_explicit_compound_agents(
+def test_successful_model_plan_preserves_explicit_compound_agents(
     question: str, expected_agents: list[str]
 ) -> None:
-    plan = create_plan(question, llm_client=FailingLLM())
+    plan = plan_for(question)
 
     assert plan.query_type == "diagnosis"
     assert plan.selected_sub_agents == expected_agents
 
 
-def test_deterministic_impact_fallback_adds_requested_visualization() -> None:
-    plan = create_plan(
-        "fab10 utilization 5%p 감소 영향을 전후 비교 차트로 보여줘",
-        llm_client=FailingLLM(),
-    )
+def test_impact_plan_preserves_requested_visualization() -> None:
+    plan = plan_for("fab10 utilization 5%p 감소 영향을 전후 비교 차트로 보여줘")
 
     assert plan.query_type == "impact"
     assert plan.selected_sub_agents == ["text2sql", "impact", "visualization"]
@@ -697,7 +652,7 @@ def test_supervisor_status_stops_on_data_unavailable(monkeypatch) -> None:
     assert "AutoSched" in " ".join(result.limitations)
 
 
-def test_graph_returns_structured_result_when_all_orchestration_llm_calls_fail(
+def test_graph_does_not_run_without_orchestration_models(
     monkeypatch,
 ) -> None:
     def fail_completion(*args, **kwargs):
@@ -721,16 +676,8 @@ def test_graph_returns_structured_result_when_all_orchestration_llm_calls_fail(
         ),
     )
 
-    result = Supervisor().run(ChatRequest(message="지금 fab10 WIP 몇 개야?"))
-
-    assert result.status == "data_unavailable"
-    assert result.plan is not None
-    assert result.plan.execution_mode == "deterministic_fallback"
-    assert result.supervisor_decisions[0]["fallback_used"] is True
-    assert result.reflection["fallback_used"] is True
-    assert result.answer_review["fallback_used"] is True
-    assert "fab10" in result.answer
-    assert "WIP" in result.answer
+    with pytest.raises(RuntimeError, match="temporary LLM outage"):
+        Supervisor().run(ChatRequest(message="지금 fab10 WIP 몇 개야?"))
 
 
 def test_supervisor_master_lookup_returns_planner_and_text2sql_evidence(monkeypatch) -> None:

@@ -744,9 +744,13 @@ def answer_question(
                 for target in targets:
                     database_catalog.update(load_fab_catalog(target))
             except (RuntimeError, PsycopgError):
-                # The executor remains the authority on a query's failure. A metadata
-                # outage alone is not evidence of a policy denial for every table.
-                pass
+                # A failed discovery (including a partially loaded multi-FAB catalog)
+                # is not an authoritative empty catalog or an unsupported question.
+                return Text2SQLResult(
+                    status="failed", query_type=query_type or "status",
+                    answer="DB 연결 또는 테이블 목록 조회에 실패해 공정 데이터를 확인하지 못했습니다. DB 연결 상태를 확인한 뒤 다시 시도해주세요.",
+                    limitations=["DB 조회 장애로 관측값을 확보하지 못했습니다. 지원하지 않는 질문이나 데이터 부재로 판단할 수 없습니다."],
+                )
     result = plan_text2sql(
         question,
         fab=fab,
@@ -781,10 +785,6 @@ def answer_question(
         if (result.plan and result.plan.data_source_type == "simulation_snapshot"
                 and _looks_like_missing_relation_error(str(exc))):
             return _simulation_data_unavailable(result, error=str(exc))
-        if result.plan and result.plan.data_source_type != "simulation_snapshot":
-            repaired = _execute_empty_result_repairs(result)
-            if repaired:
-                return repaired
         return Text2SQLResult(
             status="failed",
             query_type=result.query_type,
@@ -798,12 +798,9 @@ def answer_question(
     empty_aggregate = bool(execution.rows) and all(
         row.get("area_count") == 0 or row.get("observation_count") == 0 for row in execution.rows
     )
-    if (execution.row_count == 0 or empty_aggregate) and result.plan:
-        if result.plan.data_source_type == "simulation_snapshot":
-            return _simulation_data_unavailable(result)
-        repaired = _execute_empty_result_repairs(result)
-        if repaired:
-            return repaired
+    if ((execution.row_count == 0 or empty_aggregate) and result.plan
+            and result.plan.data_source_type == "simulation_snapshot"):
+        return _simulation_data_unavailable(result)
 
     limitations = list(result.limitations)
     interval_lengths = [float(row[key]) for row in execution.rows
@@ -2315,7 +2312,6 @@ def _result_from_llm_output(
         )
 
     sql = str(llm_output.get("sql") or "").strip()
-    normalization_notes: list[str] = []
     sql_sources = _extract_table_refs(sql)
     source_kinds = {
         schema_context.get("table_details", {}).get(ref, {}).get(
@@ -2324,8 +2320,6 @@ def _result_from_llm_output(
     }
     actual_source_type = (next(iter(source_kinds)) if len(source_kinds) == 1
                           else "mixed" if source_kinds else schema_context["data_source_type"])
-    if actual_source_type == "operational_report":
-        sql, normalization_notes = _normalize_operational_sql(sql)
     try:
         ReadOnlyQueryExecutor(dsn="postgresql://validation-only").validate(sql)
         _validate_sql_tables(sql, set(schema_context["allowed_table_refs"]))
@@ -2365,7 +2359,6 @@ def _result_from_llm_output(
         data_source_type=actual_source_type,
         slots=slots,
         limitations=_base_limitations(query_type, actual_source_type)
-        + normalization_notes
         + chart_notes
         + list(llm_output.get("limitations") or []),
         source_tables=source_tables,
@@ -2485,7 +2478,11 @@ Hard rules:
 3. Do not generate DDL, DML, COPY, comments, SET, locks, or multiple statements.
 4. Preserve explicit user constraints. If the request cannot be answered from the allowed schema, set supported=false.
 5. Add a LIMIT no higher than 200 unless the query is an aggregate time series.
-6. For SC-001 current status, prefer latest non-WarmUp operational report rows.
+6. For current status, prefer the latest available observations according to the supplied
+   source semantics. Bind entity values and categorical filters from the supplied catalog,
+   column descriptions and observed values. Do not assume a user-facing label is a stored value.
+   On execution feedback, re-examine those bindings and joins using the catalog. Preserve
+   explicit scope and predicates: an empty result does not authorize broadening the query.
 7. For trend chart requests, include chart_intent with the output x/y column aliases. For a
    multi-metric comparison, set y to all requested numeric aliases and use grouped_bar unless the
    x-axis is temporal. Set series to a result column only when that column identifies categories.
@@ -2817,238 +2814,6 @@ def _is_missing_autosched_table_error(exc: Exception) -> bool:
     return "autosched_" in message and ("does not exist" in message or "undefinedtable" in message)
 
 
-def _execute_empty_result_repairs(result: Text2SQLResult) -> Text2SQLResult | None:
-    if not result.sql or not result.plan:
-        return None
-
-    executor = ReadOnlyQueryExecutor()
-    for repaired_sql, repair_note in _empty_result_repair_candidates(result):
-        if repaired_sql == result.sql:
-            continue
-        try:
-            execution = executor.execute(repaired_sql)
-        except (RuntimeError, SqlValidationError, PsycopgError):
-            continue
-        if execution.row_count == 0:
-            continue
-        limitations = [*result.limitations, repair_note]
-        return Text2SQLResult(
-            status="succeeded",
-            query_type=result.query_type,
-            answer=_summarize_execution(result, execution.rows),
-            sql=repaired_sql,
-            rows=execution.rows,
-            columns=execution.columns,
-            row_count=execution.row_count,
-            confidence=min(result.confidence, 0.72),
-            limitations=limitations,
-            plan=QueryPlan(
-                query_type=result.plan.query_type,
-                template_id=result.plan.template_id,
-                fab_id=result.plan.fab_id,
-                data_source_type=result.plan.data_source_type,
-                slots=result.plan.slots,
-                limitations=limitations,
-                source_tables=_extract_table_refs(repaired_sql),
-                select_items=result.plan.select_items,
-                filters=result.plan.filters,
-                group_by=result.plan.group_by,
-                order_by=result.plan.order_by,
-                aggregation=result.plan.aggregation,
-                expected_result_shape=result.plan.expected_result_shape,
-                chart_intent=result.plan.chart_intent,
-                semantic_plan=result.plan.semantic_plan,
-                grounding=result.plan.grounding,
-                generation_attempts=result.plan.generation_attempts,
-            ),
-        )
-    return None
-
-
-def _empty_result_repair_candidates(result: Text2SQLResult) -> list[tuple[str, str]]:
-    if not result.sql or not result.plan:
-        return []
-    candidates: list[tuple[str, str]] = []
-    if result.plan.data_source_type == "operational_report":
-        repaired = _repair_operational_period_filters(result.sql)
-        if repaired != result.sql:
-            candidates.append(
-                (
-                    repaired,
-                    "빈 결과 보정: AutoSched에 없는 synthetic period 값을 WarmUp 제외 조건으로 재시도했습니다.",
-                )
-            )
-
-    product = _slot_value(result.plan.slots, "product")
-    if product:
-        product_alias = _product_to_part_alias(product)
-        if product_alias and product_alias != product:
-            repaired = _repair_operational_period_filters(
-                _replace_sql_string_literal_value(result.sql, product, product_alias)
-            )
-            candidates.append(
-                (
-                    repaired,
-                    f"빈 결과 보정: product alias {product!r}를 AutoSched part 값 {product_alias!r}로 재시도했습니다.",
-                )
-            )
-
-    area = _slot_value(result.plan.slots, "area")
-    if area and result.plan.data_source_type == "model_master":
-        master_domain = _slot_value(result.plan.slots, "master_domain")
-        if master_domain == "pm" and result.plan.fab_id:
-            candidates.append(
-                (
-                    _pm_area_lookup_sql(result.plan.fab_id, area),
-                    f"빈 결과 보정: PM type_name을 toolgroups와 연결해 area {area!r} 기준으로 재조회했습니다.",
-                )
-            )
-        repaired = _repair_exact_type_or_area_filter(result.sql, area)
-        if repaired != result.sql:
-            candidates.append(
-                (
-                    repaired,
-                    f"빈 결과 보정: exact type/area filter {area!r}를 부분 일치로 재시도했습니다.",
-                )
-            )
-
-    toolgroup = _slot_value(result.plan.slots, "toolgroup")
-    if toolgroup and result.plan.data_source_type == "model_master":
-        type_alias = _toolgroup_to_type_prefix(toolgroup)
-        if type_alias and type_alias != toolgroup:
-            repaired = _repair_exact_type_or_area_filter(
-                _replace_sql_string_literal_value(result.sql, toolgroup, type_alias),
-                type_alias,
-            )
-            candidates.append(
-                (
-                    repaired,
-                    f"빈 결과 보정: toolgroup {toolgroup!r}를 type prefix {type_alias!r}로 재시도했습니다.",
-                )
-            )
-    type_prefix = _slot_value(result.plan.slots, "type_prefix")
-    if type_prefix and result.plan.data_source_type == "model_master":
-        repaired = _repair_type_prefix_filter(result.sql, type_prefix)
-        if repaired != result.sql:
-            candidates.append(
-                (
-                    repaired,
-                    f"빈 결과 보정: equipment type {type_prefix!r}를 prefix 부분 일치로 재시도했습니다.",
-                )
-            )
-    repaired = _repair_breakdown_type_filter(result.sql)
-    if repaired != result.sql:
-        candidates.append(
-            (
-                repaired,
-                "빈 결과 보정: breakdown down_type exact filter를 type_name 부분 일치로 재시도했습니다.",
-            )
-        )
-    return candidates
-
-
-def _repair_operational_period_filters(sql: str) -> str:
-    repaired = re.sub(
-        r"\bperiod\s*=\s*'(?:Operational|Queue)'",
-        "period <> 'WarmUp'",
-        sql,
-        flags=re.IGNORECASE,
-    )
-    repaired = re.sub(
-        r"\brelative\s*=\s*0\b",
-        "relative = 'Y'",
-        repaired,
-        flags=re.IGNORECASE,
-    )
-    repaired = re.sub(
-        r"\brelative\s*=\s*'(?:Normal|Now)'",
-        "relative = 'Y'",
-        repaired,
-        flags=re.IGNORECASE,
-    )
-    repaired = re.sub(
-        r"\brelative\s*<>\s*'WarmUp'",
-        "relative = 'Y'",
-        repaired,
-        flags=re.IGNORECASE,
-    )
-    return repaired
-
-
-def _repair_exact_type_or_area_filter(sql: str, value: str) -> str:
-    literal = re.escape(value)
-    return re.sub(
-        rf"\b(type_name|area)\s*=\s*'{literal}'",
-        lambda match: f"{match.group(1)} ILIKE '%{value}%'",
-        sql,
-        flags=re.IGNORECASE,
-    )
-
-
-def _repair_breakdown_type_filter(sql: str) -> str:
-    return re.sub(
-        r"\bdown_type\s*=\s*'([A-Za-z]+_[A-Za-z]+)'",
-        lambda match: f"type_name ILIKE '%{match.group(1)}%'",
-        sql,
-        flags=re.IGNORECASE,
-    )
-
-
-def _repair_type_prefix_filter(sql: str, value: str) -> str:
-    literal = re.escape(value)
-    return re.sub(
-        rf"\btype_name\s*=\s*'{literal}'",
-        f"type_name ILIKE '{value}%'",
-        sql,
-        flags=re.IGNORECASE,
-    )
-
-
-def _replace_sql_string_literal_value(sql: str, source: str, target: str) -> str:
-    replacements = {
-        source,
-        source.lower(),
-        source.upper(),
-        source.replace("_", " "),
-        source.replace("_", "-"),
-    }
-    repaired = sql
-    for value in sorted(replacements, key=len, reverse=True):
-        escaped = re.escape(value)
-        repaired = re.sub(
-            rf"('(?:%[^']*)?){escaped}((?:[^']*%)?')",
-            lambda match: f"{match.group(1)}{target}{match.group(2)}",
-            repaired,
-            flags=re.IGNORECASE,
-        )
-    return repaired
-
-
-def _normalize_operational_sql(sql: str) -> tuple[str, list[str]]:
-    notes: list[str] = []
-    repaired = re.sub(
-        r"(?P<prefix>'[^']*)Product_(?P<number>\d+)(?P<suffix>[^']*')",
-        lambda match: (
-            f"{match.group('prefix')}part_{match.group('number')}{match.group('suffix')}"
-        ),
-        sql,
-        flags=re.IGNORECASE,
-    )
-    if repaired != sql:
-        notes.append("AutoSched product literal을 실제 part_N 값으로 정규화했습니다.")
-    sql = repaired
-    repaired = re.sub(
-        r"\b(?:(?P<alias>[a-z_][a-z0-9_]*)\.)?(?:curstate|relative)\s*"
-        r"(?:<>|!=|NOT\s+ILIKE)\s*'%?WarmUp%?'",
-        lambda match: f"{match.group('alias') + '.' if match.group('alias') else ''}period <> 'WarmUp'",
-        sql,
-        flags=re.IGNORECASE,
-    )
-    if repaired != sql:
-        notes.append("WarmUp 제외 조건을 AutoSched period 컬럼에 적용하도록 정규화했습니다.")
-    return repaired, notes
-
-
 def _normalize_chart_intent(
     chart_intent: Any,
     slots: dict[str, QuerySlot],
@@ -3116,17 +2881,6 @@ def _enrich_chart_intent(
     if range_end := _slot_value(slots, "date_end"):
         enriched["range_end_exclusive"] = range_end
     return enriched
-
-
-def _pm_area_lookup_sql(fab_id: str, area: str) -> str:
-    escaped_area = area.replace("'", "''")
-    return (
-        "SELECT p.pm_event_name, p.type_name, p.pm_type, p.mean, p.ttr_units "
-        f"FROM {table_ref(fab_id, 'pm')} p "
-        f"JOIN {table_ref(fab_id, 'toolgroups')} t ON t.toolgroup = p.type_name "
-        f"WHERE t.area ILIKE '%{escaped_area}%' "
-        "ORDER BY p.type_name, p.pm_event_name LIMIT 200"
-    )
 
 
 def _product_to_part_alias(product: str) -> str | None:

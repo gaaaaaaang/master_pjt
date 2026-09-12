@@ -1,0 +1,63 @@
+{
+  "cases": [
+    {
+      "id": "session_fab11",
+      "question": "FAB11 전체 현재 WIP은 몇 개야?",
+      "fabs": [
+        "fab11"
+      ],
+      "new": true,
+      "expected": {
+        "metrics": [
+          "wip_lots"
+        ],
+        "row_count": 1,
+        "approved": true
+      }
+    },
+    {
+      "id": "session_fab13",
+      "question": "FAB13 전체 현재 WIP은 몇 개야?",
+      "fabs": [
+        "fab13"
+      ],
+      "expected": {
+        "metrics": [
+          "wip_lots"
+        ],
+        "row_count": 1,
+        "approved": true
+      }
+    },
+    {
+      "id": "session_comparison",
+      "question": "방금 답한 fab11이랑 fab13의 wip 차이에 대해서 분석해줄래?? 왜 fab11에는 더 쌓였는지 궁금해. 시각화 자료도 그려줄 수 있음 그려줘",
+      "fabs": [
+        "fab11",
+        "fab13"
+      ],
+      "chart": true,
+      "expected": {
+        "metrics": [
+          "wip_lots"
+        ],
+        "approved": true
+      }
+    },
+    {
+      "id": "session_implicit_comparison",
+      "question": "방금 조회한 두 FAB의 WIP 차이를 비교해줘",
+      "fabs": [
+        "fab11",
+        "fab13"
+      ],
+      "chart": true,
+      "expected": {
+        "metrics": [
+          "wip_lots"
+        ],
+        "approved": true
+      }
+    }
+  ]
+}
