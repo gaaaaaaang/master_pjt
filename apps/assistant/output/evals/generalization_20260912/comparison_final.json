@@ -1,0 +1,201 @@
+{
+  "scope": "Paired frozen first-attempt runs; latency is descriptive, not a statistical guarantee; row equality is regression evidence, not an independent oracle.",
+  "fixture_sha256": "a07eef8bb92c062bbafb4acc043cb9b321cca65d19342dfce591dc6773e76602",
+  "before": {
+    "cases": 8,
+    "first_attempt_passed": 7,
+    "input_tokens": 264332,
+    "output_tokens": 12482,
+    "model_calls": 51,
+    "median_seconds": 18.4575,
+    "total_seconds_excluding_pacing": 164.485,
+    "rate_limit_responses": 0,
+    "stages": {
+      "fab_planner_decision": {
+        "calls": 7,
+        "input_tokens": 15581,
+        "output_tokens": 2412,
+        "seconds": 19.161
+      },
+      "fab_supervisor_decision": {
+        "calls": 8,
+        "input_tokens": 12157,
+        "output_tokens": 972,
+        "seconds": 12.631
+      },
+      "fab_agent_recovery_decision": {
+        "calls": 13,
+        "input_tokens": 86949,
+        "output_tokens": 2488,
+        "seconds": 34.205
+      },
+      "fab_self_reflection": {
+        "calls": 7,
+        "input_tokens": 42906,
+        "output_tokens": 1889,
+        "seconds": 30.134
+      },
+      "fab_final_answer": {
+        "calls": 7,
+        "input_tokens": 52502,
+        "output_tokens": 2370,
+        "seconds": 29.548000000000002
+      },
+      "fab_answer_supervisor_decision": {
+        "calls": 7,
+        "input_tokens": 46781,
+        "output_tokens": 1714,
+        "seconds": 30.298000000000002
+      },
+      "fab_grounded_answer": {
+        "calls": 1,
+        "input_tokens": 4737,
+        "output_tokens": 276,
+        "seconds": 4.273
+      },
+      "fab_grounded_review": {
+        "calls": 1,
+        "input_tokens": 2719,
+        "output_tokens": 361,
+        "seconds": 3.173
+      }
+    }
+  },
+  "after": {
+    "cases": 8,
+    "first_attempt_passed": 8,
+    "input_tokens": 219521,
+    "output_tokens": 12311,
+    "model_calls": 51,
+    "median_seconds": 16.445,
+    "total_seconds_excluding_pacing": 146.64,
+    "rate_limit_responses": 0,
+    "stages": {
+      "fab_planner_decision": {
+        "calls": 7,
+        "input_tokens": 15863,
+        "output_tokens": 2326,
+        "seconds": 18.276
+      },
+      "fab_supervisor_decision": {
+        "calls": 8,
+        "input_tokens": 10919,
+        "output_tokens": 981,
+        "seconds": 13.338000000000001
+      },
+      "fab_agent_recovery_decision": {
+        "calls": 13,
+        "input_tokens": 72324,
+        "output_tokens": 2859,
+        "seconds": 35.785
+      },
+      "fab_self_reflection": {
+        "calls": 7,
+        "input_tokens": 34077,
+        "output_tokens": 1864,
+        "seconds": 19.296
+      },
+      "fab_final_answer": {
+        "calls": 7,
+        "input_tokens": 43318,
+        "output_tokens": 2280,
+        "seconds": 26.406
+      },
+      "fab_answer_supervisor_decision": {
+        "calls": 7,
+        "input_tokens": 35941,
+        "output_tokens": 1389,
+        "seconds": 25.183999999999997
+      },
+      "fab_grounded_answer": {
+        "calls": 1,
+        "input_tokens": 4499,
+        "output_tokens": 219,
+        "seconds": 3.53
+      },
+      "fab_grounded_review": {
+        "calls": 1,
+        "input_tokens": 2580,
+        "output_tokens": 393,
+        "seconds": 3.598
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "h1_status",
+      "before_passed": true,
+      "after_passed": true,
+      "query_rows_equal": true,
+      "before_errors": [],
+      "after_errors": []
+    },
+    {
+      "id": "h2_followup",
+      "before_passed": true,
+      "after_passed": true,
+      "query_rows_equal": true,
+      "before_errors": [],
+      "after_errors": []
+    },
+    {
+      "id": "h3_switch",
+      "before_passed": true,
+      "after_passed": true,
+      "query_rows_equal": true,
+      "before_errors": [],
+      "after_errors": []
+    },
+    {
+      "id": "h4_trend",
+      "before_passed": true,
+      "after_passed": true,
+      "query_rows_equal": true,
+      "before_errors": [],
+      "after_errors": []
+    },
+    {
+      "id": "h5_comparison",
+      "before_passed": true,
+      "after_passed": true,
+      "query_rows_equal": true,
+      "before_errors": [],
+      "after_errors": []
+    },
+    {
+      "id": "h6_diagnosis",
+      "before_passed": true,
+      "after_passed": true,
+      "query_rows_equal": true,
+      "before_errors": [],
+      "after_errors": []
+    },
+    {
+      "id": "h7_impact",
+      "before_passed": false,
+      "after_passed": true,
+      "query_rows_equal": true,
+      "before_errors": [
+        "status=failed",
+        "answer_review_rejected"
+      ],
+      "after_errors": []
+    },
+    {
+      "id": "h8_knowledge",
+      "before_passed": true,
+      "after_passed": true,
+      "query_rows_equal": true,
+      "before_errors": [],
+      "after_errors": []
+    }
+  ],
+  "quality_non_regression": true,
+  "query_rows_preserved": true,
+  "input_token_reduction_percent": 16.95,
+  "median_latency_reduction_percent": 10.9,
+  "run_sha256": {
+    "before": "61554777e58ce6fc2158822bc5225ef103033dd5dbc8f5ead819fb8f1c747b19",
+    "after": "9c1aed92005254c3f65c0a0f18f8017fd5414d11cf16fb39d42d98a00ef4df96"
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "source_sha256": "3b11d5fc10bd7634dc395db447670e211a94baca4dc7972d5b97304a310ba5ac",
+  "started_at": "2026-09-12T09:09:41.519297+00:00",
+  "case_count": 34,
+  "positive": {
+    "cases": 32,
+    "status_succeeded": 26
+  },
+  "negative": {
+    "cases": 2,
+    "expected_status_matches": 2
+  },
+  "latency_seconds": {
+    "median": 19.775,
+    "p95_nearest_rank": 43.092,
+    "max": 43.802
+  },
+  "status_counts": {
+    "failed": 6,
+    "succeeded": 26,
+    "data_unavailable": 2
+  },
+  "by_kind": {
+    "comparison": {
+      "cases": 2,
+      "expected_status_matches": 0
+    },
+    "trend": {
+      "cases": 6,
+      "expected_status_matches": 6
+    },
+    "status": {
+      "cases": 6,
+      "expected_status_matches": 6
+    },
+    "area_status": {
+      "cases": 4,
+      "expected_status_matches": 4
+    },
+    "diagnosis": {
+      "cases": 4,
+      "expected_status_matches": 3
+    },
+    "impact": {
+      "cases": 4,
+      "expected_status_matches": 4
+    },
+    "master": {
+      "cases": 4,
+      "expected_status_matches": 1
+    },
+    "knowledge": {
+      "cases": 1,
+      "expected_status_matches": 1
+    },
+    "action": {
+      "cases": 1,
+      "expected_status_matches": 1
+    },
+    "unsupported": {
+      "cases": 2,
+      "expected_status_matches": 2
+    }
+  },
+  "model_calls": {
+    "fab_planner_decision": {
+      "calls": 34,
+      "seconds": 84.351,
+      "input_tokens": 66709,
+      "output_tokens": 10927
+    },
+    "fab_supervisor_decision": {
+      "calls": 34,
+      "seconds": 57.32199999999998,
+      "input_tokens": 51315,
+      "output_tokens": 4740
+    },
+    "fab_agent_recovery_decision": {
+      "calls": 54,
+      "seconds": 155.69299999999998,
+      "input_tokens": 455613,
+      "output_tokens": 10577
+    },
+    "fab_self_reflection": {
+      "calls": 32,
+      "seconds": 162.236,
+      "input_tokens": 277333,
+      "output_tokens": 9954
+    },
+    "fab_final_answer": {
+      "calls": 32,
+      "seconds": 153.44800000000004,
+      "input_tokens": 307611,
+      "output_tokens": 11477
+    },
+    "fab_answer_supervisor_decision": {
+      "calls": 32,
+      "seconds": 131.437,
+      "input_tokens": 180247,
+      "output_tokens": 11182
+    },
+    "fab_semantic_plan": {
+      "calls": 4,
+      "seconds": 10.664,
+      "input_tokens": 35768,
+      "output_tokens": 889
+    },
+    "fab_grounded_answer": {
+      "calls": 2,
+      "seconds": 5.328,
+      "input_tokens": 5687,
+      "output_tokens": 632
+    },
+    "fab_grounded_review": {
+      "calls": 2,
+      "seconds": 6.837,
+      "input_tokens": 4173,
+      "output_tokens": 710
+    }
+  },
+  "failures": [
+    {
+      "id": "fab12_week_compare",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": "answer_review_failed",
+      "issues": [
+        "Trend answer contains numeric claims absent from grounded inputs and results: -184.9, -146.8, -148.5, -175.5, -227.4, -140.8",
+        "최종 답변에서 FAB12 공정별 평균 WIP의 실제 수치 차이(예: -184.9 등)는 DB 및 시뮬레이션 결과 내 numeric evidence에 존재하지 않습니다. 집계 차이 수치는 임의로 산출되거나, grounding된 인풋과 불일치합니다.",
+        "차이(증감) 수치는 표기하지 않고, 양쪽 기간의 각 공정별 평균 WIP 값만 근거와 함께 표 형태로 보여야 합니다.",
+        "결과는 시뮬레이션 데이터임을 명확히 안내하였으나, LOT 가중평균 아님/관측수 차이/부분 관측 주의 등 추가 제한사항을 더 명확하게 고지해야 합니다."
+      ],
+      "error": null
+    },
+    {
+      "id": "fab10_diagnosis",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": "answer_review_failed",
+      "issues": [
+        "Diagnosis answer contains numeric claims absent from grounded inputs and results: 12.9",
+        "정확한 데이터 기반 수치(12.9분 등)가 grounded input(evidence)에 없음. 최저 Queue Time 수치(12.9 등)는 최대 소수점 이하 2자리까지 통계값에서만 따르지만, evidence 원본에는 없는 추가 수치임.",
+        "최신 snapshot 기준임을 고지했으나, 모든 수치 변화에 대한 일자 별 연속성과 grounding 구분이 완전하지 않음.",
+        "실제 verified incident 또는 root cause 확정이 아님을 강조했으나, 일부 원인 후보 설명에 단정적으로 보일 수 있음.",
+        "원인 후보 구분 시 반드시 '관측 데이터/문서 기반 후보/시뮬레이션 유사 사례'가 실제 현장 팩트와는 다름을 재강조 필요."
+      ],
+      "error": null
+    },
+    {
+      "id": "fab10_master",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": "answer_review_failed",
+      "issues": [
+        "General Data must not be described as live/current factory state."
+      ],
+      "error": null
+    },
+    {
+      "id": "fab11_master",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": "answer_review_failed",
+      "issues": [
+        "General Data must not be described as live/current factory state."
+      ],
+      "error": null
+    },
+    {
+      "id": "fab12_master",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": "answer_review_failed",
+      "issues": [
+        "General Data must not be described as live/current factory state."
+      ],
+      "error": null
+    },
+    {
+      "id": "fab13_area_compare",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": "answer_review_failed",
+      "issues": [
+        "Trend answer contains numeric claims absent from grounded inputs and results: 99, 0.167",
+        "'99% 이상'과 '0.167%p' 수치 비교는 증거에 있는 소수점 이하 숫자와 정확히 일치하지 않으며 근거 없이 99, 0.167을 반올림 또는 차이 수치로 명시함. 모든 수치를 근거 그대로 제시해야 함."
+      ],
+      "error": null
+    }
+  ],
+  "interpretation": "Status-based completion on this fixed fixture. Numeric correctness requires the separate raw-row oracle; this is not a general accuracy estimate or an independent assessment of every narrative claim."
+}

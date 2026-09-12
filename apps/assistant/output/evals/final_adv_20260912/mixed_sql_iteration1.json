@@ -1,0 +1,5365 @@
+{
+  "checked_at": "2026-09-12T10:43:33.474530+00:00",
+  "model_calls_disabled": true,
+  "source_sha256": "7608a8ce237db3da64339863c85110a3ca54607feb7ed4098d2430f968fc822a",
+  "fixture_sha256": "1d3102ad51e825102651f85ffe3f903aee03bd8faf591acb92bf704d070e3d14",
+  "raw_sha256": "0a22b7defa8e6629f1b0a3c374ec2f4836aaa64487d353afdf79c8f3ad50d26f",
+  "executed": true,
+  "cases": 28,
+  "passed": 28,
+  "model_required": 0,
+  "checks": [
+    {
+      "id": "fab10_aliases_0",
+      "question": "FAB10 현재 공정별 WIP과 util, cycleavg",
+      "kind": "current",
+      "fab": "fab10",
+      "metrics": [
+        "wip_lots",
+        "utilization_percent",
+        "avg_cycle_hours"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots, utilization_percent, avg_cycle_hours FROM fab10.live_process_snapshots_fab10 WHERE fab_id = 'fab10' AND interval_end = (SELECT MAX(interval_end) FROM fab10.live_process_snapshots_fab10) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab10",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg,util_percent,cycleavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg, util_percent, cycleavg"
+          },
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB10 현재 공정별 WIP과 util, cycleavg"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab10.live_process_snapshots_fab10"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots",
+          "utilization_percent",
+          "avg_cycle_hours"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "wip_lots": 17,
+          "utilization_percent": "78.71",
+          "avg_cycle_hours": "0.79"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "wip_lots": 20,
+          "utilization_percent": "80.89",
+          "avg_cycle_hours": "0.85"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "wip_lots": 33,
+          "utilization_percent": "80.09",
+          "avg_cycle_hours": "0.78"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "wip_lots": 24,
+          "utilization_percent": "79.31",
+          "avg_cycle_hours": "0.77"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "wip_lots": 27,
+          "utilization_percent": "79.94",
+          "avg_cycle_hours": "0.87"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "wip_lots": 21,
+          "utilization_percent": "77.93",
+          "avg_cycle_hours": "0.72"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "wip_lots": "17",
+          "utilization_percent": "78.71",
+          "avg_cycle_hours": "0.79"
+        },
+        {
+          "area": "deposition",
+          "wip_lots": "20",
+          "utilization_percent": "80.89",
+          "avg_cycle_hours": "0.85"
+        },
+        {
+          "area": "etch",
+          "wip_lots": "33",
+          "utilization_percent": "80.09",
+          "avg_cycle_hours": "0.78"
+        },
+        {
+          "area": "implant",
+          "wip_lots": "24",
+          "utilization_percent": "79.31",
+          "avg_cycle_hours": "0.77"
+        },
+        {
+          "area": "metrology",
+          "wip_lots": "27",
+          "utilization_percent": "79.94",
+          "avg_cycle_hours": "0.87"
+        },
+        {
+          "area": "photo",
+          "wip_lots": "21",
+          "utilization_percent": "77.93",
+          "avg_cycle_hours": "0.72"
+        }
+      ]
+    },
+    {
+      "id": "fab10_aliases_1",
+      "question": "FAB10 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent",
+      "kind": "current",
+      "fab": "fab10",
+      "metrics": [
+        "avg_queue_minutes",
+        "avg_cycle_hours",
+        "utilization_percent"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, avg_cycle_hours, utilization_percent, avg_queue_minutes FROM fab10.live_process_snapshots_fab10 WHERE fab_id = 'fab10' AND interval_end = (SELECT MAX(interval_end) FROM fab10.live_process_snapshots_fab10) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab10",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "avg_queue_minutes",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "avg_queue_minutes"
+          },
+          "metrics": {
+            "value": "avg_queue_minutes,avg_cycle_hours,cycleavg,util_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "avg_queue_minutes, avg_cycle_hours, cycleavg, util_percent"
+          },
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB10 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab10.live_process_snapshots_fab10"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "avg_cycle_hours",
+          "utilization_percent",
+          "avg_queue_minutes"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "avg_cycle_hours": "0.79",
+          "utilization_percent": "78.71",
+          "avg_queue_minutes": "17.06"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "avg_cycle_hours": "0.85",
+          "utilization_percent": "80.89",
+          "avg_queue_minutes": "15.91"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "avg_cycle_hours": "0.78",
+          "utilization_percent": "80.09",
+          "avg_queue_minutes": "12.99"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "avg_cycle_hours": "0.77",
+          "utilization_percent": "79.31",
+          "avg_queue_minutes": "14.53"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "avg_cycle_hours": "0.87",
+          "utilization_percent": "79.94",
+          "avg_queue_minutes": "19.29"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "avg_cycle_hours": "0.72",
+          "utilization_percent": "77.93",
+          "avg_queue_minutes": "14.20"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "avg_queue_minutes": "17.06",
+          "avg_cycle_hours": "0.79",
+          "utilization_percent": "78.71"
+        },
+        {
+          "area": "deposition",
+          "avg_queue_minutes": "15.91",
+          "avg_cycle_hours": "0.85",
+          "utilization_percent": "80.89"
+        },
+        {
+          "area": "etch",
+          "avg_queue_minutes": "12.99",
+          "avg_cycle_hours": "0.78",
+          "utilization_percent": "80.09"
+        },
+        {
+          "area": "implant",
+          "avg_queue_minutes": "14.53",
+          "avg_cycle_hours": "0.77",
+          "utilization_percent": "79.31"
+        },
+        {
+          "area": "metrology",
+          "avg_queue_minutes": "19.29",
+          "avg_cycle_hours": "0.87",
+          "utilization_percent": "79.94"
+        },
+        {
+          "area": "photo",
+          "avg_queue_minutes": "14.20",
+          "avg_cycle_hours": "0.72",
+          "utilization_percent": "77.93"
+        }
+      ]
+    },
+    {
+      "id": "fab10_aliases_2",
+      "question": "FAB10 현재 공정별 WIP과 PM 시간, 비가동 시간",
+      "kind": "current",
+      "fab": "fab10",
+      "metrics": [
+        "wip_lots",
+        "pm_minutes",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots, down_minutes, pm_minutes FROM fab10.live_process_snapshots_fab10 WHERE fab_id = 'fab10' AND interval_end = (SELECT MAX(interval_end) FROM fab10.live_process_snapshots_fab10) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab10",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg,pm_minutes,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg, pm_minutes, down_minutes"
+          },
+          "master_domain": {
+            "value": "pm",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "pm"
+          },
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB10 현재 공정별 WIP과 PM 시간, 비가동 시간"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab10.live_process_snapshots_fab10"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots",
+          "down_minutes",
+          "pm_minutes"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "wip_lots": 17,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "wip_lots": 20,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "wip_lots": 33,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "wip_lots": 24,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "wip_lots": 27,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "wip_lots": 21,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "wip_lots": "17",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "deposition",
+          "wip_lots": "20",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "etch",
+          "wip_lots": "33",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "implant",
+          "wip_lots": "24",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "metrology",
+          "wip_lots": "27",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "photo",
+          "wip_lots": "21",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        }
+      ]
+    },
+    {
+      "id": "fab10_mixed_flow_0",
+      "question": "FAB10 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계",
+      "kind": "period_mixed",
+      "fab": "fab10",
+      "metrics": [
+        "lot_completions",
+        "pm_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_completions": "mean",
+        "pm_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_completions) AS lot_completions, SUM(pm_minutes) AS pm_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab10.live_process_snapshots_fab10 WHERE fab_id = 'fab10' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(lot_completions) AS lot_completions, SUM(pm_minutes) AS pm_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab10",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotcomps"
+          },
+          "metrics": {
+            "value": "lotcomps,pm_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotcomps, pm_minutes"
+          },
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB10 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "완료 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 정비 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab10.live_process_snapshots_fab10"
+        ],
+        "select_items": [
+          "area",
+          "lot_completions",
+          "pm_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_completions",
+            "pm_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_completions / pm_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_completions": "4.4367816091954023",
+          "pm_minutes": "219",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "4.4482758620689655",
+          "pm_minutes": "119",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_completions": "4.2931034482758621",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_completions": "4.2816091954022989",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "4.2816091954022989",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_completions": "4.2528735632183908",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "lot_completions": "4.436781609195402298850574713",
+          "pm_minutes": "219",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "4.448275862068965517241379310",
+          "pm_minutes": "119",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "lot_completions": "4.293103448275862068965517241",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_completions": "4.281609195402298850574712644",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "4.281609195402298850574712644",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_completions": "4.252873563218390804597701149",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab10_mixed_flow_1",
+      "question": "FAB10 최근 3일 공정별 완료 LOT 합계와 투입량 평균",
+      "kind": "period_mixed",
+      "fab": "fab10",
+      "metrics": [
+        "lot_starts",
+        "lot_completions"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_starts": "mean",
+        "lot_completions": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_completions) AS lot_completions, SUM(lot_starts) AS lot_starts, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab10.live_process_snapshots_fab10 WHERE fab_id = 'fab10' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, SUM(lot_completions) AS lot_completions, AVG(lot_starts) AS lot_starts, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab10",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotcomps"
+          },
+          "metrics": {
+            "value": "lotcomps,lotstarts",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotcomps, lotstarts"
+          },
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB10 최근 3일 공정별 완료 LOT 합계와 투입량 평균"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "투입 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 완료 LOT은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab10.live_process_snapshots_fab10"
+        ],
+        "select_items": [
+          "area",
+          "lot_completions",
+          "lot_starts",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_completions",
+            "lot_starts"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_completions / lot_starts"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_completions": "772",
+          "lot_starts": "3.3505747126436782",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "774",
+          "lot_starts": "3.4022988505747126",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_completions": "747",
+          "lot_starts": "3.4827586206896552",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_completions": "745",
+          "lot_starts": "3.6264367816091954",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "745",
+          "lot_starts": "3.5172413793103448",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_completions": "740",
+          "lot_starts": "3.5574712643678161",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "lot_starts": "3.350574712643678160919540230",
+          "lot_completions": "772",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.402298850574712643678160920",
+          "lot_completions": "774",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "lot_starts": "3.482758620689655172413793103",
+          "lot_completions": "747",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.626436781609195402298850575",
+          "lot_completions": "745",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.517241379310344827586206897",
+          "lot_completions": "745",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.557471264367816091954022989",
+          "lot_completions": "740",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab10_mixed_flow_2",
+      "question": "FAB10 최근 3일 공정별 평균 정비 시간과 downtime 합계",
+      "kind": "period_mixed",
+      "fab": "fab10",
+      "metrics": [
+        "pm_minutes",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "pm_minutes": "mean",
+        "down_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(down_minutes) AS down_minutes, SUM(pm_minutes) AS pm_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab10.live_process_snapshots_fab10 WHERE fab_id = 'fab10' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, SUM(down_minutes) AS down_minutes, AVG(pm_minutes) AS pm_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab10",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "pm_minutes",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "pm_minutes"
+          },
+          "metrics": {
+            "value": "pm_minutes,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "pm_minutes, down_minutes"
+          },
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB10 최근 3일 공정별 평균 정비 시간과 downtime 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "정비 시간은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 비가동 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab10.live_process_snapshots_fab10"
+        ],
+        "select_items": [
+          "area",
+          "down_minutes",
+          "pm_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "down_minutes",
+            "pm_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "down_minutes / pm_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "down_minutes": "0",
+          "pm_minutes": "1.2586206896551724",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "down_minutes": "0",
+          "pm_minutes": "0.68390804597701149425",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "down_minutes": "204",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "pm_minutes": "1.258620689655172413793103448",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "pm_minutes": "0.6839080459770114942528735632",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "pm_minutes": "0",
+          "down_minutes": "204",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab10_mixed_flow_3",
+      "question": "FAB10 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계",
+      "kind": "period_mixed",
+      "fab": "fab10",
+      "metrics": [
+        "lot_starts",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_starts": "mean",
+        "down_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_starts) AS lot_starts, SUM(down_minutes) AS down_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab10.live_process_snapshots_fab10 WHERE fab_id = 'fab10' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(lot_starts) AS lot_starts, SUM(down_minutes) AS down_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab10",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotstarts",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotstarts"
+          },
+          "metrics": {
+            "value": "lotstarts,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotstarts, down_minutes"
+          },
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB10 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "투입 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 비가동 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab10.live_process_snapshots_fab10"
+        ],
+        "select_items": [
+          "area",
+          "lot_starts",
+          "down_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_starts",
+            "down_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_starts / down_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_starts": "3.3505747126436782",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.4022988505747126",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_starts": "3.4827586206896552",
+          "down_minutes": "204",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.6264367816091954",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.5172413793103448",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.5574712643678161",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "lot_starts": "3.350574712643678160919540230",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.402298850574712643678160920",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "lot_starts": "3.482758620689655172413793103",
+          "down_minutes": "204",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.626436781609195402298850575",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.517241379310344827586206897",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.557471264367816091954022989",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab11_aliases_0",
+      "question": "FAB11 현재 공정별 WIP과 util, cycleavg",
+      "kind": "current",
+      "fab": "fab11",
+      "metrics": [
+        "wip_lots",
+        "utilization_percent",
+        "avg_cycle_hours"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots, utilization_percent, avg_cycle_hours FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end = (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg,util_percent,cycleavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg, util_percent, cycleavg"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 현재 공정별 WIP과 util, cycleavg"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots",
+          "utilization_percent",
+          "avg_cycle_hours"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "wip_lots": 83,
+          "utilization_percent": "73.23",
+          "avg_cycle_hours": "1.25"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "wip_lots": 19,
+          "utilization_percent": "78.64",
+          "avg_cycle_hours": "0.74"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "wip_lots": 27,
+          "utilization_percent": "80.32",
+          "avg_cycle_hours": "0.82"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "wip_lots": 12,
+          "utilization_percent": "78.68",
+          "avg_cycle_hours": "0.68"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "wip_lots": 15,
+          "utilization_percent": "80.79",
+          "avg_cycle_hours": "0.80"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "wip_lots": 32,
+          "utilization_percent": "78.58",
+          "avg_cycle_hours": "0.70"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "wip_lots": "83",
+          "utilization_percent": "73.23",
+          "avg_cycle_hours": "1.25"
+        },
+        {
+          "area": "deposition",
+          "wip_lots": "19",
+          "utilization_percent": "78.64",
+          "avg_cycle_hours": "0.74"
+        },
+        {
+          "area": "etch",
+          "wip_lots": "27",
+          "utilization_percent": "80.32",
+          "avg_cycle_hours": "0.82"
+        },
+        {
+          "area": "implant",
+          "wip_lots": "12",
+          "utilization_percent": "78.68",
+          "avg_cycle_hours": "0.68"
+        },
+        {
+          "area": "metrology",
+          "wip_lots": "15",
+          "utilization_percent": "80.79",
+          "avg_cycle_hours": "0.80"
+        },
+        {
+          "area": "photo",
+          "wip_lots": "32",
+          "utilization_percent": "78.58",
+          "avg_cycle_hours": "0.70"
+        }
+      ]
+    },
+    {
+      "id": "fab11_aliases_1",
+      "question": "FAB11 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent",
+      "kind": "current",
+      "fab": "fab11",
+      "metrics": [
+        "avg_queue_minutes",
+        "avg_cycle_hours",
+        "utilization_percent"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, avg_cycle_hours, utilization_percent, avg_queue_minutes FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end = (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "avg_queue_minutes",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "avg_queue_minutes"
+          },
+          "metrics": {
+            "value": "avg_queue_minutes,avg_cycle_hours,cycleavg,util_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "avg_queue_minutes, avg_cycle_hours, cycleavg, util_percent"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "avg_cycle_hours",
+          "utilization_percent",
+          "avg_queue_minutes"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "avg_cycle_hours": "1.25",
+          "utilization_percent": "73.23",
+          "avg_queue_minutes": "41.65"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "avg_cycle_hours": "0.74",
+          "utilization_percent": "78.64",
+          "avg_queue_minutes": "14.16"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "avg_cycle_hours": "0.82",
+          "utilization_percent": "80.32",
+          "avg_queue_minutes": "15.27"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "avg_cycle_hours": "0.68",
+          "utilization_percent": "78.68",
+          "avg_queue_minutes": "10.51"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "avg_cycle_hours": "0.80",
+          "utilization_percent": "80.79",
+          "avg_queue_minutes": "12.74"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "avg_cycle_hours": "0.70",
+          "utilization_percent": "78.58",
+          "avg_queue_minutes": "11.90"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "avg_queue_minutes": "41.65",
+          "avg_cycle_hours": "1.25",
+          "utilization_percent": "73.23"
+        },
+        {
+          "area": "deposition",
+          "avg_queue_minutes": "14.16",
+          "avg_cycle_hours": "0.74",
+          "utilization_percent": "78.64"
+        },
+        {
+          "area": "etch",
+          "avg_queue_minutes": "15.27",
+          "avg_cycle_hours": "0.82",
+          "utilization_percent": "80.32"
+        },
+        {
+          "area": "implant",
+          "avg_queue_minutes": "10.51",
+          "avg_cycle_hours": "0.68",
+          "utilization_percent": "78.68"
+        },
+        {
+          "area": "metrology",
+          "avg_queue_minutes": "12.74",
+          "avg_cycle_hours": "0.80",
+          "utilization_percent": "80.79"
+        },
+        {
+          "area": "photo",
+          "avg_queue_minutes": "11.90",
+          "avg_cycle_hours": "0.70",
+          "utilization_percent": "78.58"
+        }
+      ]
+    },
+    {
+      "id": "fab11_aliases_2",
+      "question": "FAB11 현재 공정별 WIP과 PM 시간, 비가동 시간",
+      "kind": "current",
+      "fab": "fab11",
+      "metrics": [
+        "wip_lots",
+        "pm_minutes",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots, down_minutes, pm_minutes FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end = (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg,pm_minutes,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg, pm_minutes, down_minutes"
+          },
+          "master_domain": {
+            "value": "pm",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "pm"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 현재 공정별 WIP과 PM 시간, 비가동 시간"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots",
+          "down_minutes",
+          "pm_minutes"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "wip_lots": 83,
+          "down_minutes": 0,
+          "pm_minutes": 17
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "wip_lots": 19,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "wip_lots": 27,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "wip_lots": 12,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "wip_lots": 15,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "wip_lots": 32,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "wip_lots": "83",
+          "pm_minutes": "17",
+          "down_minutes": "0"
+        },
+        {
+          "area": "deposition",
+          "wip_lots": "19",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "etch",
+          "wip_lots": "27",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "implant",
+          "wip_lots": "12",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "metrology",
+          "wip_lots": "15",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "photo",
+          "wip_lots": "32",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        }
+      ]
+    },
+    {
+      "id": "fab11_mixed_flow_0",
+      "question": "FAB11 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계",
+      "kind": "period_mixed",
+      "fab": "fab11",
+      "metrics": [
+        "lot_completions",
+        "pm_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_completions": "mean",
+        "pm_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_completions) AS lot_completions, SUM(pm_minutes) AS pm_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(lot_completions) AS lot_completions, SUM(pm_minutes) AS pm_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotcomps"
+          },
+          "metrics": {
+            "value": "lotcomps,pm_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotcomps, pm_minutes"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "완료 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 정비 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "area",
+          "lot_completions",
+          "pm_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_completions",
+            "pm_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_completions / pm_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_completions": "4.2356321839080460",
+          "pm_minutes": "270",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "4.2413793103448276",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_completions": "4.2413793103448276",
+          "pm_minutes": "73",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_completions": "4.1494252873563218",
+          "pm_minutes": "64",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "4.3103448275862069",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_completions": "4.3563218390804598",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "lot_completions": "4.235632183908045977011494253",
+          "pm_minutes": "270",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "4.241379310344827586206896552",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "lot_completions": "4.241379310344827586206896552",
+          "pm_minutes": "73",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_completions": "4.149425287356321839080459770",
+          "pm_minutes": "64",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "4.310344827586206896551724138",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_completions": "4.356321839080459770114942529",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab11_mixed_flow_1",
+      "question": "FAB11 최근 3일 공정별 완료 LOT 합계와 투입량 평균",
+      "kind": "period_mixed",
+      "fab": "fab11",
+      "metrics": [
+        "lot_starts",
+        "lot_completions"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_starts": "mean",
+        "lot_completions": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_completions) AS lot_completions, SUM(lot_starts) AS lot_starts, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, SUM(lot_completions) AS lot_completions, AVG(lot_starts) AS lot_starts, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotcomps"
+          },
+          "metrics": {
+            "value": "lotcomps,lotstarts",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotcomps, lotstarts"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 최근 3일 공정별 완료 LOT 합계와 투입량 평균"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "투입 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 완료 LOT은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "area",
+          "lot_completions",
+          "lot_starts",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_completions",
+            "lot_starts"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_completions / lot_starts"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_completions": "737",
+          "lot_starts": "3.5000000000000000",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "738",
+          "lot_starts": "3.4655172413793103",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_completions": "738",
+          "lot_starts": "3.3160919540229885",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_completions": "722",
+          "lot_starts": "3.6321839080459770",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "750",
+          "lot_starts": "3.6091954022988506",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_completions": "758",
+          "lot_starts": "3.5287356321839080",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "lot_starts": "3.5",
+          "lot_completions": "737",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.465517241379310344827586207",
+          "lot_completions": "738",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "lot_starts": "3.316091954022988505747126437",
+          "lot_completions": "738",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.632183908045977011494252874",
+          "lot_completions": "722",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.609195402298850574712643678",
+          "lot_completions": "750",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.528735632183908045977011494",
+          "lot_completions": "758",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab11_mixed_flow_2",
+      "question": "FAB11 최근 3일 공정별 평균 정비 시간과 downtime 합계",
+      "kind": "period_mixed",
+      "fab": "fab11",
+      "metrics": [
+        "pm_minutes",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "pm_minutes": "mean",
+        "down_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(down_minutes) AS down_minutes, SUM(pm_minutes) AS pm_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, SUM(down_minutes) AS down_minutes, AVG(pm_minutes) AS pm_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "pm_minutes",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "pm_minutes"
+          },
+          "metrics": {
+            "value": "pm_minutes,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "pm_minutes, down_minutes"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 최근 3일 공정별 평균 정비 시간과 downtime 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "정비 시간은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 비가동 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "area",
+          "down_minutes",
+          "pm_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "down_minutes",
+            "pm_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "down_minutes / pm_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "down_minutes": "0",
+          "pm_minutes": "1.5517241379310345",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "down_minutes": "510",
+          "pm_minutes": "0.41954022988505747126",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "down_minutes": "0",
+          "pm_minutes": "0.36781609195402298851",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "pm_minutes": "1.551724137931034482758620690",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "pm_minutes": "0.4195402298850574712643678161",
+          "down_minutes": "510",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "pm_minutes": "0.3678160919540229885057471264",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab11_mixed_flow_3",
+      "question": "FAB11 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계",
+      "kind": "period_mixed",
+      "fab": "fab11",
+      "metrics": [
+        "lot_starts",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_starts": "mean",
+        "down_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_starts) AS lot_starts, SUM(down_minutes) AS down_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(lot_starts) AS lot_starts, SUM(down_minutes) AS down_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotstarts",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotstarts"
+          },
+          "metrics": {
+            "value": "lotstarts,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotstarts, down_minutes"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "투입 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 비가동 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "area",
+          "lot_starts",
+          "down_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_starts",
+            "down_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_starts / down_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_starts": "3.5000000000000000",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.4655172413793103",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_starts": "3.3160919540229885",
+          "down_minutes": "510",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.6321839080459770",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.6091954022988506",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.5287356321839080",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "lot_starts": "3.5",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.465517241379310344827586207",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "lot_starts": "3.316091954022988505747126437",
+          "down_minutes": "510",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.632183908045977011494252874",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.609195402298850574712643678",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.528735632183908045977011494",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab12_aliases_0",
+      "question": "FAB12 현재 공정별 WIP과 util, cycleavg",
+      "kind": "current",
+      "fab": "fab12",
+      "metrics": [
+        "wip_lots",
+        "utilization_percent",
+        "avg_cycle_hours"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots, utilization_percent, avg_cycle_hours FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end = (SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg,util_percent,cycleavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg, util_percent, cycleavg"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 현재 공정별 WIP과 util, cycleavg"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots",
+          "utilization_percent",
+          "avg_cycle_hours"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "wip_lots": 28,
+          "utilization_percent": "77.58",
+          "avg_cycle_hours": "0.77"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "wip_lots": 141,
+          "utilization_percent": "80.44",
+          "avg_cycle_hours": "1.61"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "wip_lots": 17,
+          "utilization_percent": "79.58",
+          "avg_cycle_hours": "0.76"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "wip_lots": 22,
+          "utilization_percent": "82.22",
+          "avg_cycle_hours": "0.85"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "wip_lots": 35,
+          "utilization_percent": "79.01",
+          "avg_cycle_hours": "0.67"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "wip_lots": 18,
+          "utilization_percent": "77.25",
+          "avg_cycle_hours": "0.74"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "wip_lots": "28",
+          "utilization_percent": "77.58",
+          "avg_cycle_hours": "0.77"
+        },
+        {
+          "area": "deposition",
+          "wip_lots": "141",
+          "utilization_percent": "80.44",
+          "avg_cycle_hours": "1.61"
+        },
+        {
+          "area": "etch",
+          "wip_lots": "17",
+          "utilization_percent": "79.58",
+          "avg_cycle_hours": "0.76"
+        },
+        {
+          "area": "implant",
+          "wip_lots": "22",
+          "utilization_percent": "82.22",
+          "avg_cycle_hours": "0.85"
+        },
+        {
+          "area": "metrology",
+          "wip_lots": "35",
+          "utilization_percent": "79.01",
+          "avg_cycle_hours": "0.67"
+        },
+        {
+          "area": "photo",
+          "wip_lots": "18",
+          "utilization_percent": "77.25",
+          "avg_cycle_hours": "0.74"
+        }
+      ]
+    },
+    {
+      "id": "fab12_aliases_1",
+      "question": "FAB12 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent",
+      "kind": "current",
+      "fab": "fab12",
+      "metrics": [
+        "avg_queue_minutes",
+        "avg_cycle_hours",
+        "utilization_percent"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, avg_cycle_hours, utilization_percent, avg_queue_minutes FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end = (SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "avg_queue_minutes",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "avg_queue_minutes"
+          },
+          "metrics": {
+            "value": "avg_queue_minutes,avg_cycle_hours,cycleavg,util_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "avg_queue_minutes, avg_cycle_hours, cycleavg, util_percent"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "avg_cycle_hours",
+          "utilization_percent",
+          "avg_queue_minutes"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "avg_cycle_hours": "0.77",
+          "utilization_percent": "77.58",
+          "avg_queue_minutes": "18.11"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "avg_cycle_hours": "1.61",
+          "utilization_percent": "80.44",
+          "avg_queue_minutes": "62.13"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "avg_cycle_hours": "0.76",
+          "utilization_percent": "79.58",
+          "avg_queue_minutes": "13.15"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "avg_cycle_hours": "0.85",
+          "utilization_percent": "82.22",
+          "avg_queue_minutes": "12.75"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "avg_cycle_hours": "0.67",
+          "utilization_percent": "79.01",
+          "avg_queue_minutes": "9.21"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "avg_cycle_hours": "0.74",
+          "utilization_percent": "77.25",
+          "avg_queue_minutes": "17.24"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "avg_queue_minutes": "18.11",
+          "avg_cycle_hours": "0.77",
+          "utilization_percent": "77.58"
+        },
+        {
+          "area": "deposition",
+          "avg_queue_minutes": "62.13",
+          "avg_cycle_hours": "1.61",
+          "utilization_percent": "80.44"
+        },
+        {
+          "area": "etch",
+          "avg_queue_minutes": "13.15",
+          "avg_cycle_hours": "0.76",
+          "utilization_percent": "79.58"
+        },
+        {
+          "area": "implant",
+          "avg_queue_minutes": "12.75",
+          "avg_cycle_hours": "0.85",
+          "utilization_percent": "82.22"
+        },
+        {
+          "area": "metrology",
+          "avg_queue_minutes": "9.21",
+          "avg_cycle_hours": "0.67",
+          "utilization_percent": "79.01"
+        },
+        {
+          "area": "photo",
+          "avg_queue_minutes": "17.24",
+          "avg_cycle_hours": "0.74",
+          "utilization_percent": "77.25"
+        }
+      ]
+    },
+    {
+      "id": "fab12_aliases_2",
+      "question": "FAB12 현재 공정별 WIP과 PM 시간, 비가동 시간",
+      "kind": "current",
+      "fab": "fab12",
+      "metrics": [
+        "wip_lots",
+        "pm_minutes",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots, down_minutes, pm_minutes FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end = (SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg,pm_minutes,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg, pm_minutes, down_minutes"
+          },
+          "master_domain": {
+            "value": "pm",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "pm"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 현재 공정별 WIP과 PM 시간, 비가동 시간"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots",
+          "down_minutes",
+          "pm_minutes"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "wip_lots": 28,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "wip_lots": 141,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "wip_lots": 17,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "wip_lots": 22,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "wip_lots": 35,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "wip_lots": 18,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "wip_lots": "28",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "deposition",
+          "wip_lots": "141",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "etch",
+          "wip_lots": "17",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "implant",
+          "wip_lots": "22",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "metrology",
+          "wip_lots": "35",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "photo",
+          "wip_lots": "18",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        }
+      ]
+    },
+    {
+      "id": "fab12_mixed_flow_0",
+      "question": "FAB12 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계",
+      "kind": "period_mixed",
+      "fab": "fab12",
+      "metrics": [
+        "lot_completions",
+        "pm_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_completions": "mean",
+        "pm_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_completions) AS lot_completions, SUM(pm_minutes) AS pm_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(lot_completions) AS lot_completions, SUM(pm_minutes) AS pm_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotcomps"
+          },
+          "metrics": {
+            "value": "lotcomps,pm_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotcomps, pm_minutes"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "완료 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 정비 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "area",
+          "lot_completions",
+          "pm_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_completions",
+            "pm_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_completions / pm_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_completions": "4.2298850574712644",
+          "pm_minutes": "324",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "4.2643678160919540",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_completions": "4.1954022988505747",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_completions": "4.3563218390804598",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "4.2586206896551724",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_completions": "4.0402298850574713",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "etch",
+          "lot_completions": "4.195402298850574712643678161",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_completions": "4.356321839080459770114942529",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "4.258620689655172413793103448",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_completions": "4.040229885057471264367816092",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "cmp",
+          "lot_completions": "4.229885057471264367816091954",
+          "pm_minutes": "324",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "4.264367816091954022988505747",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab12_mixed_flow_1",
+      "question": "FAB12 최근 3일 공정별 완료 LOT 합계와 투입량 평균",
+      "kind": "period_mixed",
+      "fab": "fab12",
+      "metrics": [
+        "lot_starts",
+        "lot_completions"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_starts": "mean",
+        "lot_completions": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_completions) AS lot_completions, SUM(lot_starts) AS lot_starts, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, SUM(lot_completions) AS lot_completions, AVG(lot_starts) AS lot_starts, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotcomps"
+          },
+          "metrics": {
+            "value": "lotcomps,lotstarts",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotcomps, lotstarts"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 최근 3일 공정별 완료 LOT 합계와 투입량 평균"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "투입 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 완료 LOT은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "area",
+          "lot_completions",
+          "lot_starts",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_completions",
+            "lot_starts"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_completions / lot_starts"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_completions": "736",
+          "lot_starts": "3.5229885057471264",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "742",
+          "lot_starts": "3.3735632183908046",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_completions": "730",
+          "lot_starts": "3.6379310344827586",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_completions": "758",
+          "lot_starts": "3.4137931034482759",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "741",
+          "lot_starts": "3.6034482758620690",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_completions": "703",
+          "lot_starts": "3.6379310344827586",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "etch",
+          "lot_starts": "3.637931034482758620689655172",
+          "lot_completions": "730",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.413793103448275862068965517",
+          "lot_completions": "758",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.603448275862068965517241379",
+          "lot_completions": "741",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.637931034482758620689655172",
+          "lot_completions": "703",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "cmp",
+          "lot_starts": "3.522988505747126436781609195",
+          "lot_completions": "736",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.373563218390804597701149425",
+          "lot_completions": "742",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab12_mixed_flow_2",
+      "question": "FAB12 최근 3일 공정별 평균 정비 시간과 downtime 합계",
+      "kind": "period_mixed",
+      "fab": "fab12",
+      "metrics": [
+        "pm_minutes",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "pm_minutes": "mean",
+        "down_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(down_minutes) AS down_minutes, SUM(pm_minutes) AS pm_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, SUM(down_minutes) AS down_minutes, AVG(pm_minutes) AS pm_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "pm_minutes",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "pm_minutes"
+          },
+          "metrics": {
+            "value": "pm_minutes,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "pm_minutes, down_minutes"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 최근 3일 공정별 평균 정비 시간과 downtime 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "정비 시간은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 비가동 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "area",
+          "down_minutes",
+          "pm_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "down_minutes",
+            "pm_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "down_minutes / pm_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "down_minutes": "0",
+          "pm_minutes": "1.8620689655172414",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "down_minutes": "256",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "etch",
+          "pm_minutes": "0",
+          "down_minutes": "256",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "cmp",
+          "pm_minutes": "1.862068965517241379310344828",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab12_mixed_flow_3",
+      "question": "FAB12 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계",
+      "kind": "period_mixed",
+      "fab": "fab12",
+      "metrics": [
+        "lot_starts",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_starts": "mean",
+        "down_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_starts) AS lot_starts, SUM(down_minutes) AS down_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(lot_starts) AS lot_starts, SUM(down_minutes) AS down_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotstarts",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotstarts"
+          },
+          "metrics": {
+            "value": "lotstarts,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotstarts, down_minutes"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "투입 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 비가동 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "area",
+          "lot_starts",
+          "down_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_starts",
+            "down_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_starts / down_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_starts": "3.5229885057471264",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.3735632183908046",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_starts": "3.6379310344827586",
+          "down_minutes": "256",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.4137931034482759",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.6034482758620690",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.6379310344827586",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "etch",
+          "lot_starts": "3.637931034482758620689655172",
+          "down_minutes": "256",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.413793103448275862068965517",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.603448275862068965517241379",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.637931034482758620689655172",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "cmp",
+          "lot_starts": "3.522988505747126436781609195",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.373563218390804597701149425",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab13_aliases_0",
+      "question": "FAB13 현재 공정별 WIP과 util, cycleavg",
+      "kind": "current",
+      "fab": "fab13",
+      "metrics": [
+        "wip_lots",
+        "utilization_percent",
+        "avg_cycle_hours"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots, utilization_percent, avg_cycle_hours FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end = (SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg,util_percent,cycleavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg, util_percent, cycleavg"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 현재 공정별 WIP과 util, cycleavg"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots",
+          "utilization_percent",
+          "avg_cycle_hours"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "wip_lots": 21,
+          "utilization_percent": "79.04",
+          "avg_cycle_hours": "0.73"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "wip_lots": 14,
+          "utilization_percent": "80.86",
+          "avg_cycle_hours": "0.83"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "wip_lots": 21,
+          "utilization_percent": "78.63",
+          "avg_cycle_hours": "0.77"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "wip_lots": 8,
+          "utilization_percent": "81.35",
+          "avg_cycle_hours": "0.81"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "wip_lots": 15,
+          "utilization_percent": "80.64",
+          "avg_cycle_hours": "0.79"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "wip_lots": 80,
+          "utilization_percent": "78.90",
+          "avg_cycle_hours": "1.16"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "wip_lots": "21",
+          "utilization_percent": "79.04",
+          "avg_cycle_hours": "0.73"
+        },
+        {
+          "area": "deposition",
+          "wip_lots": "14",
+          "utilization_percent": "80.86",
+          "avg_cycle_hours": "0.83"
+        },
+        {
+          "area": "etch",
+          "wip_lots": "21",
+          "utilization_percent": "78.63",
+          "avg_cycle_hours": "0.77"
+        },
+        {
+          "area": "implant",
+          "wip_lots": "8",
+          "utilization_percent": "81.35",
+          "avg_cycle_hours": "0.81"
+        },
+        {
+          "area": "metrology",
+          "wip_lots": "15",
+          "utilization_percent": "80.64",
+          "avg_cycle_hours": "0.79"
+        },
+        {
+          "area": "photo",
+          "wip_lots": "80",
+          "utilization_percent": "78.90",
+          "avg_cycle_hours": "1.16"
+        }
+      ]
+    },
+    {
+      "id": "fab13_aliases_1",
+      "question": "FAB13 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent",
+      "kind": "current",
+      "fab": "fab13",
+      "metrics": [
+        "avg_queue_minutes",
+        "avg_cycle_hours",
+        "utilization_percent"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, avg_cycle_hours, utilization_percent, avg_queue_minutes FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end = (SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "avg_queue_minutes",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "avg_queue_minutes"
+          },
+          "metrics": {
+            "value": "avg_queue_minutes,avg_cycle_hours,cycleavg,util_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "avg_queue_minutes, avg_cycle_hours, cycleavg, util_percent"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "avg_cycle_hours",
+          "utilization_percent",
+          "avg_queue_minutes"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "avg_cycle_hours": "0.73",
+          "utilization_percent": "79.04",
+          "avg_queue_minutes": "12.35"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "avg_cycle_hours": "0.83",
+          "utilization_percent": "80.86",
+          "avg_queue_minutes": "14.69"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "avg_cycle_hours": "0.77",
+          "utilization_percent": "78.63",
+          "avg_queue_minutes": "16.16"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "avg_cycle_hours": "0.81",
+          "utilization_percent": "81.35",
+          "avg_queue_minutes": "12.20"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "avg_cycle_hours": "0.79",
+          "utilization_percent": "80.64",
+          "avg_queue_minutes": "12.52"
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "avg_cycle_hours": "1.16",
+          "utilization_percent": "78.90",
+          "avg_queue_minutes": "38.43"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "avg_queue_minutes": "12.35",
+          "avg_cycle_hours": "0.73",
+          "utilization_percent": "79.04"
+        },
+        {
+          "area": "deposition",
+          "avg_queue_minutes": "14.69",
+          "avg_cycle_hours": "0.83",
+          "utilization_percent": "80.86"
+        },
+        {
+          "area": "etch",
+          "avg_queue_minutes": "16.16",
+          "avg_cycle_hours": "0.77",
+          "utilization_percent": "78.63"
+        },
+        {
+          "area": "implant",
+          "avg_queue_minutes": "12.20",
+          "avg_cycle_hours": "0.81",
+          "utilization_percent": "81.35"
+        },
+        {
+          "area": "metrology",
+          "avg_queue_minutes": "12.52",
+          "avg_cycle_hours": "0.79",
+          "utilization_percent": "80.64"
+        },
+        {
+          "area": "photo",
+          "avg_queue_minutes": "38.43",
+          "avg_cycle_hours": "1.16",
+          "utilization_percent": "78.90"
+        }
+      ]
+    },
+    {
+      "id": "fab13_aliases_2",
+      "question": "FAB13 현재 공정별 WIP과 PM 시간, 비가동 시간",
+      "kind": "current",
+      "fab": "fab13",
+      "metrics": [
+        "wip_lots",
+        "pm_minutes",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots, down_minutes, pm_minutes FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end = (SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg,pm_minutes,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg, pm_minutes, down_minutes"
+          },
+          "master_domain": {
+            "value": "pm",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "pm"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 현재 공정별 WIP과 PM 시간, 비가동 시간"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots",
+          "down_minutes",
+          "pm_minutes"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "cmp",
+          "wip_lots": 21,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "deposition",
+          "wip_lots": 14,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "etch",
+          "wip_lots": 21,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "implant",
+          "wip_lots": 8,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "metrology",
+          "wip_lots": 15,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        },
+        {
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "area": "photo",
+          "wip_lots": 80,
+          "down_minutes": 0,
+          "pm_minutes": 0
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "wip_lots": "21",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "deposition",
+          "wip_lots": "14",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "etch",
+          "wip_lots": "21",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "implant",
+          "wip_lots": "8",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "metrology",
+          "wip_lots": "15",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        },
+        {
+          "area": "photo",
+          "wip_lots": "80",
+          "pm_minutes": "0",
+          "down_minutes": "0"
+        }
+      ]
+    },
+    {
+      "id": "fab13_mixed_flow_0",
+      "question": "FAB13 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계",
+      "kind": "period_mixed",
+      "fab": "fab13",
+      "metrics": [
+        "lot_completions",
+        "pm_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_completions": "mean",
+        "pm_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_completions) AS lot_completions, SUM(pm_minutes) AS pm_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(lot_completions) AS lot_completions, SUM(pm_minutes) AS pm_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotcomps"
+          },
+          "metrics": {
+            "value": "lotcomps,pm_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotcomps, pm_minutes"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "완료 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 정비 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "area",
+          "lot_completions",
+          "pm_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_completions",
+            "pm_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_completions / pm_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_completions": "4.2643678160919540",
+          "pm_minutes": "298",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "4.2011494252873563",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_completions": "4.2183908045977011",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_completions": "4.4195402298850575",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "4.3160919540229885",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_completions": "4.1436781609195402",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "lot_completions": "4.264367816091954022988505747",
+          "pm_minutes": "298",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "4.316091954022988505747126437",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_completions": "4.143678160919540229885057471",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "4.201149425287356321839080460",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "lot_completions": "4.218390804597701149425287356",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_completions": "4.419540229885057471264367816",
+          "pm_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab13_mixed_flow_1",
+      "question": "FAB13 최근 3일 공정별 완료 LOT 합계와 투입량 평균",
+      "kind": "period_mixed",
+      "fab": "fab13",
+      "metrics": [
+        "lot_starts",
+        "lot_completions"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_starts": "mean",
+        "lot_completions": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_completions) AS lot_completions, SUM(lot_starts) AS lot_starts, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, SUM(lot_completions) AS lot_completions, AVG(lot_starts) AS lot_starts, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotcomps"
+          },
+          "metrics": {
+            "value": "lotcomps,lotstarts",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotcomps, lotstarts"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 최근 3일 공정별 완료 LOT 합계와 투입량 평균"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "투입 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 완료 LOT은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "area",
+          "lot_completions",
+          "lot_starts",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_completions",
+            "lot_starts"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_completions / lot_starts"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_completions": "742",
+          "lot_starts": "3.4827586206896552",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_completions": "731",
+          "lot_starts": "3.5172413793103448",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_completions": "734",
+          "lot_starts": "3.5977011494252874",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_completions": "769",
+          "lot_starts": "3.5229885057471264",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_completions": "751",
+          "lot_starts": "3.5459770114942529",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_completions": "721",
+          "lot_starts": "3.4367816091954023",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "lot_starts": "3.482758620689655172413793103",
+          "lot_completions": "742",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.545977011494252873563218391",
+          "lot_completions": "751",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.436781609195402298850574713",
+          "lot_completions": "721",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.517241379310344827586206897",
+          "lot_completions": "731",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "lot_starts": "3.597701149425287356321839080",
+          "lot_completions": "734",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.522988505747126436781609195",
+          "lot_completions": "769",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab13_mixed_flow_2",
+      "question": "FAB13 최근 3일 공정별 평균 정비 시간과 downtime 합계",
+      "kind": "period_mixed",
+      "fab": "fab13",
+      "metrics": [
+        "pm_minutes",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "pm_minutes": "mean",
+        "down_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(down_minutes) AS down_minutes, SUM(pm_minutes) AS pm_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, SUM(down_minutes) AS down_minutes, AVG(pm_minutes) AS pm_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "pm_minutes",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "pm_minutes"
+          },
+          "metrics": {
+            "value": "pm_minutes,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "pm_minutes, down_minutes"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 최근 3일 공정별 평균 정비 시간과 downtime 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "정비 시간은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 비가동 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "area",
+          "down_minutes",
+          "pm_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "down_minutes",
+            "pm_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "down_minutes / pm_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "down_minutes": "98",
+          "pm_minutes": "1.7126436781609195",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "down_minutes": "109",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "down_minutes": "0",
+          "pm_minutes": "0E-20",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "pm_minutes": "1.712643678160919540229885057",
+          "down_minutes": "98",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "pm_minutes": "0",
+          "down_minutes": "109",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "pm_minutes": "0",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    },
+    {
+      "id": "fab13_mixed_flow_3",
+      "question": "FAB13 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계",
+      "kind": "period_mixed",
+      "fab": "fab13",
+      "metrics": [
+        "lot_starts",
+        "down_minutes"
+      ],
+      "areas": "all",
+      "days": 3,
+      "aggregations": {
+        "lot_starts": "mean",
+        "down_minutes": "sum"
+      },
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_starts) AS lot_starts, SUM(down_minutes) AS down_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(lot_starts) AS lot_starts, SUM(down_minutes) AS down_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotstarts",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotstarts"
+          },
+          "metrics": {
+            "value": "lotstarts,down_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotstarts, down_minutes"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "투입 LOT은 관측 구간당 비가중 산술평균이며, 시간당 처리량이나 기간 합계가 아닙니다. 비가동 시간은 선택한 구간의 합계입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "area",
+          "lot_starts",
+          "down_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "lot_starts",
+            "down_minutes"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_starts / down_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0,
+      "rows": [
+        {
+          "area": "cmp",
+          "lot_starts": "3.4827586206896552",
+          "down_minutes": "98",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.5172413793103448",
+          "down_minutes": "109",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "etch",
+          "lot_starts": "3.5977011494252874",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.5229885057471264",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.5459770114942529",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.4367816091954023",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "first_observed_at": "2026-09-09 15:15:00+00:00",
+          "last_observed_at": "2026-09-11 15:00:00+00:00",
+          "observation_minutes_min": "15.0000000000000000",
+          "observation_minutes_max": "15.0000000000000000"
+        }
+      ],
+      "expected_rows": [
+        {
+          "area": "cmp",
+          "lot_starts": "3.482758620689655172413793103",
+          "down_minutes": "98",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "metrology",
+          "lot_starts": "3.545977011494252873563218391",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "photo",
+          "lot_starts": "3.436781609195402298850574713",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "deposition",
+          "lot_starts": "3.517241379310344827586206897",
+          "down_minutes": "109",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "etch",
+          "lot_starts": "3.597701149425287356321839080",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        },
+        {
+          "area": "implant",
+          "lot_starts": "3.522988505747126436781609195",
+          "down_minutes": "0",
+          "observation_count": 174,
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0
+        }
+      ]
+    }
+  ]
+}

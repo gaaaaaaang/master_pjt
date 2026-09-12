@@ -1,0 +1,7 @@
+{
+  "checked_at": "2026-09-12T11:55:30.355Z",
+  "combinations": 20,
+  "passed": 20,
+  "source_sha256": "d02fa0b4f9c19776bf3ce15d363f1e4a2cf8dd2c7cb1060a12ec757b79429d61",
+  "scope": "Static React rendering. Browser layout, focus and interaction are not covered."
+}

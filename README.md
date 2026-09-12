@@ -8,24 +8,41 @@ SMT2020 기반 FAB 운영 질의를 처리하는 FastAPI + LangGraph + React Vit
 - 백엔드: FastAPI
 - orchestration: LangGraph
 - agent 경로: Planner -> Supervisor -> Text2SQL -> RAG/CaseSearch/Impact -> Visualization -> Reflection -> Composer
-- Text2SQL: Azure OpenAI Chat Completions structured output으로 read-only PostgreSQL SELECT/WITH SQL을 생성하고 allowlist 검증 후 실행
+- Text2SQL: 공통 시뮬레이션 현황·추세는 추출된 지표·기간·공정으로 조회 계약을 구성하며, 그 밖의 질문은 Azure OpenAI structured output의 의미 계획을 SQL로 변환하고 read-only 검증 후 실행
 - SSE: `/api/chat/stream`에서 node별 trace, final/error event와 elapsed/timeout/cancellation telemetry 제공
 
 RAG는 페이지·절차 단위 문서 검색, BM25와 Milvus 의미 검색 결합, 리랭킹, 원문 인용 검증을
 지원합니다. 문서 전용 답변은 생성 후 주장과 질문 항목별 근거를 다시 검토합니다.
-현재 corpus는 SMT2020 시뮬레이터 설명서와 시뮬레이션 돌발상황 매뉴얼이며 실제 승인 SOP가 아닙니다.
-CaseSearch와 Impact의 실제 저장소/계산 모델 연결은 별도 과제입니다.
-AutoSched report table이 없는 환경에서는 live/current status 질문이 `data_unavailable`로 종료됩니다.
+현재 corpus는 SMT2020 시뮬레이터 설명서, 시뮬레이션 돌발상황 매뉴얼 및 공개 공정 흐름 자료 요약이며 실제 승인 SOP가 아닙니다.
+CaseSearch는 사례의 검증 수준을 구분하고, Impact는 조회 기준값과 명시된 가정으로 1차 민감도를 계산합니다. 실제 공장에 보정된 인과·예측 모델은 아닙니다.
+FAB10~13의 `live_process_snapshots`가 적재된 환경에서는 네 FAB의 최신 공정별 WIP·수율·가동률·대기 시간과 기간 추세를 조회합니다.
+“현재”는 각 FAB의 최신 적재 구간을 뜻하며 답변의 기준 시각을 확인해야 합니다. 라인·제품별 데이터가 없는 경우 해당 범위를 공정 전체 값으로 대체하지 않습니다.
+
+`feat/final_adv`의 시연 순서, 데이터 기준, 인덱스 재현과 검산 방법은 [FAB 데모 실행 안내](docs/final_adv_demo_runbook.md)를 참고하세요.
+화면 상단 **질문 가이드**에서 FAB10~13별 현황·진단·영향·추세 대화와 문서 지식·대응 절차 질문을 입력할 수 있습니다.
 
 ## 실행
+
+고도화된 사용자 화면은 **React (`http://localhost:5173/`)** 입니다.
+`uv run streamlit run apps/web/app.py`는 별도로 유지하는 기존 Streamlit 화면(`8501`)을
+실행하므로 React 디자인 개선이 표시되지 않습니다. `/trace`는 기존 React 평가 화면입니다.
+브랜치 병합 후에는 백엔드도 현재 checkout에서 재시작해야 변경된 에이전트 코드가 로드됩니다.
+
+저장소 루트에서 의존성을 설치하고 백엔드를 실행합니다.
 
 ```bash
 cp .env.example .env
 uv sync --extra dev --extra rag
 PYTHONPATH=apps/assistant/src uv run uvicorn app.main:app --reload
-cd apps/web
-npm ci
-npm run dev
+```
+
+기존 `.env`가 있으면 복사 단계는 생략해 현재 API·DB 설정을 보존합니다.
+
+별도 터미널의 저장소 루트에서 React를 실행합니다.
+
+```bash
+npm --prefix apps/web ci
+npm --prefix apps/web run dev
 ```
 
 `.env`에 본인의 API 키를 설정한 뒤 실행합니다. 기본 BM25 **검색**은 로컬에서 수행하지만,

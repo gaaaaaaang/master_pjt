@@ -5,7 +5,10 @@ from typing import Any
 
 import httpx
 
-from app.agents.usage import model_call, reported_usage
+from app.agents.context_encoding import ENCODING_INSTRUCTION, encode_context
+from app.agents.evidence_contract import with_evidence_contract
+from app.agents.prompt_context import compact_prompt_data
+from app.agents.usage import model_call, model_http_client, reported_context_usage, reported_usage
 from app.config import get_settings
 
 
@@ -43,13 +46,20 @@ class AzureAgentClient:
             f"{self.endpoint}/openai/deployments/{self.model}/chat/completions"
             f"?api-version={self.api_version}"
         )
+        context, contract_instruction = with_evidence_contract(input_data)
+        encoded_context, context_stats = encode_context(compact_prompt_data(context))
+        reported_context_usage(context_stats)
+        instructions = [system_prompt, contract_instruction]
+        if context_stats["context_encoding"] != "plain":
+            instructions.append(ENCODING_INSTRUCTION)
+        system_prompt = "\n".join(part for part in instructions if part)
         payload = {
             "model": self.model,
             "messages": [
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": system_prompt + "\nUse the user's language for explanatory strings, warnings and limitations. Preserve schema enums, identifiers and source text exactly. Keep warnings factual and concise; put composition instructions only in instruction fields."},
                 {
                     "role": "user",
-                    "content": json.dumps(input_data, ensure_ascii=False, default=str),
+                    "content": encoded_context,
                 },
             ],
             "response_format": {
@@ -64,7 +74,7 @@ class AzureAgentClient:
         if self.temperature is not None:
             payload["temperature"] = self.temperature
         try:
-            with httpx.Client(timeout=self.timeout_seconds) as client:
+            with model_http_client(self.timeout_seconds, endpoint=url) as client:
                 response = client.post(
                     url,
                     headers={"api-key": self.api_key, "Content-Type": "application/json"},

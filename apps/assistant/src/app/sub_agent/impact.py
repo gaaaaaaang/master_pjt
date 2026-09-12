@@ -11,6 +11,10 @@ from typing import Any
 
 _BASELINE_IDENTITY_DIMENSIONS = (
     "fab_id",
+    "area",
+    "interval_start",
+    "interval_end",
+    "observed_at",
     "part",
     "product",
     "product_name",
@@ -91,17 +95,17 @@ def estimate_output_delta(
             )
         elif metric == "queue_time" and item["unit"] == "percent":
             limitations.append(
-                "Queue Time과 output의 승인된 영향도 모델에 필요한 operational metric baseline이 없어 "
-                "인과 영향을 계산할 수 없습니다."
+                "Queue Time 변화와 처리량을 연결하는 관계식이 근거 자료에 없어 처리량 영향을 수치로 계산할 수 없습니다. "
+                "해당 공정의 대기시간·완료량 이력과 동일 조건의 비교 또는 보정된 예측 모델이 필요합니다."
             )
         elif metric == "down" and item["unit"] == "hour":
             limitations.append(
-                "시간당 lot completion rate와 분석 기간 operational metric이 없어 추가 downtime의 "
-                "output 영향을 계산할 수 없습니다."
+                "시간당 lot completion rate와 추가 비가동을 적용할 설비·분석 기간이 정해지지 않아 "
+                "추가 downtime의 처리량 영향을 계산할 수 없습니다. 기간 합계만으로 시간당 처리량을 가정하지 않습니다."
             )
         else:
             limitations.append(
-                f"{metric}의 {item['unit']} 변화에 적용할 승인된 영향도 계산식이 없습니다."
+                f"{metric}의 {item['unit']} 변화와 요청한 결과 지표를 연결하는 계산식이 근거 자료에 없습니다."
             )
 
     status = "succeeded" if estimates else "data_unavailable"
@@ -142,7 +146,7 @@ def _estimate_utilization_change(
     assumptions: list[str],
     limitations: list[str],
 ) -> None:
-    current = _first_metric(baseline_metrics, "util_percent")
+    current = _first_metric(baseline_metrics, "util_percent", "utilization_percent")
     if current is None or not 0 < current <= 100:
         limitations.append(
             "현재 utilization baseline이 없거나 0~100% 범위를 벗어나 capacity 민감도를 계산할 수 없습니다."
@@ -190,7 +194,7 @@ def _estimate_utilization_change(
                     "estimated_capacity_change_percent": round(capacity_change_pct, 4),
                 }
             )
-            lotcomps = _first_metric(baseline_metrics, "lotcomps")
+            lotcomps = _first_metric(baseline_metrics, "lotcomps", "lot_completions")
             if lotcomps is not None and lotcomps >= 0:
                 inputs["baseline_lotcomps"] = lotcomps
                 formulae.append(
@@ -200,6 +204,10 @@ def _estimate_utilization_change(
                     lotcomps * capacity_change_pct / 100.0,
                     4,
                 )
+                formulae.append(
+                    "projected_lotcomps = baseline_lotcomps * projected_util_percent / baseline_util_percent"
+                )
+                estimates["projected_lotcomps"] = round(lotcomps * projected / current, 4)
             assumptions.append(
                 "동일 기간의 capacity가 utilization에 1차 비례한다고 가정했습니다."
             )
@@ -214,7 +222,7 @@ def _estimate_cycle_time_change(
     formulae: list[str],
     limitations: list[str],
 ) -> None:
-    current = _first_metric(baseline_metrics, "cycleavg")
+    current = _first_metric(baseline_metrics, "cycleavg", "avg_cycle_hours")
     if current is None or current <= 0:
         limitations.append("현재 cycle time baseline이 없거나 양수가 아니어서 계산할 수 없습니다.")
     else:
@@ -305,11 +313,14 @@ def _coerce_metric_value(key: str, value: Any) -> float | None:
 def _metric_units(metrics: dict[str, float]) -> dict[str, str]:
     units = {
         "util_percent": "percent",
+        "utilization_percent": "percent",
         "ontime_percent": "percent",
         "down_percent": "percent",
         "pm_percent": "percent",
         "cycleavg": "hours",
+        "avg_cycle_hours": "hours",
         "lotcomps": "lots",
+        "lot_completions": "lots",
     }
     return {key: units[key] for key in metrics if key in units}
 
@@ -322,7 +333,7 @@ def _parse_change(question: str) -> dict[str, float | str | int | None] | None:
 def _parse_changes(question: str) -> list[dict[str, float | str | int | None]]:
     patterns = (
         (
-            r"([+-]?\d+(?:\.\d+)?)\s*(?:%\s*p|퍼센트\s*포인트|percentage\s*points?|percent\s*points?)",
+            r"([+-]?\d+(?:\.\d+)?)\s*(?:%\s*(?:p(?![a-z])|포인트|points?)|퍼센트\s*포인트|percentage\s*points?|percent\s*points?|pp\b)",
             "percentage_point",
         ),
         (r"([+-]?\d+(?:\.\d+)?)\s*(?:%|퍼센트|percent)", "percent"),
@@ -331,6 +342,8 @@ def _parse_changes(question: str) -> list[dict[str, float | str | int | None]]:
     parsed: list[tuple[int, int, dict[str, float | str | int | None]]] = []
     for pattern, unit in patterns:
         for match in re.finditer(pattern, question, flags=re.IGNORECASE):
+            if unit == "hour" and re.search(r"(?:최근|지난|last|past)\s*$", question[:match.start()], re.IGNORECASE):
+                continue  # This is the baseline window, not an additional downtime change.
             if any(match.start() < end and match.end() > start for start, end, _ in parsed):
                 continue
             raw_value = float(match.group(1))
@@ -363,15 +376,17 @@ def _parse_changes(question: str) -> list[dict[str, float | str | int | None]]:
 def _nearest_change_metric(question: str, change_span: tuple[int, int]) -> str | None:
     lowered = question.casefold()
     metric_terms = {
-        "utilization": ("utilization", "util_percent", "가동률"),
-        "cycle_time": ("cycle time", "cycleavg", "사이클 타임", "사이클타임", "사이클"),
+        "utilization": ("utilization", "util_percent", "util", "가동률"),
+        "cycle_time": ("cycle time", "cycleavg", "ct", "사이클 타임", "사이클타임", "사이클"),
         "queue_time": ("queue time", "queue_time", "대기시간", "대기 시간", "큐타임"),
         "down": ("down", "down_percent", "다운", "비가동"),
     }
     candidates: list[tuple[int, str]] = []
     for metric, terms in metric_terms.items():
         for term in terms:
-            for match in re.finditer(re.escape(term), lowered):
+            pattern = (r"(?<!비)가동률" if term == "가동률" else
+                       rf"(?<![a-z0-9_]){term}(?![a-z0-9_])" if term in {"ct", "util"} else re.escape(term))
+            for match in re.finditer(pattern, lowered):
                 distance = min(
                     abs(match.start() - change_span[1]),
                     abs(change_span[0] - match.end()),
@@ -388,8 +403,8 @@ def _nearest_direction(question: str, change_span: tuple[int, int]) -> int | Non
     lowered = question.casefold()
     candidates: list[tuple[int, int]] = []
     directions = {
-        -1: ("떨어", "감소", "낮아", "내려", "줄", "하락", "drop", "decrease", "reduce"),
-        1: ("증가", "높아", "올라", "늘", "상승", "increase", "raise", "rise"),
+        -1: ("떨어", "감소", "낮아", "낮추", "내려", "줄", "하락", "drop", "decrease", "reduce"),
+        1: ("증가", "높아", "올라", "오르", "올리", "늘", "상승", "increase", "raise", "rise"),
     }
     for direction, terms in directions.items():
         for term in terms:

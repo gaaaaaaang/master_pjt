@@ -1,0 +1,729 @@
+{
+  "suite": "supervisor",
+  "source_root": "/private/tmp/adv-integrate-eval-20260910",
+  "source_sha256": "607d3d3a64679143db742ade8abf4f3a4fc492e31529db22284fc69685c015d6",
+  "started_at": "2026-09-10T09:16:19+0900",
+  "model": "gpt-4.1",
+  "same_model_judge": true,
+  "rag_reranker": "feature",
+  "dense_retrieval_configured": false,
+  "results": [
+    {
+      "id": "SUP-good",
+      "question": "fab10 시뮬레이션 최신 WIP(wiplotavg) 값과 데이터 기준을 알려줘.",
+      "input_answer": "fab10 시뮬레이션의 2026-09-10 00:00 UTC 최신 WIP는 120 lots입니다. 실제 공장 관측값이 아닙니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sql": "SELECT 120 AS wiplotavg FROM fab10.autosched_perf_fab10 LIMIT 1",
+            "row_count": 1,
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wiplotavg": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": true,
+      "decision": {
+        "approved": true,
+        "issues": [],
+        "corrected_answer": null,
+        "reason": "최신 FAB10 시뮬레이션 WIP(wiplotavg) 값과 데이터 기준 시점(2026-09-10 00:00 UTC)이 모두 요청대로 명확하게 제시되었습니다. 시뮬레이션 데이터임을 제한으로 밝혔으므로 요구 조건을 충족합니다.",
+        "original_approved": true,
+        "correction_applied": false,
+        "deterministic_check": {
+          "is_supported": true,
+          "warnings": [],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": true,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 1.0
+        },
+        "correction_check": null,
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 1.3975586659944383,
+      "judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "SUPERVISOR는 입력된 답변이 모든 증거와 일치하며 '최신 WIP(wiplotavg) 값(120 lots)'과 그 데이터의 기준 시점(2026-09-10 00:00 UTC), 시뮬레이션 데이터임을 모두 명확하게 밝혔음을 확인했습니다. 질문의 요구 사항(최신 fab10 시뮬레이션 WIP 값, 데이터 기준에 대한 명확한 안내)도 완전히 충족되고 있습니다. 따라서 모든 평가 지표에서 결함 없이 적절히 승인되었습니다. 추가로, 데이터의 한계(실제 공장 데이터 아님)도 분명하게 언급해, 한계 노출 의무도 이행되었습니다. 핀포인트할 결함이 없습니다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      },
+      "first_judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "감독자는 답변에서 요구한 시점(2026-09-10 00:00 UTC)과 최신 WIP(wiplotavg)=120 lots 값을 정확히 확인했으며, 데이터가 시뮬레이션 기준임을 명확하게 언급한 점(실제 공장 데이터가 아님)도 정확히 근거를 들었습니다. 에비던스와 결론 간 일치, 제한사항 고지, 누락 여부 점검 등 모든 감독 업무가 요구에 맞게 이루어졌으며, 보정(정정)도 필요치 않아 적절한 승인(rejection/correction) 결론을 내렸습니다. 근거와 이슈 누락이나 오류, 과도한 결론 모두 발견되지 않았으므로 만점 평가가 합당합니다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      }
+    },
+    {
+      "id": "SUP-wrong-value",
+      "question": "fab10 시뮬레이션 최신 WIP(wiplotavg) 값과 데이터 기준을 알려줘.",
+      "input_answer": "fab10 시뮬레이션 최신 WIP는 900 lots입니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sql": "SELECT 120 AS wiplotavg FROM fab10.autosched_perf_fab10 LIMIT 1",
+            "row_count": 1,
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wiplotavg": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": false,
+      "decision": {
+        "approved": true,
+        "issues": [],
+        "corrected_answer": "fab10 시뮬레이션 최신 WIP(wiplotavg) 값은 120 lots이며, 데이터 기준 시점은 2026-09-10 00:00 UTC 입니다. 해당 값은 실제 공장 관측값이 아닌 시뮬레이션 자료임을 참고해 주세요.",
+        "reason": "최신 WIP 값(120 lots)과 데이터 기준 시점(2026-09-10 00:00 UTC)을 근거에 맞게 모두 명시하고, 실제 공장 데이터가 아닌 시뮬레이션임을 밝혀야 하며, 근거 없는 숫자는 사용하면 안됩니다.",
+        "original_approved": false,
+        "correction_applied": true,
+        "deterministic_check": {
+          "is_supported": false,
+          "warnings": [
+            "Status answers must include each requested metric value from SQL results: WIP",
+            "Status answer contains numeric claims absent from grounded inputs and results: 900"
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [
+            "WIP"
+          ],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [
+            "900"
+          ],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "correction_check": {
+          "is_supported": true,
+          "warnings": [],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": true,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 1.0
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 2.4020957079919754,
+      "judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "슈퍼바이저는 입력 답변의 잘못된 WIP 값(900, 증거 미존재)과 기준 미기재를 모두 정확히 감지했습니다. 수정 답변에서는 증거에 있는 최신 WIP 값(120 lots), 기준 시점(2026-09-10 00:00 UTC), 시뮬레이션임을 모두 명확히 언급하여 요구 조건 및 증거와 완벽히 일치합니다. 잘못된 수치는 제거되었고, 증거 기반으로 완전히 교정되었습니다. 누락이나 오도, 근거 없는 주장이 없으며, 남은 불확실성이나 데이터 누락이 없습니다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      },
+      "first_judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "감독자의 검출: 답변이 제공한 증거(시뮬레이션 WIP 120, 기준 시점 2026-09-10)와 일치하지 않고, 근거없는 숫자(900 lots)를 사용했음을 정확히 인식하였습니다.\\n감독자의 수정: 올바른 값을 증거에서 추출(120 lots, 2026-09-10)했으며, 시뮬레이션 데이터임을 명확히 밝혔습니다.\\n근거 연동: 수정된 답변의 수치는 증거와 완전히 일치하며, 한계(실제 데이터 아님)도 언급해 증거 기반을 충분히 드러냅니다.\\n비판적 오류 없음: 감독 결정, 보정, 근거 정당화 모두 완전하게 이루어졌습니다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      }
+    },
+    {
+      "id": "SUP-wrong-fab",
+      "question": "fab10 시뮬레이션 최신 WIP(wiplotavg) 값과 데이터 기준을 알려줘.",
+      "input_answer": "fab13 시뮬레이션 최신 WIP는 120 lots입니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sql": "SELECT 120 AS wiplotavg FROM fab10.autosched_perf_fab10 LIMIT 1",
+            "row_count": 1,
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wiplotavg": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": false,
+      "decision": {
+        "approved": true,
+        "issues": [],
+        "corrected_answer": "fab10 시뮬레이션 최신 WIP(wiplotavg) 값은 120 lots이며, 데이터 기준일은 2026-09-10 00:00 UTC입니다. 해당 값은 합성 평가 데이터 기준의 시뮬레이션 자료로, 실제 fab 관측값이 아닙니다.",
+        "reason": "질문에서 요청한 fab10, 시뮬레이션, WIP(wiplotavg) 값, 데이터 기준(타임스탬프) 모두 명확히 언급되어야 하며, 실제 fab 관측값이 아니라는 제한사항도 반드시 포함해야 함.",
+        "original_approved": false,
+        "correction_applied": true,
+        "deterministic_check": {
+          "is_supported": false,
+          "warnings": [
+            "Final answer omits requested identifiers: fab10"
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [
+            "fab10"
+          ],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": false,
+            "evidence_grounding": true,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "correction_check": {
+          "is_supported": true,
+          "warnings": [],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": true,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 1.0
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 2.273372958996333,
+      "judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "슈퍼바이저는 input_answer에서 공장(fab10 대신 fab13 사용) 오류, 데이터 기준(날짜) 누락, 시뮬레이션 데이터임을 명시하지 않음 등 주요 결함을 정확히 탐지하였으며, 최종 수정 답변에서는 fab10, WIP(wiplotavg) 값(120 lots), 데이터 기준일(2026-09-10 00:00 UTC), 시뮬레이션 합성 데이터임을 모두 명확히 밝혀 답변 완전성과 근거 충실성을 갖췄다. 질문의 요구사항을 온전히 충족하며, 증거와의 정합성도 우수하다. 결함을 놓친 부분이나 부적절하게 승인한 사례 없음.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      },
+      "first_judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "수정 전 답변은 질문의 핵심(요구 fab 명칭, 시뮬레이션·WIP 지표·데이터 기준일 명시, 실제 데이터가 아님을 밝힐 것 등)을 충족하지 못함. 심사자는 이를 정확하게 발견했고(partly correct->detect=5), 정정시 올바른 fab10/WIP/타임스탬프/합성 데이터 명시를 모두 추가하여 기준에 부합하게 수정함(correction=5). 단일 증거(evidence)와 요청된 정보 요소의 일치도 역시 적절함. 판단근거 및 한계도 명확히 밝혔으므로 grounding=5. 치명적 오류 없음.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      }
+    },
+    {
+      "id": "SUP-false-live",
+      "question": "fab10 시뮬레이션 최신 WIP(wiplotavg) 값과 데이터 기준을 알려줘.",
+      "input_answer": "fab10 실제 공장에서 지금 관측한 WIP는 120 lots입니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sql": "SELECT 120 AS wiplotavg FROM fab10.autosched_perf_fab10 LIMIT 1",
+            "row_count": 1,
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wiplotavg": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": false,
+      "decision": {
+        "approved": true,
+        "issues": [],
+        "corrected_answer": "fab10 시뮬레이션 데이터 기준(2026-09-10 00:00 UTC)의 최신 WIP(wiplotavg)는 120 lots입니다. 해당 값은 실제 공장 관측값이 아닌 시뮬레이션 자료임을 참고해 주세요.",
+        "reason": "사용자 요청의 모든 식별자(WIP, fab10, 시뮬레이션, 데이터 기준일)를 근거로 명확하게 포함하고, 제한사항도 누락 없이 제시해야 합니다.",
+        "original_approved": false,
+        "correction_applied": true,
+        "deterministic_check": {
+          "is_supported": false,
+          "warnings": [
+            "Material limitations must be visible in the final answer."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": true,
+            "limitation_visibility": false,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "correction_check": {
+          "is_supported": true,
+          "warnings": [],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": true,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 1.0
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 2.334732792005525,
+      "judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "슈퍼바이저는 입력 답변이 실제 공장 관측 수치라고 잘못 기술한 오류를 올바르게 탐지하였고, 시뮬레이션 데이터임을 명확하게 정정함과 동시에 질문의 식별자(시뮬레이션, fab10, WIP, 기준 시점)를 모두 보존하여 정확하게 수정하였습니다. 증거에 기반해 데이터 기준일(Z) 및 시뮬레이션 제한을 모두 명확히 드러냈으며, material limitation(실제 관측값 아님)도 누락 없이 언급했습니다. 모든 차원에서 결함이 없으며, 남은 불확실점도 없습니다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      },
+      "first_judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "감독자는 올바르게 원 답변(실제 공장 값, 시뮬레이션 데이터 아님)을 거절하고, 올바른 수정 답변(최신 WIP 값이 120 lots임을 근거와 함께 명시, 2026-09-10 00:00 UTC의 시뮬레이션 데이터임을 분명하게 밝힘)을 제시하였습니다. 출처 증거와 내용도 모두 일치하고, 제한 사항(시뮬레이션 데이터임)도 명확히 밝혔습니다. 모든 평가 기준이 충족되었습니다. 중대한 오류 없이 과제도 완결적으로 수행되었습니다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      }
+    },
+    {
+      "id": "SUP-invented-cause",
+      "question": "fab10 시뮬레이션 최신 WIP(wiplotavg) 값과 데이터 기준을 알려줘.",
+      "input_answer": "fab10 시뮬레이션 WIP는 120 lots입니다. 증가 원인은 Dry_Etch 설비 고장으로 확정됐습니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sql": "SELECT 120 AS wiplotavg FROM fab10.autosched_perf_fab10 LIMIT 1",
+            "row_count": 1,
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wiplotavg": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": false,
+      "decision": {
+        "approved": true,
+        "issues": [],
+        "corrected_answer": "fab10 시뮬레이션 데이터에서 최신 WIP(wiplotavg) 값은 120 lots이며, 데이터 기준은 2026-09-10 00:00 UTC입니다. 해당 값은 실제 공장 관측값이 아닌 시뮬레이션 자료입니다. (추가 시각자료 필요시 별도 요청 바랍니다.)",
+        "reason": "요구된 값(wiplotavg) 및 데이터 기준 시점을 모두 포함해야 하며, 증대 원인 등 근거 없는 부가정보를 제공하지 않아야 합니다. 시각자료 제공 조건도 충족해야 정확한 답변입니다.",
+        "original_approved": false,
+        "correction_applied": true,
+        "deterministic_check": {
+          "is_supported": true,
+          "warnings": [],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": true,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 1.0
+        },
+        "correction_check": {
+          "is_supported": true,
+          "warnings": [],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": true,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 1.0
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 3.0053328330104705,
+      "judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "감독자는 입력 답안에서 Dry_Etch 설비 고장이라는 원인이 증거에 없고, 단순히 WIP 값(120 lots)과 기준 날짜(2026-09-10 00:00 UTC), 시뮬레이션 데이터임을 명확히 제시해야 함을 올바르게 감지하고 수정했습니다. 최종 답변은 질문 요구사항(최신값과 데이터 기준), 증거에 충실하며, 사실에 없는 원인 진단은 완전히 제거하여 정답성을 확보하였습니다. 증거와 결론은 일치하며 요구된 정보에 대한 과소나 과장은 없습니다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      },
+      "first_judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "감독자는 답변에서 Dry_Etch 설비 고장으로 인한 증가 원인을 지적하고 있습니다. 이는 주어진 증거(evidence)와 질문에서 전혀 언급된 바 없으므로 명백히 허위 정보를 포함한 중대한 오류입니다. 정정 답변은 wiplotavg 값, 데이터 기준 시점, 시뮬레이션 데이터임을 모두 근거에 맞게 적용하였고, 시각자료 제공 조건도 안내하여 답변 요구를 충족하였습니다. 거짓 원인 진술 삭제 등 근거 기반의 적절한 교정이 있습니다.",
+        "critical_error": true,
+        "task_completed": false,
+        "passed": false
+      }
+    },
+    {
+      "id": "SUP-missing-answer",
+      "question": "fab10 시뮬레이션 최신 WIP(wiplotavg) 값과 데이터 기준을 알려줘.",
+      "input_answer": "WIP는 재공품 수량을 의미합니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sql": "SELECT 120 AS wiplotavg FROM fab10.autosched_perf_fab10 LIMIT 1",
+            "row_count": 1,
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wiplotavg": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": false,
+      "decision": {
+        "approved": true,
+        "issues": [],
+        "corrected_answer": "Fab10 시뮬레이션 데이터 기준, 최신 WIP(wiplotavg) 값은 120 lots이며, 해당 데이터의 기준 시점은 2026-09-10 00:00 UTC입니다. 해당 값은 실제 관측값이 아닌 시뮬레이션(예측) 결과임을 참고해 주세요.",
+        "reason": "질문에서 요청한 식별자(Fab10), 최신 WIP 값, 데이터 기준 시점, 시뮬레이션 데이터임을 모두 명확하게 밝혀야 하며, 근거가 된 수치와 시점이 포함되어야 합니다.",
+        "original_approved": false,
+        "correction_applied": true,
+        "deterministic_check": {
+          "is_supported": false,
+          "warnings": [
+            "Material limitations must be visible in the final answer.",
+            "Final answer omits requested identifiers: fab10",
+            "Status answers must include each requested metric value from SQL results: WIP"
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [
+            "fab10"
+          ],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [
+            "WIP"
+          ],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": false,
+            "evidence_grounding": false,
+            "limitation_visibility": false,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.25
+        },
+        "correction_check": {
+          "is_supported": true,
+          "warnings": [],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": true,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 1.0
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 2.6675767919950886,
+      "judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "슈퍼바이저는 원본 답변이 질문의 핵심 요구(특정 식별자 'fab10', 최신 WIP 값, 데이터 기준 시점, 그리고 시뮬레이션 데이터임의 한계 등)를 모두 누락했다는 점을 정확히 감지하였고, 구체적 수치(120 lots), 일자(2026-09-10 00:00 UTC), 데이터의 본질(시뮬레이션) 등 증거에 기반한 정보를 빠짐없이 보완했다. 또한, 한계(실제 공장 데이터 아님)도 명확히 언급하여 증거에 대한 충실한 근거 제시와 제한점 공개가 모두 적절하다. 최종 답변은 질문과 증거, 한계, 요청 항목을 완전하게 포함하며, 오류나 미비점도 없다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      },
+      "first_judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "감독자는 원 답변이 질문 요구사항('fab10'의 최신 WIP 값, 데이터 기준 시점, 시뮬레이션 데이터임 명시)에 전혀 부합하지 않음을 정확히 감지했고, 이로 인해 승인하지 않았습니다. 정정 답변에서는 1) 식별자(fab10), 2) 최신 WIP 값(120 lots), 3) 데이터 기준 시점(2026-09-10 00:00 UTC), 4) 시뮬레이션 데이터 특성까지 모두 명백히 기술했습니다. 증거({\"wiplotavg\":120, \"fab_id\":\"fab10\"}, 2026-09-10 00:00 UTC, 시뮬레이션 데이터)와 완전히 일치하며, 사실상의 한계도 정직하게 표기했습니다. 모든 평가 영역에서 결함 없이 완전하게 감독, 수정, 근거 명시가 이루어졌습니다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      }
+    }
+  ],
+  "planned_cases": 6,
+  "rejudge_input": "apps/assistant/output/evals/adv_integrate_kpi_20260910/supervisor_challenge_validated.json",
+  "completed": true
+}

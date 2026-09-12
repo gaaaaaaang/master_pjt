@@ -63,6 +63,9 @@ when the source does not define their meaning; disposition does not automaticall
 Do not turn conditional release into a requirement that all risk be zero.
 Respect each source's reliability label. A simulation_reference is not approved company
 SOP or live factory facts. Do not promote unverified sources to approved procedures.
+A reference_summary is a project summary of public material. Preserve project-specific
+definitions and model assumptions; do not present them as official FAB KPI definitions
+or a calibrated model for a particular factory.
 Document lifecycle statuses are distinct from revision identifiers and change history;
 when version history is requested but absent, explicitly mark that part insufficient.
 For compound questions cover each requested part; mark partial if any requested part is missing.
@@ -371,6 +374,14 @@ def render_grounded(output: dict, sources: dict[str, dict]) -> GroundedAnswer:
         paragraphs.append(
             "이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다."
         )
+    if any(
+        sources[citation["chunk_id"]]["reliability"] == "reference_summary"
+        for citation in citations
+    ):
+        paragraphs.append(
+            "공개 자료를 정리한 프로젝트 참고 문서에 따른 설명입니다. "
+            "프로젝트의 용어 해석과 일반 모형의 가정은 사내 공식 KPI 정의나 특정 FAB의 보정 모델을 뜻하지 않습니다."
+        )
     return GroundedAnswer(
         "\n\n".join(paragraphs) + "\n\n" + "\n".join(references), status, citations
     )
@@ -598,8 +609,13 @@ def compose_grounded(
         return result
     except (ValueError, TypeError, RuntimeError, httpx.HTTPError) as exc:
         # No unverified generated claim escapes. Keep evidence on the response for review.
+        message = (
+            "문서 검색은 완료했지만 답변 생성·검토 모델을 사용할 수 없습니다. 제공된 문서 근거의 원문을 확인해 주세요."
+            if stage in {"generation_api", "review_api"}
+            else "문서는 검색했지만 답변의 인용 근거를 검증하지 못했습니다. 제공된 원문 근거를 확인해 주세요."
+        )
         return GroundedAnswer(
-            "문서는 검색했지만 답변의 인용 근거를 검증하지 못했습니다. 제공된 원문 근거를 확인해 주세요.",
+            message,
             "insufficient",
             validation="rejected",
             review={

@@ -113,6 +113,16 @@ def verify_response(
             "Diagnosis answers must disclose when evidence cannot support any cause candidate."
         )
 
+    if (any(item.get("metadata", {}).get("fab_comparison") for item in evidence)
+            and re.search(r"(?:주된|주요|직접적인|직접적)\s*원인(?:입니다|이다|으로\s*확인)", answer)):
+        warnings.append("Cross-FAB area contributions must not be presented as confirmed causes.")
+
+    if (query_type == "diagnosis" and _diagnosis_has_no_supported_candidates(evidence)
+            and re.search(r"후보로\s*(?:볼\s*수\s*있|제시할\s*수\s*있|제시합니다)"
+                          r"|원인\s*후보(?:는|로는)[^.!?\n]{0,120}(?:정비|고장|투입|병목)"
+                          r"|(?:영향|기여|원인)[^.!?\n]{0,60}가능성(?:이|은|도)?\s*(?:있|높)", answer)):
+        warnings.append("Diagnosis answer introduces a cause candidate despite an empty supported candidate set.")
+
     if query_type == "diagnosis" and _has_simulated_evidence(evidence) and not _discloses_simulation(answer):
         warnings.append("Diagnosis answers must disclose simulated reference sources.")
 
@@ -180,6 +190,13 @@ def verify_response(
         and not _mentions_limitation(answer)
     ):
         warnings.append("Material limitations must be visible in the final answer.")
+
+    undisclosed_row_limit = any(
+        item.get("source_type") == "text2sql_plan" and item.get("metadata", {}).get("limit_reached")
+        for item in evidence
+    ) and not re.search(r"한도|상한|\d+\s*행\s*(?:만|까지만)|truncat|row limit|return limit", answer, re.IGNORECASE)
+    if undisclosed_row_limit:
+        warnings.append("Answers must disclose the reached query row limit; complete scope is not established.")
 
     if (
         not limitations
@@ -401,6 +418,7 @@ def verify_response(
         "limitation_visibility": (
             (not limitations or _mentions_limitation(answer))
             and not missing_mixed_impact_dimensions
+            and not undisclosed_row_limit
         ),
         "provenance_calibration": not any(
             warning.startswith("Diagnosis answers") or "root cause" in warning
@@ -432,6 +450,7 @@ def verify_response(
         "undisclosed_series_gaps": undisclosed_series_gaps,
         "undisclosed_insufficient_trends": undisclosed_insufficient_trends,
         "undisclosed_imputed_points": undisclosed_imputed_points,
+        "undisclosed_row_limit": undisclosed_row_limit,
         "chart_claim_grounded": chart_claim_grounded,
         "quality_dimensions": quality_dimensions,
         "quality_score": round(
@@ -466,7 +485,7 @@ def _sounds_like_live_state(answer: str) -> bool:
         r"현재 상태는|현재 wip는|실시간|\blive\b|current factory state|\breal[- ]time\b"
     )
     negation = re.compile(
-        r"아니|아님|아닙|않|없|불가|불일치|다를 수|해석하면 안|추정하면 안|"
+        r"아니|아닌|아님|아닙|않|없|불가|불일치|다를 수|해석하면 안|추정하면 안|사용하지 말|"
         r"\bnot\b|cannot|can't|isn't|aren't|unavailable|may differ"
     )
     # Inspect each claim separately: a later disclaimer must not hide an earlier
@@ -478,6 +497,12 @@ def _sounds_like_live_state(answer: str) -> bool:
             end = matches[index + 1].start() if index + 1 < len(matches) else len(clause)
             suffix = clause[match.end():end]
             if re.search(r"\b(?:not|non)[- ]+(?:actual\s+)?$", prefix):
+                continue
+            # A prerequisite for obtaining live information is not an assertion
+            # that the current master-data result is live.
+            if re.match(r"\s*(?:정보|데이터|현황|상태)(?:를|가|이)?\s*(?:확인하려면|필요한 경우|필요하면|필요하시면|필요하시다면)", suffix):
+                continue
+            if re.search(r"\bfor\s*$", prefix) and re.match(r"\s+information\s*,", suffix):
                 continue
             # live/current factory state is one phrase with two lexical matches.
             if suffix.strip() in {"/", "/current"} and index + 1 < len(matches):
@@ -533,6 +558,7 @@ def _discloses_no_diagnosis_candidate(answer: str) -> bool:
         term in lowered
         for term in (
             "원인 후보를 제시할 수 없",
+            "원인 후보를 제시하거나 실제 원인을 확정할 수 없",
             "원인 후보를 판단할 수 없",
             "원인 후보가 없",
             "원인 후보 없음",
@@ -1033,7 +1059,7 @@ def _trend_direction_conflicts(
         if isinstance(summary, dict)
     ]
     normalized_answer = answer.replace(",", "").casefold()
-    conflicts = []
+    conflicts = _monotonic_claim_conflicts(normalized_answer, summaries)
     for summary in summaries:
         raw_value = summary.get("percent_delta")
         if not isinstance(raw_value, (int, float)) or raw_value == 0:
@@ -1061,6 +1087,28 @@ def _trend_direction_conflicts(
                 )
                 break
     return conflicts
+
+
+def _monotonic_claim_conflicts(answer, summaries):
+    conflicts = []
+    # A decimal point belongs to the value, not a sentence boundary. Splitting
+    # 96.11 would detach the process name from the following direction claim.
+    for clause in re.split(r"(?<!\d)\.|\.(?!\d)|[!?\n]+", answer):
+        claim = re.search(r"(?:꾸준히|꾸준한|지속적으로|일관되게|계속|steadily|continuously)\s*(?:증가|상승|감소|하락|increas|decreas)", clause)
+        if not claim:
+            continue
+        suffix = clause[claim.end():]
+        if re.search(r"아니|아닌|아닙|않|못|단정|not|cannot", suffix):
+            continue
+        if re.search(r"초기|일부\s*구간|초반|후반|initial|early", clause):
+            continue  # A local interval needs separate evidence, not a whole-window test.
+        all_series = bool(re.search(r"모든|모두|전\s*공정|all\s+(?:series|processes)", clause))
+        for summary in summaries:
+            series = str(summary.get("series") or "trend")
+            targeted = len(summaries) == 1 or all_series or any(term in clause for term in _trend_series_terms(series))
+            if targeted and summary.get("movement") == "fluctuating":
+                conflicts.append(f"{series} fluctuating observations described as monotonic")
+    return list(dict.fromkeys(conflicts))
 
 
 def _trend_series_terms(series: str) -> tuple[str, ...]:
@@ -1211,7 +1259,7 @@ def _missing_question_facets(question: str, answer: str) -> list[str]:
     ):
         facets.append("trend_or_chart")
     impact_terms = ("영향", "영향도", "impact")
-    impact_answer_terms = (*impact_terms, "계산", "변화", "capacity", "생산능력")
+    impact_answer_terms = (*impact_terms, "계산", "변화", "capacity", "생산능력", "추정", "민감도", "산출")
     if any(term in question_lower for term in impact_terms) and not any(
         term in answer_lower for term in impact_answer_terms
     ):
@@ -1470,9 +1518,16 @@ _METRIC_ALIASES = {
     "Down": ("down", "다운", "비가동"),
     "PM": ("pm", "예방정비", "예방 정비"),
     "Lot completion": ("lot completion", "lotcomps", "lot 완료", "완료 lot"),
-    "Output": ("output", "throughput", "생산량", "산출량"),
+    "Output": ("output", "throughput", "생산량", "산출량", "처리량"),
     "Capacity": ("capacity", "캐파", "생산능력", "생산 능력"),
+    "Yield": ("yield", "수율"),
 }
+
+
+def _has_metric_alias(text: str, alias: str) -> bool:
+    if alias == "가동률":
+        return bool(re.search(r"(?<!비)가동률", text))
+    return alias.casefold() in text.casefold()
 
 
 def _missing_question_metrics(question: str, answer: str) -> list[str]:
@@ -1480,21 +1535,24 @@ def _missing_question_metrics(question: str, answer: str) -> list[str]:
     answer_lower = answer.casefold()
     missing = []
     for metric, aliases in _METRIC_ALIASES.items():
-        if any(alias in question_lower for alias in aliases) and not any(
-            alias in answer_lower for alias in aliases
+        if any(_has_metric_alias(question_lower, alias) for alias in aliases) and not any(
+            _has_metric_alias(answer_lower, alias) for alias in aliases
         ):
             missing.append(metric)
     return missing
 
 
 _METRIC_COLUMNS = {
-    "WIP": ("wiplotavg", "wiplotcur"),
-    "Cycle Time": ("cycleavg",),
+    "WIP": ("wiplotavg", "wiplotcur", "wip_lots"),
+    "Queue Time": ("avg_queue_minutes",),
+    "Cycle Time": ("cycleavg", "avg_cycle_hours"),
     "Ontime": ("ontime_percent",),
-    "Utilization": ("util_percent",),
-    "Down": ("down_percent",),
-    "PM": ("pm_percent",),
-    "Lot completion": ("lotcomps",),
+    "Utilization": ("util_percent", "utilization_percent"),
+    "Down": ("down_percent", "down_minutes"),
+    "PM": ("pm_percent", "pm_minutes"),
+    "Lot completion": ("lotcomps", "lot_completions"),
+    "Output": ("lotcomps", "lot_completions"),
+    "Yield": ("yield_percent",),
 }
 
 
@@ -1503,7 +1561,7 @@ def _requested_metric_groups(question: str) -> dict[str, tuple[str, ...]]:
     return {
         metric: columns
         for metric, columns in _METRIC_COLUMNS.items()
-        if any(alias in lowered for alias in _METRIC_ALIASES[metric])
+        if any(_has_metric_alias(lowered, alias) for alias in _METRIC_ALIASES[metric])
     }
 
 
@@ -1680,7 +1738,7 @@ def _missing_requested_trend_series_values(
             if not matching:
                 continue
             metric_mentioned = any(
-                alias.casefold() in target_text for alias in _METRIC_ALIASES[metric]
+                _has_metric_alias(target_text, alias) for alias in _METRIC_ALIASES[metric]
             )
             values = [
                 value
@@ -1716,7 +1774,8 @@ def _missing_comparison_period_values(
     if not groups or len(rows) < 2:
         return []
 
-    answer_segments = [segment for segment in re.split(r"[.\n]", answer) if segment.strip()]
+    answer_segments = [segment for segment in re.split(r"(?<=[.!?])\s+|\n+", answer) if segment.strip()]
+    structured_values = _comparison_display_values(answer, rows, groups)
     missing = []
     for row in rows:
         label = str(row["comparison_period"])
@@ -1726,15 +1785,78 @@ def _missing_comparison_period_values(
             for segment in answer_segments
             if dates and all(value in segment for value in dates)
         ]
-        if not matching_segments:
+        if not matching_segments and not structured_values.get(id(row)):
             missing.append(label)
             continue
-        period_text = "\n".join(matching_segments)
+        period_text = "\n".join([*matching_segments, *structured_values.get(id(row), [])])
         for metric, columns in groups.items():
             values = [row[column] for column in columns if row.get(column) is not None]
             if values and not any(_value_appears_in_text(value, period_text) for value in values):
                 missing.append(f"{label} {metric}")
     return missing
+
+
+def _comparison_display_values(answer, rows, groups):
+    """Bind pivot cells/ordered arrows to their actual periods and area targets.
+
+    A value elsewhere in the answer cannot satisfy a missing period. Complex
+    multi-metric layouts continue to require explicit per-period descriptions.
+    """
+    if len(groups) != 1:
+        return {}
+    labels = list(dict.fromkeys(str(row["comparison_period"]) for row in rows))
+    if len(labels) != 2:
+        return {}
+    dates = {label:re.findall(r"\d{4}-\d{2}-\d{2}", label) for label in labels}
+    positions = {}
+    aliases = {label:[] for label in labels}
+    for label in labels:
+        if len(dates[label]) != 2:
+            return {}
+        pattern = re.escape(dates[label][0]) + r"\s*(?:~|부터|–|—|\s-\s)\s*" + re.escape(dates[label][1])
+        match = re.search(pattern, answer)
+        if match:
+            positions[label] = match.start()
+        for alias in ("지난주", "이번주", "어제", "오늘", "이전 기간", "이후 기간"):
+            if re.search(re.escape(alias) + r"[^\n]{0,20}" + pattern, answer):
+                aliases[label].append(alias)
+    bound = {id(row):[] for row in rows}
+    target_key = next((key for key in ("area", "part", "stn", "stngrp") if all(row.get(key) is not None for row in rows)), None)
+
+    def contains_target(text, row):
+        if target_key is None:
+            return True
+        target = str(row[target_key]).casefold()
+        return bool(re.search(r"(?<![a-z0-9_])" + re.escape(target) + r"(?![a-z0-9_])", text.casefold()))
+
+    header = None
+    indices = {}
+    for line in answer.splitlines():
+        if not line.strip().startswith("|"):
+            header = None
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if all(re.fullmatch(r"[: -]+", cell) for cell in cells):
+            continue
+        if header is None:
+            header = cells
+            indices = {label:[i for i, cell in enumerate(cells) if all(d in cell for d in dates[label]) or any(a in cell for a in aliases[label])]
+                       for label in labels}
+            continue
+        for row in rows:
+            candidates = indices.get(str(row["comparison_period"]), [])
+            if len(candidates) == 1 and candidates[0] < len(cells) and contains_target(" ".join(cells), row):
+                bound[id(row)].append(cells[candidates[0]])
+    if len(positions) == 2:
+        ordered = sorted(labels, key=positions.get)
+        number = r"[+-]?\d+(?:,\d{3})*(?:\.\d+)?"
+        for line in answer.splitlines():
+            match = re.search(rf"({number})\s*(?:%|분|lots?)?\s*(?:→|->)\s*({number})", line, re.IGNORECASE)
+            if match:
+                for row in rows:
+                    if contains_target(line, row):
+                        bound[id(row)].append(match.group(ordered.index(str(row["comparison_period"])) + 1))
+    return bound
 
 
 def _trend_summary_matches_target_metric(
@@ -1767,12 +1889,39 @@ def _without_grounded_sql(answer: str, evidence: list[dict[str, Any]]) -> str:
     return answer
 
 
+def _without_grounded_result_counts(answer: str, evidence: list[dict[str, Any]]) -> str:
+    """Remove proven cardinality claims, without licensing that number as a metric."""
+    row_counts, area_counts = set(), set()
+    for item in evidence:
+        metadata = item.get("metadata", {})
+        if item.get("source_type") != "text2sql_plan" or metadata.get("status") != "succeeded":
+            continue
+        count = metadata.get("row_count")
+        if isinstance(count, int) and count >= 0:
+            row_counts.add(count)
+        distinct_areas = metadata.get("result_cardinality", {}).get("distinct_area_count")
+        if isinstance(distinct_areas, int) and distinct_areas > 0:
+            area_counts.add(distinct_areas)
+        rows = metadata.get("sample_rows", [])
+        if metadata.get("sample_is_complete") and rows and all(isinstance(row, dict) and row.get("area") for row in rows):
+            area_counts.add(len({row["area"] for row in rows}))
+    for count in row_counts:
+        answer = re.sub(rf"(?<![\d.]){count}\s*(?:개\s*)?(?:(?:조회|관측|집계)\s*)?(?:행|건)(?![a-z0-9])", "조회 결과", answer, flags=re.IGNORECASE)
+        answer = re.sub(rf"(?<![\d.]){count}\s+rows?\b", "result rows", answer, flags=re.IGNORECASE)
+    for count in area_counts:
+        answer = re.sub(rf"(?<![\d.]){count}\s*(?:개\s*)?(?:공정\s*영역|공정|영역)(?![a-z0-9])", "공정 영역", answer, flags=re.IGNORECASE)
+        answer = re.sub(rf"공정\s*\(\s*{count}\s*(?:종|개)\s*\)", "공정", answer)
+        answer = re.sub(rf"(?<![\d.]){count}\s+(?:areas?|process\s+areas?)\b", "process areas", answer, flags=re.IGNORECASE)
+    return answer
+
+
 def _unsupported_status_numeric_claims(
     question: str,
     answer: str,
     evidence: list[dict[str, Any]],
 ) -> list[str]:
     allowed = set(_numeric_claims(question).values())
+    allowed.update(_comparison_numeric_values(evidence))
     for row in _sql_sample_rows(evidence):
         for value in row.values():
             normalized = _numeric_cell(value)
@@ -1780,8 +1929,8 @@ def _unsupported_status_numeric_claims(
                 allowed.add(normalized)
 
     unsupported = []
-    for raw, normalized in _numeric_claims(_without_grounded_sql(answer, evidence)).items():
-        if not _grounded_numeric_claim(raw, normalized, allowed) and raw not in unsupported:
+    for raw, normalized in _numeric_claims(_without_grounded_result_counts(_without_grounded_sql(answer, evidence), evidence)).items():
+        if not _grounded_numeric_claim(raw, normalized, allowed, context=answer) and raw not in unsupported:
             unsupported.append(raw)
     return unsupported
 
@@ -1806,7 +1955,7 @@ def _unsupported_impact_numeric_claims(
 
     unsupported = []
     for raw, normalized in _numeric_claims(_without_grounded_sql(answer, evidence)).items():
-        if not _grounded_numeric_claim(raw, normalized, allowed) and raw not in unsupported:
+        if not _grounded_numeric_claim(raw, normalized, allowed, context=answer) and raw not in unsupported:
             unsupported.append(raw)
     return unsupported
 
@@ -1817,8 +1966,10 @@ def _unsupported_diagnosis_numeric_claims(
     evidence: list[dict[str, Any]],
 ) -> list[str]:
     allowed = set(_numeric_claims(question).values())
+    allowed.update(_comparison_numeric_values(evidence))
     for item in evidence:
         if item.get("source_type") == "text2sql_plan":
+            allowed.update(_numeric_values_from_structure(item.get("metadata", {}).get("metric_summaries", [])))
             for row in item.get("metadata", {}).get("sample_rows", []):
                 if isinstance(row, dict):
                     allowed.update(_numeric_values_from_structure(row))
@@ -1828,7 +1979,7 @@ def _unsupported_diagnosis_numeric_claims(
 
     unsupported = []
     for raw, normalized in _numeric_claims(_without_grounded_sql(answer, evidence)).items():
-        if not _grounded_numeric_claim(raw, normalized, allowed) and raw not in unsupported:
+        if not _grounded_numeric_claim(raw, normalized, allowed, context=answer) and raw not in unsupported:
             unsupported.append(raw)
     return unsupported
 
@@ -1839,8 +1990,13 @@ def _unsupported_trend_numeric_claims(
     evidence: list[dict[str, Any]],
 ) -> list[str]:
     allowed = set(_numeric_claims(question).values())
+    allowed.update(_comparison_numeric_values(evidence))
     for item in evidence:
         if item.get("source_type") == "text2sql_plan":
+            values = _numeric_values_from_structure(item.get("metadata", {}).get("metric_summaries", []))
+            values.update(_numeric_values_from_structure(item.get("metadata", {}).get("fab_comparison", {})))
+            allowed.update(values)
+            allowed.update(abs(value) for value in values)
             for row in item.get("metadata", {}).get("sample_rows", []):
                 if isinstance(row, dict):
                     allowed.update(_numeric_values_from_structure(row))
@@ -1866,20 +2022,46 @@ def _unsupported_trend_numeric_claims(
                             allowed.add(normalized * 100)
 
     unsupported = []
-    for raw, normalized in _numeric_claims(_without_grounded_sql(answer, evidence)).items():
-        if not _grounded_numeric_claim(raw, normalized, allowed) and raw not in unsupported:
+    for raw, normalized in _numeric_claims(_without_grounded_result_counts(_without_grounded_sql(answer, evidence), evidence)).items():
+        if not _grounded_numeric_claim(raw, normalized, allowed, context=answer) and raw not in unsupported:
             unsupported.append(raw)
     return unsupported
 
 
-def _grounded_numeric_claim(raw: str, value: Decimal, allowed: set[Decimal]) -> bool:
+def _comparison_numeric_values(evidence):
+    values = set()
+    for item in evidence:
+        if item.get("source_type") == "text2sql_plan":
+            numbers = _numeric_values_from_structure(item.get("metadata", {}).get("fab_comparison", {}))
+            values.update(numbers)
+            values.update(abs(number) for number in numbers)
+        if item.get("source_type") == "visualization_spec":
+            for summary in item.get("metadata", {}).get("comparison_summary", []):
+                for key in ("baseline_value", "comparison_value", "absolute_delta", "percent_delta"):
+                    value = _numeric_cell(summary.get(key))
+                    if value is not None:
+                        values.add(value)
+                        if key.endswith("delta"):
+                            values.add(abs(value))
+    return values
+
+
+def _grounded_numeric_claim(raw: str, value: Decimal, allowed: set[Decimal], *, context: str = "") -> bool:
     if value in allowed:
         return True
+    # "99%대" explicitly denotes [99, 100), unlike an exact claim of 99%.
+    # Treat this as a numerical interval, not as rounding to an integer.
+    if "." not in raw and re.search(rf"(?<![\d.]){re.escape(raw)}\s*%\s*대", context):
+        return any(observed.is_finite() and value <= observed < value + 1 for observed in allowed)
     # Display rounding is allowed at the precision actually printed, not an
     # arbitrary tolerance that could accept a different measurement or count.
-    if "." not in raw:
+    approximate = bool(re.search(
+        rf"(?:약|대략|대강|대체로|대략적으로|about|approximately)\s*{re.escape(raw)}(?![\d.])",
+        context, flags=re.IGNORECASE,
+    ))
+    if "." not in raw and not approximate:
         return False
-    precision = len(raw.rsplit(".", 1)[1])
+    precision = len(raw.rsplit(".", 1)[1]) if "." in raw else 0
     quantum = Decimal(1).scaleb(-precision)
     for observed in allowed:
         try:
@@ -1933,7 +2115,14 @@ def _numeric_claims(text: str) -> dict[str, Decimal]:
         " ", scrubbed,
     )
     scrubbed = re.sub(r"(?<!\d)\d{4}[-/.]\d{1,2}[-/.]\d{1,2}(?!\d)", " ", scrubbed)
+    scrubbed = re.sub(
+        r"(?<!\d)(?:\d{4}\s*년\s*)?\d{1,2}\s*월\s*\d{1,2}"
+        r"(?:\s*[~–-]\s*\d{1,2}\s*일?|\s*일)", " ", scrubbed,
+    )
     scrubbed = re.sub(r"(?<!\d)\d+\s*차", " ", scrubbed)
+    # Unit definitions and display-precision instructions are not measurements.
+    scrubbed = re.sub(r"하루\s*(?:전체의\s*)?24\s*시간", "하루", scrubbed)
+    scrubbed = re.sub(r"소수점\s*(?:이하\s*)?\d+\s*자리", "표시 정밀도", scrubbed)
     # Markdown list ordinals describe document structure, not measured quantities.
     scrubbed = re.sub(r"(?m)^[ \t]{0,3}\d+[.)][ \t]+(?=\S)", "", scrubbed)
     lines = []
@@ -1945,8 +2134,10 @@ def _numeric_claims(text: str) -> dict[str, Decimal]:
     scrubbed = "\n".join(lines)
     claims: dict[str, Decimal] = {}
     for match in re.finditer(
-        r"(?<![0-9A-Za-z_])[-+]?\d[\d,]*(?:\.\d+)?(?![0-9A-Za-z_])",
+        r"(?<![0-9A-Za-z_])[-+]?\d+(?:,\d{3})*(?:\.\d+)?(?![\d.])"
+        r"(?=(?:%|(?:pp|p|ms|min|minutes?|hours?|h|s|lots?)(?![A-Za-z0-9_])|[^0-9A-Za-z_]|$))",
         scrubbed,
+        flags=re.IGNORECASE,
     ):
         raw = match.group(0)
         try:
@@ -1981,7 +2172,13 @@ def _value_appears_in_text(value: Any, text: str) -> bool:
         return str(value).casefold() in text
     normalized_text = text.replace(",", "")
     candidates = {str(value).replace(",", ""), f"{numeric:g}"}
-    return any(
+    if any(
         re.search(rf"(?<![\d.]){re.escape(candidate)}(?![\d.])", normalized_text)
         for candidate in candidates
+    ):
+        return True
+    observed = _numeric_cell(value)
+    return observed is not None and any(
+        _grounded_numeric_claim(raw, number, {observed}, context=text)
+        for raw, number in _numeric_claims(text).items()
     )

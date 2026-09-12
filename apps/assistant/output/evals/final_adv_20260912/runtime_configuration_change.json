@@ -1,0 +1,6 @@
+{
+  "changed_setting": "RAG_LOCAL_STORE_PATH",
+  "before": "apps/assistant/output/rag/master_pjt.jsonl",
+  "after": "apps/assistant/output/rag/master_pjt_final_adv.jsonl",
+  "original_corpus_preserved": true
+}

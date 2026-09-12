@@ -32,9 +32,11 @@ class ChatResponse(BaseModel):
     reasoning_state: list[dict[str, Any]] = Field(default_factory=list)
     evidence: list[Evidence] = Field(default_factory=list)
     sql: str | None = None
+    query_result: dict[str, Any] | None = None
     chart: dict[str, Any] | None = None
     confidence: float | None = None
     limitations: list[str] = Field(default_factory=list)
+    data_sources: list[dict[str, Any]] = Field(default_factory=list)
     citations: list[dict[str, Any]] = Field(default_factory=list)
     grounding: dict[str, Any] = Field(default_factory=dict)
     model_usage: dict[str, Any] = Field(default_factory=dict)

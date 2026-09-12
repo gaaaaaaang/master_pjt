@@ -1,5 +1,8 @@
 # 초기 아키텍처
 
+모델 입력의 공통 근거 계약과 손실 없는 인코딩, 고정 질문 세트의 전후 성능 검증은
+`docs/generalization_performance_20260912.md`에 정리했다.
+
 ```text
 사용자
   -> frontend 채팅 UI

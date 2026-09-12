@@ -156,6 +156,7 @@ def _chunks_for_file(
         if 0 <= last - first <= 20:
             document_fabs = [f"fab{number}" for number in range(first, last + 1)]
     simulation = "simulation" in document_text.casefold() or "시뮬레이션" in document_text
+    reference_summary = "프로젝트 참고 문서" in document_text[:800]
     for page, section, text in units:
         for content in _split_text(text, chunk_target_chars, chunk_overlap_chars):
             metadata = _infer_metadata(path, content)
@@ -168,7 +169,7 @@ def _chunks_for_file(
                     "section_title": section,
                     "document_version": document_hash,
                     "ingestion_version": "structure.v2",
-                    "reliability": "simulation_reference" if simulation else "unverified_reference",
+                    "reliability": "reference_summary" if reference_summary else "simulation_reference" if simulation else "unverified_reference",
                     "playbook_ids": list(dict.fromkeys(re.findall(r"\bPB-[A-Z]+-\d+\b", content))),
                 }
             )

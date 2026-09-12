@@ -17,6 +17,7 @@ from app.agents.prompts import (
 )
 from app.schemas.chat import ChatRequest, Evidence
 from app.sub_agent.reflection import verify_response
+from app.sub_agent.result_delivery import query_result_payload, result_presentation
 
 SupervisorStatus = Literal[
     "succeeded",
@@ -99,6 +100,7 @@ class SupervisorResult:
     evidence: list[Evidence] = field(default_factory=list)
     reasoning_state: list[dict[str, Any]] = field(default_factory=list)
     sql: str | None = None
+    query_result: dict[str, Any] | None = None
     chart: dict[str, Any] | None = None
     confidence: float | None = None
     limitations: list[str] = field(default_factory=list)
@@ -331,6 +333,7 @@ def review_final_answer(
                 "question": question,
                 "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}},
                 "final_answer": answer,
+                "result_presentation": result_presentation(evidence),
                 "evidence": evidence,
                 "limitations": limitations,
                 "deterministic_check": deterministic,
@@ -378,8 +381,26 @@ def review_final_answer(
             issues = []
             correction_applied = True
 
+    correction_source = "model" if correction_applied else None
+    causal_warnings = {
+        "Diagnosis answers must disclose when evidence cannot support any cause candidate.",
+        "Cross-FAB area contributions must not be presented as confirmed causes.",
+        "Diagnosis answer introduces a cause candidate despite an empty supported candidate set.",
+    }
+    if (not approved and deterministic["warnings"] and set(deterministic["warnings"]) <= causal_warnings):
+        from app.agents.llm_nodes import grounded_comparison_answer
+        repair = grounded_comparison_answer(evidence, plan.query_type)
+        if repair:
+            checked = verify_response(repair, evidence=evidence, limitations=limitations,
+                                      query_type=plan.query_type, question=question)
+            if checked["is_supported"]:
+                corrected_answer, correction_check = repair, checked
+                approved, correction_applied, issues = True, True, []
+                correction_source = "verified_comparison_evidence"
+
     return {
         **output,
+        "correction_source": correction_source,
         "approved": approved,
         "original_approved": original_approved,
         "issues": issues,
@@ -403,9 +424,12 @@ class Supervisor:
         from app.agents.graph import build_agent_graph, initial_graph_state
 
         state = initial_graph_state(request, conversation_history=conversation_history)
-        for update in build_agent_graph().stream(state, config={"recursion_limit": 100}, stream_mode="updates"):
-            for patch in update.values():
-                state.update(patch)
+        try:
+            for update in build_agent_graph().stream(state, config={"recursion_limit": 100}, stream_mode="updates"):
+                for patch in update.values():
+                    state.update(patch)
+        finally:
+            state["usage_ledger"].cancel()
 
         plan = state["plan"]
         return SupervisorResult(
@@ -416,6 +440,7 @@ class Supervisor:
             evidence=[Evidence.model_validate(item) for item in state.get("evidence", [])],
             reasoning_state=state.get("reasoning_state", []),
             sql=state.get("sql"),
+            query_result=query_result_payload(state.get("text2sql_result")),
             chart=state.get("chart"),
             confidence=state.get("confidence"),
             limitations=state.get("limitations", []),

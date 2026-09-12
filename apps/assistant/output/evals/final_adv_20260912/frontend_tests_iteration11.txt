@@ -1,0 +1,179 @@
+
+> fab-ai-assistant-web@0.1.0 test
+> node --test tests/*.test.js
+
+TAP version 13
+# Subtest: Markdown tables retain Korean values, escapes, alignment, and following prose
+ok 1 - Markdown tables retain Korean values, escapes, alignment, and following prose
+  ---
+  duration_ms: 0.943583
+  ...
+# Subtest: Malformed table rows are retained as text
+ok 2 - Malformed table rows are retained as text
+  ---
+  duration_ms: 0.112292
+  ...
+# Subtest: Numbered lists preserve starting number and separate bullet lists
+ok 3 - Numbered lists preserve starting number and separate bullet lists
+  ---
+  duration_ms: 0.123792
+  ...
+# Subtest: Code fences and HTML remain literal strings
+ok 4 - Code fences and HTML remain literal strings
+  ---
+  duration_ms: 0.0635
+  ...
+# Subtest: Portable answer retains status, question, evidence, limitations and explicit scope
+ok 5 - Portable answer retains status, question, evidence, limitations and explicit scope
+  ---
+  duration_ms: 0.656333
+  ...
+# Subtest: Report makes absence of evidence explicit
+ok 6 - Report makes absence of evidence explicit
+  ---
+  duration_ms: 0.0605
+  ...
+# Subtest: Portable report uses grounded FAB and process instead of unchanged sidebar defaults
+ok 7 - Portable report uses grounded FAB and process instead of unchanged sidebar defaults
+  ---
+  duration_ms: 0.081792
+  ...
+# Subtest: SQL scope preserves multiple areas and does not resurrect an omitted sidebar filter
+ok 8 - SQL scope preserves multiple areas and does not resurrect an omitted sidebar filter
+  ---
+  duration_ms: 0.400791
+  ...
+# Subtest: Dense axes preserve both endpoints without too many labels
+ok 9 - Dense axes preserve both endpoints without too many labels
+  ---
+  duration_ms: 0.52975
+  ...
+# Subtest: Short axes and labels remain intact
+ok 10 - Short axes and labels remain intact
+  ---
+  duration_ms: 0.142458
+  ...
+# Subtest: Different metric units use independent panels without changing plotted values
+ok 11 - Different metric units use independent panels without changing plotted values
+  ---
+  duration_ms: 0.324041
+  ...
+# Subtest: Area legends remain meaningful within each metric panel
+ok 12 - Area legends remain meaningful within each metric panel
+  ---
+  duration_ms: 0.1085
+  ...
+# Subtest: SSE handles UTF-8 split across bytes and CRLF split across chunks
+ok 13 - SSE handles UTF-8 split across bytes and CRLF split across chunks
+  ---
+  duration_ms: 10.056125
+  ...
+# Subtest: SSE supports multiline data and comments
+ok 14 - SSE supports multiline data and comments
+  ---
+  duration_ms: 0.235917
+  ...
+# Subtest: SSE flushes final event without trailing separator
+ok 15 - SSE flushes final event without trailing separator
+  ---
+  duration_ms: 0.133792
+  ...
+# Subtest: SSE rejects truncated streams instead of showing success
+ok 16 - SSE rejects truncated streams instead of showing success
+  ---
+  duration_ms: 0.239083
+  ...
+# Subtest: SSE surfaces server failure and cancellation
+ok 17 - SSE surfaces server failure and cancellation
+  ---
+  duration_ms: 0.163666
+  ...
+# Subtest: SSE rejects invalid payloads and HTTP errors
+ok 18 - SSE rejects invalid payloads and HTTP errors
+  ---
+  duration_ms: 0.204375
+  ...
+# Subtest: Payload trims explicit context and preserves conversation identity
+ok 19 - Payload trims explicit context and preserves conversation identity
+  ---
+  duration_ms: 0.110792
+  ...
+# Subtest: CSV escapes formula strings, commas, quotes, preserves numeric negatives
+ok 20 - CSV escapes formula strings, commas, quotes, preserves numeric negatives
+  ---
+  duration_ms: 0.099167
+  ...
+# Subtest: Non-success statuses never claim analysis success
+ok 21 - Non-success statuses never claim analysis success
+  ---
+  duration_ms: 0.084666
+  ...
+# Subtest: Retry keeps original scope and conversation despite changed settings
+ok 22 - Retry keeps original scope and conversation despite changed settings
+  ---
+  duration_ms: 0.107458
+  ...
+# Subtest: Restored sessions release interrupted stream and feedback controls
+ok 23 - Restored sessions release interrupted stream and feedback controls
+  ---
+  duration_ms: 0.06075
+  ...
+# Subtest: Data export preserves all query rows instead of the five-row stream preview
+ok 24 - Data export preserves all query rows instead of the five-row stream preview
+  ---
+  duration_ms: 0.088416
+  ...
+# Subtest: Multi-metric chart export uses original wide rows rather than expanded plotting points
+ok 25 - Multi-metric chart export uses original wide rows rather than expanded plotting points
+  ---
+  duration_ms: 0.037042
+  ...
+# Subtest: guide spans the seven planned question types and retains follow-up order
+ok 26 - guide spans the seven planned question types and retains follow-up order
+  ---
+  duration_ms: 0.876375
+  ...
+# Subtest: guide rejects an unknown FAB instead of silently substituting one
+ok 27 - guide rejects an unknown FAB instead of silently substituting one
+  ---
+  duration_ms: 0.1025
+  ...
+# Subtest: Restores active conversation and its draft while discarding orphan drafts
+ok 28 - Restores active conversation and its draft while discarding orphan drafts
+  ---
+  duration_ms: 0.750916
+  ...
+# Subtest: Corrupt storage and missing active ids recover to available conversation
+ok 29 - Corrupt storage and missing active ids recover to available conversation
+  ---
+  duration_ms: 0.091541
+  ...
+# Subtest: Restored drafts respect input length limit
+ok 30 - Restored drafts respect input length limit
+  ---
+  duration_ms: 0.478583
+  ...
+# Subtest: Numeric sorting preserves missing values and source order
+ok 31 - Numeric sorting preserves missing values and source order
+  ---
+  duration_ms: 0.737833
+  ...
+# Subtest: Search is case insensitive and supports Korean and nested values
+ok 32 - Search is case insensitive and supports Korean and nested values
+  ---
+  duration_ms: 0.097875
+  ...
+# Subtest: Text sorting uses numeric-aware collation and does not mutate input
+ok 33 - Text sorting uses numeric-aware collation and does not mutate input
+  ---
+  duration_ms: 0.069458
+  ...
+1..33
+# tests 33
+# suites 0
+# pass 33
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 88.922167

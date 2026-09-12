@@ -7,6 +7,7 @@ from typing import Any
 VERSION = "fab-semantics-v1"
 MODEL_SOURCE = "apps/assistant/src/app/sub_agent/text2sql.py:SCHEMA_CATALOG"
 SIM_SOURCE = "apps/assistant/scripts/insert_fab_live_process_snapshot.py"
+RAW_SIM_SOURCE = "apps/assistant/scripts/simulate_fab_raw_events.py"
 REPORT_SOURCE = "apps/assistant/scripts/load_autosched_postgres_reports.py"
 
 TABLES = {
@@ -23,8 +24,11 @@ TABLES = {
     "autosched_order": ("AutoSched 주문별 WIP와 납기 성과 보고서", ["주문", "납기", "order"], "원본 보고서의 기간/상대기간/주문 행"),
     "autosched_lot": ("AutoSched LOT별 시작/완료/납기 시각과 현재 공정 보고서", ["lot 이력", "lot 완료", "lot 상태"], "원본 보고서의 LOT 행"),
     "autosched_semi": ("AutoSched 주차·제품별 LOT 및 wafer 입출고, 폐기 보고서", ["주차", "wafer", "스크랩", "반제품"], "원본 보고서의 주차/제품 구분 행"),
-    "live_process_snapshots": ("2시간 구간별 공정 영역의 합성 시뮬레이션 WIP·대기·생산량·수율·가동률", ["시뮬레이션", "스냅샷", "simulation", "snapshot", "재공", "대기시간", "수율", "온도", "습도"], "interval_end + fab_id + area당 한 행; toolgroup은 생성된 영역 대표값"),
-    "live_process_events": ("2시간 구간별 합성 설비/LOT 상세 이벤트와 대기·작업·재작업 상태", ["시뮬레이션 이벤트", "상세 이벤트", "equipment event", "lot event", "재작업", "알람"], "interval_end + fab_id + event_id당 한 행; event_kind로 설비/LOT 구분"),
+    "live_process_snapshots": ("관측 구간별 공정 영역의 합성 시뮬레이션 WIP·대기·생산량·수율·가동률", ["시뮬레이션", "스냅샷", "simulation", "snapshot", "재공", "대기시간", "수율", "온도", "습도"], "interval_end + fab_id + area당 한 행; toolgroup은 생성된 영역 대표값"),
+    "live_process_events": ("관측 구간별 합성 설비/LOT 상세 이벤트와 대기·작업·재작업 상태", ["시뮬레이션 이벤트", "상세 이벤트", "equipment event", "lot event", "재작업", "알람"], "interval_end + fab_id + event_id당 한 행; event_kind로 설비/LOT 구분"),
+    "fab_process_raw_events": ("20분 주기 상태 머신이 생성한 FAB raw 공정 이벤트 원장", ["raw event", "원장", "현장 이벤트", "장비 신호", "작업자 보고", "공정 시작", "공정 종료"], "event_id당 한 행; event_time/event_end_time이 실제 합성 발생 시각"),
+    "fab_simulation_state": ("FAB별 상태 머신의 현재 health, WIP, active incident, recovery 상태", ["상태 머신", "simulation state", "회복 진행", "active incident"], "fab_id당 한 행"),
+    "fab_incidents": ("FAB별 장비 고장, 수율 저하, 병목, PM 지연 같은 사건 생명주기", ["incident", "사건", "장비 고장", "병목", "수율 저하", "PM 지연"], "incident_id당 한 행"),
 }
 
 # Values are definitions, not interchangeable metrics. Percentages/averages must
@@ -48,9 +52,19 @@ COLUMNS = {
     "lotcomps": ("보고서의 완료 LOT 수; 기간 범위별 의미를 유지", "lot", "flow_count"),
     "util_percent": ("보고서의 가동률 백분율", "percent", "ratio"),
     "report_time": ("보고서 생성/기준 시각; period와 relative의 집계 기간과 동일하지 않음", None, "time"),
-    "interval_start": ("합성 데이터가 나타내는 2시간 구간의 시작 시각", None, "time"),
-    "interval_end": ("합성 데이터가 나타내는 2시간 구간의 종료 시각", None, "time"),
+    "interval_start": ("합성 관측 구간의 시작 시각; 구간 길이는 종료-시작으로 확인", None, "time"),
+    "interval_end": ("합성 관측 구간의 종료 시각; 15분/2시간 등 구간 길이를 고정 가정하지 않음", None, "time"),
     "inserted_at": ("DB 적재 시각; 공정 발생 시각이 아님", None, "ingestion_time"),
+    "event_time": ("raw 공정 이벤트가 발생한 합성 현장 시각", None, "event_time"),
+    "event_end_time": ("raw 공정 이벤트가 종료된 합성 현장 시각; active 이벤트는 null 가능", None, "event_time"),
+    "created_at": ("DB 또는 시뮬레이터가 행을 생성한 시각; 공정 발생 시각이 아님", None, "ingestion_time"),
+    "process_minutes": ("raw 이벤트의 합성 처리 시간", "minute", "duration"),
+    "hold_minutes": ("raw 이벤트의 합성 hold 시간", "minute", "duration"),
+    "down_minutes": ("raw 이벤트의 합성 설비 down 시간", "minute", "duration"),
+    "pm_minutes": ("raw 이벤트의 합성 PM 소요/초과 시간", "minute", "duration"),
+    "yield_loss_ppm": ("raw 이벤트에 배부된 합성 수율 손실 ppm", "ppm", "flow_count"),
+    "defect_count": ("raw 이벤트에 배부된 합성 defect count", "defect", "flow_count"),
+    "wip_delta": ("raw 이벤트가 구간 WIP에 준 합성 증감", "lot", "flow_count"),
     "start_date": ("모델의 계획 투입 날짜", None, "planned_time"),
     "due_date": ("모델의 계획 납기 날짜", None, "planned_time"),
 }
@@ -60,6 +74,11 @@ SIMULATION_COLUMNS = {
     "queue_minutes", "avg_cycle_hours", "yield_percent", "utilization_percent",
     "temperature_c", "humidity_percent", "bottleneck_score", "interval_start",
     "interval_end", "inserted_at",
+}
+RAW_SIMULATION_COLUMNS = {
+    "event_time", "event_end_time", "created_at", "queue_minutes", "process_minutes",
+    "hold_minutes", "down_minutes", "pm_minutes", "yield_loss_ppm", "defect_count",
+    "wip_delta",
 }
 REPORT_COLUMNS = {"wiplotavg", "wiplotcur", "lotcomps", "util_percent", "report_time"}
 
@@ -80,15 +99,16 @@ def definition(logical: str, columns: list[dict[str, Any]]) -> dict[str, Any]:
                 ["setup matrix", "전환 행렬"], "원본 setup matrix 행; 동적 컬럼 의미 미검토")
     known = info is not None
     info = info or (logical.replace("_", " "), [], "unknown")
-    simulation = logical.startswith("live_process_")
+    raw_simulation = logical in {"fab_process_raw_events", "fab_simulation_state", "fab_incidents"}
+    simulation = logical.startswith("live_process_") or raw_simulation
     report = logical.startswith("autosched_")
-    source = SIM_SOURCE if simulation else REPORT_SOURCE if report else MODEL_SOURCE
+    source = RAW_SIM_SOURCE if raw_simulation else SIM_SOURCE if simulation else REPORT_SOURCE if report else MODEL_SOURCE
     metrics = []
     descriptions = {}
     applicable = set()
     if known:
         if simulation:
-            applicable = SIMULATION_COLUMNS
+            applicable = RAW_SIMULATION_COLUMNS if raw_simulation else SIMULATION_COLUMNS
         elif report:
             applicable = REPORT_COLUMNS
         elif logical == "toolgroups":
@@ -128,6 +148,9 @@ def definition(logical: str, columns: list[dict[str, Any]]) -> dict[str, Any]:
         notes += ["실제 공장 측정값이 아니라 생성된 시뮬레이션이다.",
                   "area 값은 photo/etch 등 생성기 용어이며 Dry_Etch 등의 모델 area와 동일 키가 아니다.",
                   "합성 toolgroup/equipment_id를 model toolgroups와 이름 유사성만으로 JOIN하지 않는다."]
+        if raw_simulation:
+            notes += ["raw event가 원장이다. snapshot/projection은 이 테이블에서 재생성 가능한 파생 데이터로 취급한다.",
+                      "created_at이 아니라 event_time을 공정 발생 시각으로 사용한다."]
     elif report:
         notes += ["AutoSched 시뮬레이션 보고서이며 실시간 운영 측정값이 아니다.",
                   "WarmUp은 일반 성능 집계에서 제외한다. period/relative가 다른 행의 중복 집계를 피한다."]
@@ -137,7 +160,8 @@ def definition(logical: str, columns: list[dict[str, Any]]) -> dict[str, Any]:
             "relationships": relationships,
             "semantics": {"version": VERSION, "managed_by": "code", "review_status": "code_grounded" if known else "unreviewed",
                           "source": source if known else None, "grain": info[2],
-                          "default_time_column": "interval_end" if simulation and "interval_end" in names else
+                          "default_time_column": "event_time" if raw_simulation and "event_time" in names else
+                                                 "interval_end" if simulation and "interval_end" in names else
                                                  "report_time" if report and "report_time" in names else None,
                           "column_meanings": descriptions, "notes": notes,
                           "trust_weight": 2 if known else 1}}

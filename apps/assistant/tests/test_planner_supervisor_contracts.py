@@ -4,6 +4,19 @@ import pytest
 from app.agents.execution import build_handoff
 from app.agents.graph import build_agent_graph, initial_graph_state
 from app.agents.intent import analyze_request, enrich_analysis
+
+
+def test_verbatim_spans_cannot_retype_fab_or_process_as_lines_or_routes():
+    analysis = analyze_request("FAB12 etch 최근 24시간 WIP 추세")
+    enriched = enrich_analysis(analysis, [
+        {"name":"line", "value":"fab12", "raw_text":"FAB12"},
+        {"name":"route", "value":"etch", "raw_text":"etch"},
+        {"name":"date_basis", "value":"recent 24시간", "raw_text":"최근 24시간"},
+    ])
+    assert "line" not in enriched.slots
+    assert "route" not in enriched.slots
+    assert "date_basis" not in enriched.slots
+    assert enriched.slots["fab_id"].value == "fab12"
 from app.agents.planner import create_plan
 from app.agents.supervisor import review_agent_result, review_plan
 from app.schemas.chat import ChatRequest, Evidence
@@ -28,6 +41,36 @@ class Recorded:
 
 def plan_for(question, **kwargs):
     return create_plan(question, llm_client=Offline(), **kwargs)
+
+
+@pytest.mark.parametrize("question", [
+    "FAB11 etch 공정 Queue Time이 길어졌을 때 운영자가 어떤 순서로 점검하고 대응하면 좋을지 문서 근거로 알려줘",
+    "FAB12 현재 WIP이 많을 때 점검 순서를 알려줘",
+    "FAB13 장비 고장 대응 절차를 설명해줘",
+    "Queue Time 초과 lot은 어떻게 조치해야 해?",
+])
+def test_model_outage_procedure_request_still_requires_incident_documents(question):
+    plan = plan_for(question)
+    assert plan.query_type == "knowledge_lookup"
+    assert plan.selected_sub_agents == ["rag"]
+    assert plan.rag_knowledge_base == "incident_playbook"
+    assert "knowledge" in plan.intent_analysis.requested_outcomes
+
+
+def test_model_outage_procedure_words_do_not_replace_an_actual_diagnosis_request():
+    plan = plan_for("FAB11 etch 대기 시간 증가 원인과 점검 순서를 문서 근거로 알려줘")
+    assert plan.query_type == "diagnosis"
+    assert set(plan.selected_sub_agents) >= {"text2sql", "rag", "case_search"}
+
+
+def test_possessive_process_word_is_not_a_request_for_a_definition():
+    plan = plan_for("같은 공정의 WIP도 알려줘", fab="fab12", process="etch")
+    assert plan.query_type == "status"
+    assert plan.selected_sub_agents == ["text2sql"]
+    assert "knowledge" not in plan.intent_analysis.requested_outcomes
+    definition = plan_for("WIP의 정의를 알려줘")
+    assert definition.query_type == "knowledge_lookup"
+    assert "knowledge" in definition.intent_analysis.requested_outcomes
 
 
 @pytest.mark.parametrize(
@@ -69,7 +112,6 @@ def test_planner_extracts_grounded_scope(question, context, expected):
 @pytest.mark.parametrize(
     "question,slot",
     [
-        ("fab10과 fab12 WIP 비교해줘", "single_fab_scope"),
         ("FAB99 WIP 알려줘", "supported_fab"),
         ("WIP 현재 몇 개야?", "fab_id"),
     ],
@@ -110,9 +152,48 @@ def test_semantic_extraction_requires_user_text_and_preserves_parser_facts():
             {"name": "fab_id", "value": "fab13", "raw_text": "fab10"},
         ],
     )
-    assert enriched.slots["metric"].value == "yield"
+    assert enriched.slots["metric"].value == "yield_percent"
+    assert enriched.slots["metric"].source == "alias_match"
     assert "equipment" not in enriched.slots
     assert enriched.slots["fab_id"].value == "fab10"
+
+
+def test_simulation_area_literal_is_not_rewritten_to_model_process():
+    analysis = analyze_request("FAB13 합성 시뮬레이션의 etch 영역 대기시간 추이를 보여줘")
+    enriched = enrich_analysis(
+        analysis,
+        [{"name": "process", "value": "Dry_Etch", "raw_text": "etch"}],
+    )
+    assert enriched.slots["area"].value == "etch"
+    assert enriched.slots["process"].value == "etch"
+
+
+def test_create_plan_preserves_simulation_area_when_llm_generalizes_process():
+    llm_plan = {
+        "status": "ready",
+        "query_type": "diagnosis",
+        "intent": "analyze simulation etch queue trend",
+        "fab_id": "fab13",
+        "rag_knowledge_base": "incident_playbook",
+        "extracted_slots": [
+            {"name": "process", "value": "Dry_Etch", "raw_text": "etch"},
+        ],
+        "success_criteria": ["etch simulation queue trend is queried"],
+        "selected_sub_agents": ["text2sql", "rag", "case_search", "visualization"],
+        "execution_steps": [],
+        "missing_slots": [],
+        "clarification_question": None,
+        "limitations": [],
+    }
+
+    plan = create_plan(
+        "FAB13 합성 시뮬레이션의 etch 영역 대기시간 증가 원인을 분석해줘",
+        llm_client=Recorded(llm_plan),
+    )
+
+    assert plan.status == "ready"
+    assert plan.slots["area"].value == "etch"
+    assert plan.slots["process"].value == "etch"
 
 
 def test_supervisor_veto_cannot_execute_ready_plan():

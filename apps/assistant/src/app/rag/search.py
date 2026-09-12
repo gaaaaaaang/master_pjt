@@ -179,6 +179,11 @@ def search(
     }
     if top_k <= 0 or not query.strip():
         return SearchResult([], trace)
+    # Unrelated knowledge bases/FABs must not change BM25 statistics or rankings.
+    # Apply serving scope before building the index, not just while scoring rows.
+    scoped = [chunk for chunk in chunks if eligible(chunk, plan)]
+    trace["scope_filtered_count"] = len(chunks) - len(scoped)
+    chunks = scoped
     # Apply serving eligibility before bounded candidate selection, so rejected
     # issues cannot consume the slots needed by relevant lower-ranked documents.
     if candidate_filter:

@@ -1,0 +1,69 @@
+{
+  "mode": "local_composite_context_replay",
+  "checks": [
+    {
+      "id": "h1_status",
+      "equal": true,
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 15623,
+      "context_sent_bytes": 11275,
+      "context_shared_objects": 6
+    },
+    {
+      "id": "h2_followup",
+      "equal": true,
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 17025,
+      "context_sent_bytes": 12327,
+      "context_shared_objects": 7
+    },
+    {
+      "id": "h3_switch",
+      "equal": true,
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 19211,
+      "context_sent_bytes": 14097,
+      "context_shared_objects": 7
+    },
+    {
+      "id": "h4_trend",
+      "equal": true,
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 61358,
+      "context_sent_bytes": 27778,
+      "context_shared_objects": 26
+    },
+    {
+      "id": "h5_comparison",
+      "equal": true,
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 34288,
+      "context_sent_bytes": 19444,
+      "context_shared_objects": 18
+    },
+    {
+      "id": "h6_diagnosis",
+      "equal": true,
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 59740,
+      "context_sent_bytes": 34064,
+      "context_shared_objects": 21
+    },
+    {
+      "id": "h7_impact",
+      "equal": true,
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 33258,
+      "context_sent_bytes": 17858,
+      "context_shared_objects": 16
+    },
+    {
+      "id": "h8_knowledge",
+      "equal": true,
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 20229,
+      "context_sent_bytes": 18518,
+      "context_shared_objects": 3
+    }
+  ]
+}

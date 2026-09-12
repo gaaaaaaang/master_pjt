@@ -1,0 +1,359 @@
+{
+  "passed": 30,
+  "values_passed": 30,
+  "total": 30,
+  "results": [
+    {
+      "id": "fab12_week_compare",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 12,
+      "actual_rows": 12,
+      "errors": []
+    },
+    {
+      "id": "fab11_yesterday",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 6,
+      "actual_rows": 6,
+      "errors": []
+    },
+    {
+      "id": "fab10_status",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab10_area_status",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab10_trend",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": []
+    },
+    {
+      "id": "fab10_diagnosis",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 8,
+      "actual_rows": 8,
+      "errors": []
+    },
+    {
+      "id": "fab10_impact",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab10_master",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 12,
+      "actual_rows": 12,
+      "errors": []
+    },
+    {
+      "id": "fab11_status",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab11_area_status",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab11_trend",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": []
+    },
+    {
+      "id": "fab11_diagnosis",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 8,
+      "actual_rows": 8,
+      "errors": []
+    },
+    {
+      "id": "fab11_impact",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab11_master",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": []
+    },
+    {
+      "id": "fab12_status",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab12_area_status",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab12_trend",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": []
+    },
+    {
+      "id": "fab12_diagnosis",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 8,
+      "actual_rows": 8,
+      "errors": []
+    },
+    {
+      "id": "fab12_impact",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab12_master",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": []
+    },
+    {
+      "id": "fab13_status",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab13_area_status",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab13_trend",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": []
+    },
+    {
+      "id": "fab13_diagnosis",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 8,
+      "actual_rows": 8,
+      "errors": []
+    },
+    {
+      "id": "fab13_impact",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab13_master",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": []
+    },
+    {
+      "id": "fab13_area_compare",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 2,
+      "actual_rows": 2,
+      "errors": []
+    },
+    {
+      "id": "fab12_korean_area",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 1,
+      "actual_rows": 1,
+      "errors": []
+    },
+    {
+      "id": "fab13_rank",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 3,
+      "actual_rows": 3,
+      "errors": []
+    },
+    {
+      "id": "fab11_multi_metric",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 25,
+      "actual_rows": 25,
+      "errors": []
+    }
+  ],
+  "skipped": [
+    {
+      "id": "fab11_knowledge",
+      "reason": "Not a numeric SQL result; assess source/status separately."
+    },
+    {
+      "id": "fab11_action",
+      "reason": "Not a numeric SQL result; assess source/status separately."
+    },
+    {
+      "id": "fab11_unknown_scope",
+      "reason": "Not a numeric SQL result; assess source/status separately."
+    },
+    {
+      "id": "fab12_unknown_granularity",
+      "reason": "Not a numeric SQL result; assess source/status separately."
+    }
+  ],
+  "impact_calculations": {
+    "passed": 4,
+    "total": 4,
+    "results": [
+      {
+        "id": "fab10_impact",
+        "passed": true,
+        "errors": [],
+        "expected": {
+          "baseline_util_percent": "80.09",
+          "projected_util_percent": "75.09",
+          "capacity_delta_percent": "-6.242976651267324260207266820",
+          "estimated_capacity_change_percent": "-6.242976651267324260207266820",
+          "estimated_lotcomps_delta": "-0.1872892995380197278062180046",
+          "projected_lotcomps": "2.812710700461980272193781995"
+        },
+        "actual": {
+          "baseline_util_percent": 80.09,
+          "projected_util_percent": 75.09,
+          "capacity_delta_percent": -6.243,
+          "estimated_capacity_change_percent": -6.243,
+          "estimated_lotcomps_delta": -0.1873,
+          "projected_lotcomps": 2.8127
+        }
+      },
+      {
+        "id": "fab11_impact",
+        "passed": true,
+        "errors": [],
+        "expected": {
+          "baseline_util_percent": "80.32",
+          "projected_util_percent": "75.32",
+          "capacity_delta_percent": "-6.225099601593625498007968130",
+          "estimated_capacity_change_percent": "-6.225099601593625498007968130",
+          "estimated_lotcomps_delta": "-0.1245019920318725099601593626",
+          "projected_lotcomps": "1.875498007968127490039840637"
+        },
+        "actual": {
+          "baseline_util_percent": 80.32,
+          "projected_util_percent": 75.32,
+          "capacity_delta_percent": -6.2251,
+          "estimated_capacity_change_percent": -6.2251,
+          "estimated_lotcomps_delta": -0.1245,
+          "projected_lotcomps": 1.8755
+        }
+      },
+      {
+        "id": "fab12_impact",
+        "passed": true,
+        "errors": [],
+        "expected": {
+          "baseline_util_percent": "79.58",
+          "projected_util_percent": "74.58",
+          "capacity_delta_percent": "-6.282985674792661472731842170",
+          "estimated_capacity_change_percent": "-6.282985674792661472731842170",
+          "estimated_lotcomps_delta": "-0.3769791404875596883639105302",
+          "projected_lotcomps": "5.623020859512440311636089470"
+        },
+        "actual": {
+          "baseline_util_percent": 79.58,
+          "projected_util_percent": 74.58,
+          "capacity_delta_percent": -6.283,
+          "estimated_capacity_change_percent": -6.283,
+          "estimated_lotcomps_delta": -0.377,
+          "projected_lotcomps": 5.623
+        }
+      },
+      {
+        "id": "fab13_impact",
+        "passed": true,
+        "errors": [],
+        "expected": {
+          "baseline_util_percent": "78.63",
+          "projected_util_percent": "73.63",
+          "capacity_delta_percent": "-6.358896095637797278392471070",
+          "estimated_capacity_change_percent": "-6.358896095637797278392471070",
+          "estimated_lotcomps_delta": "-0.3815337657382678367035482642",
+          "projected_lotcomps": "5.618466234261732163296451736"
+        },
+        "actual": {
+          "baseline_util_percent": 78.63,
+          "projected_util_percent": 73.63,
+          "capacity_delta_percent": -6.3589,
+          "estimated_capacity_change_percent": -6.3589,
+          "estimated_lotcomps_delta": -0.3815,
+          "projected_lotcomps": 5.6185
+        }
+      }
+    ],
+    "scope": "Arithmetic under the declared utilization-proportional capacity assumption; not an empirical causal-model validation."
+  },
+  "raw_sha256": "0a22b7defa8e6629f1b0a3c374ec2f4836aaa64487d353afdf79c8f3ad50d26f",
+  "report_sha256": "1b808cd9adb25863662e377eef09fee8c205ec622442df95af17a501fef35716",
+  "raw_file": "apps/assistant/output/evals/final_adv_20260912/reference_raw.json"
+}

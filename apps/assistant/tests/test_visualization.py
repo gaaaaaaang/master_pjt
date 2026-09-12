@@ -1,6 +1,37 @@
 from app.sub_agent.visualization import build_chart_spec
 
 
+def test_comparison_differences_are_calculated_from_named_operands():
+    chart = build_chart_spec("period WIP", [
+        {"period":"last", "area":"etch", "wip_lots":"239.1"},
+        {"period":"this", "area":"etch", "wip_lots":"54.2"},
+    ], intent={"type":"grouped_bar", "x":"period", "y":"wip_lots", "series":"area"})
+    summary = chart["comparison_summary"][0]
+    assert summary["baseline_label"] == "last" and summary["comparison_label"] == "this"
+    assert summary["series"] == "etch" and summary["absolute_delta"] == -184.9
+    assert summary["delta_unit"] == "same_as_metric"
+
+
+def test_yield_comparison_distinguishes_percentage_points_and_relative_percent():
+    chart = build_chart_spec("yield", [{"area":"etch","yield_percent":80}, {"area":"photo","yield_percent":84}],
+                             intent={"type":"grouped_bar", "x":"area", "y":"yield_percent"})
+    summary = chart["comparison_summary"][0]
+    assert summary["absolute_delta"] == 4 and summary["percent_delta"] == 5
+    assert summary["delta_unit"] == "percentage_points"
+
+
+def test_endpoint_increase_does_not_imply_monotonic_increase():
+    chart = build_chart_spec("Yield", [
+        {"day":"2026-09-10", "yield":96.2},
+        {"day":"2026-09-11", "yield":95.9},
+        {"day":"2026-09-12", "yield":96.5},
+    ], intent={"type":"line", "x":"day", "y":"yield", "y_zero":False})
+    assert chart["trend_summary"][0]["absolute_delta"] == 0.3
+    assert chart["trend_summary"][0]["movement"] == "fluctuating"
+    assert chart["encoding"]["y"]["domain"] == [95.9,96.5]
+    assert chart["observation_basis"]["coverage_scope"] == "returned_axis_points_only"
+
+
 def test_line_chart_uses_query_plan_encoding() -> None:
     rows = [{"release_date": "2018-01-01", "lot_count": 3}]
 
@@ -197,6 +228,7 @@ def test_line_chart_orders_iso_temporal_rows_ascending() -> None:
             "start_value": 10,
             "end_value": 13,
             "absolute_delta": 3,
+            "movement": "increasing",
             "percent_delta": 30,
         }
     ]
@@ -224,6 +256,7 @@ def test_multi_metric_line_chart_summarizes_each_metric() -> None:
             "start_value": 10,
             "end_value": 12,
             "absolute_delta": 2,
+            "movement": "increasing",
             "percent_delta": 20,
         },
         {
@@ -233,6 +266,7 @@ def test_multi_metric_line_chart_summarizes_each_metric() -> None:
             "start_value": 90,
             "end_value": 88,
             "absolute_delta": -2,
+            "movement": "decreasing",
             "percent_delta": -2.2222,
         },
     ]

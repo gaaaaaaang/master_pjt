@@ -1,0 +1,333 @@
+[
+  {
+    "id": "area_status",
+    "question": "FAB11 etch 공정의 현재 WIP을 알려줘",
+    "fab": "fab11",
+    "rows": 1,
+    "areas": [
+      "etch"
+    ]
+  },
+  {
+    "id": "area_impact",
+    "question": "그 공정 가동률이 5%p 떨어지면 처리량에 얼마나 영향이 있어?",
+    "fab": "fab11",
+    "rows": 1,
+    "areas": [
+      "etch"
+    ],
+    "kind": "impact"
+  },
+  {
+    "id": "widen_and_switch",
+    "question": "FAB12 최근 7일 공정별 수율 추세를 그래프로 보여줘",
+    "fab": "fab12",
+    "rows": 42,
+    "areas": [
+      "cmp",
+      "deposition",
+      "etch",
+      "implant",
+      "metrology",
+      "photo"
+    ],
+    "kind": "trend"
+  },
+  {
+    "id": "period_rank",
+    "question": "그 기간 평균 수율이 가장 낮은 공정을 알려줘",
+    "fab": "fab12",
+    "rows": 1,
+    "inherits_period": true
+  },
+  {
+    "id": "switch_to_now",
+    "question": "그럼 지금 공정별 WIP 상위 3개를 보여줘",
+    "fab": "fab12",
+    "rows": 3,
+    "latest": true
+  },
+  {
+    "id": "whole_fab",
+    "question": "FAB13 전체 WIP은 몇 개야?",
+    "fab": "fab13",
+    "rows": 1,
+    "wip": 159
+  },
+  {
+    "id": "compare_areas",
+    "question": "같은 FAB에서 etch와 photo의 현재 수율을 비교해줘",
+    "fab": "fab13",
+    "rows": 2,
+    "areas": [
+      "etch",
+      "photo"
+    ]
+  },
+  {
+    "id": "multi_area_followup",
+    "question": "그 두 공정 WIP도 보여줘",
+    "fab": "fab13",
+    "rows": 2,
+    "areas": [
+      "etch",
+      "photo"
+    ]
+  },
+  {
+    "id": "multi_area_rank",
+    "question": "그중 수율이 가장 낮은 공정은?",
+    "fab": "fab13",
+    "rows": 1
+  },
+  {
+    "id": "reset_whole_fab",
+    "question": "FAB11 전체 현재 WIP",
+    "fab": "fab11",
+    "rows": 1,
+    "wip": 188
+  },
+  {
+    "id": "whole_fab_followup",
+    "question": "그럼 수율은?",
+    "fab": "fab11",
+    "rows": 1
+  },
+  {
+    "id": "maintenance_period",
+    "question": "FAB13 최근 3일 정비 시간 합계",
+    "fab": "fab13",
+    "rows": 1
+  },
+  {
+    "id": "completion_period_mean",
+    "question": "그 기간 완료 LOT 평균은?",
+    "fab": "fab13",
+    "rows": 1,
+    "inherits_period": true
+  },
+  {
+    "id": "multi_metric_status",
+    "question": "FAB12 etch 현재 수율과 가동률을 알려줘",
+    "fab": "fab12",
+    "rows": 1,
+    "areas": [
+      "etch"
+    ],
+    "metrics": [
+      "yield_percent",
+      "utilization_percent"
+    ]
+  },
+  {
+    "id": "multi_metric_trend",
+    "question": "그 두 지표 최근 24시간 추세도 보여줘",
+    "fab": "fab12",
+    "rows": 25,
+    "areas": [
+      "etch"
+    ],
+    "metrics": [
+      "yield_percent",
+      "utilization_percent"
+    ],
+    "kind": "trend"
+  },
+  {
+    "id": "multi_metric_now",
+    "question": "그럼 현재 값도 알려줘",
+    "fab": "fab12",
+    "rows": 1,
+    "areas": [
+      "etch"
+    ],
+    "metrics": [
+      "yield_percent",
+      "utilization_percent"
+    ],
+    "latest": true
+  },
+  {
+    "id": "ambiguous_multi_metric_rank",
+    "question": "그중 가장 높은 공정을 알려줘",
+    "fab": "fab12",
+    "expected_status": "needs_clarification",
+    "answer_contains": "지표"
+  },
+  {
+    "id": "narrow_to_wip",
+    "question": "그럼 현재 WIP만 알려줘",
+    "fab": "fab12",
+    "rows": 1,
+    "areas": [
+      "etch"
+    ],
+    "metrics": [
+      "wip_lots"
+    ],
+    "latest": true
+  },
+  {
+    "id": "ranked_result",
+    "question": "FAB13 현재 공정별 WIP 상위 1개를 보여줘",
+    "fab": "fab13",
+    "request_fab": "fab11",
+    "rows": 1,
+    "areas": [
+      "photo"
+    ],
+    "metrics": [
+      "wip_lots"
+    ]
+  },
+  {
+    "id": "reference_ranked_process",
+    "question": "그 공정의 현재 가동률은?",
+    "fab": "fab13",
+    "request_fab": "fab11",
+    "rows": 1,
+    "areas": [
+      "photo"
+    ],
+    "metrics": [
+      "utilization_percent"
+    ]
+  },
+  {
+    "id": "rank_two_processes",
+    "question": "FAB13 전체 공정별 현재 WIP 상위 2개",
+    "fab": "fab13",
+    "request_fab": "fab11",
+    "rows": 2,
+    "areas": [
+      "photo",
+      "cmp"
+    ],
+    "metrics": [
+      "wip_lots"
+    ]
+  },
+  {
+    "id": "ambiguous_process_reference",
+    "question": "그 공정의 수율은?",
+    "fab": "fab13",
+    "request_fab": "fab11",
+    "expected_status": "needs_clarification",
+    "answer_contains": "공정"
+  },
+  {
+    "id": "reference_both_ranked_processes",
+    "question": "그 두 공정의 현재 수율을 알려줘",
+    "fab": "fab13",
+    "request_fab": "fab11",
+    "rows": 2,
+    "areas": [
+      "photo",
+      "cmp"
+    ],
+    "metrics": [
+      "yield_percent"
+    ]
+  },
+  {
+    "id": "new_sidebar_fab",
+    "question": "전체 공정별 현재 WIP 현황",
+    "fab": "fab12",
+    "request_fab": "fab12",
+    "rows": 6,
+    "areas": [
+      "cmp",
+      "deposition",
+      "etch",
+      "implant",
+      "metrology",
+      "photo"
+    ],
+    "metrics": [
+      "wip_lots"
+    ]
+  },
+  {
+    "id": "mixed_flow_initial",
+    "question": "FAB12 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계",
+    "fab": "fab12",
+    "rows": 6,
+    "areas": [
+      "cmp",
+      "deposition",
+      "etch",
+      "implant",
+      "metrology",
+      "photo"
+    ],
+    "metrics": [
+      "lot_completions",
+      "pm_minutes"
+    ],
+    "value_contract": {
+      "kind": "period_mixed",
+      "areas": "all",
+      "aggregations": {
+        "lot_completions": "mean",
+        "pm_minutes": "sum"
+      },
+      "days": 3
+    }
+  },
+  {
+    "id": "mixed_flow_followup",
+    "question": "그 두 지표 이번주도 보여줘",
+    "fab": "fab12",
+    "rows": 6,
+    "areas": [
+      "cmp",
+      "deposition",
+      "etch",
+      "implant",
+      "metrology",
+      "photo"
+    ],
+    "metrics": [
+      "lot_completions",
+      "pm_minutes"
+    ],
+    "value_contract": {
+      "kind": "period_mixed",
+      "areas": "all",
+      "aggregations": {
+        "lot_completions": "mean",
+        "pm_minutes": "sum"
+      },
+      "date_start": "2026-09-07",
+      "date_end": "2026-09-13"
+    }
+  },
+  {
+    "id": "mixed_flow_override",
+    "question": "그 두 지표 같은 기간 합계로 보여줘",
+    "fab": "fab12",
+    "rows": 6,
+    "areas": [
+      "cmp",
+      "deposition",
+      "etch",
+      "implant",
+      "metrology",
+      "photo"
+    ],
+    "metrics": [
+      "lot_completions",
+      "pm_minutes"
+    ],
+    "value_contract": {
+      "kind": "period_mixed",
+      "areas": "all",
+      "aggregations": {
+        "lot_completions": "sum",
+        "pm_minutes": "sum"
+      },
+      "date_start": "2026-09-07",
+      "date_end": "2026-09-13"
+    }
+  }
+]

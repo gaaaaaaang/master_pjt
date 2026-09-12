@@ -7,7 +7,7 @@ from dataclasses import dataclass, replace
 from functools import lru_cache
 
 # Versioned domain vocabulary: aliases describe terminology, never causal relations.
-VOCABULARY_VERSION = "fab.v4"
+VOCABULARY_VERSION = "fab.v5"
 ALIASES = {
     "equipment_down": (
         "설비 고장", "장비가 멈", "장비가 자꾸 멈", "장비 알람", "장비가 갑자기 멈", "unexpected shutdown",
@@ -31,6 +31,9 @@ ALIASES = {
     "bottleneck": ("병목", "bottleneck", "공정이 막혀"),
     "queue_time": ("대기열 체류", "대기열", "체류", "대기시간", "대기 시간", "queue time", "queue_time", "q-time", "qtime"),
     "wip": ("재공", "재공품", "wip"),
+    "cycle_time": ("cycle time", "cycleavg", "사이클 타임", "사이클타임", "리드타임", "리드 타임"),
+    "utilization": ("utilization", "util percent", "가동률"),
+    "littles_law": ("little's law", "little’s law", "little law", "리틀의 법칙", "little의 법칙"),
     "yield": ("수율", "yield", "불량률", "pass/fail 비율"),
     "spc": ("관리도", "control chart", "관리한계", "관리 한계", "spc", "out-of-control"),
     "lot_hold": ("lot hold", "로트 보류", "로트보류", "격리", "보류"),
@@ -72,6 +75,9 @@ INCIDENT_CONCEPTS = set(ALIASES) - {
     "lithography",
     "cmp",
     "etch",
+    "cycle_time",
+    "utilization",
+    "littles_law",
 }
 STOPWORDS = {
     "and",
@@ -175,6 +181,8 @@ def normalize(text: str) -> str:
 @lru_cache(maxsize=8192)
 def has_alias(text: str, alias: str) -> bool:
     escaped = re.escape(normalize(alias)).replace(r"\ ", r"\s*")
+    if alias == "가동률":
+        escaped = r"(?<!비)" + escaped
     if re.fullmatch(r"[a-z0-9 -]+", alias):
         escaped = r"(?<![a-z0-9])" + escaped + r"(?![a-z0-9])"
     return bool(re.search(escaped, normalize(text)))

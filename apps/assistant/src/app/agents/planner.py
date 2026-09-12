@@ -12,10 +12,11 @@ from app.agents.intent import (
     build_answer_requirements,
     enrich_analysis,
     intent_payload,
+    is_procedure_request,
 )
 from app.agents.llm import AzureAgentClient
 from app.agents.prompts import PLANNER_PROMPT_VERSION, PLANNER_SYSTEM_PROMPT
-from app.db.fab_catalog import resolve_fab
+from app.db.fab_catalog import comparison_fabs, normalize_fab, resolve_fab
 from app.sub_agent.text2sql import QuerySlot, is_explicit_master_lookup
 
 AgentName = Literal["text2sql", "rag", "impact", "case_search", "visualization"]
@@ -165,6 +166,14 @@ def create_plan(
         route=route, equipment=equipment, date_basis=date_basis, metric=metric,
         conversation_history=conversation_history,
     )
+    if len(analysis.slots.get("fab_ids", QuerySlot("", "parser", 1, "")).value.split(",")) > 1 and not analysis.missing_slots:
+        comparison = _create_deterministic_fallback_plan(
+            message, fab=analysis.slots["fab_id"].value, line=line, process=process,
+            product=product, route=route, equipment=equipment, date_basis=date_basis,
+            metric=metric or (analysis.slots.get("metric").value if analysis.slots.get("metric") else None),
+            reason="bounded FAB comparison",
+        )
+        return _ground_plan(replace(comparison, limitations=[], execution_mode="fab_comparison"), analysis)
     try:
         output = (llm_client or AzureAgentClient()).complete_json(
             system_prompt=PLANNER_SYSTEM_PROMPT,
@@ -269,10 +278,13 @@ def _create_deterministic_fallback_plan(
 ) -> PlannerDecision:
     normalized = message.casefold().replace("-", "_")
     fab_id = resolve_fab(message, fab).fab_id
-    knowledge = any(
+    if comparison_fabs(message):
+        fab_id = normalize_fab(fab) or comparison_fabs(message)[0]
+    procedure = is_procedure_request(message)
+    knowledge = procedure or any(
         term in normalized
-        for term in ("뭐야", "무엇", "설명", "정의", "기초", "매뉴얼", "대응 절차", "sop")
-    )
+        for term in ("뭐야", "무엇", "설명", "기초", "매뉴얼", "대응 절차", "sop")
+    ) or bool(re.search(r"(?<!공)정의", normalized))
     has_bare_selection = bool(metric) and bool(
         re.search(
             r"(?:>=|<=|>|<)\s*\d|\d+(?:\.\d+)?\s*(?:%|퍼센트|percent)?\s*"
@@ -310,16 +322,18 @@ def _create_deterministic_fallback_plan(
         query_type = "impact"
     elif any(
         term in normalized
-        for term in ("추세", "추이", "비교", "차트", "그래프", "일별", "주별", "월별", "날짜별", "기간별", "흐름", "변화")
+            for term in ("추세", "추이", "비교", "차이", "차트", "그래프", "일별", "주별", "월별", "날짜별", "기간별", "흐름", "변화")
     ):
         query_type = "trend"
+    elif procedure:
+        query_type = "knowledge_lookup"
     elif operational_status:
         query_type = "status"
     elif knowledge:
         query_type = "knowledge_lookup"
     elif "lotrelease" in normalized or "release plan" in normalized:
         query_type = "release_plan_lookup"
-    elif any(term in normalized for term in ("목록", "toolgroup", "설비군", "route 구성")):
+    elif is_explicit_master_lookup(message) or any(term in normalized for term in ("목록", "toolgroup", "설비군", "route 구성")):
         query_type = "master_data_lookup"
     elif fab_id:
         query_type = "status"
@@ -389,13 +403,7 @@ def _create_deterministic_fallback_plan(
         selected_sub_agents=agents,
         execution_steps=steps,
         slots=slots,
-        rag_knowledge_base=(
-            "process_basics"
-            if query_type == "knowledge_lookup"
-            else "incident_playbook"
-            if query_type == "diagnosis"
-            else None
-        ),
+        rag_knowledge_base=_infer_rag_knowledge_base(message, query_type, agents),
         missing_slots=missing_slots,
         clarification_question=clarification,
         limitations=[f"Planner LLM unavailable; deterministic routing was used: {reason}"],
@@ -458,7 +466,7 @@ def _deterministic_compound_agents(
             extras.append("impact")
         if any(
             term in normalized
-            for term in ("추세", "비교", "차트", "그래프", "일별", "기간별", "흐름", "trend", "compare", "chart", "plot")
+            for term in ("추세", "비교", "차이", "시각화", "차트", "그래프", "일별", "기간별", "흐름", "trend", "compare", "chart", "plot")
         ):
             extras.append("visualization")
     elif query_type == "impact" and any(
@@ -475,6 +483,8 @@ def _infer_rag_knowledge_base(
 ) -> str | None:
     if "rag" not in selected_sub_agents:
         return None
+    if is_procedure_request(message):
+        return "incident_playbook"
     lowered = message.casefold()
     incident_terms = (
         "queue",

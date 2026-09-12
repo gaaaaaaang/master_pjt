@@ -1,0 +1,110 @@
+{
+  "raw_sha256": "48d2610ad3af95487ef3ef3ed994515f4b9cf1a2cf8b419311396c3d68cfc1f9",
+  "report_sha256": "e13b7fc0b9bfded4b310758d1a04502a908876f9a438cff242cdbc55c52eede1",
+  "scope": "Independent arithmetic and scope checks; not complete narrative accuracy.",
+  "checks": [
+    {
+      "id": "fab11_wip",
+      "audited": true,
+      "passed": true,
+      "rows": 1,
+      "checked_cells": 2,
+      "errors": []
+    },
+    {
+      "id": "fab13_wip",
+      "audited": true,
+      "passed": true,
+      "rows": 1,
+      "checked_cells": 2,
+      "errors": []
+    },
+    {
+      "id": "screenshot_comparison",
+      "audited": true,
+      "passed": true,
+      "rows": 12,
+      "checked_cells": 108,
+      "errors": []
+    },
+    {
+      "id": "implicit_comparison",
+      "audited": true,
+      "passed": true,
+      "rows": 12,
+      "checked_cells": 48,
+      "errors": []
+    },
+    {
+      "id": "total_trend",
+      "audited": true,
+      "passed": true,
+      "rows": 50,
+      "checked_cells": 300,
+      "errors": []
+    },
+    {
+      "id": "fab10_wip",
+      "audited": true,
+      "passed": true,
+      "rows": 1,
+      "checked_cells": 2,
+      "errors": []
+    },
+    {
+      "id": "fab12_status",
+      "audited": true,
+      "passed": true,
+      "rows": 1,
+      "checked_cells": 4,
+      "errors": []
+    },
+    {
+      "id": "fab12_followup",
+      "audited": true,
+      "passed": true,
+      "rows": 1,
+      "checked_cells": 3,
+      "errors": []
+    },
+    {
+      "id": "fab12_impact",
+      "audited": true,
+      "passed": true,
+      "checked_cells": 6,
+      "errors": [],
+      "scope": "Arithmetic under the stated proportional-capacity assumption, not a validated causal prediction."
+    },
+    {
+      "id": "fab12_trend",
+      "audited": true,
+      "passed": true,
+      "rows": 42,
+      "checked_cells": 42,
+      "errors": []
+    },
+    {
+      "id": "fab12_rank",
+      "audited": true,
+      "passed": true,
+      "rows": 1,
+      "checked_cells": 1,
+      "errors": []
+    },
+    {
+      "id": "fab13_diagnosis",
+      "audited": true,
+      "passed": true,
+      "rows": 8,
+      "checked_cells": 56,
+      "errors": []
+    },
+    {
+      "id": "process_knowledge",
+      "audited": false,
+      "reason": "This independent oracle covers current metrics and cross-FAB current/hourly comparison."
+    }
+  ],
+  "audited": 12,
+  "passed": 12
+}

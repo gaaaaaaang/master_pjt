@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-09-12T11:09:56.520757+00:00",
+  "scope": "Measure connection reuse against a temporary loopback fixture server.\n\nNo configured model endpoint, credentials, FAB rows or external host is used.\nThese timings are transport overhead only, not real model response latency.\n",
+  "model_calls": 0,
+  "db_calls": 0,
+  "host": "127.0.0.1",
+  "results": [
+    {
+      "mode": "per_call_client",
+      "calls": 12,
+      "tcp_connections": 12,
+      "seconds": 0.14476
+    },
+    {
+      "mode": "per_request_reuse",
+      "calls": 12,
+      "tcp_connections": 1,
+      "seconds": 0.015386
+    }
+  ]
+}

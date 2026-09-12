@@ -1,0 +1,189 @@
+{
+  "source_sha256": "30b6892688e3e9efff600b5e3fd1aa61d6d9ff1af82baea8b8b56327b5425e1f",
+  "report_sha256": "e71a789d8733e1d2af3ad54965de6d50988d9935665ed2c26f4cb110c1ee50ad",
+  "cases": 34,
+  "passed": 32,
+  "checks": [
+    {
+      "id": "fab12_week_compare",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab11_yesterday",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab10_status",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab10_area_status",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab10_trend",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab10_diagnosis",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab10_impact",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab10_master",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab11_status",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab11_area_status",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab11_trend",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab11_diagnosis",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab11_impact",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab11_master",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab12_status",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab12_area_status",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab12_trend",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab12_diagnosis",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab12_impact",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab12_master",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab13_status",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab13_area_status",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab13_trend",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab13_diagnosis",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab13_impact",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab13_master",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab11_knowledge",
+      "passed": false,
+      "errors": [
+        "status: expected succeeded, got failed",
+        "document answer was not grounded",
+        "document claims lack quote and model review",
+        "missing document citations"
+      ]
+    },
+    {
+      "id": "fab11_action",
+      "passed": false,
+      "errors": [
+        "status: expected succeeded, got failed",
+        "document answer was not grounded",
+        "document claims lack quote and model review",
+        "missing document citations"
+      ]
+    },
+    {
+      "id": "fab13_area_compare",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab12_korean_area",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab13_rank",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab11_multi_metric",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab11_unknown_scope",
+      "passed": true,
+      "errors": []
+    },
+    {
+      "id": "fab12_unknown_granularity",
+      "passed": true,
+      "errors": []
+    }
+  ],
+  "interpretation": "Status plus required tool/artifact/document-review contracts; not a numeric or narrative-accuracy audit."
+}

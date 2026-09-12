@@ -498,8 +498,8 @@
   {
     "id": "fab10_unsupported_yield",
     "question": "fab10 yield 알려줘",
-    "expected_status": "unsupported",
-    "expected_query_type": "unsupported",
+    "expected_status": "data_unavailable",
+    "expected_query_type": "status",
     "expect_sql": false,
     "expected_answer_contains": ["yield"]
   },

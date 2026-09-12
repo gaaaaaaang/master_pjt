@@ -1,0 +1,981 @@
+{
+  "started_at": "2026-09-12T11:37:42.033912+00:00",
+  "external_http_blocked": true,
+  "source_sha256": "5fb0f32537a1869d9e16786abbb1ce79be5bb96cbdcd8f396979c962b678a07b",
+  "harness_sha256": "a0d84fb5fdf73933d5a634ca34d7836e4793f2f5de551fea488536fe991c56b4",
+  "mode": "four_concurrent_fabs_model_unavailable",
+  "rounds": 2,
+  "conversations": [
+    {
+      "fab": "fab10",
+      "conversation_id": "25c7f9d5-c937-430b-bf65-d82d2107cfad",
+      "seconds": 4.46,
+      "checks": [
+        {
+          "id": "fab10_status_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_status_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_status_3",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_diagnosis_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_diagnosis_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_diagnosis_3",
+          "round": 1,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_impact_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_impact_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_trend_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_trend_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_trend_3",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_trend_4",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_knowledge_1",
+          "round": 1,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_status_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_status_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_status_3",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_diagnosis_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_diagnosis_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_diagnosis_3",
+          "round": 2,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_impact_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_impact_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_trend_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_trend_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_trend_3",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_trend_4",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab10_knowledge_1",
+          "round": 2,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        }
+      ]
+    },
+    {
+      "fab": "fab11",
+      "conversation_id": "619cfcf5-f768-4094-85cc-3613996fcce4",
+      "seconds": 4.49,
+      "checks": [
+        {
+          "id": "fab11_status_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_status_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_status_3",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_diagnosis_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_diagnosis_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_diagnosis_3",
+          "round": 1,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_impact_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_impact_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_trend_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_trend_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_trend_3",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_trend_4",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_knowledge_1",
+          "round": 1,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_status_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_status_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_status_3",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_diagnosis_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_diagnosis_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_diagnosis_3",
+          "round": 2,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_impact_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_impact_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_trend_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_trend_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_trend_3",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_trend_4",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab11_knowledge_1",
+          "round": 2,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        }
+      ]
+    },
+    {
+      "fab": "fab12",
+      "conversation_id": "63b35841-5d53-4a89-8438-8995d55f6a70",
+      "seconds": 4.315,
+      "checks": [
+        {
+          "id": "fab12_status_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_status_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_status_3",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_diagnosis_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_diagnosis_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_diagnosis_3",
+          "round": 1,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_impact_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_impact_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_trend_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_trend_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_trend_3",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_trend_4",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_knowledge_1",
+          "round": 1,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_status_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_status_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_status_3",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_diagnosis_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_diagnosis_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_diagnosis_3",
+          "round": 2,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_impact_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_impact_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_trend_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_trend_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_trend_3",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_trend_4",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab12_knowledge_1",
+          "round": 2,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        }
+      ]
+    },
+    {
+      "fab": "fab13",
+      "conversation_id": "75c1b9c4-af97-46eb-ab17-2425fecf7ff2",
+      "seconds": 4.4,
+      "checks": [
+        {
+          "id": "fab13_status_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_status_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_status_3",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_diagnosis_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_diagnosis_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_diagnosis_3",
+          "round": 1,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_impact_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_impact_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_trend_1",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_trend_2",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_trend_3",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_trend_4",
+          "round": 1,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_knowledge_1",
+          "round": 1,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_status_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_status_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_status_3",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_diagnosis_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_diagnosis_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_diagnosis_3",
+          "round": 2,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_impact_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_impact_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_trend_1",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_trend_2",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_trend_3",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": true,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_trend_4",
+          "round": 2,
+          "status": "succeeded",
+          "document_model_unavailable": false,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        },
+        {
+          "id": "fab13_knowledge_1",
+          "round": 2,
+          "status": "failed",
+          "document_model_unavailable": true,
+          "numeric_checked": false,
+          "passed": true,
+          "errors": []
+        }
+      ]
+    }
+  ],
+  "cases": 104,
+  "passed": 104,
+  "distinct_conversations": true,
+  "numeric_checks": 64,
+  "answers_completed": 88,
+  "expected_document_unavailability": 16,
+  "finished_at": "2026-09-12T11:37:46.563392+00:00"
+}

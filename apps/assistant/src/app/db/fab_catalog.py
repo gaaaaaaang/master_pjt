@@ -39,6 +39,32 @@ def normalize_fab(value: str | None) -> str | None:
     return None
 
 
+def comparison_fabs(question: str, history: list[dict[str, Any]] | None = None) -> list[str]:
+    """Resolve a comparison from explicit FABs or prior successful user scopes."""
+    explicit = mentioned_fabs(question)
+    if explicit:
+        return explicit if len(explicit) > 1 else []
+    if not re.search(r"둘|두\s*(?:fab|팹)|(?:방금|앞서|이전).*(?:fab|팹|조회|답).*(?:비교|차이)|(?:fab|팹)\s*(?:간|끼리).*비교|both|two\s+fabs", question, re.IGNORECASE):
+        return []
+    found = []
+    turns = history or []
+    for index in range(len(turns) - 1, -1, -1):
+        turn = turns[index]
+        if turn.get("role") != "user":
+            continue
+        following = turns[index + 1] if index + 1 < len(turns) else {}
+        if following.get("role") != "assistant" or (following.get("metadata") or {}).get("status") != "succeeded":
+            continue
+        metadata = turn.get("metadata") or {}
+        candidates = metadata.get("fab_ids") or mentioned_fabs(str(turn.get("content", ""))) or [metadata.get("fab")]
+        for candidate in reversed(candidates):
+            if candidate in ALLOWED_FABS and candidate not in found:
+                found.append(candidate)
+        if len(found) >= 2:
+            return list(reversed(found))
+    return []
+
+
 @dataclass(frozen=True)
 class FabResolution:
     fab_id: str | None

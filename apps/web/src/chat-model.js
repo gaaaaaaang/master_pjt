@@ -66,7 +66,11 @@ export function buildPayload(message, context, conversationId) {
     ...Object.fromEntries(Object.entries(context).filter(([, value]) => value.trim()).map(([key, value]) => [key, value.trim()])) };
 }
 export function rowsFromResult(result, events = []) {
+  if (result?.query_result?.rows?.length) return result.query_result.rows;
+  if (result?.chart?.source_rows?.length) return result.chart.source_rows;
   if (result?.chart?.rows?.length) return result.chart.rows;
+  const evidence = [...(result?.evidence || [])].reverse().find(item => item.source_type === 'text2sql_plan' && item.metadata?.sample_rows?.length);
+  if (evidence) return evidence.metadata.sample_rows;
   const event = [...events].reverse().find(item => item.data?.sample_rows?.length);
   return event?.data.sample_rows || [];
 }

@@ -1,0 +1,49 @@
+
+> fab-ai-assistant-web@0.1.0 test
+> node --test tests/*.test.js
+
+✔ Markdown tables retain Korean values, escapes, alignment, and following prose (1.528417ms)
+✔ Malformed table rows are retained as text (0.147792ms)
+✔ Numbered lists preserve starting number and separate bullet lists (0.163917ms)
+✔ Code fences and HTML remain literal strings (0.107708ms)
+✔ Portable answer retains status, question, evidence, limitations and explicit scope (0.538042ms)
+✔ Report makes absence of evidence explicit (0.533ms)
+✔ Portable report uses grounded FAB and process instead of unchanged sidebar defaults (0.128792ms)
+✔ SQL scope preserves multiple areas and does not resurrect an omitted sidebar filter (0.076417ms)
+✔ Cross-FAB export preserves both scopes and source provenance separately (0.081041ms)
+✔ Dense axes preserve both endpoints without too many labels (0.484958ms)
+✔ Short axes and labels remain intact (0.191333ms)
+✔ Different metric units use independent panels without changing plotted values (0.813708ms)
+✔ Area legends remain meaningful within each metric panel (0.128125ms)
+✔ SSE handles UTF-8 split across bytes and CRLF split across chunks (17.7515ms)
+✔ SSE supports multiline data and comments (0.346792ms)
+✔ SSE flushes final event without trailing separator (0.266583ms)
+✔ SSE rejects truncated streams instead of showing success (0.342291ms)
+✔ SSE surfaces server failure and cancellation (0.170916ms)
+✔ SSE rejects invalid payloads and HTTP errors (0.224334ms)
+✔ Payload trims explicit context and preserves conversation identity (0.067792ms)
+✔ CSV escapes formula strings, commas, quotes, preserves numeric negatives (0.1245ms)
+✔ Non-success statuses never claim analysis success (0.055083ms)
+✔ Retry keeps original scope and conversation despite changed settings (0.093875ms)
+✔ Restored sessions release interrupted stream and feedback controls (0.058208ms)
+✔ Data export preserves all query rows instead of the five-row stream preview (0.088834ms)
+✔ Multi-metric chart export uses original wide rows rather than expanded plotting points (0.030416ms)
+✔ guide spans the seven planned question types and retains follow-up order (0.745583ms)
+✔ guide rejects an unknown FAB instead of silently substituting one (0.124208ms)
+✔ Restores active conversation and its draft while discarding orphan drafts (0.620333ms)
+✔ Corrupt storage and missing active ids recover to available conversation (0.096833ms)
+✔ Restored drafts respect input length limit (0.535042ms)
+✔ Numeric sorting preserves missing values and source order (0.6345ms)
+✔ Search is case insensitive and supports Korean and nested values (0.156792ms)
+✔ Text sorting uses numeric-aware collation and does not mutate input (0.121875ms)
+✔ durable fallback migrates old tab storage including server conversation IDs (0.861333ms)
+✔ one tab cannot erase other conversations or overwrite their newer version (0.086375ms)
+✔ blocked browser storage getter does not break startup (0.420042ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 116.28

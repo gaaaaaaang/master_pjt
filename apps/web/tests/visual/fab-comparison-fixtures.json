@@ -1,0 +1,1575 @@
+[
+  {
+    "id": "followup-1",
+    "label": "FAB13 현재 WIP",
+    "answer": "2026-09-12 00:00:00+09:00 기준, FAB13 전체의 WIP 159LOT입니다.",
+    "chart": null,
+    "rows": [
+      {
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "wip_lots": 159,
+        "area_count": 6
+      }
+    ],
+    "data_sources": [
+      {
+        "kind": "demo_observations",
+        "label": "공정 데이터 출처",
+        "description": "PoC용 생성 데이터",
+        "details": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "제한사항: 조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "followup-2",
+    "label": "FAB11·FAB13 WIP 비교",
+    "answer": "2026-09-12 00:00:00+09:00 기준 FAB 비교입니다.\nFAB11 WIP은 188LOT, FAB13은 159LOT입니다. FAB11이 29LOT 높습니다. FAB13 대비 상대 차이는 18.24%입니다.\n공정별 WIP 차이(FAB11 − FAB13): cmp +62LOT, photo -48LOT, etch +6LOT, deposition +5LOT, implant +4LOT, metrology +0LOT.\n차이가 가장 큰 cmp 공정을 먼저 확인할 수 있습니다: FAB11 평균 대기 시간 41.65분, 가동률 73.23%, 정비 시간 17분; FAB13 평균 대기 시간 12.35분, 가동률 79.04%, 정비 시간 0분. 이 값들은 같은 구간의 관측 상태이며, 대기·정비가 재공 차이를 일으켰는지는 시간 순서의 이력 확인이 필요합니다.\n\n현재 근거로는 원인 후보를 제시하거나 실제 원인을 확정할 수 없습니다.\n\n공정별 재공 차이는 전체 WIP 차이의 구성 요인이며, 그 자체가 원인의 증거는 아닙니다. 원인을 확인하려면 해당 공정의 투입·완료 LOT 이력, 대기 시간, 가동률과 정비 이력을 같은 기간으로 확인해야 합니다.\n\n차트에서 FAB별 공정 지표를 비교할 수 있습니다.",
+    "chart": {
+      "title": "FAB11 · FAB13 공정별 WIP 비교",
+      "type": "grouped_bar",
+      "encoding": {
+        "x": {
+          "field": "area",
+          "title": "공정",
+          "sort": [
+            "cmp",
+            "deposition",
+            "etch",
+            "implant",
+            "metrology",
+            "photo"
+          ]
+        },
+        "y": {
+          "field": "wip_lots",
+          "title": "wip_lots",
+          "domain": [
+            0,
+            83
+          ]
+        },
+        "color": {
+          "field": "fab",
+          "title": "fab"
+        }
+      },
+      "series": {
+        "field": "fab",
+        "values": [
+          "FAB11",
+          "FAB13"
+        ]
+      },
+      "rows": [
+        {
+          "fab": "FAB11",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "cmp",
+          "wip_lots": 83,
+          "avg_queue_minutes": 41.65,
+          "utilization_percent": 73.23,
+          "down_minutes": 0,
+          "pm_minutes": 17,
+          "lot_completions": 3
+        },
+        {
+          "fab": "FAB11",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "deposition",
+          "wip_lots": 19,
+          "avg_queue_minutes": 14.16,
+          "utilization_percent": 78.64,
+          "down_minutes": 0,
+          "pm_minutes": 0,
+          "lot_completions": 4
+        },
+        {
+          "fab": "FAB11",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "etch",
+          "wip_lots": 27,
+          "avg_queue_minutes": 15.27,
+          "utilization_percent": 80.32,
+          "down_minutes": 0,
+          "pm_minutes": 0,
+          "lot_completions": 2
+        },
+        {
+          "fab": "FAB11",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "implant",
+          "wip_lots": 12,
+          "avg_queue_minutes": 10.51,
+          "utilization_percent": 78.68,
+          "down_minutes": 0,
+          "pm_minutes": 0,
+          "lot_completions": 3
+        },
+        {
+          "fab": "FAB11",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "metrology",
+          "wip_lots": 15,
+          "avg_queue_minutes": 12.74,
+          "utilization_percent": 80.79,
+          "down_minutes": 0,
+          "pm_minutes": 0,
+          "lot_completions": 6
+        },
+        {
+          "fab": "FAB11",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "photo",
+          "wip_lots": 32,
+          "avg_queue_minutes": 11.9,
+          "utilization_percent": 78.58,
+          "down_minutes": 0,
+          "pm_minutes": 0,
+          "lot_completions": 7
+        },
+        {
+          "fab": "FAB13",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "cmp",
+          "wip_lots": 21,
+          "avg_queue_minutes": 12.35,
+          "utilization_percent": 79.04,
+          "down_minutes": 0,
+          "pm_minutes": 0,
+          "lot_completions": 4
+        },
+        {
+          "fab": "FAB13",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "deposition",
+          "wip_lots": 14,
+          "avg_queue_minutes": 14.69,
+          "utilization_percent": 80.86,
+          "down_minutes": 0,
+          "pm_minutes": 0,
+          "lot_completions": 4
+        },
+        {
+          "fab": "FAB13",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "etch",
+          "wip_lots": 21,
+          "avg_queue_minutes": 16.16,
+          "utilization_percent": 78.63,
+          "down_minutes": 0,
+          "pm_minutes": 0,
+          "lot_completions": 6
+        },
+        {
+          "fab": "FAB13",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "implant",
+          "wip_lots": 8,
+          "avg_queue_minutes": 12.2,
+          "utilization_percent": 81.35,
+          "down_minutes": 0,
+          "pm_minutes": 0,
+          "lot_completions": 3
+        },
+        {
+          "fab": "FAB13",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "metrology",
+          "wip_lots": 15,
+          "avg_queue_minutes": 12.52,
+          "utilization_percent": 80.64,
+          "down_minutes": 0,
+          "pm_minutes": 0,
+          "lot_completions": 3
+        },
+        {
+          "fab": "FAB13",
+          "interval_start": "2026-09-11T23:45:00+09:00",
+          "interval_end": "2026-09-12T00:00:00+09:00",
+          "area": "photo",
+          "wip_lots": 80,
+          "avg_queue_minutes": 38.43,
+          "utilization_percent": 78.9,
+          "down_minutes": 0,
+          "pm_minutes": 0,
+          "lot_completions": 3
+        }
+      ],
+      "observation_basis": {
+        "coverage_scope": "returned_axis_points_only",
+        "interpretation": "날짜별 값의 존재는 하루 전체의 관측 완료를 의미하지 않습니다. 처음·마지막 시각과 관측 구간 수를 확인하세요."
+      }
+    },
+    "rows": [
+      {
+        "fab": "FAB11",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "cmp",
+        "wip_lots": 83,
+        "avg_queue_minutes": 41.65,
+        "utilization_percent": 73.23,
+        "down_minutes": 0,
+        "pm_minutes": 17,
+        "lot_completions": 3
+      },
+      {
+        "fab": "FAB11",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "deposition",
+        "wip_lots": 19,
+        "avg_queue_minutes": 14.16,
+        "utilization_percent": 78.64,
+        "down_minutes": 0,
+        "pm_minutes": 0,
+        "lot_completions": 4
+      },
+      {
+        "fab": "FAB11",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "etch",
+        "wip_lots": 27,
+        "avg_queue_minutes": 15.27,
+        "utilization_percent": 80.32,
+        "down_minutes": 0,
+        "pm_minutes": 0,
+        "lot_completions": 2
+      },
+      {
+        "fab": "FAB11",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "implant",
+        "wip_lots": 12,
+        "avg_queue_minutes": 10.51,
+        "utilization_percent": 78.68,
+        "down_minutes": 0,
+        "pm_minutes": 0,
+        "lot_completions": 3
+      },
+      {
+        "fab": "FAB11",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "metrology",
+        "wip_lots": 15,
+        "avg_queue_minutes": 12.74,
+        "utilization_percent": 80.79,
+        "down_minutes": 0,
+        "pm_minutes": 0,
+        "lot_completions": 6
+      },
+      {
+        "fab": "FAB11",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "photo",
+        "wip_lots": 32,
+        "avg_queue_minutes": 11.9,
+        "utilization_percent": 78.58,
+        "down_minutes": 0,
+        "pm_minutes": 0,
+        "lot_completions": 7
+      },
+      {
+        "fab": "FAB13",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "cmp",
+        "wip_lots": 21,
+        "avg_queue_minutes": 12.35,
+        "utilization_percent": 79.04,
+        "down_minutes": 0,
+        "pm_minutes": 0,
+        "lot_completions": 4
+      },
+      {
+        "fab": "FAB13",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "deposition",
+        "wip_lots": 14,
+        "avg_queue_minutes": 14.69,
+        "utilization_percent": 80.86,
+        "down_minutes": 0,
+        "pm_minutes": 0,
+        "lot_completions": 4
+      },
+      {
+        "fab": "FAB13",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "etch",
+        "wip_lots": 21,
+        "avg_queue_minutes": 16.16,
+        "utilization_percent": 78.63,
+        "down_minutes": 0,
+        "pm_minutes": 0,
+        "lot_completions": 6
+      },
+      {
+        "fab": "FAB13",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "implant",
+        "wip_lots": 8,
+        "avg_queue_minutes": 12.2,
+        "utilization_percent": 81.35,
+        "down_minutes": 0,
+        "pm_minutes": 0,
+        "lot_completions": 3
+      },
+      {
+        "fab": "FAB13",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "metrology",
+        "wip_lots": 15,
+        "avg_queue_minutes": 12.52,
+        "utilization_percent": 80.64,
+        "down_minutes": 0,
+        "pm_minutes": 0,
+        "lot_completions": 3
+      },
+      {
+        "fab": "FAB13",
+        "interval_start": "2026-09-11T23:45:00+09:00",
+        "interval_end": "2026-09-12T00:00:00+09:00",
+        "area": "photo",
+        "wip_lots": 80,
+        "avg_queue_minutes": 38.43,
+        "utilization_percent": 78.9,
+        "down_minutes": 0,
+        "pm_minutes": 0,
+        "lot_completions": 3
+      }
+    ],
+    "data_sources": [
+      {
+        "kind": "demo_observations",
+        "label": "공정 데이터 출처",
+        "description": "PoC용 생성 데이터",
+        "details": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "검색 문서는 시뮬레이션 참조 자료이며 실제 사내 SOP가 아닙니다."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "followup-4",
+    "label": "FAB11·FAB13 WIP 추세",
+    "answer": "FAB11 · FAB13 전체 WIP 추세입니다.\n관측 범위는 2026-09-11 00:15:00+09:00부터 2026-09-12 00:00:00+09:00까지입니다.\n차트의 FAB별 선과 결과 표에서 같은 시각의 값을 비교할 수 있습니다. 지표별 단위와 집계 기준은 결과 표와 조회 근거에 표시합니다. 첫·마지막 구간이나 중간에 관측 누락이 있는 구간은 전체 시간대를 대표하지 않을 수 있습니다. 표의 관측 구간 수와 최초·최종 관측 시각을 함께 확인해 주세요.\n\n차트에서 FAB별 공정 지표를 비교할 수 있습니다.",
+    "chart": {
+      "title": "FAB11 · FAB13 전체 WIP 추세",
+      "type": "line",
+      "encoding": {
+        "x": {
+          "field": "observed_at",
+          "title": "observed_at"
+        },
+        "y": {
+          "field": "wip_lots",
+          "title": "wip_lots",
+          "domain": [
+            139.66666666666666,
+            357.3333333333333
+          ]
+        },
+        "color": {
+          "field": "comparison_series",
+          "title": "comparison_series"
+        }
+      },
+      "series": {
+        "field": "comparison_series",
+        "values": [
+          "FAB11",
+          "FAB13"
+        ]
+      },
+      "rows": [
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T00:00:00",
+          "wip_lots": 200,
+          "observation_count": 1,
+          "first_observed_at": "2026-09-11T00:15:00+09:00",
+          "last_observed_at": "2026-09-11T00:15:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T00:00:00",
+          "wip_lots": 262,
+          "observation_count": 1,
+          "first_observed_at": "2026-09-11T00:15:00+09:00",
+          "last_observed_at": "2026-09-11T00:15:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T01:00:00",
+          "wip_lots": 196.66666666666666,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T01:15:00+09:00",
+          "last_observed_at": "2026-09-11T01:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T01:00:00",
+          "wip_lots": 221,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T01:15:00+09:00",
+          "last_observed_at": "2026-09-11T01:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T02:00:00",
+          "wip_lots": 220.33333333333334,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T02:00:00+09:00",
+          "last_observed_at": "2026-09-11T02:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T02:00:00",
+          "wip_lots": 208,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T02:00:00+09:00",
+          "last_observed_at": "2026-09-11T02:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T03:00:00",
+          "wip_lots": 357.3333333333333,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T03:00:00+09:00",
+          "last_observed_at": "2026-09-11T03:30:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T03:00:00",
+          "wip_lots": 245,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T03:00:00+09:00",
+          "last_observed_at": "2026-09-11T03:30:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T04:00:00",
+          "wip_lots": 139.66666666666666,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T04:15:00+09:00",
+          "last_observed_at": "2026-09-11T04:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T04:00:00",
+          "wip_lots": 192,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T04:15:00+09:00",
+          "last_observed_at": "2026-09-11T04:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T05:00:00",
+          "wip_lots": 226.66666666666666,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T05:00:00+09:00",
+          "last_observed_at": "2026-09-11T05:30:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T05:00:00",
+          "wip_lots": 236,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T05:00:00+09:00",
+          "last_observed_at": "2026-09-11T05:30:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T06:00:00",
+          "wip_lots": 229.66666666666666,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T06:15:00+09:00",
+          "last_observed_at": "2026-09-11T06:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T06:00:00",
+          "wip_lots": 261,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T06:15:00+09:00",
+          "last_observed_at": "2026-09-11T06:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T07:00:00",
+          "wip_lots": 191.66666666666666,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T07:15:00+09:00",
+          "last_observed_at": "2026-09-11T07:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T07:00:00",
+          "wip_lots": 254.66666666666666,
+          "observation_count": 3,
+          "first_observed_at": "2026-09-11T07:15:00+09:00",
+          "last_observed_at": "2026-09-11T07:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T08:00:00",
+          "wip_lots": 187,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T08:00:00+09:00",
+          "last_observed_at": "2026-09-11T08:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T08:00:00",
+          "wip_lots": 226,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T08:00:00+09:00",
+          "last_observed_at": "2026-09-11T08:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T09:00:00",
+          "wip_lots": 349,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T09:00:00+09:00",
+          "last_observed_at": "2026-09-11T09:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T09:00:00",
+          "wip_lots": 165.5,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T09:00:00+09:00",
+          "last_observed_at": "2026-09-11T09:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T10:00:00",
+          "wip_lots": 239.25,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T10:00:00+09:00",
+          "last_observed_at": "2026-09-11T10:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T10:00:00",
+          "wip_lots": 175.5,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T10:00:00+09:00",
+          "last_observed_at": "2026-09-11T10:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T11:00:00",
+          "wip_lots": 193,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T11:00:00+09:00",
+          "last_observed_at": "2026-09-11T11:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T11:00:00",
+          "wip_lots": 195,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T11:00:00+09:00",
+          "last_observed_at": "2026-09-11T11:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T12:00:00",
+          "wip_lots": 238,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T12:00:00+09:00",
+          "last_observed_at": "2026-09-11T12:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T12:00:00",
+          "wip_lots": 192,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T12:00:00+09:00",
+          "last_observed_at": "2026-09-11T12:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T13:00:00",
+          "wip_lots": 152.75,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T13:00:00+09:00",
+          "last_observed_at": "2026-09-11T13:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T13:00:00",
+          "wip_lots": 323.5,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T13:00:00+09:00",
+          "last_observed_at": "2026-09-11T13:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T14:00:00",
+          "wip_lots": 163,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T14:00:00+09:00",
+          "last_observed_at": "2026-09-11T14:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T14:00:00",
+          "wip_lots": 171.5,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T14:00:00+09:00",
+          "last_observed_at": "2026-09-11T14:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T15:00:00",
+          "wip_lots": 165.25,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T15:00:00+09:00",
+          "last_observed_at": "2026-09-11T15:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T15:00:00",
+          "wip_lots": 177.75,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T15:00:00+09:00",
+          "last_observed_at": "2026-09-11T15:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T16:00:00",
+          "wip_lots": 250.5,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T16:00:00+09:00",
+          "last_observed_at": "2026-09-11T16:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T16:00:00",
+          "wip_lots": 178.75,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T16:00:00+09:00",
+          "last_observed_at": "2026-09-11T16:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T17:00:00",
+          "wip_lots": 174.25,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T17:00:00+09:00",
+          "last_observed_at": "2026-09-11T17:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T17:00:00",
+          "wip_lots": 217.25,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T17:00:00+09:00",
+          "last_observed_at": "2026-09-11T17:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T18:00:00",
+          "wip_lots": 265,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T18:00:00+09:00",
+          "last_observed_at": "2026-09-11T18:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T18:00:00",
+          "wip_lots": 232,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T18:00:00+09:00",
+          "last_observed_at": "2026-09-11T18:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T19:00:00",
+          "wip_lots": 239.5,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T19:00:00+09:00",
+          "last_observed_at": "2026-09-11T19:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T19:00:00",
+          "wip_lots": 162.25,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T19:00:00+09:00",
+          "last_observed_at": "2026-09-11T19:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T20:00:00",
+          "wip_lots": 203,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T20:00:00+09:00",
+          "last_observed_at": "2026-09-11T20:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T20:00:00",
+          "wip_lots": 221.25,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T20:00:00+09:00",
+          "last_observed_at": "2026-09-11T20:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T21:00:00",
+          "wip_lots": 210.5,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T21:00:00+09:00",
+          "last_observed_at": "2026-09-11T21:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T21:00:00",
+          "wip_lots": 190.25,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T21:00:00+09:00",
+          "last_observed_at": "2026-09-11T21:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T22:00:00",
+          "wip_lots": 158,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T22:00:00+09:00",
+          "last_observed_at": "2026-09-11T22:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T22:00:00",
+          "wip_lots": 285.75,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T22:00:00+09:00",
+          "last_observed_at": "2026-09-11T22:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-11T23:00:00",
+          "wip_lots": 165.75,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T23:00:00+09:00",
+          "last_observed_at": "2026-09-11T23:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-11T23:00:00",
+          "wip_lots": 329,
+          "observation_count": 4,
+          "first_observed_at": "2026-09-11T23:00:00+09:00",
+          "last_observed_at": "2026-09-11T23:45:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        },
+        {
+          "fab": "FAB11",
+          "observed_at": "2026-09-12T00:00:00",
+          "wip_lots": 188,
+          "observation_count": 1,
+          "first_observed_at": "2026-09-12T00:00:00+09:00",
+          "last_observed_at": "2026-09-12T00:00:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB11"
+        },
+        {
+          "fab": "FAB13",
+          "observed_at": "2026-09-12T00:00:00",
+          "wip_lots": 159,
+          "observation_count": 1,
+          "first_observed_at": "2026-09-12T00:00:00+09:00",
+          "last_observed_at": "2026-09-12T00:00:00+09:00",
+          "observation_minutes_min": 15.0,
+          "observation_minutes_max": 15.0,
+          "comparison_series": "FAB13"
+        }
+      ],
+      "trend_summary": [
+        {
+          "series": "FAB11",
+          "start_x": "2026-09-11T00:00:00",
+          "end_x": "2026-09-12T00:00:00",
+          "start_value": 200,
+          "end_value": 188,
+          "absolute_delta": -12,
+          "movement": "fluctuating",
+          "percent_delta": -6
+        },
+        {
+          "series": "FAB13",
+          "start_x": "2026-09-11T00:00:00",
+          "end_x": "2026-09-12T00:00:00",
+          "start_value": 262,
+          "end_value": 159,
+          "absolute_delta": -103,
+          "movement": "fluctuating",
+          "percent_delta": -39.313
+        }
+      ],
+      "series_gaps": [],
+      "series_coverage": [
+        {
+          "series": "FAB11",
+          "point_count": 25,
+          "axis_point_count": 25,
+          "coverage_rate": 1.0,
+          "assessment": "complete"
+        },
+        {
+          "series": "FAB13",
+          "point_count": 25,
+          "axis_point_count": 25,
+          "coverage_rate": 1.0,
+          "assessment": "complete"
+        }
+      ],
+      "imputed_points": [],
+      "observation_basis": {
+        "coverage_scope": "returned_axis_points_only",
+        "interpretation": "날짜별 값의 존재는 하루 전체의 관측 완료를 의미하지 않습니다. 처음·마지막 시각과 관측 구간 수를 확인하세요.",
+        "first_observed_at": "2026-09-11T00:15:00+09:00",
+        "last_observed_at": "2026-09-12T00:00:00+09:00",
+        "minimum_observations_per_bucket": 1,
+        "maximum_observations_per_bucket": 4,
+        "minimum_interval_minutes": 15,
+        "maximum_interval_minutes": 15,
+        "mixed_interval_lengths": false
+      }
+    },
+    "rows": [
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T00:00:00",
+        "wip_lots": 200.0,
+        "observation_count": 1,
+        "first_observed_at": "2026-09-11T00:15:00+09:00",
+        "last_observed_at": "2026-09-11T00:15:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T01:00:00",
+        "wip_lots": 196.66666666666666,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T01:15:00+09:00",
+        "last_observed_at": "2026-09-11T01:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T02:00:00",
+        "wip_lots": 220.33333333333334,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T02:00:00+09:00",
+        "last_observed_at": "2026-09-11T02:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T03:00:00",
+        "wip_lots": 357.3333333333333,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T03:00:00+09:00",
+        "last_observed_at": "2026-09-11T03:30:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T04:00:00",
+        "wip_lots": 139.66666666666666,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T04:15:00+09:00",
+        "last_observed_at": "2026-09-11T04:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T05:00:00",
+        "wip_lots": 226.66666666666666,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T05:00:00+09:00",
+        "last_observed_at": "2026-09-11T05:30:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T06:00:00",
+        "wip_lots": 229.66666666666666,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T06:15:00+09:00",
+        "last_observed_at": "2026-09-11T06:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T07:00:00",
+        "wip_lots": 191.66666666666666,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T07:15:00+09:00",
+        "last_observed_at": "2026-09-11T07:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T08:00:00",
+        "wip_lots": 187.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T08:00:00+09:00",
+        "last_observed_at": "2026-09-11T08:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T09:00:00",
+        "wip_lots": 349.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T09:00:00+09:00",
+        "last_observed_at": "2026-09-11T09:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T10:00:00",
+        "wip_lots": 239.25,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T10:00:00+09:00",
+        "last_observed_at": "2026-09-11T10:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T11:00:00",
+        "wip_lots": 193.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T11:00:00+09:00",
+        "last_observed_at": "2026-09-11T11:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T12:00:00",
+        "wip_lots": 238.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T12:00:00+09:00",
+        "last_observed_at": "2026-09-11T12:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T13:00:00",
+        "wip_lots": 152.75,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T13:00:00+09:00",
+        "last_observed_at": "2026-09-11T13:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T14:00:00",
+        "wip_lots": 163.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T14:00:00+09:00",
+        "last_observed_at": "2026-09-11T14:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T15:00:00",
+        "wip_lots": 165.25,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T15:00:00+09:00",
+        "last_observed_at": "2026-09-11T15:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T16:00:00",
+        "wip_lots": 250.5,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T16:00:00+09:00",
+        "last_observed_at": "2026-09-11T16:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T17:00:00",
+        "wip_lots": 174.25,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T17:00:00+09:00",
+        "last_observed_at": "2026-09-11T17:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T18:00:00",
+        "wip_lots": 265.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T18:00:00+09:00",
+        "last_observed_at": "2026-09-11T18:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T19:00:00",
+        "wip_lots": 239.5,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T19:00:00+09:00",
+        "last_observed_at": "2026-09-11T19:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T20:00:00",
+        "wip_lots": 203.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T20:00:00+09:00",
+        "last_observed_at": "2026-09-11T20:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T21:00:00",
+        "wip_lots": 210.5,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T21:00:00+09:00",
+        "last_observed_at": "2026-09-11T21:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T22:00:00",
+        "wip_lots": 158.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T22:00:00+09:00",
+        "last_observed_at": "2026-09-11T22:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-11T23:00:00",
+        "wip_lots": 165.75,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T23:00:00+09:00",
+        "last_observed_at": "2026-09-11T23:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB11",
+        "observed_at": "2026-09-12T00:00:00",
+        "wip_lots": 188.0,
+        "observation_count": 1,
+        "first_observed_at": "2026-09-12T00:00:00+09:00",
+        "last_observed_at": "2026-09-12T00:00:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB11"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T00:00:00",
+        "wip_lots": 262.0,
+        "observation_count": 1,
+        "first_observed_at": "2026-09-11T00:15:00+09:00",
+        "last_observed_at": "2026-09-11T00:15:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T01:00:00",
+        "wip_lots": 221.0,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T01:15:00+09:00",
+        "last_observed_at": "2026-09-11T01:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T02:00:00",
+        "wip_lots": 208.0,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T02:00:00+09:00",
+        "last_observed_at": "2026-09-11T02:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T03:00:00",
+        "wip_lots": 245.0,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T03:00:00+09:00",
+        "last_observed_at": "2026-09-11T03:30:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T04:00:00",
+        "wip_lots": 192.0,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T04:15:00+09:00",
+        "last_observed_at": "2026-09-11T04:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T05:00:00",
+        "wip_lots": 236.0,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T05:00:00+09:00",
+        "last_observed_at": "2026-09-11T05:30:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T06:00:00",
+        "wip_lots": 261.0,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T06:15:00+09:00",
+        "last_observed_at": "2026-09-11T06:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T07:00:00",
+        "wip_lots": 254.66666666666666,
+        "observation_count": 3,
+        "first_observed_at": "2026-09-11T07:15:00+09:00",
+        "last_observed_at": "2026-09-11T07:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T08:00:00",
+        "wip_lots": 226.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T08:00:00+09:00",
+        "last_observed_at": "2026-09-11T08:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T09:00:00",
+        "wip_lots": 165.5,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T09:00:00+09:00",
+        "last_observed_at": "2026-09-11T09:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T10:00:00",
+        "wip_lots": 175.5,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T10:00:00+09:00",
+        "last_observed_at": "2026-09-11T10:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T11:00:00",
+        "wip_lots": 195.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T11:00:00+09:00",
+        "last_observed_at": "2026-09-11T11:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T12:00:00",
+        "wip_lots": 192.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T12:00:00+09:00",
+        "last_observed_at": "2026-09-11T12:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T13:00:00",
+        "wip_lots": 323.5,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T13:00:00+09:00",
+        "last_observed_at": "2026-09-11T13:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T14:00:00",
+        "wip_lots": 171.5,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T14:00:00+09:00",
+        "last_observed_at": "2026-09-11T14:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T15:00:00",
+        "wip_lots": 177.75,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T15:00:00+09:00",
+        "last_observed_at": "2026-09-11T15:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T16:00:00",
+        "wip_lots": 178.75,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T16:00:00+09:00",
+        "last_observed_at": "2026-09-11T16:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T17:00:00",
+        "wip_lots": 217.25,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T17:00:00+09:00",
+        "last_observed_at": "2026-09-11T17:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T18:00:00",
+        "wip_lots": 232.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T18:00:00+09:00",
+        "last_observed_at": "2026-09-11T18:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T19:00:00",
+        "wip_lots": 162.25,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T19:00:00+09:00",
+        "last_observed_at": "2026-09-11T19:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T20:00:00",
+        "wip_lots": 221.25,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T20:00:00+09:00",
+        "last_observed_at": "2026-09-11T20:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T21:00:00",
+        "wip_lots": 190.25,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T21:00:00+09:00",
+        "last_observed_at": "2026-09-11T21:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T22:00:00",
+        "wip_lots": 285.75,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T22:00:00+09:00",
+        "last_observed_at": "2026-09-11T22:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-11T23:00:00",
+        "wip_lots": 329.0,
+        "observation_count": 4,
+        "first_observed_at": "2026-09-11T23:00:00+09:00",
+        "last_observed_at": "2026-09-11T23:45:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      },
+      {
+        "fab": "FAB13",
+        "observed_at": "2026-09-12T00:00:00",
+        "wip_lots": 159.0,
+        "observation_count": 1,
+        "first_observed_at": "2026-09-12T00:00:00+09:00",
+        "last_observed_at": "2026-09-12T00:00:00+09:00",
+        "observation_minutes_min": 15.0,
+        "observation_minutes_max": 15.0,
+        "comparison_series": "FAB13"
+      }
+    ],
+    "data_sources": [
+      {
+        "kind": "demo_observations",
+        "label": "공정 데이터 출처",
+        "description": "PoC용 생성 데이터",
+        "details": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다."
+        ]
+      }
+    ]
+  }
+]

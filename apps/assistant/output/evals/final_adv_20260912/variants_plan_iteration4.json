@@ -1,0 +1,2328 @@
+{
+  "checked_at": "2026-09-12T10:03:25.635668+00:00",
+  "model_calls_disabled": true,
+  "executed": false,
+  "cases": 30,
+  "passed": 29,
+  "model_required": 1,
+  "checks": [
+    {
+      "id": "v01",
+      "question": "FAB11 현재 공정별 재공 수량",
+      "kind": "current",
+      "fab": "fab11",
+      "metrics": [
+        "wip_lots"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end = (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 현재 공정별 재공 수량"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v02",
+      "question": "fab12 지금 증착 공정의 대기시간과 재공을 알려줘",
+      "kind": "current",
+      "fab": "fab12",
+      "metrics": [
+        "avg_queue_minutes",
+        "wip_lots"
+      ],
+      "areas": [
+        "deposition"
+      ],
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots, avg_queue_minutes FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND area IN ('deposition') AND interval_end = (SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "area": {
+            "value": "deposition",
+            "source": "alias_match",
+            "confidence": 0.95,
+            "raw_text": "deposition"
+          },
+          "metric": {
+            "value": "avg_queue_minutes",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "avg_queue_minutes"
+          },
+          "metrics": {
+            "value": "avg_queue_minutes,wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "avg_queue_minutes, wiplotavg"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab12 지금 증착 공정의 대기시간과 재공을 알려줘"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots",
+          "avg_queue_minutes"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v03",
+      "question": "FAB13 지금 노광 공정 수율",
+      "kind": "current",
+      "fab": "fab13",
+      "metrics": [
+        "yield_percent"
+      ],
+      "areas": [
+        "photo"
+      ],
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, yield_percent FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND area IN ('photo') AND interval_end = (SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "area": {
+            "value": "photo",
+            "source": "alias_match",
+            "confidence": 0.95,
+            "raw_text": "photo"
+          },
+          "metric": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "yield_percent"
+          },
+          "metrics": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "yield_percent"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 지금 노광 공정 수율"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "yield_percent"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v04",
+      "question": "FAB11 최근 3일 공정별 완료 LOT 합계",
+      "kind": "period_sum",
+      "fab": "fab11",
+      "metrics": [
+        "lot_completions"
+      ],
+      "days": 3,
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_completions) AS lot_completions, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, SUM(lot_completions) AS lot_completions, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotcomps"
+          },
+          "metrics": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotcomps"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 최근 3일 공정별 완료 LOT 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다. 완료·투입량은 구간 합계입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "area",
+          "lot_completions",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": "lot_completions",
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_completions"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v05",
+      "question": "FAB12 최근 3일 전체 WIP 평균",
+      "kind": "period_mean",
+      "fab": "fab12",
+      "metrics": [
+        "wip_lots"
+      ],
+      "days": 3,
+      "areas": [],
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, SUM(wip_lots) AS wip_lots, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end) SELECT '2026-09-10 이상 2026-09-13 미만' AS period_label, AVG(wip_lots) AS wip_lots, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations ORDER BY period_label",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 최근 3일 전체 WIP 평균"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다. 완료·투입량도 요청한 구간당 평균입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "period_label",
+          "wip_lots",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "period_label",
+          "y": "wip_lots",
+          "series": null,
+          "x_title": "조회 기간",
+          "y_title": "wip_lots"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v06",
+      "question": "FAB13 지난 2일 식각 공정 평균 수율",
+      "kind": "period_mean",
+      "fab": "fab13",
+      "metrics": [
+        "yield_percent"
+      ],
+      "days": 2,
+      "areas": [
+        "etch"
+      ],
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, AVG(yield_percent) AS yield_percent, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND area IN ('etch') AND interval_end >= TIMESTAMPTZ '2026-09-11 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(yield_percent) AS yield_percent, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "area": {
+            "value": "etch",
+            "source": "alias_match",
+            "confidence": 0.95,
+            "raw_text": "etch"
+          },
+          "relative_period": {
+            "value": "last_2_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_2_days"
+          },
+          "date_start": {
+            "value": "2026-09-11",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_2_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_2_days"
+          },
+          "metric": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "yield_percent"
+          },
+          "metrics": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "yield_percent"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 지난 2일 식각 공정 평균 수율"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-11 이상 2026-09-13 미만입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다. 완료·투입량도 요청한 구간당 평균입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "area",
+          "yield_percent",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": "yield_percent",
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "yield_percent"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v07",
+      "question": "FAB11 etch 최근 48시간 가동률 추이",
+      "kind": "hourly",
+      "fab": "fab11",
+      "metrics": [
+        "utilization_percent"
+      ],
+      "hours": 48,
+      "areas": [
+        "etch"
+      ],
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, AVG(utilization_percent) AS utilization_percent, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND area IN ('etch') AND interval_end > (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) - INTERVAL '48 hours' AND interval_end <= (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) GROUP BY interval_end, area) SELECT date_trunc('hour', interval_end AT TIME ZONE 'Asia/Seoul') AS observed_at, area, AVG(utilization_percent) AS utilization_percent, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY date_trunc('hour', interval_end AT TIME ZONE 'Asia/Seoul'), area ORDER BY observed_at ASC, area",
+      "plan": {
+        "query_type": "trend",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "area": {
+            "value": "etch",
+            "source": "alias_match",
+            "confidence": 0.95,
+            "raw_text": "etch"
+          },
+          "relative_period": {
+            "value": "last_48_hours",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_48_hours"
+          },
+          "metric": {
+            "value": "util_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "util_percent"
+          },
+          "metrics": {
+            "value": "util_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "util_percent"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 etch 최근 48시간 가동률 추이"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "기간 미지정 시 최신 적재 시각까지 48시간을 조회합니다. 실제 오늘의 실시간 상태와 구분합니다.",
+          "기간별 WIP·대기시간·수율·가동률은 관측 구간의 비가중 산술평균입니다. LOT 가중평균이나 기간 누적 WIP가 아닙니다. 완료/투입 LOT·down/PM 시간은 구간 합계입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "observed_at",
+          "area",
+          "utilization_percent",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "time_series",
+        "chart_intent": {
+          "type": "line",
+          "x": "observed_at",
+          "y": "utilization_percent",
+          "series": "area",
+          "x_title": "KST 관측일",
+          "y_title": "utilization_percent",
+          "y_zero": false,
+          "missing_policy": "gap"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v08",
+      "question": "FAB12 어제 공정별 평균 대기시간",
+      "kind": "yesterday",
+      "fab": "fab12",
+      "metrics": [
+        "avg_queue_minutes"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, AVG(avg_queue_minutes) AS avg_queue_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end >= TIMESTAMPTZ '2026-09-11 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-12 00:00:00+09:00' GROUP BY interval_end, area) SELECT date_trunc('day', interval_end AT TIME ZONE 'Asia/Seoul') AS observed_at, area, AVG(avg_queue_minutes) AS avg_queue_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY date_trunc('day', interval_end AT TIME ZONE 'Asia/Seoul'), area ORDER BY observed_at ASC, area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "yesterday",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "yesterday"
+          },
+          "date_start": {
+            "value": "2026-09-11",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "yesterday"
+          },
+          "date_end": {
+            "value": "2026-09-12",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "yesterday"
+          },
+          "metric": {
+            "value": "avg_queue_minutes",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "avg_queue_minutes"
+          },
+          "metrics": {
+            "value": "avg_queue_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "avg_queue_minutes"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 어제 공정별 평균 대기시간"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-11 이상 2026-09-12 미만입니다.",
+          "기간별 WIP·대기시간·수율·가동률은 관측 구간의 비가중 산술평균입니다. LOT 가중평균이나 기간 누적 WIP가 아닙니다. 완료/투입 LOT·down/PM 시간도 요청한 구간당 평균입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "observed_at",
+          "area",
+          "avg_queue_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "time_series",
+        "chart_intent": {
+          "type": "grouped_bar",
+          "x": "area",
+          "y": "avg_queue_minutes",
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "avg_queue_minutes",
+          "y_zero": true
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v09",
+      "question": "FAB13 현재 공정별 온도와 습도",
+      "kind": "current",
+      "fab": "fab13",
+      "metrics": [
+        "temperature_c",
+        "humidity_percent"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, temperature_c, humidity_percent FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end = (SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "temperature_c",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "temperature_c"
+          },
+          "metrics": {
+            "value": "temperature_c,humidity_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "temperature_c, humidity_percent"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 현재 공정별 온도와 습도"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "temperature_c",
+          "humidity_percent"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v10",
+      "question": "FAB11 지금 공정별 대기 LOT 수",
+      "kind": "current",
+      "fab": "fab11",
+      "metrics": [
+        "queue_lots"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, queue_lots FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end = (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "queue_lots",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "queue_lots"
+          },
+          "metrics": {
+            "value": "queue_lots",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "queue_lots"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 지금 공정별 대기 LOT 수"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "queue_lots"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v11",
+      "question": "FAB12 최근 3일 공정별 투입량 합계",
+      "kind": "period_sum",
+      "fab": "fab12",
+      "metrics": [
+        "lot_starts"
+      ],
+      "days": 3,
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_starts) AS lot_starts, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, SUM(lot_starts) AS lot_starts, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotstarts",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotstarts"
+          },
+          "metrics": {
+            "value": "lotstarts",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotstarts"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 최근 3일 공정별 투입량 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다. 완료·투입량은 구간 합계입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "area",
+          "lot_starts",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": "lot_starts",
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_starts"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v12",
+      "question": "FAB13 current WIP by area",
+      "kind": "current",
+      "fab": "fab13",
+      "metrics": [
+        "wip_lots"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end = (SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 current WIP by area"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v13",
+      "question": "FAB11 etch utilization trend for the past 24 hours",
+      "kind": "hourly",
+      "fab": "fab11",
+      "metrics": [
+        "utilization_percent"
+      ],
+      "hours": 24,
+      "areas": [
+        "etch"
+      ],
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, AVG(utilization_percent) AS utilization_percent, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND area IN ('etch') AND interval_end > (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) - INTERVAL '24 hours' AND interval_end <= (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) GROUP BY interval_end, area) SELECT date_trunc('hour', interval_end AT TIME ZONE 'Asia/Seoul') AS observed_at, area, AVG(utilization_percent) AS utilization_percent, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY date_trunc('hour', interval_end AT TIME ZONE 'Asia/Seoul'), area ORDER BY observed_at ASC, area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "area": {
+            "value": "etch",
+            "source": "alias_match",
+            "confidence": 0.95,
+            "raw_text": "etch"
+          },
+          "relative_period": {
+            "value": "last_24_hours",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_24_hours"
+          },
+          "metric": {
+            "value": "util_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "util_percent"
+          },
+          "metrics": {
+            "value": "util_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "util_percent"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 etch utilization trend for the past 24 hours"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "기간 미지정 시 최신 적재 시각까지 24시간을 조회합니다. 실제 오늘의 실시간 상태와 구분합니다.",
+          "기간별 WIP·대기시간·수율·가동률은 관측 구간의 비가중 산술평균입니다. LOT 가중평균이나 기간 누적 WIP가 아닙니다. 완료/투입 LOT·down/PM 시간은 구간 합계입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "observed_at",
+          "area",
+          "utilization_percent",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "time_series",
+        "chart_intent": {
+          "type": "line",
+          "x": "observed_at",
+          "y": "utilization_percent",
+          "series": "area",
+          "x_title": "KST 관측일",
+          "y_title": "utilization_percent",
+          "y_zero": false,
+          "missing_policy": "gap"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v14",
+      "question": "FAB12 최근 3일 공정별 WIP 평균과 완료 LOT 합계",
+      "kind": "period_mixed",
+      "fab": "fab12",
+      "metrics": [
+        "wip_lots",
+        "lot_completions"
+      ],
+      "days": 3,
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(wip_lots) AS wip_lots, SUM(lot_completions) AS lot_completions, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(wip_lots) AS wip_lots, SUM(lot_completions) AS lot_completions, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg,lotcomps",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg, lotcomps"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 최근 3일 공정별 WIP 평균과 완료 LOT 합계"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다. 완료·투입량은 구간 합계입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "area",
+          "wip_lots",
+          "lot_completions",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": [
+            "wip_lots",
+            "lot_completions"
+          ],
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "wip_lots / lot_completions"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v15",
+      "question": "FAB13 최근 3일 공정별 완료 LOT 평균",
+      "kind": "period_mean",
+      "fab": "fab13",
+      "metrics": [
+        "lot_completions"
+      ],
+      "days": 3,
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, SUM(lot_completions) AS lot_completions, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(lot_completions) AS lot_completions, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "lotcomps"
+          },
+          "metrics": {
+            "value": "lotcomps",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "lotcomps"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 최근 3일 공정별 완료 LOT 평균"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "완료·투입 LOT의 평균은 관측 구간당 LOT 수의 비가중 산술평균입니다. 시간당 처리량이나 기간 합계가 아닙니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다. 완료·투입량도 요청한 구간당 평균입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "area",
+          "lot_completions",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": "lot_completions",
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "lot_completions"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v16",
+      "question": "FAB11 지금 WIP이 20 이상인 공정",
+      "kind": "threshold",
+      "fab": "fab11",
+      "metrics": [
+        "wip_lots"
+      ],
+      "threshold": 20,
+      "operator": ">=",
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end = (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) AND wip_lots >= 20 ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "threshold_metric": {
+            "value": "wiplotavg",
+            "source": "parser",
+            "confidence": 0.95,
+            "raw_text": "wiplotavg"
+          },
+          "threshold_operator": {
+            "value": ">=",
+            "source": "parser",
+            "confidence": 0.95,
+            "raw_text": ">="
+          },
+          "threshold_value": {
+            "value": "20",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "20"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 지금 WIP이 20 이상인 공정"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v17",
+      "question": "FAB12 현재 수율이 가장 낮은 공정 2개",
+      "kind": "rank",
+      "fab": "fab12",
+      "metrics": [
+        "yield_percent"
+      ],
+      "limit": 2,
+      "direction": "asc",
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, yield_percent FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end = (SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12) ORDER BY yield_percent ASC, area ASC LIMIT 2",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "metric": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "yield_percent"
+          },
+          "metrics": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "yield_percent"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 현재 수율이 가장 낮은 공정 2개"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "yield_percent"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v18",
+      "question": "FAB13 최근 3일 평균 대기시간이 가장 높은 공정",
+      "kind": "period_rank",
+      "fab": "fab13",
+      "metrics": [
+        "avg_queue_minutes"
+      ],
+      "days": 3,
+      "limit": 1,
+      "direction": "desc",
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, AVG(avg_queue_minutes) AS avg_queue_minutes, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(avg_queue_minutes) AS avg_queue_minutes, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY avg_queue_minutes DESC, area ASC LIMIT 1",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "avg_queue_minutes",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "avg_queue_minutes"
+          },
+          "metrics": {
+            "value": "avg_queue_minutes",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "avg_queue_minutes"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 최근 3일 평균 대기시간이 가장 높은 공정"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "선택한 전체 기간의 공정별 관측 평균으로 비교했습니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "area",
+          "avg_queue_minutes",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "ranking",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": "avg_queue_minutes",
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "avg_queue_minutes"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v19",
+      "question": "FAB11 현재 큐 타임",
+      "kind": "current",
+      "fab": "fab11",
+      "metrics": [
+        "avg_queue_minutes"
+      ],
+      "areas": [],
+      "status": "succeeded",
+      "sql": "SELECT MIN(interval_start) AS interval_start, MAX(interval_end) AS interval_end, AVG(avg_queue_minutes) AS avg_queue_minutes, COUNT(*) AS area_count FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND interval_end = (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11)",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 현재 큐 타임"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다.",
+          "전체 WIP/LOT 수는 같은 시각의 공정 영역 합계이며, 평균·비율 지표는 공정 영역 비가중 평균입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "avg_queue_minutes",
+          "area_count"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v20",
+      "question": "FAB12 현재 공정별 사이클 타임",
+      "kind": "current",
+      "fab": "fab12",
+      "metrics": [
+        "avg_cycle_hours"
+      ],
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, avg_cycle_hours FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end = (SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12) ORDER BY area ASC",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 현재 공정별 사이클 타임"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "avg_cycle_hours"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v21",
+      "question": "FAB13 지난 3일 공정별 불량 ppm 평균",
+      "kind": "period_mean",
+      "fab": "fab13",
+      "metrics": [
+        "defect_ppm"
+      ],
+      "days": 3,
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, AVG(defect_ppm) AS defect_ppm, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(defect_ppm) AS defect_ppm, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "defect_ppm",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "defect_ppm"
+          },
+          "metrics": {
+            "value": "defect_ppm",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "defect_ppm"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 지난 3일 공정별 불량 ppm 평균"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다. 완료·투입량도 요청한 구간당 평균입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "area",
+          "defect_ppm",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": "defect_ppm",
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "defect_ppm"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v22",
+      "question": "FAB11 최근 3일 WIP 누적 합계",
+      "kind": "ambiguous_aggregation",
+      "fab": "fab11",
+      "expected_status": "needs_clarification",
+      "status": "needs_clarification",
+      "sql": null,
+      "plan": {
+        "query_type": "status",
+        "template_id": null,
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 최근 3일 WIP 누적 합계"
+          }
+        },
+        "limitations": [],
+        "source_tables": [],
+        "select_items": [],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": null,
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v23",
+      "question": "FAB12 최근 0일 수율 추세",
+      "kind": "invalid_period",
+      "fab": "fab12",
+      "expected_status": "needs_clarification",
+      "status": "needs_clarification",
+      "sql": null,
+      "plan": {
+        "query_type": "trend",
+        "template_id": null,
+        "fab_id": "fab12",
+        "data_source_type": "operational_report",
+        "slots": {
+          "relative_period": {
+            "value": "last_0_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_0_days"
+          },
+          "metric": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "yield_percent"
+          },
+          "metrics": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "yield_percent"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 최근 0일 수율 추세"
+          }
+        },
+        "limitations": [],
+        "source_tables": [],
+        "select_items": [],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": null,
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v24",
+      "question": "FAB13 2026-02-30 WIP",
+      "kind": "invalid_period",
+      "fab": "fab13",
+      "expected_status": "needs_clarification",
+      "status": "needs_clarification",
+      "sql": null,
+      "plan": {
+        "query_type": "status",
+        "template_id": null,
+        "fab_id": "fab13",
+        "data_source_type": "operational_report",
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 2026-02-30 WIP"
+          }
+        },
+        "limitations": [],
+        "source_tables": [],
+        "select_items": [],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": null,
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v25",
+      "question": "FAB11 A라인 현재 WIP",
+      "kind": "unknown_scope",
+      "fab": "fab11",
+      "expected_status": "data_unavailable",
+      "status": "data_unavailable",
+      "sql": null,
+      "plan": {
+        "query_type": "status",
+        "template_id": null,
+        "fab_id": "fab11",
+        "data_source_type": null,
+        "slots": {
+          "metric": {
+            "value": "wiplotcur",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotcur"
+          },
+          "metrics": {
+            "value": "wiplotcur,wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotcur, wiplotavg"
+          },
+          "line": {
+            "value": "A",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "A"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 A라인 현재 WIP"
+          }
+        },
+        "limitations": [
+          "FAB11 A라인을 구분하는 컬럼이 현재 데이터에 없어 해당 라인의 수치를 조회할 수 없습니다. 공정 영역(etch·photo·cmp 등) 또는 FAB 전체로 조회 범위를 지정해주세요."
+        ],
+        "source_tables": [],
+        "select_items": [],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": null,
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v26",
+      "question": "FAB12 product A 현재 수율",
+      "kind": "unknown_scope",
+      "fab": "fab12",
+      "expected_status": "data_unavailable",
+      "status": "data_unavailable",
+      "sql": null,
+      "plan": {
+        "query_type": "status",
+        "template_id": null,
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "product": {
+            "value": "Product_a",
+            "source": "parser",
+            "confidence": 0.9,
+            "raw_text": "Product_a"
+          },
+          "products": {
+            "value": "Product_a",
+            "source": "parser",
+            "confidence": 0.9,
+            "raw_text": "Product_a"
+          },
+          "route": {
+            "value": "Route_Product_a",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "Product_a"
+          },
+          "metric": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "yield_percent"
+          },
+          "metrics": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "yield_percent"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 product A 현재 수율"
+          }
+        },
+        "limitations": [
+          "FAB12의 요청 지표는 현재 공정 영역별 시뮬레이션 관측값으로 저장되어 있고 제품 구분이 없습니다. 제품별 수치를 계산하려면 제품 구분이 있는 관측 자료가 필요합니다. 공정 영역별 지표는 조회할 수 있습니다."
+        ],
+        "source_tables": [],
+        "select_items": [],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": null,
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v27",
+      "question": "FAB13 현재 장비별 습도",
+      "kind": "unknown_grain",
+      "fab": "fab13",
+      "expected_status": "data_unavailable",
+      "status": "failed",
+      "sql": null,
+      "plan": {
+        "query_type": "status",
+        "template_id": null,
+        "fab_id": "fab13",
+        "data_source_type": "operational_report",
+        "slots": {
+          "metric": {
+            "value": "humidity_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "humidity_percent"
+          },
+          "metrics": {
+            "value": "humidity_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "humidity_percent"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 현재 장비별 습도"
+          }
+        },
+        "limitations": [],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13",
+          "fab13.fab_simulation_state_fab13"
+        ],
+        "select_items": [],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": null,
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [
+        "unexpected status: failed",
+        "model_required: disabled model fallback is not evidence of unavailable data"
+      ],
+      "model_calls_attempted": 1
+    },
+    {
+      "id": "v28",
+      "question": "FAB11 현재 etch와 photo의 WIP 비교",
+      "kind": "current",
+      "fab": "fab11",
+      "metrics": [
+        "wip_lots"
+      ],
+      "areas": [
+        "etch",
+        "photo"
+      ],
+      "status": "succeeded",
+      "sql": "SELECT interval_start, interval_end, area, wip_lots FROM fab11.live_process_snapshots_fab11 WHERE fab_id = 'fab11' AND area IN ('etch', 'photo') AND interval_end = (SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) ORDER BY area ASC",
+      "plan": {
+        "query_type": "trend",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab11",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "areas": {
+            "value": "etch,photo",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 현재 etch와 photo의 WIP 비교"
+          },
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB11 현재 etch와 photo의 WIP 비교"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다."
+        ],
+        "source_tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "area",
+          "wip_lots"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": {
+          "type": "grouped_bar",
+          "x": "area",
+          "y": "wip_lots",
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "wip_lots"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v29",
+      "question": "FAB12 오늘 현재 전체 WIP",
+      "kind": "current_today",
+      "fab": "fab12",
+      "metrics": [
+        "wip_lots"
+      ],
+      "areas": [],
+      "status": "succeeded",
+      "sql": "SELECT MIN(interval_start) AS interval_start, MAX(interval_end) AS interval_end, SUM(wip_lots) AS wip_lots, COUNT(*) AS area_count FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end = (SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12 WHERE interval_end >= TIMESTAMPTZ '2026-09-12 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00')",
+      "plan": {
+        "query_type": "status",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab12",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "today",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "today"
+          },
+          "date_start": {
+            "value": "2026-09-12",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "today"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "today"
+          },
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB12 오늘 현재 전체 WIP"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "KST 2026-09-12 날짜 안에서 가장 최근에 적재된 구간을 조회했습니다.",
+          "현재 값은 해당 FAB 전체에서 가장 최근에 적재된 구간 기준입니다.",
+          "전체 WIP/LOT 수는 같은 시각의 공정 영역 합계이며, 평균·비율 지표는 공정 영역 비가중 평균입니다."
+        ],
+        "source_tables": [
+          "fab12.live_process_snapshots_fab12"
+        ],
+        "select_items": [
+          "interval_start",
+          "interval_end",
+          "wip_lots",
+          "area_count"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "rows",
+        "chart_intent": null,
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    },
+    {
+      "id": "v30",
+      "question": "FAB13 지난 3일 공정별 평균 수율 차트",
+      "kind": "period_mean",
+      "fab": "fab13",
+      "metrics": [
+        "yield_percent"
+      ],
+      "days": 3,
+      "areas": "all",
+      "status": "succeeded",
+      "sql": "WITH observations AS (SELECT interval_end, area, AVG(yield_percent) AS yield_percent, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab13.live_process_snapshots_fab13 WHERE fab_id = 'fab13' AND interval_end >= TIMESTAMPTZ '2026-09-10 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(yield_percent) AS yield_percent, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area",
+      "plan": {
+        "query_type": "trend",
+        "template_id": "deterministic_simulation_observations",
+        "fab_id": "fab13",
+        "data_source_type": "simulation_snapshot",
+        "slots": {
+          "relative_period": {
+            "value": "last_3_days",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_start": {
+            "value": "2026-09-10",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "date_end": {
+            "value": "2026-09-13",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "last_3_days"
+          },
+          "metric": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "yield_percent"
+          },
+          "metrics": {
+            "value": "yield_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "yield_percent"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "FAB13 지난 3일 공정별 평균 수율 차트"
+          }
+        },
+        "limitations": [
+          "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+          "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+          "시각·날짜는 Asia/Seoul(KST), 집계 기준은 interval_end(구간 종료 시각)입니다.",
+          "조회 기간은 KST 2026-09-10 이상 2026-09-13 미만입니다.",
+          "요청한 전체 기간을 하나로 집계했습니다. 평균은 관측 구간의 비가중 산술평균입니다. 완료·투입량도 요청한 구간당 평균입니다."
+        ],
+        "source_tables": [
+          "fab13.live_process_snapshots_fab13"
+        ],
+        "select_items": [
+          "area",
+          "yield_percent",
+          "observation_count",
+          "first_observed_at",
+          "last_observed_at",
+          "observation_minutes_min",
+          "observation_minutes_max"
+        ],
+        "filters": [],
+        "group_by": [],
+        "order_by": [],
+        "aggregation": null,
+        "expected_result_shape": "period_summary",
+        "chart_intent": {
+          "type": "bar",
+          "x": "area",
+          "y": "yield_percent",
+          "series": null,
+          "x_title": "공정 영역",
+          "y_title": "yield_percent"
+        },
+        "semantic_plan": {},
+        "grounding": {},
+        "generation_attempts": []
+      },
+      "issues": [],
+      "model_calls_attempted": 0
+    }
+  ]
+}

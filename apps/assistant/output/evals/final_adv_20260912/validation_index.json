@@ -1,0 +1,142 @@
+{
+  "status": "completed_with_validation_gaps",
+  "latest_application_source_sha256": "913eefa850db00d45e13566369fe243946f21b680edeb7d677a83c480531e3af",
+  "notes": [
+    "The latest live-model batch predates later fixes. Additional model transmission is awaiting user confirmation after auto-review rejection.",
+    "Static guide rendering does not cover browser layout or interaction. Mac unlock is pending."
+  ],
+  "artifacts": {
+    "latest_live_model": {
+      "path": "chat_complete_iteration6.json",
+      "sha256": "762f71c5b4534b37246a0e6c047532b9dba3d43a17863c8a8fa64c5cc2199699"
+    },
+    "live_model_summary": {
+      "path": "chat_complete_iteration6_summary.json",
+      "sha256": "8a69a4d70c5aa04534aee9fda8eb77c088b12c26d7074cf965f654a822fc3a8c"
+    },
+    "live_model_contract_audit": {
+      "path": "chat_complete_iteration6_contract_audit.json",
+      "sha256": "d883d03c65000d285e9352b81776f50b367a5798a6e1204f1c265df8775a0b56"
+    },
+    "live_model_value_audit": {
+      "path": "chat_complete_iteration6_value_audit.json",
+      "sha256": "60cb761aee49408c602801e19b1f4481d93ec2063f2339f5d26e9ad500cd7ce4"
+    },
+    "latest_sql_contracts": {
+      "path": "all_contracts_sql_iteration4.json",
+      "sha256": "74fa2ad2a4b66d7727147d67cf36b24b4d353820a02d05835d23e2f7f24f5769"
+    },
+    "latest_model_unavailable": {
+      "path": "offline_resilience_iteration7.json",
+      "sha256": "4b1329165beed45f6e7940b87822c27de97744c75082ada611e30ce43b817c54"
+    },
+    "model_unavailable_summary": {
+      "path": "offline_resilience_iteration7_summary.json",
+      "sha256": "62a7418cc85afa424cd1ec6fd1ff8d8300c2172f4b4c0c06327632613899caf0"
+    },
+    "model_unavailable_contract_audit": {
+      "path": "offline_resilience_iteration7_contract_audit.json",
+      "sha256": "68f1cbdc36d55b44bbd691355da90cc60ae9ddef70b76329b4b76ec17df70538"
+    },
+    "model_unavailable_value_audit": {
+      "path": "offline_resilience_iteration7_value_audit.json",
+      "sha256": "af4df35d256237112a2d5a52e3fdaf6be0f22f4d58cd84a8059da38f6020eab6"
+    },
+    "concurrent_fab_conversations": {
+      "path": "concurrent_scope_iteration2.json",
+      "sha256": "94e00db95fc09bdeac7aca69b913fa2a6a9b84ba01728c3a69fcaf7a83f37226"
+    },
+    "guide_conversation_details": {
+      "path": "question_guide_offline_iteration2.json",
+      "sha256": "8fe427f70ec62c97f119c9ae71a51d9f73a54b26c6226affc76a1d202fcfc1fd"
+    },
+    "guide_static_render": {
+      "path": "question_guide_static_render_iteration2.json",
+      "sha256": "1b2135aa64496ca27e89137d30a42e1740cc43ddc03fab2abbda43dea52a602e"
+    },
+    "impact_formula_audit": {
+      "path": "impact_contracts_iteration1.json",
+      "sha256": "be4c717de2d429ff4daaf971fc6562bf0c6f5176e80bd4dafbc2d9da468864ac"
+    },
+    "backend_tests": {
+      "path": "backend_tests_iteration78.txt",
+      "sha256": "289d426d3b4d9a8cf49a10a10cd65cb7ce2cd442e6ac6c5d33557a12288756f1"
+    },
+    "frontend_tests": {
+      "path": "frontend_tests_iteration11.txt",
+      "sha256": "9bfbba79cbce25c775b3abdb0707c5ed14c58182dd69d6fdcf810f0507c8a26e"
+    },
+    "frontend_build": {
+      "path": "frontend_build_iteration11.txt",
+      "sha256": "40bd824370837448c4525263a96d7b535dc6b5cf4ac11b091a8ebfe850d68bab"
+    },
+    "model_connection_loopback_benchmark": {
+      "path": "model_transport_loopback_iteration1.json",
+      "sha256": "1e6c5420e7d7da8082287de060cb589f6f1a9bd83d629b06c017861e36de633a"
+    },
+    "runtime_configuration": {
+      "path": "runtime_configuration_change.json",
+      "sha256": "a34a0d3d23f15f4f9720e943e0be2f176ba51b755cfbf2af1d288e3244a31a34"
+    },
+    "model_timeout_sse": {
+      "path": "model_timeout_sse_iteration1.json",
+      "sha256": "aaf8e155c5dea84e9823418286ef40287bca99e574d24adc79dd8e918a694389"
+    },
+    "model_timeout_service": {
+      "path": "model_timeout_recovery_iteration2.json",
+      "sha256": "9fffc65b25287686e5502323438ffa1ea63feb290658f41fd9e6c3131d9a19c3"
+    },
+    "readiness": {
+      "path": "readiness_final.json",
+      "sha256": "9ba4cbfe8db79bced9718752f7592c229aef4f7d6c54a7e2a193974d3b211ece"
+    },
+    "local_services": {
+      "path": "local_services_final.json",
+      "sha256": "b29eec8888f9da1947045291e70c12586d63275947967abcf949c1640e9a2430"
+    },
+    "raw_reference": {
+      "path": "reference_raw.json",
+      "sha256": "0a22b7defa8e6629f1b0a3c374ec2f4836aaa64487d353afdf79c8f3ad50d26f"
+    },
+    "database_catalog": {
+      "path": "catalog_baseline.json",
+      "sha256": "e1ecdefbcb55f9193999b82f58dbd3e44ed582c10f64350e24d3cc10158e99bf"
+    },
+    "snapshot_fixture": {
+      "path": "snapshot_final_contracts.json",
+      "sha256": "18d60d6869904d706925ace47f9b922a03962122274bab5024be4777c7242e81"
+    },
+    "guide_fixture": {
+      "path": "question_guide_fixture.json",
+      "sha256": "46a11423cb0ac11ad487938e683dc63484940fd1165cb574ecf938f8fbc189ed"
+    },
+    "stability_soak": {
+      "path": "stability_soak_iteration4.json",
+      "sha256": "f7ef3bebb4394db0a12513969037f6c3387f6c6deafe9b0289375a1dd6c9ca03"
+    },
+    "stability_soak_summary": {
+      "path": "stability_soak_iteration4_summary.json",
+      "sha256": "73134b19782a3073aae597f3e7141cc173b9b4566ffb1759a262dc4d4a9e6167"
+    }
+  },
+  "latest_frontend_source_sha256": "358206b49fcf1191ac5d40fba001b0f7bcd113d6273dedfd9830e21cce63a37e",
+  "source_hash_method": "SHA256 of concatenated file bytes in sorted path order: backend apps/assistant/src/**/*.py; frontend apps/web/src/**/*.{js,jsx,css}.",
+  "git_state": {
+    "branch": "feat/final_adv",
+    "head": "374e1000ea761dc6ea3bbcd98b00191e43f46d8a",
+    "changes": "uncommitted working tree; includes preserved pre-existing changes",
+    "inherited_tracked_changes_patch": "inherited_changes.patch"
+  },
+  "remaining_validation": [
+    {
+      "task": "Latest-source 34-question live-model batch and 7-turn HTTP SSE conversation",
+      "reason": "Auto-review rejected additional transmission of demo prompts and retrieved evidence to the configured external model endpoint; user confirmation is pending."
+    },
+    {
+      "task": "New question-guide browser layout and interaction",
+      "reason": "Mac remains locked; static React render checks passed but do not replace browser QA."
+    }
+  ],
+  "work_finished_at": "2026-09-12T12:28:58.446734+00:00",
+  "runbook": "../../../../../docs/final_adv_demo_runbook.md"
+}
