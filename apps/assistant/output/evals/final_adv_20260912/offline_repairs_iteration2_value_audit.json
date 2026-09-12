@@ -1,0 +1,57 @@
+{
+  "passed": 5,
+  "values_passed": 5,
+  "total": 5,
+  "results": [
+    {
+      "id": "fab12_week_compare",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 12,
+      "actual_rows": 12,
+      "errors": []
+    },
+    {
+      "id": "fab10_master",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 12,
+      "actual_rows": 12,
+      "errors": []
+    },
+    {
+      "id": "fab11_master",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": []
+    },
+    {
+      "id": "fab12_master",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": []
+    },
+    {
+      "id": "fab13_master",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": []
+    }
+  ],
+  "skipped": [],
+  "impact_calculations": {
+    "passed": 0,
+    "total": 0,
+    "results": [],
+    "scope": "Arithmetic under the declared utilization-proportional capacity assumption; not an empirical causal-model validation."
+  },
+  "raw_sha256": "0a22b7defa8e6629f1b0a3c374ec2f4836aaa64487d353afdf79c8f3ad50d26f",
+  "report_sha256": "79f166af5abe1e089d9c6d5208ed3cb115fa781aeec332f02dba3d5627b18507",
+  "raw_file": "apps/assistant/output/evals/final_adv_20260912/reference_raw.json"
+}

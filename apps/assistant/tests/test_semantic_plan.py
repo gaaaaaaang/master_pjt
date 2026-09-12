@@ -52,7 +52,7 @@ def test_disconnected_sources_and_cross_fab_sources_are_rejected():
         validate_plan(raw, ctx)
 
 
-def test_production_client_validates_plan_before_sql_call(monkeypatch):
+def test_production_client_compiles_validated_simple_plan_without_second_model_call(monkeypatch):
     client = OpenAIText2SQLClient(api_key='test-key')
     calls = []
 
@@ -68,9 +68,12 @@ def test_production_client_validates_plan_before_sql_call(monkeypatch):
     result = client.create_sql(question='fab11 simulation WIP', query_type='status',
                                fab_id='fab11', slots={}, schema_context=ctx)
     assert result['supported']
-    assert len(calls) == 2
+    assert len(calls) == 1
     assert calls[0]['response_format']['json_schema']['name'] == 'fab_semantic_plan'
     assert ctx['validated_semantic_plan']['tables'] == [REF]
+    assert ctx['grounding']['sql_generation_mode'] == 'compiled_validated_plan'
+    from app.sub_agent.semantic_plan import SemanticPlan, validate_sql_plan
+    validate_sql_plan(result['sql'], SemanticPlan.model_validate(ctx['validated_semantic_plan']))
 
 
 def test_invalid_plan_prevents_any_sql_generation_call(monkeypatch):

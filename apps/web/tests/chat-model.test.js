@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { consumeSse, parseSseBlock, buildPayload, toCsv, resultStatus, requestForAttempt, restoreMessages } from '../src/chat-model.js';
+import { consumeSse, parseSseBlock, buildPayload, toCsv, resultStatus, requestForAttempt, restoreMessages, rowsFromResult } from '../src/chat-model.js';
 function response(chunks) { return new Response(new ReadableStream({ start(controller) { for (const c of chunks) controller.enqueue(typeof c === 'string' ? new TextEncoder().encode(c) : c); controller.close(); } }), { headers: { 'Content-Type': 'text/event-stream' } }); }
 test('SSE handles UTF-8 split across bytes and CRLF split across chunks', async () => {
   const text = 'event: trace\r\ndata: {"type":"node_completed","message":"한글"}\r\n\r\nevent: final\r\ndata: {"type":"run_completed","data":{"answer":"완료"}}\r\n\r\n';
@@ -29,4 +29,16 @@ test('Restored sessions release interrupted stream and feedback controls', () =>
   assert.equal(messages[0].status, 'cancelled');
   assert.equal(messages[1].feedback, null);
   assert.equal(messages[2].feedback, 'helpful');
+});
+
+test('Data export preserves all query rows instead of the five-row stream preview', () => {
+  const rows = Array.from({ length: 42 }, (_, i) => ({ area: `area_${i}`, count: i }));
+  const events = [{ data: { sample_rows: rows.slice(0, 5) } }];
+  assert.deepEqual(rowsFromResult({ query_result: { rows } }, events), rows);
+  assert.deepEqual(rowsFromResult({ evidence: [{ source_type: 'text2sql_plan', metadata: { sample_rows: rows.slice(0, 20) } }] }, events), rows.slice(0, 20));
+});
+
+test('Multi-metric chart export uses original wide rows rather than expanded plotting points', () => {
+  const source = [{ day: '2026-09-12', wip: 33, yield: 99.4 }];
+  assert.deepEqual(rowsFromResult({ chart: { source_rows: source, rows: [{ value: 33 }, { value: 99.4 }] } }), source);
 });

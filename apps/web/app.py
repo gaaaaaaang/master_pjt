@@ -249,6 +249,13 @@ def queue_suggested_prompt(prompt: str) -> None:
 
 
 st.set_page_config(page_title="FAB Assistant", page_icon="F", layout="wide")
+st.info(
+    "현재 화면은 기존 Streamlit UI입니다. 고도화된 프런트엔드는 React에서 실행됩니다. "
+    "저장소 루트의 별도 터미널에서 `npm --prefix apps/web run dev`를 실행한 뒤 "
+    "[새 FAB 채팅 화면](http://localhost:5173/)을 열어 주세요. "
+    "백엔드는 별도 터미널에서 "
+    "`PYTHONPATH=apps/assistant/src uv run uvicorn app.main:app --reload`로 실행합니다."
+)
 ensure_conversation_state()
 
 st.markdown(

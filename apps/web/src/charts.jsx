@@ -1,7 +1,23 @@
-import React from "react";
-import { showTick, compactLabel } from "./chart-labels";
+import React, { useEffect, useRef, useState } from "react";
+import { showTick, compactLabel, formatChartNumber, metricLabel, seriesColors, metricChartFacets } from "./chart-labels";
+
+function useChartWidth() {
+  const ref = useRef(null);
+  const [width, setWidth] = useState(720);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const measure = () => { if (element.clientWidth) setWidth(Math.max(240, Math.round(element.clientWidth))); };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, width];
+}
+
 function LineChart({ spec }) {
-  const width = 720;
+  const [chartRef, width] = useChartWidth();
   const height = 280;
   const padding = { top: 24, right: 28, bottom: 52, left: 56 };
   const xField = spec.encoding?.x?.field;
@@ -23,7 +39,7 @@ function LineChart({ spec }) {
   const pointString = points.map((point) => `${point.x},${point.y}`).join(" ");
 
   return (
-    <figure className="chart">
+    <figure className={`chart ${width < 480 ? 'narrow-chart' : ''}`} ref={chartRef}>
       <figcaption>
         <strong>{spec.title}</strong>
         <span>{spec.series}</span>
@@ -31,31 +47,32 @@ function LineChart({ spec }) {
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={spec.title}>
         <line x1={padding.left} y1={padding.top} x2={padding.left} y2={height - padding.bottom} />
         <line x1={padding.left} y1={yPosition(Math.max(minY, Math.min(maxY, 0)))} x2={width - padding.right} y2={yPosition(Math.max(minY, Math.min(maxY, 0)))} />
-        <text x={padding.left - 12} y={padding.top + 4} textAnchor="end">{maxY}</text>
-        <text x={padding.left - 12} y={height - padding.bottom + 4} textAnchor="end">{minY}</text>
+        <text x={padding.left - 12} y={padding.top + 4} textAnchor="end">{formatChartNumber(maxY)}</text>
+        <text x={padding.left - 12} y={height - padding.bottom + 4} textAnchor="end">{formatChartNumber(minY)}</text>
         {points.length > 1 && <polyline points={pointString} />}
         {points.map((point, pointIndex) => (
           <g key={`${point.label}-${point.x}`}>
             <circle className={point.imputed ? "imputed-point" : undefined} cx={point.x} cy={point.y} r="5">
               <title>{point.imputed ? `${point.label}: inferred zero` : `${point.label}: ${point.value}`}</title>
             </circle>
-            {points.length <= 8 && <text className="point-value" x={point.x} y={point.y - 12} textAnchor="middle">{point.value}</text>}
-            {showTick(pointIndex, points.length) && <text x={point.x} y={height - padding.bottom + 22} textAnchor="middle"><title>{point.label}</title>{compactLabel(point.label)}</text>}
+            {points.length <= 8 && <text className="point-value" x={point.x} y={point.y - 12} textAnchor="middle">{formatChartNumber(point.value)}</text>}
+            {showTick(pointIndex, points.length, width < 480 ? 3 : 6) && <text x={point.x} y={height - padding.bottom + 22} textAnchor="middle"><title>{point.label}</title>{compactLabel(point.label)}</text>}
           </g>
         ))}
         <text className="axis-title" x={width / 2} y={height - 8} textAnchor="middle">
-          {spec.encoding?.x?.title}
+          {metricLabel(spec.encoding?.x?.title)}
         </text>
         <text className="axis-title" x="14" y={height / 2} textAnchor="middle" transform={`rotate(-90 14 ${height / 2})`}>
-          {spec.encoding?.y?.title}
+          {metricLabel(spec.encoding?.y?.title)}
         </text>
       </svg>
+      {spec.type === "line" && (minY > 0 || maxY < 0) && <p className="chart-scale-note">세로축은 관측 범위에 맞춰 표시합니다 · {formatChartNumber(minY)}–{formatChartNumber(maxY)}</p>}
     </figure>
   );
 }
 
 function MultiSeriesLineChart({ spec }) {
-  const width = 720;
+  const [chartRef, width] = useChartWidth();
   const height = 300;
   const padding = { top: 28, right: 28, bottom: 64, left: 56 };
   const xField = spec.encoding.x.field;
@@ -72,22 +89,22 @@ function MultiSeriesLineChart({ spec }) {
   const span = maxY - minY || 1;
   const plotWidth = width - padding.left - padding.right;
   const plotHeight = height - padding.top - padding.bottom;
-  const colors = ["#3182f6", "#8f7ae5", "#19a988", "#e5aa56"];
+  const colors = seriesColors;
   const xPosition = (index) =>
     padding.left + (categories.length === 1 ? plotWidth / 2 : (index / (categories.length - 1)) * plotWidth);
   const yPosition = (value) => padding.top + ((maxY - Number(value)) / span) * plotHeight;
 
   return (
-    <figure className="chart">
+    <figure className={`chart ${width < 480 ? 'narrow-chart' : ''}`} ref={chartRef}>
       <figcaption>
         <strong>{spec.title}</strong>
-        <span className="chart-legend">{series.map((name, index) => <span key={name}><i style={{ background: colors[index % colors.length] }}/>{name}</span>)}</span>
+        <span className="chart-legend">{series.map((name, index) => <span key={name}><i style={{ background: colors[index % colors.length] }}/>{metricLabel(name)}</span>)}</span>
       </figcaption>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={spec.title}>
         <line x1={padding.left} y1={padding.top} x2={padding.left} y2={height - padding.bottom} />
         <line x1={padding.left} y1={yPosition(Math.max(minY, Math.min(maxY, 0)))} x2={width - padding.right} y2={yPosition(Math.max(minY, Math.min(maxY, 0)))} />
-        <text x={padding.left - 12} y={padding.top + 4} textAnchor="end">{maxY}</text>
-        <text x={padding.left - 12} y={height - padding.bottom + 4} textAnchor="end">{minY}</text>
+        <text x={padding.left - 12} y={padding.top + 4} textAnchor="end">{formatChartNumber(maxY)}</text>
+        <text x={padding.left - 12} y={height - padding.bottom + 4} textAnchor="end">{formatChartNumber(minY)}</text>
         {series.map((seriesName, seriesIndex) => {
           const segments = contiguousLineSegments({
             categories,
@@ -127,18 +144,19 @@ function MultiSeriesLineChart({ spec }) {
             </g>
           );
         })}
-        {categories.map((category, index) => showTick(index, categories.length) && (
+        {categories.map((category, index) => showTick(index, categories.length, width < 480 ? 3 : 6) && (
           <text key={category} x={xPosition(index)} y={height - padding.bottom + 24} textAnchor="middle">
             <title>{category}</title>{compactLabel(category)}
           </text>
         ))}
         <text className="axis-title" x={width / 2} y={height - 10} textAnchor="middle">
-          {spec.encoding.x.title}
+          {metricLabel(spec.encoding.x.title)}
         </text>
         <text className="axis-title" x="14" y={height / 2} textAnchor="middle" transform={`rotate(-90 14 ${height / 2})`}>
-          {spec.encoding.y.title}
+          {metricLabel(spec.encoding.y.title)}
         </text>
       </svg>
+      {spec.type === "line" && (minY > 0 || maxY < 0) && <p className="chart-scale-note">세로축은 관측 범위에 맞춰 표시합니다 · {formatChartNumber(minY)}–{formatChartNumber(maxY)}</p>}
     </figure>
   );
 }
@@ -147,10 +165,12 @@ export function Chart({ spec }) {
   if (!spec || !["line", "bar", "grouped_bar"].includes(spec.type) || !spec.encoding?.x?.field || !spec.encoding?.y?.field) return <p className="notice">이 차트 형식은 아직 지원하지 않아요. 원본 데이터에서 확인해 주세요.</p>;
   if (!Array.isArray(spec.rows) || !spec.rows.length) return <p className="notice">표시할 데이터가 없어요.</p>;
   if (spec.rows.some(row => !row || typeof row !== "object" || row[spec.encoding.x.field] == null || row[spec.encoding.y.field] == null || row[spec.encoding.y.field] === '' || !Number.isFinite(Number(row[spec.encoding.y.field])))) return <p className="notice">차트에 필요한 값이 누락되었어요. 원본 데이터에서 확인해 주세요.</p>;
+  const facets = metricChartFacets(spec);
+  if (facets.length) return <div className="metric-chart-facets"><p className="chart-scale-note">지표별 단위와 세로축을 나누어 표시합니다.</p>{facets.map(facet => <Chart key={facet.title} spec={facet}/>)}</div>;
   if (["bar", "grouped_bar"].includes(spec.type) && spec.encoding?.color?.field) {
     return <GroupedBarChart spec={spec} />;
   }
-  if (spec.type === "bar") {
+  if (["bar", "grouped_bar"].includes(spec.type)) {
     return <BarChart spec={spec} />;
   }
   if (spec.type === "line" && spec.encoding?.color?.field) {
@@ -220,7 +240,7 @@ function contiguousLineSegments({
 }
 
 function BarChart({ spec }) {
-  const width = 720;
+  const [chartRef, width] = useChartWidth();
   const height = 300;
   const padding = { top: 28, right: 28, bottom: 64, left: 56 };
   const xField = spec.encoding.x.field;
@@ -238,16 +258,16 @@ function BarChart({ spec }) {
   const zeroY = yPosition(Math.max(minY, Math.min(maxY, 0)));
 
   return (
-    <figure className="chart">
+    <figure className={`chart ${width < 480 ? 'narrow-chart' : ''}`} ref={chartRef}>
       <figcaption>
         <strong>{spec.title}</strong>
-        <span>{spec.encoding.y.title}</span>
+        <span>{metricLabel(spec.encoding.y.title)}</span>
       </figcaption>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={spec.title}>
         <line x1={padding.left} y1={padding.top} x2={padding.left} y2={height - padding.bottom} />
         <line x1={padding.left} y1={zeroY} x2={width - padding.right} y2={zeroY} />
-        <text x={padding.left - 12} y={padding.top + 4} textAnchor="end">{maxY}</text>
-        <text x={padding.left - 12} y={height - padding.bottom + 4} textAnchor="end">{minY}</text>
+        <text x={padding.left - 12} y={padding.top + 4} textAnchor="end">{formatChartNumber(maxY)}</text>
+        <text x={padding.left - 12} y={height - padding.bottom + 4} textAnchor="end">{formatChartNumber(minY)}</text>
         {categories.map((category, index) => {
           const row = rows.find((item) => String(item[xField]) === category);
           if (!row) return null;
@@ -261,28 +281,29 @@ function BarChart({ spec }) {
               <rect className="chart-bar" x={x} y={y} width={barWidth} height={barHeight}>
                 <title>{`${category}: ${value}`}</title>
               </rect>
-              <text className="point-value" x={x + barWidth / 2} y={value >= 0 ? y - 8 : y + barHeight + 16} textAnchor="middle">
-                {value}
-              </text>
-              {showTick(index, categories.length) && <text x={x + barWidth / 2} y={height - padding.bottom + 24} textAnchor="middle">
+              {barWidth >= 28 && <text className="point-value" x={x + barWidth / 2} y={value >= 0 ? y - 8 : y + barHeight + 16} textAnchor="middle">
+                {formatChartNumber(value)}
+              </text>}
+              {showTick(index, categories.length, width < 480 ? 3 : 6) && <text x={x + barWidth / 2} y={height - padding.bottom + 24} textAnchor="middle">
                 <title>{category}</title>{compactLabel(category)}
               </text>}
             </g>
           );
         })}
         <text className="axis-title" x={width / 2} y={height - 10} textAnchor="middle">
-          {spec.encoding.x.title}
+          {metricLabel(spec.encoding.x.title)}
         </text>
         <text className="axis-title" x="14" y={height / 2} textAnchor="middle" transform={`rotate(-90 14 ${height / 2})`}>
-          {spec.encoding.y.title}
+          {metricLabel(spec.encoding.y.title)}
         </text>
       </svg>
+      {spec.type === "line" && (minY > 0 || maxY < 0) && <p className="chart-scale-note">세로축은 관측 범위에 맞춰 표시합니다 · {formatChartNumber(minY)}–{formatChartNumber(maxY)}</p>}
     </figure>
   );
 }
 
 function GroupedBarChart({ spec }) {
-  const width = 720;
+  const [chartRef, width] = useChartWidth();
   const height = 300;
   const padding = { top: 28, right: 28, bottom: 64, left: 56 };
   const xField = spec.encoding.x.field;
@@ -298,21 +319,21 @@ function GroupedBarChart({ spec }) {
   const plotHeight = height - padding.top - padding.bottom;
   const groupWidth = plotWidth / Math.max(categories.length, 1);
   const barWidth = Math.min(48, (groupWidth * 0.72) / Math.max(series.length, 1));
-  const colors = ["#3182f6", "#8f7ae5", "#19a988", "#e5aa56"];
+  const colors = seriesColors;
   const yPosition = (value) => padding.top + ((maxY - Number(value)) / span) * plotHeight;
   const zeroY = yPosition(Math.max(minY, Math.min(maxY, 0)));
 
   return (
-    <figure className="chart">
+    <figure className={`chart ${width < 480 ? 'narrow-chart' : ''}`} ref={chartRef}>
       <figcaption>
         <strong>{spec.title}</strong>
-        <span className="chart-legend">{series.map((name, index) => <span key={name}><i style={{ background: colors[index % colors.length] }}/>{name}</span>)}</span>
+        <span className="chart-legend">{series.map((name, index) => <span key={name}><i style={{ background: colors[index % colors.length] }}/>{metricLabel(name)}</span>)}</span>
       </figcaption>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={spec.title}>
         <line x1={padding.left} y1={padding.top} x2={padding.left} y2={height - padding.bottom} />
         <line x1={padding.left} y1={zeroY} x2={width - padding.right} y2={zeroY} />
-        <text x={padding.left - 12} y={padding.top + 4} textAnchor="end">{maxY}</text>
-        <text x={padding.left - 12} y={height - padding.bottom + 4} textAnchor="end">{minY}</text>
+        <text x={padding.left - 12} y={padding.top + 4} textAnchor="end">{formatChartNumber(maxY)}</text>
+        <text x={padding.left - 12} y={height - padding.bottom + 4} textAnchor="end">{formatChartNumber(minY)}</text>
         {categories.flatMap((category, categoryIndex) =>
           series.map((seriesName, seriesIndex) => {
             const row = rows.find(
@@ -337,14 +358,14 @@ function GroupedBarChart({ spec }) {
                 >
                   <title>{`${category} · ${seriesName}: ${value}`}</title>
                 </rect>
-                <text className="point-value" x={x + barWidth / 2 - 2} y={value >= 0 ? y - 8 : y + barHeight + 16} textAnchor="middle">
-                  {value}
-                </text>
+                {barWidth >= 28 && <text className="point-value" x={x + barWidth / 2 - 2} y={value >= 0 ? y - 8 : y + barHeight + 16} textAnchor="middle">
+                  {formatChartNumber(value)}
+                </text>}
               </g>
             );
           }),
         )}
-        {categories.map((category, index) => showTick(index, categories.length) && (
+        {categories.map((category, index) => showTick(index, categories.length, width < 480 ? 3 : 6) && (
           <text
             key={category}
             x={padding.left + index * groupWidth + groupWidth / 2}
@@ -355,12 +376,13 @@ function GroupedBarChart({ spec }) {
           </text>
         ))}
         <text className="axis-title" x={width / 2} y={height - 10} textAnchor="middle">
-          {spec.encoding.x.title}
+          {metricLabel(spec.encoding.x.title)}
         </text>
         <text className="axis-title" x="14" y={height / 2} textAnchor="middle" transform={`rotate(-90 14 ${height / 2})`}>
-          {spec.encoding.y.title}
+          {metricLabel(spec.encoding.y.title)}
         </text>
       </svg>
+      {spec.type === "line" && (minY > 0 || maxY < 0) && <p className="chart-scale-note">세로축은 관측 범위에 맞춰 표시합니다 · {formatChartNumber(minY)}–{formatChartNumber(maxY)}</p>}
     </figure>
   );
 }

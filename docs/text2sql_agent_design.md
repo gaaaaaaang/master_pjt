@@ -402,6 +402,18 @@ General Data lookup routing은 별도 catalog로 둔다.
 | setup time 조회 | `{fab}.setups` | `setup_group_name`, `current_setup`, `new_setup` | `minmal_number_of_runs` 원천 컬럼명 유지 |
 | transport time 조회 | `{fab}.transport` | `from_location`, `to_location` | simulation input 기준 |
 
+Synthetic process snapshot routing은 General Data model/master lookup과 분리한다.
+
+| user intent | table family | 대표 식별 column | 주의점 |
+| - | - | - | - |
+| 합성 시뮬레이션 공정 추세 | `{fab}.live_process_snapshots` | `area`, `interval_end` | `area` 값은 `cmp`, `deposition`, `etch`, `implant`, `metrology`, `photo`를 그대로 사용 |
+| 합성 시뮬레이션 이벤트 | `{fab}.live_process_events` | `area`, `event_type`, `interval_end` | model `toolgroups.area`의 `Dry_Etch`/`Wet_Etch`와 자동 매핑 금지 |
+
+사용자가 `합성`, `시뮬레이션`, `snapshot`, `live_process`를 명시하고 `etch 영역`처럼
+snapshot area literal을 입력하면 이 값을 `Dry_Etch`로 정규화하지 않는다. `Dry_Etch`는
+General Data model/master의 공정명이고, `etch`는 synthetic snapshot의 area 값이다. 둘은
+공통 키가 정의되지 않았으므로 유사한 이름만으로 조인하거나 대체 조회하지 않는다.
+
 `route_product_*` table은 dynamic table name을 포함하므로 LLM이 직접 table명을 쓰게 하지
 않는다. `schema_grounder`가 information_schema 또는 사전 생성 catalog에서 해당 fab의
 route table 목록을 읽고, `Product_3` -> `route_product_3`,

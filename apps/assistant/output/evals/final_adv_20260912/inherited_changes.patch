@@ -1,0 +1,664 @@
+diff --git a/README.md b/README.md
+index bff34b7..1563a7f 100644
+--- a/README.md
++++ b/README.md
+@@ -19,13 +19,24 @@ AutoSched report table이 없는 환경에서는 live/current status 질문이 `
+ 
+ ## 실행
+ 
++고도화된 사용자 화면은 **React (`http://localhost:5173/`)** 입니다.
++`uv run streamlit run apps/web/app.py`는 별도로 유지하는 기존 Streamlit 화면(`8501`)을
++실행하므로 React 디자인 개선이 표시되지 않습니다. `/trace`는 기존 React 평가 화면입니다.
++브랜치 병합 후에는 백엔드도 현재 checkout에서 재시작해야 변경된 에이전트 코드가 로드됩니다.
++
++저장소 루트에서 의존성을 설치하고 백엔드를 실행합니다.
++
+ ```bash
+ cp .env.example .env
+ uv sync --extra dev --extra rag
+ PYTHONPATH=apps/assistant/src uv run uvicorn app.main:app --reload
+-cd apps/web
+-npm ci
+-npm run dev
++```
++
++별도 터미널의 저장소 루트에서 React를 실행합니다.
++
++```bash
++npm --prefix apps/web ci
++npm --prefix apps/web run dev
+ ```
+ 
+ `.env`에 본인의 API 키를 설정한 뒤 실행합니다. 기본 BM25 **검색**은 로컬에서 수행하지만,
+diff --git a/apps/assistant/src/app/agents/prompts.py b/apps/assistant/src/app/agents/prompts.py
+index 6275348..68db2de 100644
+--- a/apps/assistant/src/app/agents/prompts.py
++++ b/apps/assistant/src/app/agents/prompts.py
+@@ -1,4 +1,4 @@
+-PLANNER_PROMPT_VERSION = "planner.v4"
++PLANNER_PROMPT_VERSION = "planner.v5"
+ SUPERVISOR_PROMPT_VERSION = "supervisor.v3"
+ AGENT_RECOVERY_PROMPT_VERSION = "agent-recovery.v2"
+ ANSWER_SUPERVISOR_PROMPT_VERSION = "answer-supervisor.v2"
+@@ -69,6 +69,9 @@ Policy:
+   business clarification such as an unspecified FAB, metric, or ambiguous release date basis.
+ - Select sources by their actual metric, grain and time coverage. General Data cannot supply
+   observed WIP; simulated snapshots may supply simulated WIP and must be labeled as simulation.
++- When the user explicitly asks for synthetic/simulation/snapshot/live_process data, preserve
++  snapshot area literals such as cmp, deposition, etch, implant, metrology, and photo. Do not
++  rewrite these values to model/master process names such as Dry_Etch, Wet_Etch, Photo, or CMP.
+ - Never plan direct equipment control or automatic production actions.
+ - When execution_feedback is present, revise the plan instead of repeating the failed
+   combination without a material change.
+diff --git a/apps/assistant/src/app/db/metadata_catalog.py b/apps/assistant/src/app/db/metadata_catalog.py
+index 03f8636..648e4dc 100644
+--- a/apps/assistant/src/app/db/metadata_catalog.py
++++ b/apps/assistant/src/app/db/metadata_catalog.py
+@@ -163,7 +163,7 @@ def load_fab_catalog(fab: str) -> dict[str, dict[str, Any]]:
+                     if key in definition:
+                         entry[key] = definition[key]
+         for entry in tables.values():
+-            if (entry["logical_table"] in {"live_process_snapshots", "live_process_events", "toolgroups"}
++            if (entry["logical_table"] in {"fab_process_raw_events", "live_process_snapshots", "live_process_events", "toolgroups"}
+                     and any(column["name"] == "area" for column in entry["columns"])):
+                 cur.execute(sql.SQL("SELECT DISTINCT area AS value FROM {}.{} WHERE area IS NOT NULL ORDER BY area LIMIT 33").format(
+                     sql.Identifier(fab), sql.Identifier(entry["logical_table"] + "_" + fab)))
+diff --git a/apps/assistant/src/app/db/semantic_metadata.py b/apps/assistant/src/app/db/semantic_metadata.py
+index c47cdfc..9e1ffb1 100644
+--- a/apps/assistant/src/app/db/semantic_metadata.py
++++ b/apps/assistant/src/app/db/semantic_metadata.py
+@@ -7,6 +7,7 @@ from typing import Any
+ VERSION = "fab-semantics-v1"
+ MODEL_SOURCE = "apps/assistant/src/app/sub_agent/text2sql.py:SCHEMA_CATALOG"
+ SIM_SOURCE = "apps/assistant/scripts/insert_fab_live_process_snapshot.py"
++RAW_SIM_SOURCE = "apps/assistant/scripts/simulate_fab_raw_events.py"
+ REPORT_SOURCE = "apps/assistant/scripts/load_autosched_postgres_reports.py"
+ 
+ TABLES = {
+@@ -25,6 +26,9 @@ TABLES = {
+     "autosched_semi": ("AutoSched 주차·제품별 LOT 및 wafer 입출고, 폐기 보고서", ["주차", "wafer", "스크랩", "반제품"], "원본 보고서의 주차/제품 구분 행"),
+     "live_process_snapshots": ("2시간 구간별 공정 영역의 합성 시뮬레이션 WIP·대기·생산량·수율·가동률", ["시뮬레이션", "스냅샷", "simulation", "snapshot", "재공", "대기시간", "수율", "온도", "습도"], "interval_end + fab_id + area당 한 행; toolgroup은 생성된 영역 대표값"),
+     "live_process_events": ("2시간 구간별 합성 설비/LOT 상세 이벤트와 대기·작업·재작업 상태", ["시뮬레이션 이벤트", "상세 이벤트", "equipment event", "lot event", "재작업", "알람"], "interval_end + fab_id + event_id당 한 행; event_kind로 설비/LOT 구분"),
++    "fab_process_raw_events": ("20분 주기 상태 머신이 생성한 FAB raw 공정 이벤트 원장", ["raw event", "원장", "현장 이벤트", "장비 신호", "작업자 보고", "공정 시작", "공정 종료"], "event_id당 한 행; event_time/event_end_time이 실제 합성 발생 시각"),
++    "fab_simulation_state": ("FAB별 상태 머신의 현재 health, WIP, active incident, recovery 상태", ["상태 머신", "simulation state", "회복 진행", "active incident"], "fab_id당 한 행"),
++    "fab_incidents": ("FAB별 장비 고장, 수율 저하, 병목, PM 지연 같은 사건 생명주기", ["incident", "사건", "장비 고장", "병목", "수율 저하", "PM 지연"], "incident_id당 한 행"),
+ }
+ 
+ # Values are definitions, not interchangeable metrics. Percentages/averages must
+@@ -51,6 +55,16 @@ COLUMNS = {
+     "interval_start": ("합성 데이터가 나타내는 2시간 구간의 시작 시각", None, "time"),
+     "interval_end": ("합성 데이터가 나타내는 2시간 구간의 종료 시각", None, "time"),
+     "inserted_at": ("DB 적재 시각; 공정 발생 시각이 아님", None, "ingestion_time"),
++    "event_time": ("raw 공정 이벤트가 발생한 합성 현장 시각", None, "event_time"),
++    "event_end_time": ("raw 공정 이벤트가 종료된 합성 현장 시각; active 이벤트는 null 가능", None, "event_time"),
++    "created_at": ("DB 또는 시뮬레이터가 행을 생성한 시각; 공정 발생 시각이 아님", None, "ingestion_time"),
++    "process_minutes": ("raw 이벤트의 합성 처리 시간", "minute", "duration"),
++    "hold_minutes": ("raw 이벤트의 합성 hold 시간", "minute", "duration"),
++    "down_minutes": ("raw 이벤트의 합성 설비 down 시간", "minute", "duration"),
++    "pm_minutes": ("raw 이벤트의 합성 PM 소요/초과 시간", "minute", "duration"),
++    "yield_loss_ppm": ("raw 이벤트에 배부된 합성 수율 손실 ppm", "ppm", "flow_count"),
++    "defect_count": ("raw 이벤트에 배부된 합성 defect count", "defect", "flow_count"),
++    "wip_delta": ("raw 이벤트가 구간 WIP에 준 합성 증감", "lot", "flow_count"),
+     "start_date": ("모델의 계획 투입 날짜", None, "planned_time"),
+     "due_date": ("모델의 계획 납기 날짜", None, "planned_time"),
+ }
+@@ -61,6 +75,11 @@ SIMULATION_COLUMNS = {
+     "temperature_c", "humidity_percent", "bottleneck_score", "interval_start",
+     "interval_end", "inserted_at",
+ }
++RAW_SIMULATION_COLUMNS = {
++    "event_time", "event_end_time", "created_at", "queue_minutes", "process_minutes",
++    "hold_minutes", "down_minutes", "pm_minutes", "yield_loss_ppm", "defect_count",
++    "wip_delta",
++}
+ REPORT_COLUMNS = {"wiplotavg", "wiplotcur", "lotcomps", "util_percent", "report_time"}
+ 
+ 
+@@ -80,15 +99,16 @@ def definition(logical: str, columns: list[dict[str, Any]]) -> dict[str, Any]:
+                 ["setup matrix", "전환 행렬"], "원본 setup matrix 행; 동적 컬럼 의미 미검토")
+     known = info is not None
+     info = info or (logical.replace("_", " "), [], "unknown")
+-    simulation = logical.startswith("live_process_")
++    raw_simulation = logical in {"fab_process_raw_events", "fab_simulation_state", "fab_incidents"}
++    simulation = logical.startswith("live_process_") or raw_simulation
+     report = logical.startswith("autosched_")
+-    source = SIM_SOURCE if simulation else REPORT_SOURCE if report else MODEL_SOURCE
++    source = RAW_SIM_SOURCE if raw_simulation else SIM_SOURCE if simulation else REPORT_SOURCE if report else MODEL_SOURCE
+     metrics = []
+     descriptions = {}
+     applicable = set()
+     if known:
+         if simulation:
+-            applicable = SIMULATION_COLUMNS
++            applicable = RAW_SIMULATION_COLUMNS if raw_simulation else SIMULATION_COLUMNS
+         elif report:
+             applicable = REPORT_COLUMNS
+         elif logical == "toolgroups":
+@@ -128,6 +148,9 @@ def definition(logical: str, columns: list[dict[str, Any]]) -> dict[str, Any]:
+         notes += ["실제 공장 측정값이 아니라 생성된 시뮬레이션이다.",
+                   "area 값은 photo/etch 등 생성기 용어이며 Dry_Etch 등의 모델 area와 동일 키가 아니다.",
+                   "합성 toolgroup/equipment_id를 model toolgroups와 이름 유사성만으로 JOIN하지 않는다."]
++        if raw_simulation:
++            notes += ["raw event가 원장이다. snapshot/projection은 이 테이블에서 재생성 가능한 파생 데이터로 취급한다.",
++                      "created_at이 아니라 event_time을 공정 발생 시각으로 사용한다."]
+     elif report:
+         notes += ["AutoSched 시뮬레이션 보고서이며 실시간 운영 측정값이 아니다.",
+                   "WarmUp은 일반 성능 집계에서 제외한다. period/relative가 다른 행의 중복 집계를 피한다."]
+@@ -137,7 +160,8 @@ def definition(logical: str, columns: list[dict[str, Any]]) -> dict[str, Any]:
+             "relationships": relationships,
+             "semantics": {"version": VERSION, "managed_by": "code", "review_status": "code_grounded" if known else "unreviewed",
+                           "source": source if known else None, "grain": info[2],
+-                          "default_time_column": "interval_end" if simulation and "interval_end" in names else
++                          "default_time_column": "event_time" if raw_simulation and "event_time" in names else
++                                                 "interval_end" if simulation and "interval_end" in names else
+                                                  "report_time" if report and "report_time" in names else None,
+                           "column_meanings": descriptions, "notes": notes,
+                           "trust_weight": 2 if known else 1}}
+diff --git a/apps/assistant/src/app/sub_agent/text2sql.py b/apps/assistant/src/app/sub_agent/text2sql.py
+index 06ad097..6a48831 100644
+--- a/apps/assistant/src/app/sub_agent/text2sql.py
++++ b/apps/assistant/src/app/sub_agent/text2sql.py
+@@ -151,6 +151,14 @@ AREA_ALIASES = {
+     "def_met": "Def_Met",
+     "cmp": "CMP",
+ }
++SIMULATION_AREA_ALIASES = {
++    "cmp": "cmp",
++    "deposition": "deposition",
++    "etch": "etch",
++    "implant": "implant",
++    "metrology": "metrology",
++    "photo": "photo",
++}
+ 
+ STATUS_TERMS = {
+     "wip",
+@@ -171,6 +179,7 @@ TOOLGROUP_TERMS = {"toolgroup", "tool group", "툴그룹", "설비군", "area",
+ RELEASE_TERMS = {"release", "lotrelease", "릴리즈", "due", "duedate", "납기"}
+ PM_BREAKDOWN_TERMS = {"pm", "breakdown", "고장", "장애", "setup", "셋업", "transport", "이송"}
+ TREND_TERMS = {
++    "추이",
+     "추세",
+     "트렌드",
+     "날짜 기준",
+@@ -680,10 +689,13 @@ def answer_question(
+         return result
+ 
+     try:
+-        execution = ReadOnlyQueryExecutor().execute(result.sql)
++        executor = ReadOnlyQueryExecutor()
++        execution = executor.execute(result.sql)
+     except (RuntimeError, SqlValidationError, PsycopgError) as exc:
+         if result.query_type == "status" and _is_missing_autosched_table_error(exc):
+             return _operational_data_unavailable(result.plan.fab_id, result.plan.slots) if result.plan else result
++        if result.plan and result.plan.data_source_type == "simulation_snapshot":
++            return _simulation_data_unavailable(result, error=str(exc))
+         if result.plan:
+             repaired = _execute_empty_result_repairs(result)
+             if repaired:
+@@ -699,6 +711,8 @@ def answer_question(
+         )
+ 
+     if execution.row_count == 0 and result.plan:
++        if result.plan.data_source_type == "simulation_snapshot":
++            return _simulation_data_unavailable(result)
+         repaired = _execute_empty_result_repairs(result)
+         if repaired:
+             return repaired
+@@ -862,9 +876,7 @@ def plan_text2sql(
+             slots=slots,
+         )
+ 
+-    explicit_simulation = any(term in normalized for term in (
+-        "live_process_", "시뮬레이션", "simulation", "snapshot", "스냅샷",
+-    ))
++    explicit_simulation = _is_explicit_simulation_request(normalized)
+     catalog_queue = _is_unavailable_queue_metric_request(normalized) and any(
+         entry["data_source_type"] == "simulation_snapshot"
+         for entry in (database_catalog or {}).values()
+@@ -888,6 +900,16 @@ def plan_text2sql(
+                 slots=slots,
+             ),
+         )
++    if (
++        explicit_simulation
++        and query_type in {"status", "trend"}
++        and _is_unavailable_queue_metric_request(normalized)
++    ):
++        deterministic_simulation = _deterministic_simulation_snapshot_query(
++            slots, fab_id
++        )
++        if deterministic_simulation:
++            return deterministic_simulation
+ 
+     explicit_catalog_table = any(
+         mentions_table(normalized, ref, entry["logical_table"])
+@@ -1742,6 +1764,63 @@ def _deterministic_trend_query(
+     )
+ 
+ 
++def _deterministic_simulation_snapshot_query(
++    slots: dict[str, QuerySlot],
++    fab_id: str,
++) -> Text2SQLResult | None:
++    area = _slot_value(slots, "area")
++    metrics = [
++        "avg_queue_minutes",
++        "wip_lots",
++        "queue_lots",
++        "utilization_percent",
++    ]
++    table = table_ref(fab_id, "live_process_snapshots")
++    area_predicate = f"\n  AND s.area = {_sql_literal(area)}" if area else ""
++    filters = [
++        {"field": "interval_end", "operator": ">", "value": "latest - 24 hours"},
++        {"field": "interval_end", "operator": "<=", "value": "latest"},
++    ]
++    if area:
++        filters.append({"field": "area", "operator": "=", "value": area})
++    sql = (
++        "WITH latest AS (\n"
++        f"  SELECT MAX(interval_end) AS max_interval_end FROM {table}\n"
++        ")\n"
++        f"SELECT s.interval_end, s.area, {', '.join(f's.{metric}' for metric in metrics)}\n"
++        f"FROM {table} s\n"
++        "CROSS JOIN latest l\n"
++        "WHERE s.interval_end > l.max_interval_end - INTERVAL '24 hours'\n"
++        "  AND s.interval_end <= l.max_interval_end"
++        f"{area_predicate}\n"
++        "ORDER BY s.interval_end ASC, s.area ASC"
++    )
++    return _deterministic_result(
++        query_type="trend",
++        fab_id=fab_id,
++        slots=slots,
++        template_id="deterministic_simulation_snapshot_queue_trend",
++        table=table,
++        sql=sql,
++        columns=["interval_end", "area", *metrics],
++        filters=filters,
++        group_by=[],
++        order_by=["interval_end ASC", "area ASC"],
++        aggregation=None,
++        expected_result_shape="time_series",
++        chart_intent=_chart_intent(
++            "line",
++            "interval_end",
++            ["avg_queue_minutes", "wip_lots", "queue_lots", "utilization_percent"],
++            series="area",
++        ),
++        data_source_type="simulation_snapshot",
++        additional_limitations=[
++            "live_process_snapshots의 area 값은 cmp/deposition/etch/implant/metrology/photo이며 model master의 Dry_Etch/Wet_Etch와 자동 매핑하지 않습니다."
++        ],
++    )
++
++
+ def _deterministic_date_range_comparison(
+     slots: dict[str, QuerySlot],
+     fab_id: str,
+@@ -1870,6 +1949,9 @@ def _deterministic_result(
+     aggregation: str | None = None,
+     chart_intent: dict[str, Any] | None = None,
+     additional_limitations: list[str] | None = None,
++    data_source_type: Literal[
++        "operational_report", "model_master", "release_plan", "simulation_snapshot", "mixed"
++    ] | None = None,
+ ) -> Text2SQLResult:
+     ReadOnlyQueryExecutor(dsn="postgresql://validation-only").validate(sql)
+     chart_intent = _enrich_chart_intent(
+@@ -1880,21 +1962,23 @@ def _deterministic_result(
+     source_tables = [table, *additional_tables]
+     _validate_sql_tables(sql, set(source_tables))
+     _validate_explicit_periods(sql, slots)
+-    if table == table_ref(fab_id, "lotrelease"):
+-        data_source_type = "release_plan"
++    if data_source_type:
++        resolved_data_source_type = data_source_type
++    elif table == table_ref(fab_id, "lotrelease"):
++        resolved_data_source_type = "release_plan"
+     elif ".autosched_" in table:
+-        data_source_type = "operational_report"
++        resolved_data_source_type = "operational_report"
+     else:
+-        data_source_type = "model_master"
++        resolved_data_source_type = "model_master"
+     limitations = [
+-        *_base_limitations(query_type, data_source_type),
++        *_base_limitations(query_type, resolved_data_source_type),
+         *(additional_limitations or []),
+     ]
+     plan = QueryPlan(
+         query_type=query_type,
+         template_id=template_id,
+         fab_id=fab_id,
+-        data_source_type=data_source_type,
++        data_source_type=resolved_data_source_type,
+         slots=slots,
+         limitations=limitations,
+         source_tables=source_tables,
+@@ -2343,6 +2427,97 @@ def _operational_data_unavailable(
+     )
+ 
+ 
++def _simulation_data_unavailable(
++    result: Text2SQLResult,
++    *,
++    error: str | None = None,
++) -> Text2SQLResult:
++    plan = result.plan
++    fab_id = plan.fab_id if plan else None
++    slots = plan.slots if plan else {}
++    area = _slot_value(slots, "area")
++    requested = f"{fab_id or '요청 FAB'}"
++    if area:
++        requested += f" area={area!r}"
++    suggestions, diagnostics = _simulation_availability_suggestions(fab_id, area)
++    reason = (
++        f"{requested}의 live_process_snapshots 최근 24시간 조건에 맞는 행이 없습니다."
++    )
++    if error and _looks_like_missing_relation_error(error):
++        reason = f"{requested}의 live_process_snapshots 테이블을 찾을 수 없습니다."
++    answer_parts = [reason]
++    if suggestions:
++        answer_parts.append("대신 확인할 수 있는 후보: " + " / ".join(suggestions))
++    else:
++        answer_parts.append(
++            "같은 형식의 질문을 처리하려면 해당 FAB의 live_process_snapshots 적재 상태와 area 값을 먼저 확인해야 합니다."
++        )
++    limitations = [
++        *result.limitations,
++        reason,
++        *diagnostics,
++    ]
++    if error and not _looks_like_missing_relation_error(error):
++        limitations.append(error)
++    return Text2SQLResult(
++        status="data_unavailable",
++        query_type=result.query_type,
++        answer=" ".join(answer_parts),
++        sql=result.sql,
++        confidence=0.85,
++        limitations=list(dict.fromkeys(limitations)),
++        plan=plan,
++    )
++
++
++def _simulation_availability_suggestions(
++    fab_id: str | None,
++    area: str | None,
++) -> tuple[list[str], list[str]]:
++    suggestions: list[str] = []
++    diagnostics: list[str] = []
++    if not fab_id:
++        return suggestions, diagnostics
++    try:
++        executor = ReadOnlyQueryExecutor()
++        current_areas = executor.execute(
++            "SELECT area, COUNT(*) AS rows "
++            f"FROM {table_ref(fab_id, 'live_process_snapshots')} "
++            "GROUP BY area ORDER BY area",
++            limit=200,
++        ).rows
++    except (RuntimeError, SqlValidationError, PsycopgError):
++        current_areas = []
++    if current_areas:
++        area_labels = ", ".join(
++            f"{row['area']}({row['rows']}행)" for row in current_areas[:8]
++        )
++        diagnostics.append(f"{fab_id}에서 사용 가능한 simulation area: {area_labels}")
++        suggestions.append(f"{fab_id}의 다른 area({', '.join(str(row['area']) for row in current_areas[:6])})")
++    if area:
++        available_fabs = []
++        for candidate_fab in sorted(ALLOWED_FABS):
++            try:
++                rows = executor.execute(
++                    "SELECT COUNT(*) AS rows "
++                    f"FROM {table_ref(candidate_fab, 'live_process_snapshots')} "
++                    f"WHERE area = {_sql_literal(area)}",
++                    limit=1,
++                ).rows
++            except (RuntimeError, SqlValidationError, PsycopgError, UnboundLocalError):
++                continue
++            count = int(rows[0]["rows"]) if rows else 0
++            if count:
++                available_fabs.append(f"{candidate_fab}({count}행)")
++        if available_fabs:
++            diagnostics.append(
++                f"area={area!r} 데이터가 있는 FAB: {', '.join(available_fabs)}"
++            )
++            if not any(item.startswith(f"{fab_id}(") for item in available_fabs):
++                suggestions.append(f"같은 area={area!r}가 있는 FAB({', '.join(available_fabs)})")
++    return suggestions, diagnostics
++
++
+ def _clarification(
+     *,
+     query_type: QueryType,
+@@ -2838,7 +3013,11 @@ def _extract_slots(
+     if lot_id:
+         slots["lot_id"] = QuerySlot(lot_id, "parser", 0.9, lot_id)
+ 
+-    area = _parse_area(normalized_question)
++    area = (
++        _parse_simulation_area(normalized_question)
++        if _is_explicit_simulation_request(normalized_question)
++        else _parse_area(normalized_question)
++    )
+     if area:
+         slots["area"] = QuerySlot(area, "alias_match", 0.85, area)
+ 
+@@ -3174,6 +3353,14 @@ def _parse_area(normalized_question: str) -> str | None:
+     return None
+ 
+ 
++def _parse_simulation_area(normalized_question: str) -> str | None:
++    normalized = normalized_question.replace("-", "_")
++    for alias, canonical in SIMULATION_AREA_ALIASES.items():
++        if re.search(rf"(?<![a-z0-9_]){re.escape(alias)}(?![a-z0-9_])", normalized):
++            return canonical
++    return _parse_area(normalized_question)
++
++
+ def _parse_release_scenario(question: str) -> str | None:
+     lowered = question.casefold()
+     known = [
+@@ -3473,6 +3660,17 @@ def _is_unavailable_queue_metric_request(normalized_question: str) -> bool:
+     return any(term in normalized_question for term in queue_terms)
+ 
+ 
++def _looks_like_missing_relation_error(message: str) -> bool:
++    normalized = message.casefold()
++    return "does not exist" in normalized or "undefinedtable" in normalized
++
++
++def _is_explicit_simulation_request(normalized_question: str) -> bool:
++    return any(term in normalized_question for term in (
++        "live_process_", "합성", "시뮬레이션", "simulation", "snapshot", "스냅샷",
++    ))
++
++
+ def _parse_master_domain(normalized_question: str) -> str | None:
+     if "breakdown" in normalized_question or "고장" in normalized_question or "장애" in normalized_question:
+         return "breakdown"
+diff --git a/apps/assistant/tests/test_planner_supervisor_contracts.py b/apps/assistant/tests/test_planner_supervisor_contracts.py
+index ce15b0c..73c05fd 100644
+--- a/apps/assistant/tests/test_planner_supervisor_contracts.py
++++ b/apps/assistant/tests/test_planner_supervisor_contracts.py
+@@ -115,6 +115,44 @@ def test_semantic_extraction_requires_user_text_and_preserves_parser_facts():
+     assert enriched.slots["fab_id"].value == "fab10"
+ 
+ 
++def test_simulation_area_literal_is_not_rewritten_to_model_process():
++    analysis = analyze_request("FAB13 합성 시뮬레이션의 etch 영역 대기시간 추이를 보여줘")
++    enriched = enrich_analysis(
++        analysis,
++        [{"name": "process", "value": "Dry_Etch", "raw_text": "etch"}],
++    )
++    assert enriched.slots["area"].value == "etch"
++    assert enriched.slots["process"].value == "etch"
++
++
++def test_create_plan_preserves_simulation_area_when_llm_generalizes_process():
++    llm_plan = {
++        "status": "ready",
++        "query_type": "diagnosis",
++        "intent": "analyze simulation etch queue trend",
++        "fab_id": "fab13",
++        "rag_knowledge_base": "incident_playbook",
++        "extracted_slots": [
++            {"name": "process", "value": "Dry_Etch", "raw_text": "etch"},
++        ],
++        "success_criteria": ["etch simulation queue trend is queried"],
++        "selected_sub_agents": ["text2sql", "rag", "case_search", "visualization"],
++        "execution_steps": [],
++        "missing_slots": [],
++        "clarification_question": None,
++        "limitations": [],
++    }
++
++    plan = create_plan(
++        "FAB13 합성 시뮬레이션의 etch 영역 대기시간 증가 원인을 분석해줘",
++        llm_client=Recorded(llm_plan),
++    )
++
++    assert plan.status == "ready"
++    assert plan.slots["area"].value == "etch"
++    assert plan.slots["process"].value == "etch"
++
++
+ def test_supervisor_veto_cannot_execute_ready_plan():
+     plan = plan_for("fab10 현재 WIP")
+     reviewed, decision = review_plan(
+diff --git a/apps/assistant/tests/test_text2sql_initial.py b/apps/assistant/tests/test_text2sql_initial.py
+index ad14162..d43902d 100644
+--- a/apps/assistant/tests/test_text2sql_initial.py
++++ b/apps/assistant/tests/test_text2sql_initial.py
+@@ -475,6 +475,86 @@ def test_queue_time_request_is_rejected_without_llm_call() -> None:
+     assert llm.calls == []
+ 
+ 
++def test_simulation_queue_trend_preserves_snapshot_area_without_llm_call() -> None:
++    llm = FakeLLM(llm_payload("SELECT * FROM fab13.autosched_perf_fab13 LIMIT 1"))
++
++    result = plan_text2sql(
++        "FAB13 합성 시뮬레이션의 etch 영역에서, 저장된 최신 시점 기준 최근 24시간 "
++        "평균 대기시간 추이를 보여줘. WIP, 대기 LOT 수, 가동률도 비교해줘.",
++        llm_client=llm,
++    )
++
++    assert result.status == "succeeded"
++    assert result.sql is not None
++    assert "FROM fab13.live_process_snapshots_fab13" in result.sql
++    assert "s.area = 'etch'" in result.sql
++    assert "Dry_Etch" not in result.sql
++    assert "avg_queue_minutes" in result.sql
++    assert "queue_lots" in result.sql
++    assert result.plan is not None
++    assert result.plan.data_source_type == "simulation_snapshot"
++    assert result.plan.slots["area"].value == "etch"
++    assert result.plan.chart_intent is not None
++    assert result.plan.chart_intent["x"] == "interval_end"
++    assert llm.calls == []
++
++
++@pytest.mark.parametrize("fab", ["FAB10", "FAB11", "FAB12", "FAB13"])
++def test_simulation_queue_trend_uses_same_contract_for_supported_fabs(fab: str) -> None:
++    result = plan_text2sql(
++        f"{fab} 합성 시뮬레이션의 etch 영역에서, 저장된 최신 시점 기준 최근 24시간 "
++        "평균 대기시간 추이를 보여줘. 대기시간이 증가한 구간을 찾아 WIP, 대기 LOT 수, "
++        "가동률과 함께 비교하고 원인 후보를 설명해 줘.",
++        deterministic_only=True,
++    )
++
++    fab_id = fab.casefold()
++    assert result.status == "succeeded"
++    assert result.sql is not None
++    assert f"FROM {fab_id}.live_process_snapshots_{fab_id}" in result.sql
++    assert "s.area = 'etch'" in result.sql
++    assert result.plan is not None
++    assert result.plan.fab_id == fab_id
++    assert result.plan.data_source_type == "simulation_snapshot"
++    assert result.plan.slots["area"].value == "etch"
++
++
++def test_simulation_empty_result_suggests_available_fabs_and_areas(monkeypatch) -> None:
++    class EmptySimulationExecutor:
++        def __init__(self, *args, **kwargs) -> None:
++            pass
++
++        def validate(self, sql: str) -> str:
++            return sql
++
++        def execute(self, sql: str, limit=None) -> ReadOnlyQueryResult:
++            if "GROUP BY area" in sql:
++                return ReadOnlyQueryResult(
++                    ["area", "rows"],
++                    [{"area": "photo", "rows": 30}, {"area": "cmp", "rows": 30}],
++                    2,
++                    sql,
++                    limit or 200,
++                )
++            if "WHERE area = 'etch'" in sql:
++                rows = [{"rows": 12}] if "fab10.live_process_snapshots_fab10" in sql else [{"rows": 0}]
++                return ReadOnlyQueryResult(["rows"], rows, 1, sql, limit or 1)
++            return ReadOnlyQueryResult([], [], 0, sql, limit or 200)
++
++    monkeypatch.setattr("app.sub_agent.text2sql.ReadOnlyQueryExecutor", EmptySimulationExecutor)
++
++    result = answer_question(
++        "FAB13 합성 시뮬레이션의 etch 영역 최근 24시간 평균 대기시간 추이를 보여줘."
++    )
++
++    assert result.status == "data_unavailable"
++    assert "area='etch'" in result.answer
++    assert "fab10(12행)" in " ".join(result.limitations)
++    assert "photo" in result.answer
++    assert result.plan is not None
++    assert result.plan.data_source_type == "simulation_snapshot"
++
++
+ def test_release_route_is_parsed_before_korean_particle() -> None:
+     result = plan_text2sql(
+         "fab10 lotrelease에서 Route_Product_3의 2018-01-01 release plan 목록을 보여줘",
+diff --git a/apps/web/app.py b/apps/web/app.py
+index d27516a..0781106 100644
+--- a/apps/web/app.py
++++ b/apps/web/app.py
+@@ -249,6 +249,13 @@ def queue_suggested_prompt(prompt: str) -> None:
+ 
+ 
+ st.set_page_config(page_title="FAB Assistant", page_icon="F", layout="wide")
++st.info(
++    "현재 화면은 기존 Streamlit UI입니다. 고도화된 프런트엔드는 React에서 실행됩니다. "
++    "저장소 루트의 별도 터미널에서 `npm --prefix apps/web run dev`를 실행한 뒤 "
++    "[새 FAB 채팅 화면](http://localhost:5173/)을 열어 주세요. "
++    "백엔드는 별도 터미널에서 "
++    "`PYTHONPATH=apps/assistant/src uv run uvicorn app.main:app --reload`로 실행합니다."
++)
+ ensure_conversation_state()
+ 
+ st.markdown(
+diff --git a/docs/text2sql_agent_design.md b/docs/text2sql_agent_design.md
+index ad811a4..3483fff 100644
+--- a/docs/text2sql_agent_design.md
++++ b/docs/text2sql_agent_design.md
+@@ -402,6 +402,18 @@ General Data lookup routing은 별도 catalog로 둔다.
+ | setup time 조회 | `{fab}.setups` | `setup_group_name`, `current_setup`, `new_setup` | `minmal_number_of_runs` 원천 컬럼명 유지 |
+ | transport time 조회 | `{fab}.transport` | `from_location`, `to_location` | simulation input 기준 |
+ 
++Synthetic process snapshot routing은 General Data model/master lookup과 분리한다.
++
++| user intent | table family | 대표 식별 column | 주의점 |
++| - | - | - | - |
++| 합성 시뮬레이션 공정 추세 | `{fab}.live_process_snapshots` | `area`, `interval_end` | `area` 값은 `cmp`, `deposition`, `etch`, `implant`, `metrology`, `photo`를 그대로 사용 |
++| 합성 시뮬레이션 이벤트 | `{fab}.live_process_events` | `area`, `event_type`, `interval_end` | model `toolgroups.area`의 `Dry_Etch`/`Wet_Etch`와 자동 매핑 금지 |
++
++사용자가 `합성`, `시뮬레이션`, `snapshot`, `live_process`를 명시하고 `etch 영역`처럼
++snapshot area literal을 입력하면 이 값을 `Dry_Etch`로 정규화하지 않는다. `Dry_Etch`는
++General Data model/master의 공정명이고, `etch`는 synthetic snapshot의 area 값이다. 둘은
++공통 키가 정의되지 않았으므로 유사한 이름만으로 조인하거나 대체 조회하지 않는다.
++
+ `route_product_*` table은 dynamic table name을 포함하므로 LLM이 직접 table명을 쓰게 하지
+ 않는다. `schema_grounder`가 information_schema 또는 사전 생성 catalog에서 해당 fab의
+ route table 목록을 읽고, `Product_3` -> `route_product_3`,

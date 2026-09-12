@@ -1,0 +1,353 @@
+{
+  "scope": "Offline deterministic recheck of saved answers; does not change original live status or validate every semantic claim.",
+  "total": 47,
+  "currently_supported": 42,
+  "remaining_warnings": {
+    "Trend answer contains numeric claims absent from grounded inputs and results: -184.9, -146.8, -148.5, -175.5, -227.4, -140.8": 1,
+    "Diagnosis answer contains numeric claims absent from grounded inputs and results: 12.9": 1,
+    "Final answer omits requested identifiers: fab11": 1,
+    "Trend answer contains numeric claims absent from grounded inputs and results: 99, 0.167": 1,
+    "Trend answer contains numeric claims absent from grounded inputs and results: 99": 1
+  },
+  "checks": [
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab12_week_compare",
+      "original_status": "failed",
+      "current_verifier_supported": false,
+      "warnings": [
+        "Trend answer contains numeric claims absent from grounded inputs and results: -184.9, -146.8, -148.5, -175.5, -227.4, -140.8"
+      ]
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab11_yesterday",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab10_status",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab10_area_status",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab10_trend",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab10_diagnosis",
+      "original_status": "failed",
+      "current_verifier_supported": false,
+      "warnings": [
+        "Diagnosis answer contains numeric claims absent from grounded inputs and results: 12.9"
+      ]
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab10_impact",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab10_master",
+      "original_status": "failed",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab11_status",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab11_area_status",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab11_trend",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab11_diagnosis",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab11_impact",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab11_master",
+      "original_status": "failed",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab12_status",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab12_area_status",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab12_trend",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab12_diagnosis",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab12_impact",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab12_master",
+      "original_status": "failed",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab13_status",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab13_area_status",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab13_trend",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab13_diagnosis",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab13_impact",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab13_master",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab11_knowledge",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab11_action",
+      "original_status": "succeeded",
+      "current_verifier_supported": false,
+      "warnings": [
+        "Final answer omits requested identifiers: fab11"
+      ]
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab13_area_compare",
+      "original_status": "failed",
+      "current_verifier_supported": false,
+      "warnings": [
+        "Trend answer contains numeric claims absent from grounded inputs and results: 99, 0.167"
+      ]
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab12_korean_area",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab13_rank",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab11_multi_metric",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab11_unknown_scope",
+      "original_status": "data_unavailable",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_complete_iteration4.json",
+      "id": "fab12_unknown_granularity",
+      "original_status": "data_unavailable",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_repairs_iteration5.json",
+      "id": "fab12_week_compare",
+      "original_status": "failed",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_repairs_iteration5.json",
+      "id": "fab10_diagnosis",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_repairs_iteration5.json",
+      "id": "fab10_master",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_repairs_iteration5.json",
+      "id": "fab11_master",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_repairs_iteration5.json",
+      "id": "fab12_master",
+      "original_status": "failed",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "chat_repairs_iteration5.json",
+      "id": "fab13_area_compare",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "conversation_iteration1.json",
+      "id": "area_status",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "conversation_iteration1.json",
+      "id": "area_impact",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "conversation_iteration1.json",
+      "id": "widen_and_switch",
+      "original_status": "failed",
+      "current_verifier_supported": false,
+      "warnings": [
+        "Trend answer contains numeric claims absent from grounded inputs and results: 99"
+      ]
+    },
+    {
+      "report": "conversation_iteration1.json",
+      "id": "period_rank",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "conversation_iteration1.json",
+      "id": "switch_to_now",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "conversation_iteration1.json",
+      "id": "whole_fab",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    },
+    {
+      "report": "conversation_iteration1.json",
+      "id": "compare_areas",
+      "original_status": "succeeded",
+      "current_verifier_supported": true,
+      "warnings": []
+    }
+  ]
+}

@@ -19,6 +19,16 @@ def chunk(cid, content, *, base="incident_playbook", title="", metadata=None):
     }
 
 
+def test_unrelated_knowledge_base_cannot_change_local_relevance_scores():
+    original = [chunk("one", "queue time 대기 시간 점검"), chunk("two", "queue time 점검 후 조치 기록")]
+    extras = [chunk(f"other-{i}", "queue time " * (i + 1), base="process_basics") for i in range(10)]
+    first = search("queue time 점검", original, knowledge_base="incident_playbook")
+    augmented = search("queue time 점검", original + extras, knowledge_base="incident_playbook")
+    assert [(c["chunk_id"], c["metadata"]["score"]) for c in first.chunks] == [
+        (c["chunk_id"], c["metadata"]["score"]) for c in augmented.chunks]
+    assert augmented.trace["scope_filtered_count"] == 10
+
+
 def test_unrelated_question_abstains():
     result = search("내일 서울 날씨", [chunk("a", "장비 고장 초기 대응과 복구")])
     assert result.chunks == []
@@ -241,3 +251,7 @@ def test_simulation_provenance_is_propagated(tmp_path: Path):
 def test_candidate_budget_validation(candidate_k):
     with pytest.raises(ValueError):
         search("고장", [], candidate_k=candidate_k)
+def test_utilization_concept_is_not_extracted_from_downtime_ratio():
+    from app.rag.query import concepts
+    assert "utilization" not in concepts("비가동률이 증가한 이유")
+    assert "utilization" in concepts("가동률과 비가동률을 비교")

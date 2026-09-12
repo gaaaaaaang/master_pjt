@@ -1,0 +1,263 @@
+{
+  "checked_at": "2026-09-12T09:18:27.858611+00:00",
+  "checks": [
+    {
+      "name": "runtime",
+      "passed": true,
+      "mode": "live_tools",
+      "model": "gpt-4.1",
+      "model_host": "skax.ai-talentlab.com",
+      "db_host": "localhost"
+    },
+    {
+      "name": "rag",
+      "passed": true,
+      "path": "apps/assistant/output/rag/master_pjt_final_adv.jsonl",
+      "chunk_count": 60,
+      "sha256": "6e378d1d45b68a6fff519b0e25955edf1ee9765556a7f9231e63f298194d06b6",
+      "knowledge_bases": {
+        "incident_playbook": 25,
+        "process_basics": 35
+      },
+      "flow_reference_available": true
+    },
+    {
+      "name": "fab10",
+      "passed": true,
+      "area_count": 6,
+      "latest_observation": "2026-09-11 15:00:00+00:00",
+      "current_wip_lots": 142.0,
+      "age_hours": 18.31,
+      "data_basis": "generated simulation snapshots; latest observation is not the current wall-clock state",
+      "rows": [
+        {
+          "area": "cmp",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 17,
+          "yield_percent": "99.472",
+          "utilization_percent": "78.71"
+        },
+        {
+          "area": "deposition",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 20,
+          "yield_percent": "99.468",
+          "utilization_percent": "80.89"
+        },
+        {
+          "area": "etch",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 33,
+          "yield_percent": "99.429",
+          "utilization_percent": "80.09"
+        },
+        {
+          "area": "implant",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 24,
+          "yield_percent": "99.465",
+          "utilization_percent": "79.31"
+        },
+        {
+          "area": "metrology",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 27,
+          "yield_percent": "99.472",
+          "utilization_percent": "79.94"
+        },
+        {
+          "area": "photo",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 21,
+          "yield_percent": "99.463",
+          "utilization_percent": "77.93"
+        }
+      ]
+    },
+    {
+      "name": "fab11",
+      "passed": true,
+      "area_count": 6,
+      "latest_observation": "2026-09-11 15:00:00+00:00",
+      "current_wip_lots": 188.0,
+      "age_hours": 18.31,
+      "data_basis": "generated simulation snapshots; latest observation is not the current wall-clock state",
+      "rows": [
+        {
+          "area": "cmp",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 83,
+          "yield_percent": "99.371",
+          "utilization_percent": "73.23"
+        },
+        {
+          "area": "deposition",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 19,
+          "yield_percent": "99.460",
+          "utilization_percent": "78.64"
+        },
+        {
+          "area": "etch",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 27,
+          "yield_percent": "99.436",
+          "utilization_percent": "80.32"
+        },
+        {
+          "area": "implant",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 12,
+          "yield_percent": "99.460",
+          "utilization_percent": "78.68"
+        },
+        {
+          "area": "metrology",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 15,
+          "yield_percent": "99.435",
+          "utilization_percent": "80.79"
+        },
+        {
+          "area": "photo",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 32,
+          "yield_percent": "99.460",
+          "utilization_percent": "78.58"
+        }
+      ]
+    },
+    {
+      "name": "fab12",
+      "passed": true,
+      "area_count": 6,
+      "latest_observation": "2026-09-11 15:00:00+00:00",
+      "current_wip_lots": 261.0,
+      "age_hours": 18.31,
+      "data_basis": "generated simulation snapshots; latest observation is not the current wall-clock state",
+      "rows": [
+        {
+          "area": "cmp",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 28,
+          "yield_percent": "99.466",
+          "utilization_percent": "77.58"
+        },
+        {
+          "area": "deposition",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 141,
+          "yield_percent": "99.275",
+          "utilization_percent": "80.44"
+        },
+        {
+          "area": "etch",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 17,
+          "yield_percent": "99.457",
+          "utilization_percent": "79.58"
+        },
+        {
+          "area": "implant",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 22,
+          "yield_percent": "99.465",
+          "utilization_percent": "82.22"
+        },
+        {
+          "area": "metrology",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 35,
+          "yield_percent": "99.479",
+          "utilization_percent": "79.01"
+        },
+        {
+          "area": "photo",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 18,
+          "yield_percent": "99.466",
+          "utilization_percent": "77.25"
+        }
+      ]
+    },
+    {
+      "name": "fab13",
+      "passed": true,
+      "area_count": 6,
+      "latest_observation": "2026-09-11 15:00:00+00:00",
+      "current_wip_lots": 159.0,
+      "age_hours": 18.31,
+      "data_basis": "generated simulation snapshots; latest observation is not the current wall-clock state",
+      "rows": [
+        {
+          "area": "cmp",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 21,
+          "yield_percent": "99.442",
+          "utilization_percent": "79.04"
+        },
+        {
+          "area": "deposition",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 14,
+          "yield_percent": "99.473",
+          "utilization_percent": "80.86"
+        },
+        {
+          "area": "etch",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 21,
+          "yield_percent": "99.465",
+          "utilization_percent": "78.63"
+        },
+        {
+          "area": "implant",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 8,
+          "yield_percent": "99.451",
+          "utilization_percent": "81.35"
+        },
+        {
+          "area": "metrology",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 15,
+          "yield_percent": "99.466",
+          "utilization_percent": "80.64"
+        },
+        {
+          "area": "photo",
+          "interval_start": "2026-09-11 14:45:00+00:00",
+          "interval_end": "2026-09-11 15:00:00+00:00",
+          "wip_lots": 80,
+          "yield_percent": "99.298",
+          "utilization_percent": "78.90"
+        }
+      ]
+    }
+  ],
+  "ready": true,
+  "scope": "Runtime, retrieval corpus, six latest process areas per FAB. This is not an end-to-end answer-quality evaluation."
+}

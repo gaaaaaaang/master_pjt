@@ -1,0 +1,38 @@
+{
+  "raw_sha256": "48d2610ad3af95487ef3ef3ed994515f4b9cf1a2cf8b419311396c3d68cfc1f9",
+  "report_sha256": "e7facdd714e0b198a08e55dca7955116d00ac2dc1fc7fe97624922c5f650cee5",
+  "scope": "Independent arithmetic and scope checks; not complete narrative accuracy.",
+  "checks": [
+    {
+      "id": "fab12_trend",
+      "audited": true,
+      "passed": true,
+      "rows": 42,
+      "checked_cells": 42,
+      "errors": []
+    },
+    {
+      "id": "fab12_rank",
+      "audited": true,
+      "passed": true,
+      "rows": 1,
+      "checked_cells": 1,
+      "errors": []
+    },
+    {
+      "id": "fab13_diagnosis",
+      "audited": true,
+      "passed": true,
+      "rows": 8,
+      "checked_cells": 56,
+      "errors": []
+    },
+    {
+      "id": "process_knowledge",
+      "audited": false,
+      "reason": "This independent oracle covers current metrics and cross-FAB current/hourly comparison."
+    }
+  ],
+  "audited": 3,
+  "passed": 3
+}

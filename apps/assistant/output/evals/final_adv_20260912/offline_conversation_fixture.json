@@ -1,0 +1,109 @@
+[
+  {
+    "id": "area_status",
+    "question": "FAB11 etch 공정의 현재 WIP을 알려줘",
+    "fab": "fab11",
+    "rows": 1,
+    "areas": [
+      "etch"
+    ]
+  },
+  {
+    "id": "area_impact",
+    "question": "그 공정 가동률이 5%p 떨어지면 처리량에 얼마나 영향이 있어?",
+    "fab": "fab11",
+    "rows": 1,
+    "areas": [
+      "etch"
+    ],
+    "kind": "impact"
+  },
+  {
+    "id": "widen_and_switch",
+    "question": "FAB12 최근 7일 공정별 수율 추세를 그래프로 보여줘",
+    "fab": "fab12",
+    "rows": 42,
+    "areas": [
+      "cmp",
+      "deposition",
+      "etch",
+      "implant",
+      "metrology",
+      "photo"
+    ],
+    "kind": "trend"
+  },
+  {
+    "id": "period_rank",
+    "question": "그 기간 평균 수율이 가장 낮은 공정을 알려줘",
+    "fab": "fab12",
+    "rows": 1,
+    "inherits_period": true
+  },
+  {
+    "id": "switch_to_now",
+    "question": "그럼 지금 공정별 WIP 상위 3개를 보여줘",
+    "fab": "fab12",
+    "rows": 3,
+    "latest": true
+  },
+  {
+    "id": "whole_fab",
+    "question": "FAB13 전체 WIP은 몇 개야?",
+    "fab": "fab13",
+    "rows": 1,
+    "wip": 159
+  },
+  {
+    "id": "compare_areas",
+    "question": "같은 FAB에서 etch와 photo의 현재 수율을 비교해줘",
+    "fab": "fab13",
+    "rows": 2,
+    "areas": [
+      "etch",
+      "photo"
+    ]
+  },
+  {
+    "id": "multi_area_followup",
+    "question": "그 두 공정 WIP도 보여줘",
+    "fab": "fab13",
+    "rows": 2,
+    "areas": [
+      "etch",
+      "photo"
+    ]
+  },
+  {
+    "id": "multi_area_rank",
+    "question": "그중 수율이 가장 낮은 공정은?",
+    "fab": "fab13",
+    "rows": 1
+  },
+  {
+    "id": "reset_whole_fab",
+    "question": "FAB11 전체 현재 WIP",
+    "fab": "fab11",
+    "rows": 1,
+    "wip": 188
+  },
+  {
+    "id": "whole_fab_followup",
+    "question": "그럼 수율은?",
+    "fab": "fab11",
+    "rows": 1
+  },
+  {
+    "id": "maintenance_period",
+    "question": "FAB13 최근 3일 정비 시간 합계",
+    "fab": "fab13",
+    "rows": 1
+  },
+  {
+    "id": "completion_period_mean",
+    "question": "그 기간 완료 LOT 평균은?",
+    "fab": "fab13",
+    "rows": 1,
+    "inherits_period": true
+  }
+]

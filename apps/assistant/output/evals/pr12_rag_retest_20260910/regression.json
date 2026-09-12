@@ -1,0 +1,9 @@
+{
+  "commit": "374e1000ea761dc6ea3bbcd98b00191e43f46d8a",
+  "command": "/Users/a11549/Desktop/skax-git/master_pjt/.venv/bin/python -m pytest apps/assistant/tests/test_rag*.py -q",
+  "cwd": "/private/tmp/pr12-rag-retest-374e100",
+  "passed": 149,
+  "failed": 0,
+  "warnings": 2,
+  "elapsed_seconds": 1.32
+}

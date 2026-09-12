@@ -1,0 +1,706 @@
+[
+  {
+    "id": "fab10_wip_lots_>=_-1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 WIP 141.90 이상인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "141.90",
+    "operator": ">="
+  },
+  {
+    "id": "fab10_wip_lots_>=_1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 WIP 142.10 이상인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "142.10",
+    "operator": ">="
+  },
+  {
+    "id": "fab10_wip_lots_<_-1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 WIP 141.90 미만인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "141.90",
+    "operator": "<"
+  },
+  {
+    "id": "fab10_wip_lots_<=_1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 WIP 142.10 이하인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "142.10",
+    "operator": "<="
+  },
+  {
+    "id": "fab10_lot_completions_>=_-1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 완료 LOT 18.90 이상인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "18.90",
+    "operator": ">="
+  },
+  {
+    "id": "fab10_lot_completions_>=_1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 완료 LOT 19.10 이상인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "19.10",
+    "operator": ">="
+  },
+  {
+    "id": "fab10_lot_completions_<_-1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 완료 LOT 18.90 미만인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "18.90",
+    "operator": "<"
+  },
+  {
+    "id": "fab10_lot_completions_<=_1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 완료 LOT 19.10 이하인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "19.10",
+    "operator": "<="
+  },
+  {
+    "id": "fab10_yield_percent_>=_-1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 평균 수율 99.36 이상인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.36",
+    "operator": ">="
+  },
+  {
+    "id": "fab10_yield_percent_>=_1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 평균 수율 99.56 이상인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.56",
+    "operator": ">="
+  },
+  {
+    "id": "fab10_yield_percent_<_-1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 평균 수율 99.36 미만인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.36",
+    "operator": "<"
+  },
+  {
+    "id": "fab10_yield_percent_<=_1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 평균 수율 99.56 이하인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.56",
+    "operator": "<="
+  },
+  {
+    "id": "fab10_utilization_percent_>=_-1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 평균 가동률 79.38 이상인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "79.38",
+    "operator": ">="
+  },
+  {
+    "id": "fab10_utilization_percent_>=_1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 평균 가동률 79.58 이상인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "79.58",
+    "operator": ">="
+  },
+  {
+    "id": "fab10_utilization_percent_<_-1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 평균 가동률 79.38 미만인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "79.38",
+    "operator": "<"
+  },
+  {
+    "id": "fab10_utilization_percent_<=_1",
+    "kind": "threshold",
+    "question": "FAB10 현재 전체 평균 가동률 79.58 이하인 경우 보여줘",
+    "fab": "fab10",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "79.58",
+    "operator": "<="
+  },
+  {
+    "id": "fab11_wip_lots_>=_-1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 WIP 187.90 이상인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "187.90",
+    "operator": ">="
+  },
+  {
+    "id": "fab11_wip_lots_>=_1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 WIP 188.10 이상인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "188.10",
+    "operator": ">="
+  },
+  {
+    "id": "fab11_wip_lots_<_-1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 WIP 187.90 미만인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "187.90",
+    "operator": "<"
+  },
+  {
+    "id": "fab11_wip_lots_<=_1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 WIP 188.10 이하인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "188.10",
+    "operator": "<="
+  },
+  {
+    "id": "fab11_lot_completions_>=_-1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 완료 LOT 24.90 이상인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "24.90",
+    "operator": ">="
+  },
+  {
+    "id": "fab11_lot_completions_>=_1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 완료 LOT 25.10 이상인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "25.10",
+    "operator": ">="
+  },
+  {
+    "id": "fab11_lot_completions_<_-1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 완료 LOT 24.90 미만인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "24.90",
+    "operator": "<"
+  },
+  {
+    "id": "fab11_lot_completions_<=_1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 완료 LOT 25.10 이하인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "25.10",
+    "operator": "<="
+  },
+  {
+    "id": "fab11_yield_percent_>=_-1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 평균 수율 99.34 이상인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.34",
+    "operator": ">="
+  },
+  {
+    "id": "fab11_yield_percent_>=_1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 평균 수율 99.54 이상인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.54",
+    "operator": ">="
+  },
+  {
+    "id": "fab11_yield_percent_<_-1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 평균 수율 99.34 미만인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.34",
+    "operator": "<"
+  },
+  {
+    "id": "fab11_yield_percent_<=_1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 평균 수율 99.54 이하인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.54",
+    "operator": "<="
+  },
+  {
+    "id": "fab11_utilization_percent_>=_-1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 평균 가동률 78.27 이상인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "78.27",
+    "operator": ">="
+  },
+  {
+    "id": "fab11_utilization_percent_>=_1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 평균 가동률 78.47 이상인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "78.47",
+    "operator": ">="
+  },
+  {
+    "id": "fab11_utilization_percent_<_-1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 평균 가동률 78.27 미만인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "78.27",
+    "operator": "<"
+  },
+  {
+    "id": "fab11_utilization_percent_<=_1",
+    "kind": "threshold",
+    "question": "FAB11 현재 전체 평균 가동률 78.47 이하인 경우 보여줘",
+    "fab": "fab11",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "78.47",
+    "operator": "<="
+  },
+  {
+    "id": "fab12_wip_lots_>=_-1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 WIP 260.90 이상인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "260.90",
+    "operator": ">="
+  },
+  {
+    "id": "fab12_wip_lots_>=_1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 WIP 261.10 이상인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "261.10",
+    "operator": ">="
+  },
+  {
+    "id": "fab12_wip_lots_<_-1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 WIP 260.90 미만인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "260.90",
+    "operator": "<"
+  },
+  {
+    "id": "fab12_wip_lots_<=_1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 WIP 261.10 이하인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "261.10",
+    "operator": "<="
+  },
+  {
+    "id": "fab12_lot_completions_>=_-1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 완료 LOT 28.90 이상인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "28.90",
+    "operator": ">="
+  },
+  {
+    "id": "fab12_lot_completions_>=_1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 완료 LOT 29.10 이상인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "29.10",
+    "operator": ">="
+  },
+  {
+    "id": "fab12_lot_completions_<_-1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 완료 LOT 28.90 미만인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "28.90",
+    "operator": "<"
+  },
+  {
+    "id": "fab12_lot_completions_<=_1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 완료 LOT 29.10 이하인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "29.10",
+    "operator": "<="
+  },
+  {
+    "id": "fab12_yield_percent_>=_-1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 평균 수율 99.33 이상인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.33",
+    "operator": ">="
+  },
+  {
+    "id": "fab12_yield_percent_>=_1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 평균 수율 99.53 이상인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.53",
+    "operator": ">="
+  },
+  {
+    "id": "fab12_yield_percent_<_-1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 평균 수율 99.33 미만인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.33",
+    "operator": "<"
+  },
+  {
+    "id": "fab12_yield_percent_<=_1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 평균 수율 99.53 이하인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.53",
+    "operator": "<="
+  },
+  {
+    "id": "fab12_utilization_percent_>=_-1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 평균 가동률 79.25 이상인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "79.25",
+    "operator": ">="
+  },
+  {
+    "id": "fab12_utilization_percent_>=_1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 평균 가동률 79.45 이상인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "79.45",
+    "operator": ">="
+  },
+  {
+    "id": "fab12_utilization_percent_<_-1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 평균 가동률 79.25 미만인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "79.25",
+    "operator": "<"
+  },
+  {
+    "id": "fab12_utilization_percent_<=_1",
+    "kind": "threshold",
+    "question": "FAB12 현재 전체 평균 가동률 79.45 이하인 경우 보여줘",
+    "fab": "fab12",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "79.45",
+    "operator": "<="
+  },
+  {
+    "id": "fab13_wip_lots_>=_-1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 WIP 158.90 이상인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "158.90",
+    "operator": ">="
+  },
+  {
+    "id": "fab13_wip_lots_>=_1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 WIP 159.10 이상인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "159.10",
+    "operator": ">="
+  },
+  {
+    "id": "fab13_wip_lots_<_-1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 WIP 158.90 미만인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "158.90",
+    "operator": "<"
+  },
+  {
+    "id": "fab13_wip_lots_<=_1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 WIP 159.10 이하인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "wip_lots"
+    ],
+    "threshold": "159.10",
+    "operator": "<="
+  },
+  {
+    "id": "fab13_lot_completions_>=_-1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 완료 LOT 22.90 이상인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "22.90",
+    "operator": ">="
+  },
+  {
+    "id": "fab13_lot_completions_>=_1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 완료 LOT 23.10 이상인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "23.10",
+    "operator": ">="
+  },
+  {
+    "id": "fab13_lot_completions_<_-1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 완료 LOT 22.90 미만인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "22.90",
+    "operator": "<"
+  },
+  {
+    "id": "fab13_lot_completions_<=_1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 완료 LOT 23.10 이하인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "lot_completions"
+    ],
+    "threshold": "23.10",
+    "operator": "<="
+  },
+  {
+    "id": "fab13_yield_percent_>=_-1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 평균 수율 99.33 이상인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.33",
+    "operator": ">="
+  },
+  {
+    "id": "fab13_yield_percent_>=_1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 평균 수율 99.53 이상인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.53",
+    "operator": ">="
+  },
+  {
+    "id": "fab13_yield_percent_<_-1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 평균 수율 99.33 미만인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.33",
+    "operator": "<"
+  },
+  {
+    "id": "fab13_yield_percent_<=_1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 평균 수율 99.53 이하인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "yield_percent"
+    ],
+    "threshold": "99.53",
+    "operator": "<="
+  },
+  {
+    "id": "fab13_utilization_percent_>=_-1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 평균 가동률 79.80 이상인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "79.80",
+    "operator": ">="
+  },
+  {
+    "id": "fab13_utilization_percent_>=_1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 평균 가동률 80.00 이상인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "80.00",
+    "operator": ">="
+  },
+  {
+    "id": "fab13_utilization_percent_<_-1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 평균 가동률 79.80 미만인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "79.80",
+    "operator": "<"
+  },
+  {
+    "id": "fab13_utilization_percent_<=_1",
+    "kind": "threshold",
+    "question": "FAB13 현재 전체 평균 가동률 80.00 이하인 경우 보여줘",
+    "fab": "fab13",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "threshold": "80.00",
+    "operator": "<="
+  }
+]

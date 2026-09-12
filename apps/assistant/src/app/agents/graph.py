@@ -23,9 +23,12 @@ from app.rag.query import QueryScopeError, analyze_query
 from app.schemas.chat import ChatRequest, Evidence
 from app.sub_agent.case_search import find_similar_cases
 from app.sub_agent.diagnosis import synthesize_diagnosis
+from app.sub_agent.fab_comparison import comparison_facts
 from app.sub_agent.impact import estimate_output_delta
 from app.sub_agent.rag import INCIDENT_PLAYBOOK, retrieve_evidence
 from app.sub_agent.reflection import reflect_agent_output
+from app.sub_agent.result_delivery import result_cardinality, sample_evidence_rows
+from app.sub_agent.result_facts import observation_trends
 from app.sub_agent.text2sql import QueryType, Text2SQLResult, answer_question
 from app.sub_agent.visualization import build_chart_spec
 
@@ -285,6 +288,7 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
         result = answer_question(
             request.message,
             fab=request.fab,
+            line=request.line,
             process=request.process,
             product=request.product,
             route=request.route,
@@ -345,7 +349,13 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
             "query_type": result.query_type,
             "row_count": result.row_count,
             "columns": result.columns,
-            "sample_rows": result.rows[:20],
+            "row_limit": get_settings().db_max_rows,
+            "limit_reached": result.row_count >= get_settings().db_max_rows,
+            "sample_rows": sample_evidence_rows(result.rows),
+            "sample_is_complete": len(result.rows) <= 60,
+            "result_cardinality": result_cardinality(result.rows),
+            "metric_summaries": observation_trends(result.rows),
+            "fab_comparison": comparison_facts(result.rows),
             "query_plan": query_plan,
             "sql": result.sql,
         },
@@ -356,7 +366,7 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
         (step.required for step in plan.execution_steps if step.agent == "text2sql"),
         False,
     )
-    limitations = [*state.get("limitations", []), *result.limitations]
+    limitations = list(dict.fromkeys([*result.limitations, *state.get("limitations", [])]))
     reflection_patch = _agent_reflection_patch(
         state,
         run,
@@ -739,7 +749,7 @@ def _visualization_node(state: AgentState) -> dict[str, Any]:
 
     intent = result.plan.chart_intent if result.plan else None
     try:
-        chart = build_chart_spec(state["request"].message, result.rows, intent=intent)
+        chart = build_chart_spec((intent or {}).get("title") or state["request"].message, result.rows, intent=intent)
     except ValueError as exc:
         summary = f"차트 생성 계약을 충족하지 못했습니다: {exc}"
         limitations = [*state.get("limitations", []), summary]
@@ -825,6 +835,8 @@ def _visualization_node(state: AgentState) -> dict[str, Any]:
             "series_gaps": chart.get("series_gaps", []),
             "series_coverage": chart.get("series_coverage", []),
             "imputed_points": chart.get("imputed_points", []),
+            "observation_basis": chart.get("observation_basis", {}),
+            "comparison_summary": chart.get("comparison_summary", []),
         },
     }
     reflection_patch = _agent_reflection_patch(
@@ -864,6 +876,11 @@ def _visualization_node(state: AgentState) -> dict[str, Any]:
 
 
 def _composer_node(state: AgentState) -> dict[str, Any]:
+    if (state["plan"].status == "needs_clarification" and not state.get("agent_runs")
+            and state["plan"].clarification_question
+            and state.get("answer") != state["plan"].clarification_question):
+        return {"answer": state["plan"].clarification_question,
+                "status": "needs_clarification", "stream_event": None}
     # A stopped plan has an explicit answer and no tool results to compose.
     if state.get("halted") and (
         not state.get("agent_runs")
@@ -956,9 +973,21 @@ def _answer_supervisor_node(state: AgentState) -> dict[str, Any]:
 
     limitations = list(state.get("limitations", []))
     if not review["approved"]:
-        for issue in review["issues"]:
-            if issue not in limitations:
-                limitations.append(issue)
+        review["rejected_answer"] = answer
+        result = state.get("text2sql_result")
+        if result and result.status == "succeeded" and result.rows:
+            fab = result.plan.fab_id.upper() if result.plan and result.plan.fab_id else "요청 조건"
+            basis = {
+                "simulation_snapshot": "생성된 시뮬레이션 관측값",
+                "model_master": "SMT2020 정적 모델 입력",
+                "operational_report": "저장된 운영 보고서",
+                "release_plan": "등록된 투입 계획",
+            }.get(result.plan.data_source_type if result.plan else "", "조회 데이터")
+            answer = (f"{fab} 조회는 완료되어 {result.row_count}개 행을 확인했습니다({basis} 기준). "
+                      "해석 문장은 최종 근거 검증을 통과하지 못했습니다. "
+                      "조회 데이터와 기준 시각은 결과 표 및 데이터·SQL 보기에서 확인할 수 있습니다.")
+            review["presentation_fallback"] = "verified_query_rows_only"
+        limitations.append("해석 문장이 최종 근거 검증을 통과하지 못해 분석을 완료하지 못했습니다.")
     termination_reason = state.get("termination_reason")
     status = state.get("status", "succeeded")
     if not review["approved"]:
@@ -1666,11 +1695,21 @@ def _result_scope_issues(plan: PlannerDecision, result: Text2SQLResult) -> list[
         return []
     expected_fab = plan.slots.get("fab_id")
     issues = []
+    expected_fabs = plan.slots.get("fab_ids")
+    if expected_fabs and "," in expected_fabs.value:
+        actual = result.plan.slots.get("fab_ids")
+        returned = {str(row.get("fab", "")).lower() for row in result.rows}
+        if not actual or set(actual.value.split(",")) != set(expected_fabs.value.split(",")) or returned != set(expected_fabs.value.split(",")):
+            issues.append("FAB comparison did not return every requested FAB.")
+        if result.rows and "observed_at" not in result.rows[0]:
+            from app.sub_agent.fab_comparison import comparison_facts
+            if not comparison_facts(result.rows):
+                issues.append("FAB comparison has inconsistent observation times or process-area coverage.")
     if expected_fab and result.plan.fab_id and expected_fab.value != result.plan.fab_id:
         issues.append(f"FAB scope mismatch: requested {expected_fab.value}, returned {result.plan.fab_id}.")
     for key in ("products", "toolgroups", "area", "date_start", "date_end", "date_basis"):
         expected = plan.slots.get(key)
         actual = result.plan.slots.get(key)
-        if expected and actual and expected.value != actual.value:
+        if expected and actual and expected.value.casefold() != actual.value.casefold():
             issues.append(f"Scope mismatch for {key}: requested {expected.value}, returned {actual.value}.")
     return issues

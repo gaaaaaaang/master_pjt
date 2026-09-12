@@ -475,6 +475,95 @@ def test_queue_time_request_is_rejected_without_llm_call() -> None:
     assert llm.calls == []
 
 
+def test_simulation_queue_trend_preserves_snapshot_area_without_llm_call() -> None:
+    llm = FakeLLM(llm_payload("SELECT * FROM fab13.autosched_perf_fab13 LIMIT 1"))
+
+    result = plan_text2sql(
+        "FAB13 합성 시뮬레이션의 etch 영역에서, 저장된 최신 시점 기준 최근 24시간 "
+        "평균 대기시간 추이를 보여줘. WIP, 대기 LOT 수, 가동률도 비교해줘.",
+        llm_client=llm,
+    )
+
+    assert result.status == "succeeded"
+    assert result.sql is not None
+    assert "FROM fab13.live_process_snapshots_fab13" in result.sql
+    assert "s.area = 'etch'" in result.sql
+    assert "Dry_Etch" not in result.sql
+    assert "avg_queue_minutes" in result.sql
+    assert "queue_lots" in result.sql
+    assert result.plan is not None
+    assert result.plan.data_source_type == "simulation_snapshot"
+    assert result.plan.slots["area"].value == "etch"
+    assert result.plan.chart_intent is not None
+    assert result.plan.chart_intent["x"] == "interval_end"
+    assert llm.calls == []
+
+
+@pytest.mark.parametrize("fab", ["FAB10", "FAB11", "FAB12", "FAB13"])
+def test_simulation_queue_trend_uses_same_contract_for_supported_fabs(fab: str) -> None:
+    result = plan_text2sql(
+        f"{fab} 합성 시뮬레이션의 etch 영역에서, 저장된 최신 시점 기준 최근 24시간 "
+        "평균 대기시간 추이를 보여줘. 대기시간이 증가한 구간을 찾아 WIP, 대기 LOT 수, "
+        "가동률과 함께 비교하고 원인 후보를 설명해 줘.",
+        deterministic_only=True,
+    )
+
+    fab_id = fab.casefold()
+    assert result.status == "succeeded"
+    assert result.sql is not None
+    assert f"FROM {fab_id}.live_process_snapshots_{fab_id}" in result.sql
+    assert "s.area = 'etch'" in result.sql
+    assert result.plan is not None
+    assert result.plan.fab_id == fab_id
+    assert result.plan.data_source_type == "simulation_snapshot"
+    assert result.plan.slots["area"].value == "etch"
+
+
+def test_simulation_empty_result_suggests_available_fabs_and_areas(monkeypatch) -> None:
+    class EmptySimulationExecutor:
+        def __init__(self, *args, **kwargs) -> None:
+            pass
+
+        def validate(self, sql: str) -> str:
+            return sql
+
+        def execute(self, sql: str, limit=None) -> ReadOnlyQueryResult:
+            if "GROUP BY area" in sql:
+                return ReadOnlyQueryResult(
+                    ["area", "rows"],
+                    [{"area": "photo", "rows": 30}, {"area": "cmp", "rows": 30}],
+                    2,
+                    sql,
+                    limit or 200,
+                )
+            if "WHERE area = 'etch'" in sql:
+                rows = [{"rows": 12}] if "fab10.live_process_snapshots_fab10" in sql else [{"rows": 0}]
+                return ReadOnlyQueryResult(["rows"], rows, 1, sql, limit or 1)
+            return ReadOnlyQueryResult([], [], 0, sql, limit or 200)
+
+    monkeypatch.setattr("app.sub_agent.text2sql.ReadOnlyQueryExecutor", EmptySimulationExecutor)
+    monkeypatch.setattr("app.sub_agent.text2sql.load_fab_catalog", lambda fab: {
+        f"{fab}.live_process_snapshots_{fab}": {
+            "logical_table": "live_process_snapshots",
+            "data_source_type": "simulation_snapshot",
+            "columns": [{"name": name} for name in (
+                "fab_id", "area", "interval_start", "interval_end", "avg_queue_minutes",
+            )],
+        },
+    })
+
+    result = answer_question(
+        "FAB13 합성 시뮬레이션의 etch 영역 최근 24시간 평균 대기시간 추이를 보여줘."
+    )
+
+    assert result.status == "data_unavailable"
+    assert "area='etch'" in result.answer
+    assert "fab10(12행)" in " ".join(result.limitations)
+    assert "photo" in result.answer
+    assert result.plan is not None
+    assert result.plan.data_source_type == "simulation_snapshot"
+
+
 def test_release_route_is_parsed_before_korean_particle() -> None:
     result = plan_text2sql(
         "fab10 lotrelease에서 Route_Product_3의 2018-01-01 release plan 목록을 보여줘",

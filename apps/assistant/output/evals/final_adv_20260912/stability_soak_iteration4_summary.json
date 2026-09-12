@@ -1,0 +1,33 @@
+{
+  "started_at": "2026-09-12T11:56:17.490568+00:00",
+  "finished_at": "2026-09-12T12:23:17.509977+00:00",
+  "elapsed_seconds": 1620.009,
+  "passed": true,
+  "source_unchanged": true,
+  "source_sha256": "913eefa850db00d45e13566369fe243946f21b680edeb7d677a83c480531e3af",
+  "cycles": 54,
+  "request_contracts": 2808,
+  "data_answers_completed": 2376,
+  "expected_document_model_unavailable": 432,
+  "numeric_checks": 1728,
+  "errors": 0,
+  "traced_current_mb_first_last": [
+    2.75,
+    3.007
+  ],
+  "traced_current_mb_after_warmup_min_max": [
+    2.978,
+    3.007
+  ],
+  "resident_high_water_mb_min_max": [
+    120.141,
+    120.297
+  ],
+  "thread_counts": [
+    2
+  ],
+  "file_descriptor_counts": [
+    9
+  ],
+  "scope": "Local resilience and resource observations, not live-model accuracy or latency."
+}

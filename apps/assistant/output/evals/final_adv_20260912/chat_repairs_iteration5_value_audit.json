@@ -1,0 +1,63 @@
+{
+  "passed": 4,
+  "values_passed": 6,
+  "total": 6,
+  "results": [
+    {
+      "id": "fab12_week_compare",
+      "passed": false,
+      "values_passed": true,
+      "expected_rows": 12,
+      "actual_rows": 12,
+      "errors": [
+        "answer_status=failed"
+      ]
+    },
+    {
+      "id": "fab10_diagnosis",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 8,
+      "actual_rows": 8,
+      "errors": []
+    },
+    {
+      "id": "fab10_master",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 12,
+      "actual_rows": 12,
+      "errors": []
+    },
+    {
+      "id": "fab11_master",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": []
+    },
+    {
+      "id": "fab12_master",
+      "passed": false,
+      "values_passed": true,
+      "expected_rows": 42,
+      "actual_rows": 42,
+      "errors": [
+        "answer_status=failed"
+      ]
+    },
+    {
+      "id": "fab13_area_compare",
+      "passed": true,
+      "values_passed": true,
+      "expected_rows": 2,
+      "actual_rows": 2,
+      "errors": []
+    }
+  ],
+  "skipped": [],
+  "raw_sha256": "0a22b7defa8e6629f1b0a3c374ec2f4836aaa64487d353afdf79c8f3ad50d26f",
+  "report_sha256": "3f968f96e6fd190eabd9bc8e7ed21726724108c245145898e219208586529943",
+  "raw_file": "apps/assistant/output/evals/final_adv_20260912/reference_raw.json"
+}

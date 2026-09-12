@@ -14,9 +14,11 @@ from app.agents.graph import build_agent_graph, initial_graph_state
 from app.agents.intent import resolved_request_context
 from app.config import get_settings
 from app.schemas.chat import ChatRequest, ChatResponse, FeedbackRequest, FeedbackResponse
+from app.services.answer_presentation import present_response
 from app.services.chat_service import ChatService
 from app.services.conversation_memory import conversation_memory
 from app.services.feedback_service import feedback_service
+from app.sub_agent.result_delivery import query_result_payload
 
 router = APIRouter(tags=["chat"])
 service = ChatService()
@@ -151,6 +153,7 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                 "query_type": state["plan"].query_type,
                 "answer": state.get("answer"),
                 "sql": state.get("sql"),
+                "query_result": query_result_payload(state.get("text2sql_result")),
                 "chart": state.get("chart"),
                 "confidence": state.get("confidence"),
                 "limitations": state.get("limitations", []),
@@ -180,10 +183,13 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                 final["sql"],
                 bool(final["chart"]),
             )
+            final = present_response(final)
             final_history = conversation_memory.append_exchange(
                 conversation_id=state["conversation_id"],
                 request=prepared.model_copy(update=resolved_request_context(state["plan"].slots)),
-                answer=str(state.get("answer") or ""),
+                answer=str(final.get("answer") or ""),
+                supplied_fab=request.fab,
+                query_result=final["query_result"],
                 metadata={
                     "query_type": final["query_type"],
                     "status": final["status"],

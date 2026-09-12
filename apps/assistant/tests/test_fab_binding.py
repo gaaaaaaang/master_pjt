@@ -36,7 +36,7 @@ def test_followup_uses_latest_user_scope_not_assistant_examples():
     assert result.plan.source_tables == ["fab12.toolgroups_fab12"]
 
 
-@pytest.mark.parametrize("question", ["fab10과 fab11 비교", "fab99 toolgroups", "팹14 목록"])
+@pytest.mark.parametrize("question", ["fab99 toolgroups", "팹14 목록"])
 def test_ambiguous_or_invalid_explicit_scope_does_not_fall_back(question):
     result = plan_text2sql(question, fab="fab10", deterministic_only=True)
     assert result.status == "needs_clarification"

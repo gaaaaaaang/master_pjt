@@ -47,7 +47,9 @@ ORDER BY n.nspname, c.relname, a.attnum
 
 
 def source_type(logical: str) -> str:
-    if logical.startswith("live_process_"):
+    if logical.startswith("live_process_") or logical in {
+        "fab_process_raw_events", "fab_incidents", "fab_simulation_state", "fab_projection_runs",
+    }:
         return "simulation_snapshot"
     if logical.startswith("autosched_"):
         return "operational_report"
@@ -163,7 +165,7 @@ def load_fab_catalog(fab: str) -> dict[str, dict[str, Any]]:
                     if key in definition:
                         entry[key] = definition[key]
         for entry in tables.values():
-            if (entry["logical_table"] in {"live_process_snapshots", "live_process_events", "toolgroups"}
+            if (entry["logical_table"] in {"fab_process_raw_events", "live_process_snapshots", "live_process_events", "toolgroups"}
                     and any(column["name"] == "area" for column in entry["columns"])):
                 cur.execute(sql.SQL("SELECT DISTINCT area AS value FROM {}.{} WHERE area IS NOT NULL ORDER BY area LIMIT 33").format(
                     sql.Identifier(fab), sql.Identifier(entry["logical_table"] + "_" + fab)))

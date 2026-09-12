@@ -84,6 +84,20 @@ def test_no_sources_does_not_call_model_and_returns_insufficient():
     assert result.validation == "no_sources"
 
 
+def test_model_outage_is_distinguished_from_missing_documents_or_invalid_quotes():
+    class Client:
+        def complete_json(self, **kwargs):
+            raise RuntimeError("injected outage")
+
+    evidence = [{"source_type":"rag_chunk", "title":"Hold", "content":QUOTE,
+                 "metadata":{"chunk_id":"chunk-a", "source_document":"원본.pdf"}}]
+    result = compose_grounded("hold 조건?", evidence, client=Client())
+    assert result.status == "insufficient" and result.validation == "rejected"
+    assert result.review["stage"] == "generation_api"
+    assert "문서 검색은 완료" in result.answer and "모델을 사용할 수 없습니다" in result.answer
+    assert result.citations == []
+
+
 def test_invalid_model_quote_is_rejected_without_exposing_claim():
     class Client:
         def complete_json(self, **kwargs):
@@ -241,6 +255,19 @@ def test_reliability_disclaimer_describes_cited_sources_not_unused_candidates():
     assert "실제 사내 승인 SOP가 아닙니다" not in result.answer
     sources["chunk-a"]["reliability"] = "simulation_reference"
     assert "실제 사내 승인 SOP가 아닙니다" in render_grounded(answer(), sources).answer
+
+
+def test_public_summary_qualification_is_attached_only_when_cited():
+    sources = deepcopy(SOURCES)
+    sources["chunk-a"]["reliability"] = "verified_sop"
+    sources["unused"] = {**sources["chunk-a"], "reliability": "reference_summary"}
+    assert "프로젝트 참고 문서" not in render_grounded(answer(), sources).answer
+    sources["chunk-a"]["reliability"] = "reference_summary"
+    result = render_grounded(answer(), sources)
+    assert "프로젝트 참고 문서" in result.answer
+    assert "사내 공식 KPI" in result.answer
+    assert result.status == "supported"
+    assert len(result.citations) == 1
 
 
 def test_grounding_uses_actual_evidence_not_only_planned_agent_names(monkeypatch):

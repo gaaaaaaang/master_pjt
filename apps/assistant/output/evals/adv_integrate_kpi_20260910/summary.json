@@ -1,0 +1,121 @@
+{
+  "branch": "feat/adv_integrate",
+  "commit": "4ebf83350a706afb158653e0c51d5c43b60f9c9e",
+  "uncommitted_agent_changes_excluded": true,
+  "kpi_source": "docs/planning/problem_definition_and_service_planning.md:47",
+  "web_kpi_verified": false,
+  "text2sql": {
+    "answerable_cases": 22,
+    "negative_cases": 2,
+    "negative_passed": 2,
+    "ex": {
+      "mean": 0.9545454545454546,
+      "valid": 22,
+      "total": 22
+    },
+    "ex_strict": {
+      "mean": 0.9545454545454546,
+      "valid": 22,
+      "total": 22
+    },
+    "em": {
+      "mean": 0,
+      "valid": 22,
+      "total": 22
+    },
+    "soft_f1": {
+      "mean": 0.47080237689367216,
+      "valid": 22,
+      "total": 22
+    },
+    "failed_ids": [
+      "v07"
+    ]
+  },
+  "planner": {
+    "cases": 28,
+    "judge_passed": 28,
+    "routing_judge_passed": 28,
+    "note": "Operational routing proxy, not exact seven-class KPI"
+  },
+  "complex_e2e": {
+    "cases": 14,
+    "judge_passed": 13,
+    "status_succeeded": 10,
+    "judge_and_status_passed": 10,
+    "mean_seconds": 24.70213139878615,
+    "max_seconds": 53.26536312499957,
+    "failed_ids": [
+      "sc003_compound_util_cycle_impact"
+    ]
+  },
+  "ragas": {
+    "all_10": {
+      "faithfulness": {
+        "mean": 0.6466666666666667,
+        "valid": 10,
+        "total": 10
+      },
+      "answer_relevancy": {
+        "mean": 0.3097543734605167,
+        "valid": 10,
+        "total": 10
+      },
+      "llm_context_precision_without_reference": {
+        "mean": 0.5999999999646667,
+        "valid": 10,
+        "total": 10
+      }
+    },
+    "answerable_7": {
+      "faithfulness": {
+        "mean": 0.8285714285714286,
+        "valid": 7,
+        "total": 7
+      },
+      "answer_relevancy": {
+        "mean": 0.4425062478007382,
+        "valid": 7,
+        "total": 7
+      },
+      "llm_context_precision_without_reference": {
+        "mean": 0.8571428570923809,
+        "valid": 7,
+        "total": 7
+      }
+    },
+    "unanswerable_3": {
+      "faithfulness": {
+        "mean": 0.2222222222222222,
+        "valid": 3,
+        "total": 3
+      },
+      "answer_relevancy": {
+        "mean": 0.0,
+        "valid": 3,
+        "total": 3
+      },
+      "llm_context_precision_without_reference": {
+        "mean": 0.0,
+        "valid": 3,
+        "total": 3
+      }
+    }
+  },
+  "runtime_versions": {
+    "sqlglot": "27.29.0",
+    "openai": "1.109.1",
+    "langgraph": "0.6.11",
+    "langchain-core": "0.3.86",
+    "psycopg": "3.3.4"
+  },
+  "source_sha256": "607d3d3a64679143db742ade8abf4f3a4fc492e31529db22284fc69685c015d6",
+  "supervisor_challenge": {
+    "cases": 6,
+    "original_decision_matches_expected": 6,
+    "faulty_inputs_corrected": 5,
+    "first_judge_passed": 5,
+    "calibrated_judge_passed": 6,
+    "note": "Judge rubric clarified evaluation target; original outputs and first judgments preserved."
+  }
+}

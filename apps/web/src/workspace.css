@@ -53,6 +53,23 @@ button{touch-action:manipulation}
 .conversation-title{color:#8b95a1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .topbar-action{display:flex;align-items:center;gap:8px;font-size:12px;color:#6b7684;padding:9px 12px;border-radius:8px;white-space:nowrap}
 .topbar-action:hover{background:var(--soft)}
+.topbar-actions{display:flex;align-items:center;gap:4px}
+.question-guide{padding:24px 26px 40px}
+.guide-fab{display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:13px;font-weight:600}
+.guide-fab select{padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--ink);font:inherit}
+.guide-note{font-size:12px;line-height:1.7;color:#6b7684;margin:16px 0 22px}
+.guide-choices{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.guide-choices button{padding:9px 12px;border:1px solid #e7ebf0;border-radius:20px;color:#6b7684;font-size:12px}
+.guide-choices button[aria-pressed=true]{border-color:#b7d4fb;background:#eef6ff;color:#1b64da}
+.question-guide h3{font-size:16px;font-weight:600;margin:0 0 8px}
+.guide-description{font-size:13px;color:#6b7684;line-height:1.7;margin:0 0 20px}
+.guide-steps{list-style:none;padding:0;margin:0;display:grid;gap:14px}
+.guide-steps li{border:1px solid #e7ebf0;border-radius:14px;padding:18px}
+.guide-step-heading{display:flex;align-items:center;gap:9px;font-size:12px;color:#4e5968}
+.guide-step-heading>span{display:grid;place-items:center;background:#f2f4f6;border-radius:50%;width:23px;height:23px;font-size:11px}
+.guide-steps li>p{font-size:14px;line-height:1.8;overflow-wrap:anywhere;margin:13px 0}
+.guide-steps small{display:block;font-size:11px;color:#6b7684;line-height:1.7;margin-bottom:14px}
+.guide-steps .secondary-button{font-size:12px;padding:9px 12px;margin-top:3px}
 .count{padding:2px 7px;background:#eef2f7;border-radius:6px;color:#7b8796;font-size:11px}
 .conversation-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
 .welcome{max-width:800px;margin:0 auto;padding:clamp(35px,7.5vh,92px) 30px 35px;text-align:center}
@@ -125,6 +142,7 @@ figure.chart{margin:18px 0 0}
 figure.chart figcaption{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 4px 15px}
 figure.chart figcaption strong{font-size:13px;font-weight:600}
 figure.chart figcaption span{font-size:10px;color:#8b95a1}
+figure.chart.narrow-chart figcaption{flex-direction:column;align-items:flex-start}
 figure.chart svg{width:100%;height:auto;display:block;overflow:visible}
 figure.chart svg line{stroke:#edf0f4;stroke-width:1}
 figure.chart svg polyline{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
@@ -372,6 +390,8 @@ figure.chart{overflow:auto;padding-bottom:5px}
 .welcome-description,.suggestion-card small,.composer-caption,.inline-limitations ul,.context-trigger,.trace-trigger small,.text-button,.chart-footnote{color:#6b7684}
 .suggestion-card small{font-size:11px}
 .inline-limitations ul{font-size:11px}
+.more-limitations summary{cursor:pointer;color:#52647b;font-size:12px;padding:5px 0;line-height:1.6}
+.more-limitations[open] summary{margin-bottom:4px}
 
 .status-chip.progress{color:#3182f6}
 
@@ -394,3 +414,5 @@ figure.chart{overflow:auto;padding-bottom:5px}
 .agent-step>summary>svg{margin-top:7px}
 
 .csv-copy{display:flex;align-items:center;gap:12px;margin-top:7px;flex-wrap:wrap}.csv-copy>span{font-size:10px;color:#8b95a1}
+
+.chart-scale-note { margin: 4px 0 0; color: var(--text-secondary, #64748b); font-size: 12px; }

@@ -22,6 +22,7 @@ DEFAULT_PLAYBOOK_PATHS = [
 DEFAULT_BASICS_PATHS = [
     APP_ROOT / "data" / "smt2020" / "AutoSched" / "SMT_2020_AutoSched_AP_documentation.pdf",
     APP_ROOT / "data" / "smt2020" / "General Data" / "SMT_2020_generic_format.pdf",
+    APP_ROOT / "data" / "knowledge",
 ]
 
 

@@ -1,4 +1,42 @@
+import pytest
 from app.sub_agent.impact import estimate_output_delta
+
+
+@pytest.mark.parametrize("unit", ["%p", "% 포인트", "퍼센트포인트", "percentage points", "pp"])
+def test_percentage_point_aliases_do_not_become_relative_percent(unit):
+    result = estimate_output_delta(
+        {"rows":[{"utilization_percent":80, "lot_completions":1000}]},
+        {"question":f"가동률이 5{unit} 오르면 처리량 영향은?"},
+    )
+    assert result["status"] == "succeeded"
+    assert result["estimates"]["projected_util_percent"] == 85
+    assert result["estimates"]["projected_lotcomps"] == 1062.5
+
+
+def test_baseline_hour_window_is_not_a_second_hypothetical_change():
+    result = estimate_output_delta(
+        {"rows":[{"utilization_percent":80, "lot_completions":1000}]},
+        {"question":"최근 24시간 평균 가동률 기준으로 5%p 낮추면 처리량 영향은?"},
+    )
+    assert len(result["scenario"]["parsed_changes"]) == 1
+    assert result["estimates"]["projected_util_percent"] == 75
+
+
+def test_ct_shorthand_is_distinct_from_letters_inside_other_words():
+    result = estimate_output_delta({"rows":[{"avg_cycle_hours":10}]}, {"question":"CT가 10% 줄면 영향은?"})
+    assert result["estimates"]["projected_cycle_time"] == 9
+    unrelated = estimate_output_delta({"rows":[{"avg_cycle_hours":10}]}, {"question":"factory metric 10% increase"})
+    assert unrelated["estimates"] == {}
+
+
+def test_downtime_percentage_points_are_not_treated_as_utilization_change():
+    result = estimate_output_delta(
+        baseline={"rows":[{"utilization_percent":80, "lot_completions":100}]},
+        scenario={"question":"비가동률이 5%p 증가하면 처리량 영향은?"},
+    )
+    assert result["scenario"]["parsed_change"]["metric"] == "down"
+    assert result["estimates"] == {}
+    assert result["status"] == "data_unavailable"
 
 
 def test_utilization_percentage_point_drop_estimates_capacity_and_lotcomps() -> None:
@@ -17,7 +55,8 @@ def test_utilization_percentage_point_drop_estimates_capacity_and_lotcomps() -> 
         "utilization_delta_percentage_point": -5.0,
         "baseline_lotcomps": 1000.0,
     }
-    assert len(result["formulae"]) == 3
+    assert result["estimates"]["projected_lotcomps"] == 937.5
+    assert len(result["formulae"]) == 4
     assert result["assumptions"]
     assert "입력 기준" in result["summary"]
     assert "계산식" in result["summary"]
@@ -71,7 +110,18 @@ def test_downtime_requires_hourly_completion_rate() -> None:
     assert result["inputs"] == {}
     assert result["formulae"] == []
     assert "시간당 lot completion rate" in result["limitations"][0]
-    assert "operational metric" in result["summary"]
+    assert "분석 기간" in result["summary"]
+
+
+def test_observed_queue_time_does_not_imply_a_calibrated_output_relationship():
+    result = estimate_output_delta(
+        baseline={"rows":[{"avg_queue_minutes":15.27, "lot_completions":2}]},
+        scenario={"question":"Queue Time이 10% 늘면 처리량 영향은?"},
+    )
+    assert result["status"] == "data_unavailable" and result["estimates"] == {}
+    assert result["baseline"]["metrics"]["avg_queue_minutes"] == 15.27
+    assert "관계식" in result["summary"]
+    assert "승인" not in result["summary"] and "정책" not in result["summary"]
 
 
 def test_impact_records_baseline_query_provenance_and_ignores_non_finite_values() -> None:

@@ -1,0 +1,69 @@
+{
+  "suite": "rag",
+  "source_root": "/private/tmp/adv-integrate-eval-20260910",
+  "source_sha256": "607d3d3a64679143db742ade8abf4f3a4fc492e31529db22284fc69685c015d6",
+  "started_at": "2026-09-10T08:50:33+0900",
+  "model": "gpt-4.1",
+  "same_model_judge": true,
+  "rag_reranker": "feature",
+  "dense_retrieval_configured": false,
+  "results": [
+    {
+      "id": "ext_pm_approval",
+      "error": "No module named 'psycopg'",
+      "seconds": 0.004967541011865251
+    },
+    {
+      "id": "ext_hold_deadline",
+      "error": "No module named 'psycopg'",
+      "seconds": 0.0008857080101734027
+    },
+    {
+      "id": "ext_equipment_record",
+      "error": "No module named 'psycopg'",
+      "seconds": 0.0007364580087596551
+    },
+    {
+      "id": "ext_alternate",
+      "error": "No module named 'psycopg'",
+      "seconds": 0.0007210000039776787
+    },
+    {
+      "id": "ext_timelink",
+      "error": "No module named 'psycopg'",
+      "seconds": 0.0005559169949265197
+    },
+    {
+      "id": "ext_knowledge_update",
+      "error": "No module named 'psycopg'",
+      "seconds": 0.000777084002038464
+    },
+    {
+      "id": "ext_autosched_attach",
+      "error": "No module named 'psycopg'",
+      "seconds": 0.0007096249901223928
+    },
+    {
+      "id": "ext_unknown_threshold",
+      "error": "No module named 'psycopg'",
+      "seconds": 0.0006837090040789917
+    },
+    {
+      "id": "ext_unknown_euv",
+      "error": "No module named 'psycopg'",
+      "seconds": 0.0008275410073110834
+    },
+    {
+      "id": "ext_verified_sop",
+      "error": "No module named 'psycopg'",
+      "seconds": 0.0008837909990688786
+    }
+  ],
+  "ragas_version": "0.2.15",
+  "fixture_sha256": {
+    "rag_extension_eval.json": "258e03ec26e36543f8d5beea6d8127f5e9dfbbb0f5c066ebd1cd68df2c645801"
+  },
+  "planned_cases": 10,
+  "corpus_sha256": "e1f598dd34aec69213fab5bb3100d9cc643d84d64ef4d9ff1cbd0199f650c62d",
+  "completed": true
+}
