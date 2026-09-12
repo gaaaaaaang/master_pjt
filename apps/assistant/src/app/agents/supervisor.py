@@ -78,8 +78,14 @@ ANSWER_SUPERVISOR_OUTPUT_SCHEMA = {
         "issues": {"type": "array", "items": {"type": "string"}},
         "corrected_answer": {"type": ["string", "null"]},
         "reason": {"type": "string"},
+        "semantic_checks": {"type": "array", "items": {
+            "type": "object", "additionalProperties": False,
+            "properties": {"warning_index": {"type": "integer"},
+                           "violated": {"type": "boolean"}, "reason": {"type": "string"}},
+            "required": ["warning_index", "violated", "reason"],
+        }},
     },
-    "required": ["approved", "issues", "corrected_answer", "reason"],
+    "required": ["approved", "issues", "corrected_answer", "reason", "semantic_checks"],
 }
 
 
@@ -129,23 +135,12 @@ def review_plan(
     llm_client: AzureAgentClient | None = None,
 ) -> tuple[PlannerDecision, dict[str, Any]]:
     """Review and authorize a Planner plan with an independent LLM call."""
-    try:
-        output = (llm_client or AzureAgentClient()).complete_json(
-            system_prompt=SUPERVISOR_SYSTEM_PROMPT,
-            input_data={"question": question, "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}}},
-            output_schema=SUPERVISOR_OUTPUT_SCHEMA,
-            schema_name="fab_supervisor_decision",
-        )
-    except RuntimeError as exc:
-        output = {
-            "proceed": plan.status == "ready",
-            "status": plan.status,
-            "selected_sub_agents": list(plan.selected_sub_agents),
-            "reason": f"Supervisor LLM unavailable; deterministic plan contract used: {exc}",
-            "answer": None,
-            "limitations": ["Supervisor LLM review was unavailable."],
-            "fallback_used": True,
-        }
+    output = (llm_client or AzureAgentClient()).complete_json(
+        system_prompt=SUPERVISOR_SYSTEM_PROMPT,
+        input_data={"question": question, "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}}},
+        output_schema=SUPERVISOR_OUTPUT_SCHEMA,
+        schema_name="fab_supervisor_decision",
+    )
     if (
         plan.status == "ready"
         and "text2sql" in plan.selected_sub_agents
@@ -205,31 +200,21 @@ def review_agent_result(
     llm_client: AzureAgentClient | None = None,
 ) -> dict[str, Any]:
     """Choose a bounded recovery action for one reflected agent result."""
-    try:
-        output = (llm_client or AzureAgentClient()).complete_json(
-            system_prompt=AGENT_RECOVERY_SYSTEM_PROMPT,
-            input_data={
-                "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}},
-                "agent_reflection": reflection,
-                "execution_context": execution_context or {},
-                "retry_count": retry_count,
-                "retry_budget_remaining": retry_budget_remaining,
-                "replan_budget_remaining": replan_budget_remaining,
-                "alternate_budget_remaining": alternate_budget_remaining,
-                "allowed_alternate_agents": allowed_alternate_agents,
-            },
-            output_schema=AGENT_RECOVERY_OUTPUT_SCHEMA,
-            schema_name="fab_agent_recovery_decision",
-        )
-    except RuntimeError as exc:
-        output = {
-            "action": "continue",
-            "alternate_agent": None,
-            "reason": f"Recovery LLM unavailable; bounded deterministic continue used: {exc}",
-            "planner_feedback": None,
-            "limitations": ["Recovery LLM review was unavailable."],
-            "fallback_used": True,
-        }
+    output = (llm_client or AzureAgentClient()).complete_json(
+        system_prompt=AGENT_RECOVERY_SYSTEM_PROMPT,
+        input_data={
+            "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}},
+            "agent_reflection": reflection,
+            "execution_context": execution_context or {},
+            "retry_count": retry_count,
+            "retry_budget_remaining": retry_budget_remaining,
+            "replan_budget_remaining": replan_budget_remaining,
+            "alternate_budget_remaining": alternate_budget_remaining,
+            "allowed_alternate_agents": allowed_alternate_agents,
+        },
+        output_schema=AGENT_RECOVERY_OUTPUT_SCHEMA,
+        schema_name="fab_agent_recovery_decision",
+    )
     return enforce_recovery_policy(
         output, reflection=reflection, retry_count=retry_count,
         retry_budget_remaining=retry_budget_remaining,
@@ -250,14 +235,14 @@ def enforce_recovery_policy(
     action = str(output.get("action", "continue"))
     status = str(reflection.get("status") or "unknown")
     alternate = output.get("alternate_agent")
-    fallback_reason: str | None = None
+    rejection_reason: str | None = None
 
     if action not in {"continue", "compose", "retry_same_agent", "retry_agents", "replan", "alternate_agent"}:
         action = "continue"
-        fallback_reason = "Unknown recovery action was rejected."
+        rejection_reason = "Unknown recovery action was rejected."
     if action == "compose" and not execution_context.get("coverage", {}).get("all_satisfied"):
         action = "continue"
-        fallback_reason = "Composition cannot bypass unresolved answer requirements."
+        rejection_reason = "Composition cannot bypass unresolved answer requirements."
     retry_agents = list(dict.fromkeys(output.get("retry_agents") or []))
     if action == "retry_agents":
         results = execution_context.get("active_results", {})
@@ -272,26 +257,26 @@ def enforce_recovery_policy(
         )
         if not valid:
             action = "continue"
-            fallback_reason = "Combination retry requires repair instructions, attempted agents, and budget."
+            rejection_reason = "Combination retry requires repair instructions, attempted agents, and budget."
     if action == "retry_same_agent" and (
         retry_budget_remaining <= 0
         or retry_count >= 1
         or status in {"data_unavailable", "unsupported", "needs_clarification", "skipped"}
     ):
         action = "replan" if status != "succeeded" and replan_budget_remaining > 0 else "continue"
-        fallback_reason = "Retry was rejected by the bounded recovery policy."
-    if action == "replan" and not output.get("planner_feedback") and not fallback_reason:
+        rejection_reason = "Retry was rejected by the bounded recovery policy."
+    if action == "replan" and not output.get("planner_feedback") and not rejection_reason:
         action = "continue"
-        fallback_reason = "Replanning requires concrete feedback for the Planner."
+        rejection_reason = "Replanning requires concrete feedback for the Planner."
     if action == "replan" and replan_budget_remaining <= 0:
         action = "continue"
-        fallback_reason = "Replan budget is exhausted."
+        rejection_reason = "Replan budget is exhausted."
     if action == "alternate_agent" and (
         alternate_budget_remaining <= 0 or alternate not in allowed_alternate_agents
     ):
         action = "continue"
         alternate = None
-        fallback_reason = "Alternate agent was rejected by the compatibility or budget policy."
+        rejection_reason = "Alternate agent was rejected by the compatibility or budget policy."
 
     return {
         **output,
@@ -299,7 +284,7 @@ def enforce_recovery_policy(
         "retry_agents": retry_agents if action == "retry_agents" else [],
         "alternate_agent": alternate if action == "alternate_agent" else None,
         "reason": (
-            f"{output['reason']} {fallback_reason}" if fallback_reason else output["reason"]
+            f"{output['reason']} {rejection_reason}" if rejection_reason else output["reason"]
         ),
         "prompt_version": AGENT_RECOVERY_PROMPT_VERSION,
     }
@@ -314,6 +299,33 @@ def review_final_answer(
     limitations: list[str],
     llm_client: AzureAgentClient | None = None,
 ) -> dict[str, Any]:
+    """Bounded model revisions; every revision uses the same evidence and validation."""
+    candidate = answer
+    attempts = []
+    for _ in range(3):
+        review = _review_final_answer_once(
+            question=question, answer=candidate, plan=plan, evidence=evidence,
+            limitations=limitations, llm_client=llm_client,
+        )
+        attempts.append({"approved": review["approved"], "issues": review.get("issues", []),
+                         "correction_check": review.get("correction_check"),
+                         "candidate": candidate})
+        if review["approved"]:
+            if candidate != answer and not review.get("correction_applied"):
+                review.update(corrected_answer=candidate, correction_applied=True, correction_source="model")
+            break
+        revised = review.get("corrected_answer")
+        if not revised or revised == candidate:
+            break
+        candidate = revised
+    return {**review, "review_attempts": attempts}
+
+
+def _review_final_answer_once(
+    *, question: str, answer: str, plan: PlannerDecision,
+    evidence: list[dict[str, Any]], limitations: list[str],
+    llm_client: AzureAgentClient | None = None,
+) -> dict[str, Any]:
     """Review the composed answer against the original request and grounded evidence."""
     if plan.status == "needs_clarification" and answer.strip() == (plan.clarification_question or "").strip():
         return {"approved": bool(answer.strip()), "issues": [], "correction_applied": False,
@@ -326,30 +338,42 @@ def review_final_answer(
         query_type=plan.query_type,
         question=question,
     )
-    try:
-        output = (llm_client or AzureAgentClient()).complete_json(
-            system_prompt=ANSWER_SUPERVISOR_SYSTEM_PROMPT,
-            input_data={
-                "question": question,
-                "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}},
-                "final_answer": answer,
-                "result_presentation": result_presentation(evidence),
-                "evidence": evidence,
-                "limitations": limitations,
-                "deterministic_check": deterministic,
+    output = (llm_client or AzureAgentClient()).complete_json(
+        system_prompt=ANSWER_SUPERVISOR_SYSTEM_PROMPT,
+        input_data={
+            "question": question,
+            "planner_decision": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}},
+            "final_answer": answer,
+            "result_presentation": result_presentation(evidence),
+            "evidence": evidence,
+            "limitations": limitations,
+            # Do not anchor the reviewer on a lexical probe's asserted failure
+            # or aggregate score. Supply neutral topics plus enforceable checks.
+            "deterministic_check": {
+                "blocking_warnings": deterministic["blocking_warnings"],
+                "unsupported_numeric_claims": deterministic["unsupported_numeric_claims"],
             },
-            output_schema=ANSWER_SUPERVISOR_OUTPUT_SCHEMA,
-            schema_name="fab_answer_supervisor_decision",
-        )
-    except RuntimeError as exc:
-        output = {
-            "approved": deterministic["is_supported"],
-            "issues": list(deterministic["warnings"]),
-            "corrected_answer": None,
-            "reason": f"Answer Supervisor LLM unavailable; deterministic check used: {exc}",
-            "fallback_used": True,
-        }
-    issues = list(dict.fromkeys([*deterministic["warnings"], *output["issues"]]))
+            "semantic_review_items": [
+                {"warning_index": i, "topic": topic}
+                for i, topic in enumerate(deterministic["semantic_review_topics"])
+            ],
+        },
+        output_schema=ANSWER_SUPERVISOR_OUTPUT_SCHEMA,
+        schema_name="fab_answer_supervisor_decision",
+    )
+    issues = list(dict.fromkeys([*deterministic["blocking_warnings"], *output["issues"]]))
+    checks = output.get("semantic_checks") or []
+    expected_indices = set(range(len(deterministic["semantic_warnings"])))
+    valid_checks = all(isinstance(check, dict)
+                       and type(check.get("warning_index")) is int
+                       and type(check.get("violated")) is bool
+                       and isinstance(check.get("reason"), str) and check["reason"].strip()
+                       for check in checks)
+    if (not valid_checks or len(checks) != len(expected_indices)
+            or {check["warning_index"] for check in checks} != expected_indices):
+        issues.append("Semantic review must explicitly examine every flagged claim.")
+    else:
+        issues.extend(check["reason"] for check in checks if check["violated"])
     original_approved = bool(output["approved"]) and not issues
     approved = original_approved
     corrected_answer = str(output.get("corrected_answer") or "").strip() or None
@@ -363,40 +387,18 @@ def review_final_answer(
             query_type=plan.query_type,
             question=question,
         )
-        if (not correction_check["is_supported"] and limitations
-                and correction_check["warnings"] == ["Material limitations must be visible in the final answer."]):
-            corrected_answer += "\n\n제한사항: " + " ".join(dict.fromkeys(limitations))
-            correction_check = verify_response(
-                corrected_answer, evidence=evidence, limitations=limitations,
-                query_type=plan.query_type, question=question,
-            )
         novel_topics = _ungrounded_correction_topics(corrected_answer, answer, evidence) if plan.query_type == "diagnosis" else []
         if novel_topics:
             correction_check["is_supported"] = False
             correction_check["warnings"].append(
                 "Correction introduced diagnosis topics absent from the supplied evidence: " + ", ".join(novel_topics)
             )
-        if correction_check["is_supported"]:
+        if not correction_check["blocking_warnings"] and not correction_check["semantic_warnings"] and not novel_topics:
             approved = True
             issues = []
             correction_applied = True
 
     correction_source = "model" if correction_applied else None
-    causal_warnings = {
-        "Diagnosis answers must disclose when evidence cannot support any cause candidate.",
-        "Cross-FAB area contributions must not be presented as confirmed causes.",
-        "Diagnosis answer introduces a cause candidate despite an empty supported candidate set.",
-    }
-    if (not approved and deterministic["warnings"] and set(deterministic["warnings"]) <= causal_warnings):
-        from app.agents.llm_nodes import grounded_comparison_answer
-        repair = grounded_comparison_answer(evidence, plan.query_type)
-        if repair:
-            checked = verify_response(repair, evidence=evidence, limitations=limitations,
-                                      query_type=plan.query_type, question=question)
-            if checked["is_supported"]:
-                corrected_answer, correction_check = repair, checked
-                approved, correction_applied, issues = True, True, []
-                correction_source = "verified_comparison_evidence"
 
     return {
         **output,

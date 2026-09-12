@@ -111,7 +111,7 @@ def collect_metrics(*, execute_text2sql: bool = False) -> dict[str, float | int]
         "adversarial.case_count": adversarial["case_count"],
         "adversarial.pass_rate": adversarial["pass_rate"],
         **{
-            f"adversarial.{agent}_pass_rate": metrics["pass_rate"]
+            f"adversarial.{agent if agent != 'planner' else 'planner_outage_propagation'}_pass_rate": metrics["pass_rate"]
             for agent, metrics in adversarial["agents"].items()
         },
         "retrieval_abstention.case_count": abstention["case_count"],
@@ -165,6 +165,7 @@ def build_report(
             "context_memory": "deterministic_multiturn_fixture",
             "answer_quality": "deterministic_positive_negative_fixture",
             "adversarial": "deterministic_variant_fixture",
+            "adversarial_planner": "model_outage_propagation_not_planning_accuracy",
             "retrieval_abstention": "local_negative_query_fixture",
         },
         "external_calls": False,

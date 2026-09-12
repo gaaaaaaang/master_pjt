@@ -44,7 +44,7 @@ button{touch-action:manipulation}
 .sidebar-footer>p{display:flex;align-items:center;gap:6px;margin:18px 0 0;font-size:10px;color:#8b95a1}
 .connection-dot{height:5px;width:5px;border-radius:50%;background:#b0b8c1}
 .connection-dot.online{background:#20b687}
-.connection-dot.offline{background:#d9962e}
+.connection-dot.offline,.connection-dot.degraded{background:#d9962e}
 .main-workspace{display:flex;flex-direction:column;min-width:0;min-height:0}
 .topbar{height:78px;min-height:78px;padding:0 36px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f2f5;gap:20px}
 .topbar-title{display:flex;align-items:center;gap:16px;min-width:0;font-size:12px}

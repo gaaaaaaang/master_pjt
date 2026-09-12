@@ -1,9 +1,9 @@
 {
-  "version": 73,
+  "version": 74,
   "scope": "local deterministic release quality",
   "full_graph": {
     "status": "not_measured",
-    "reason": "Azure Composer/Supervisor evaluation requires explicit approval for external schema and question transmission."
+    "reason": "This offline evaluator does not call the full model graph; see the separate approved live-model report."
   },
   "metrics": {
     "text2sql.case_count": {"baseline": 79, "minimum": 79},
@@ -43,7 +43,7 @@
     "answer_quality.negative_reject_rate": {"baseline": 1.0, "minimum": 1.0},
     "adversarial.case_count": {"baseline": 57, "minimum": 57},
     "adversarial.pass_rate": {"baseline": 1.0, "minimum": 1.0},
-    "adversarial.planner_pass_rate": {"baseline": 1.0, "minimum": 1.0},
+    "adversarial.planner_outage_propagation_pass_rate": {"baseline": 1.0, "minimum": 1.0},
     "adversarial.text2sql_pass_rate": {"baseline": 1.0, "minimum": 1.0},
     "adversarial.rag_pass_rate": {"baseline": 1.0, "minimum": 1.0},
     "adversarial.case_search_pass_rate": {"baseline": 1.0, "minimum": 1.0},

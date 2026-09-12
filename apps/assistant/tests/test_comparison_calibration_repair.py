@@ -69,16 +69,15 @@ def review(answer):
         "정비 시간이 증가한 것이 최근 WIP 증가에 기여했을 가능성이 있습니다.",
     ],
 )
-def test_unsupported_candidate_is_replaced_by_verified_comparison_not_a_blank_failure(claim):
+def test_unsupported_candidate_is_rejected_without_a_canned_comparison(claim):
     result = review(
         f"FAB11 WIP 188LOT, FAB13 159LOT 기준입니다. {claim} 현재 근거로는 원인 후보를 제시할 수 없습니다."
     )
-    assert result["approved"], result["issues"]
+    assert not result["approved"]
     assert not result["original_approved"]
-    assert result["correction_source"] == "verified_comparison_evidence"
-    assert "29LOT" in result["corrected_answer"]
-    assert "후보로 볼 수 있습니다" not in result["corrected_answer"]
-    assert result["correction_check"]["is_supported"]
+    assert result["correction_source"] is None
+    assert result["corrected_answer"] is None
+    assert not result["correction_applied"]
 
 
 def test_calibration_repair_does_not_silently_clear_an_invented_number():
