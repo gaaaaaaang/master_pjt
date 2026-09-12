@@ -1,0 +1,13 @@
+{
+  "purpose": "Frozen before implementation; first-attempt quality and cost comparison, not a training set or statistical accuracy estimate.",
+  "cases": [
+    {"id":"h1_status", "new":true, "question":"FAB12 CMP 현재 재공과 평균 대기 시간을 함께 알려줘", "fabs":["fab12"], "expected":{"query_type":"status","area":"cmp","metrics":["wip_lots","avg_queue_minutes"],"row_count":1,"approved":true}},
+    {"id":"h2_followup", "question":"같은 공정의 수율과 가동률도 확인해줘", "fabs":["fab12"], "expected":{"query_type":"status","area":"cmp","metrics":["yield_percent","utilization_percent"],"row_count":1,"approved":true}},
+    {"id":"h3_switch", "question":"FAB10 etch 공정의 현재 WIP와 가동률을 알려줘", "fabs":["fab10"], "expected":{"area":"etch","metrics":["wip_lots","utilization_percent"],"row_count":1,"approved":true}},
+    {"id":"h4_trend", "new":true, "question":"FAB13 최근 3일 공정별 수율 추세를 차트로 보여줘", "fabs":["fab13"], "chart":true, "expected":{"query_type":"trend","metrics":["yield_percent"],"approved":true}},
+    {"id":"h5_comparison", "new":true, "question":"FAB12와 FAB10의 현재 WIP 차이를 공정별로 비교하고 그래프로 그려줘", "fabs":["fab12","fab10"], "chart":true, "expected":{"metrics":["wip_lots"],"row_count":12,"approved":true}},
+    {"id":"h6_diagnosis", "new":true, "question":"FAB11 etch 공정의 대기 지연 원인을 데이터와 문서 근거로 분석해줘", "fabs":["fab11"], "expected":{"query_type":"diagnosis","area":"etch","metrics":["avg_queue_minutes"],"approved":true}},
+    {"id":"h7_impact", "new":true, "question":"FAB13 photo 공정의 가동률이 3%p 떨어지면 처리량에 얼마나 영향이 있어?", "fabs":["fab13"], "impact":true, "expected":{"query_type":"impact","approved":true}},
+    {"id":"h8_knowledge", "new":true, "question":"Little's Law에서 WIP와 처리량, Cycle Time의 관계를 문서 근거로 설명해줘", "knowledge":true, "expected":{"approved":true}}
+  ]
+}

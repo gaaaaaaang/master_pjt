@@ -1,0 +1,178 @@
+{
+  "source_sha256": "962736f0bfb4f682bbb64e551a5070de34238b737e73137dc60bf954b2cbf497",
+  "started_at": "2026-09-12T09:35:18.399429+00:00",
+  "case_count": 34,
+  "positive": {
+    "cases": 32,
+    "status_succeeded": 28
+  },
+  "negative": {
+    "cases": 2,
+    "expected_status_matches": 2
+  },
+  "latency_seconds": {
+    "median": 19.618,
+    "p95_nearest_rank": 33.082,
+    "max": 34.102
+  },
+  "status_counts": {
+    "succeeded": 28,
+    "failed": 4,
+    "data_unavailable": 2
+  },
+  "by_kind": {
+    "comparison": {
+      "cases": 2,
+      "expected_status_matches": 2
+    },
+    "trend": {
+      "cases": 6,
+      "expected_status_matches": 4
+    },
+    "status": {
+      "cases": 6,
+      "expected_status_matches": 6
+    },
+    "area_status": {
+      "cases": 4,
+      "expected_status_matches": 4
+    },
+    "diagnosis": {
+      "cases": 4,
+      "expected_status_matches": 4
+    },
+    "impact": {
+      "cases": 4,
+      "expected_status_matches": 3
+    },
+    "master": {
+      "cases": 4,
+      "expected_status_matches": 3
+    },
+    "knowledge": {
+      "cases": 1,
+      "expected_status_matches": 1
+    },
+    "action": {
+      "cases": 1,
+      "expected_status_matches": 1
+    },
+    "unsupported": {
+      "cases": 2,
+      "expected_status_matches": 2
+    }
+  },
+  "model_calls": {
+    "fab_planner_decision": {
+      "calls": 34,
+      "seconds": 78.90900000000002,
+      "input_tokens": 66715,
+      "output_tokens": 10205
+    },
+    "fab_supervisor_decision": {
+      "calls": 34,
+      "seconds": 56.12400000000001,
+      "input_tokens": 50631,
+      "output_tokens": 4382
+    },
+    "fab_agent_recovery_decision": {
+      "calls": 52,
+      "seconds": 138.88500000000008,
+      "input_tokens": 394034,
+      "output_tokens": 9650
+    },
+    "fab_self_reflection": {
+      "calls": 31,
+      "seconds": 132.85299999999998,
+      "input_tokens": 205419,
+      "output_tokens": 8444
+    },
+    "fab_final_answer": {
+      "calls": 31,
+      "seconds": 140.91299999999998,
+      "input_tokens": 235312,
+      "output_tokens": 11677
+    },
+    "fab_answer_supervisor_decision": {
+      "calls": 32,
+      "seconds": 139.37699999999998,
+      "input_tokens": 208294,
+      "output_tokens": 10734
+    },
+    "fab_semantic_plan": {
+      "calls": 4,
+      "seconds": 8.921,
+      "input_tokens": 35890,
+      "output_tokens": 779
+    },
+    "fab_grounded_answer": {
+      "calls": 2,
+      "seconds": 5.365,
+      "input_tokens": 5687,
+      "output_tokens": 625
+    },
+    "fab_grounded_review": {
+      "calls": 2,
+      "seconds": 7.029999999999999,
+      "input_tokens": 4166,
+      "output_tokens": 890
+    }
+  },
+  "failures": [
+    {
+      "id": "fab10_trend",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": "answer_review_failed",
+      "issues": [
+        "최종 답변은 해당 데이터가 시뮬레이션 데이터임을 명시적으로 안내했으나, 실제 그래프 이미지는 제공되지 않았음: '그래프에서...' 언급이 있으나 답변 내 시각화가 텍스트/표현물 형태로 실제 첨부·링크되지 않음.",
+        "질의 의도상 실제 그래프 비주얼(혹은 그 대체 설명)이 반드시 포함되어야 하며, 실제 표시된 축·범례·그래프 영역 설명 또는 적절한 차트 사양이 본문에 충분히 명확하게 드러나야 함."
+      ],
+      "error": null
+    },
+    {
+      "id": "fab12_trend",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": "answer_review_failed",
+      "issues": [
+        "Trend answer contains numeric claims absent from grounded inputs and results: 6",
+        "최종 답변에 포함된 공정별(6종) 수율 변동 요약(예: 'cmp: 96.11%에서 99.47%까지 변동') 등 숫자 요약들은 실제 제공된 증거(조회 결과 메타데이터, 표본, 집계 summary)에는 직접 포함되어 있지 않음. 공급된 chart와 metadata의 예시·집계 summary만 증거로 사용해야 하며, 각 공정별 수치 요약 및 '변동 있음'과 같은 해석은 질문의 취지와 evidence limitation(추세만 표시, 요약 불가/없음)을 넘어서는 자의적 해석임.",
+        "실제로 보이는 그래프, 날짜 범위, 공정 분류, 관측치 개수 등은 모두 증거에 부합하나, 수치 중심의 주관적 해설 및 summary는 '근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다'는 수용 기준 위반임.",
+        "'실측값이 아닌 시뮬레이션 데이터'라는 한계 설명 유지 필요. 실제 원인 등 추가 해설은 부적절함."
+      ],
+      "error": null
+    },
+    {
+      "id": "fab12_master",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": "answer_review_failed",
+      "issues": [
+        "Status answer contains numeric claims absent from grounded inputs and results: 42",
+        "최종 답변에 '전체 42개 공정 영역'이라는 수치가 등장하지만, 근거 데이터 (SQL 결과, 증거 row)는 42개의 영역 이름을 구체적으로 보여주지 않았고, 답변에 일부만 예시로 나열되어 있습니다. (데이터 셋에는 42행이 있으나, 실제 영역 명칭 전체가 답변에 누락됨).",
+        "최종 답변에는 'SMT2020 General Data 기반 시뮬레이션·모델 입력 상태' 출처 및 '실제 공장과 다를 수 있음' 등이 비교적 충실히 명시되어 있으나, 답변 텍스트가 예시를 들어줄 뿐 전체 영역/대수 목록(또는 표)이 완전하게 제시되지 않았습니다.",
+        "질문은 'fab12 공정 영역별 설비 대수 합계 전체'인데, 답변이 모든 영역을 빠짐없이 개별 대수와 함께 보여주지 않아 완전하지 않습니다."
+      ],
+      "error": null
+    },
+    {
+      "id": "fab13_impact",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": "answer_review_failed",
+      "issues": [
+        "Impact answers must include input-data and calculation limitations.",
+        "Material limitations must be visible in the final answer.",
+        "Final answer omits requested identifiers: fab13",
+        "Final answer omits requested metrics: Utilization",
+        "요청한 FAB 식별자(fab13)가 답변에 명시되어 있지 않음",
+        "요청 지표 및 처리량(metric: Utilization, lotcomps)에 대한 답변 및 영향 수치 미제공",
+        "'최신 데이터 기준'이라는 한계와 계산 과정/공식 언급 필요",
+        "계산 기준이 되는 처리량 단위(lotcomps 등) 명확히 확인 요청 필요"
+      ],
+      "error": null
+    }
+  ],
+  "interpretation": "Status-based completion on this fixed fixture. Numeric correctness requires the separate raw-row oracle; this is not a general accuracy estimate or an independent assessment of every narrative claim."
+}

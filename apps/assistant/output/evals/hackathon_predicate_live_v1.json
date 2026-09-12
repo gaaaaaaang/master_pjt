@@ -1,0 +1,313 @@
+{
+  "question": "fab11 live_process_snapshots에서 area가 etch인 행만 사용하고 interval_end가 2026-09-06 00:00:00+09:00 이상, 2026-09-07 00:00:00+09:00 미만인 기간의 avg_queue_minutes 시간평균을 구해줘.",
+  "result": {
+    "status": "succeeded",
+    "query_type": "status",
+    "answer": "시뮬레이션 공정 데이터 기준으로 1개 행을 조회했습니다.",
+    "sql": "SELECT AVG(avg_queue_minutes) AS unweighted_time_avg_queue_minutes\nFROM fab11.live_process_snapshots_fab11\nWHERE area = 'etch'\n  AND interval_end >= '2026-09-06T00:00:00+09:00'\n  AND interval_end < '2026-09-07T00:00:00+09:00'",
+    "rows": [
+      {
+        "unweighted_time_avg_queue_minutes": "73.1871428571428571"
+      }
+    ],
+    "columns": [
+      "unweighted_time_avg_queue_minutes"
+    ],
+    "row_count": 1,
+    "confidence": 0.97,
+    "limitations": [
+      "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+      "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+      "Result is the unweighted average of the interval means, not a queue-lot-weighted or time-normalized average.",
+      "Source data is from simulation, not direct factory measurements as noted in table documentation."
+    ],
+    "plan": {
+      "query_type": "status",
+      "template_id": null,
+      "fab_id": "fab11",
+      "data_source_type": "simulation_snapshot",
+      "slots": {
+        "relative_period": {
+          "value": "explicit_range",
+          "source": "explicit_user",
+          "confidence": 1.0,
+          "raw_text": "fab11 live_process_snapshots에서 area가 etch인 행만 사용하고 interval_end가 2026-09-06 00:00:00+09:00 이상, 2026-09-07 00:00:00+09:00 미만인 기간의 avg_queue_minutes 시간평균을 구해줘."
+        },
+        "date_start": {
+          "value": "2026-09-06",
+          "source": "explicit_user",
+          "confidence": 1.0,
+          "raw_text": "fab11 live_process_snapshots에서 area가 etch인 행만 사용하고 interval_end가 2026-09-06 00:00:00+09:00 이상, 2026-09-07 00:00:00+09:00 미만인 기간의 avg_queue_minutes 시간평균을 구해줘."
+        },
+        "date_end": {
+          "value": "2026-09-08",
+          "source": "explicit_user",
+          "confidence": 1.0,
+          "raw_text": "fab11 live_process_snapshots에서 area가 etch인 행만 사용하고 interval_end가 2026-09-06 00:00:00+09:00 이상, 2026-09-07 00:00:00+09:00 미만인 기간의 avg_queue_minutes 시간평균을 구해줘."
+        },
+        "fab_id": {
+          "value": "fab11",
+          "source": "explicit_user",
+          "confidence": 1.0,
+          "raw_text": "fab11 live_process_snapshots에서 area가 etch인 행만 사용하고 interval_end가 2026-09-06 00:00:00+09:00 이상, 2026-09-07 00:00:00+09:00 미만인 기간의 avg_queue_minutes 시간평균을 구해줘."
+        }
+      },
+      "limitations": [
+        "조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+        "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다.",
+        "Result is the unweighted average of the interval means, not a queue-lot-weighted or time-normalized average.",
+        "Source data is from simulation, not direct factory measurements as noted in table documentation."
+      ],
+      "source_tables": [
+        "fab11.live_process_snapshots_fab11"
+      ],
+      "select_items": [
+        "AVG(avg_queue_minutes) AS unweighted_time_avg_queue_minutes"
+      ],
+      "filters": [
+        {
+          "field": "area",
+          "operator": "=",
+          "value": "etch"
+        },
+        {
+          "field": "interval_end",
+          "operator": ">=",
+          "value": "2026-09-06T00:00:00+09:00"
+        },
+        {
+          "field": "interval_end",
+          "operator": "<",
+          "value": "2026-09-07T00:00:00+09:00"
+        }
+      ],
+      "group_by": [],
+      "order_by": [],
+      "aggregation": "AVG(avg_queue_minutes)",
+      "expected_result_shape": "single_row_scalar",
+      "chart_intent": null,
+      "semantic_plan": {
+        "supported": true,
+        "reason": "The required time-unweighted average of avg_queue_minutes for area=\"etch\" in the specific interval, using simulation snapshot data, is directly supported with available columns and time filters.",
+        "tables": [
+          "fab11.live_process_snapshots_fab11"
+        ],
+        "projections": [],
+        "aggregates": [
+          {
+            "source": {
+              "table": "fab11.live_process_snapshots_fab11",
+              "column": "avg_queue_minutes"
+            },
+            "function": "avg",
+            "alias": "unweighted_time_avg_queue_minutes"
+          }
+        ],
+        "group_by": [],
+        "filters": [
+          {
+            "source": {
+              "table": "fab11.live_process_snapshots_fab11",
+              "column": "area"
+            },
+            "operator": "eq",
+            "values": [
+              "etch"
+            ]
+          },
+          {
+            "source": {
+              "table": "fab11.live_process_snapshots_fab11",
+              "column": "interval_end"
+            },
+            "operator": "gte",
+            "values": [
+              "2026-09-06T00:00:00+09:00"
+            ]
+          },
+          {
+            "source": {
+              "table": "fab11.live_process_snapshots_fab11",
+              "column": "interval_end"
+            },
+            "operator": "lt",
+            "values": [
+              "2026-09-07T00:00:00+09:00"
+            ]
+          }
+        ],
+        "joins": [],
+        "time_basis": "interval_end (simulation snapshot, 2-hour intervals)",
+        "result_grain": "single value (unweighted time-average of avg_queue_minutes for etch area in specified interval)",
+        "limitations": [
+          "Result is the unweighted average of the interval means, not a queue-lot-weighted or time-normalized average.",
+          "Source data is from simulation, not direct factory measurements as noted in table documentation."
+        ]
+      },
+      "grounding": {
+        "version": "metadata-ranking-v1",
+        "total_tables": 20,
+        "selected_tables": 6,
+        "total_columns": 429,
+        "selected_columns": 162,
+        "broadened_no_match": false,
+        "ranking": [
+          {
+            "table_ref": "fab11.live_process_snapshots_fab11",
+            "score": 236.0,
+            "reasons": [
+              "explicit_table",
+              "columns:interval_end,area,avg_queue_minutes",
+              "request_slots"
+            ],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.live_process_events_fab11",
+            "score": 8.0,
+            "reasons": [
+              "columns:interval_end,area"
+            ],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.route_product_10_fab11",
+            "score": 4.0,
+            "reasons": [
+              "columns:area"
+            ],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.route_product_1_fab11",
+            "score": 4.0,
+            "reasons": [
+              "columns:area"
+            ],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.route_product_2_fab11",
+            "score": 4.0,
+            "reasons": [
+              "columns:area"
+            ],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.route_product_3_fab11",
+            "score": 4.0,
+            "reasons": [
+              "columns:area"
+            ],
+            "selected": true
+          },
+          {
+            "table_ref": "fab11.route_product_4_fab11",
+            "score": 4.0,
+            "reasons": [
+              "columns:area"
+            ],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_5_fab11",
+            "score": 4.0,
+            "reasons": [
+              "columns:area"
+            ],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_6_fab11",
+            "score": 4.0,
+            "reasons": [
+              "columns:area"
+            ],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_7_fab11",
+            "score": 4.0,
+            "reasons": [
+              "columns:area"
+            ],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_8_fab11",
+            "score": 4.0,
+            "reasons": [
+              "columns:area"
+            ],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.route_product_9_fab11",
+            "score": 4.0,
+            "reasons": [
+              "columns:area"
+            ],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.toolgroups_fab11",
+            "score": 4.0,
+            "reasons": [
+              "columns:area"
+            ],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.breakdown_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.lotrelease_engineering_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.lotrelease_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.lotrelease_variable_due_dates_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.pm_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.setups_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          },
+          {
+            "table_ref": "fab11.transport_fab11",
+            "score": 0.0,
+            "reasons": [],
+            "selected": false
+          }
+        ]
+      }
+    }
+  },
+  "expected": [
+    {
+      "expected": "73.1871428571428571"
+    }
+  ],
+  "seconds": 7.75
+}

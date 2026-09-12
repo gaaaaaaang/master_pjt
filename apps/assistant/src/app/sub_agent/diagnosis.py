@@ -63,7 +63,9 @@ def synthesize_diagnosis(evidence: list[dict[str, Any]]) -> dict[str, Any]:
     observations = []
     for item in sql_items:
         metadata = item.get("metadata") or {}
-        sample_rows = list(metadata.get("sample_rows") or [])[:5]
+        # Text2SQL already bounds evidence. Dropping its tail here hid the most
+        # recent days and made a diagnosis depend only on older observations.
+        sample_rows = list(metadata.get("sample_rows") or [])
         if metadata.get("status") != "succeeded" or not sample_rows:
             continue
         observations.append(
@@ -72,6 +74,7 @@ def synthesize_diagnosis(evidence: list[dict[str, Any]]) -> dict[str, Any]:
                 "row_count": metadata.get("row_count", 0),
                 "columns": list(metadata.get("columns") or []),
                 "sample_rows": sample_rows,
+                "metric_summaries": metadata.get("metric_summaries", []),
                 "sql": metadata.get("sql"),
             }
         )

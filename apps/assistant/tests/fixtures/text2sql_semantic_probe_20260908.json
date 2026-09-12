@@ -1,0 +1,16 @@
+[
+  {
+    "id": "fab11_pm_settings_by_area",
+    "category": "metadata_join",
+    "question": "fab11에서 설비군과 매칭되는 PM 모델 설정 건수를 공정 영역별로 집계해줘. 실제 PM 발생 횟수가 아니라 설정 행 수야. 영역과 건수만 보여줘.",
+    "reference_sql": "SELECT t.area, COUNT(p.source_row_id) FROM fab11.pm_fab11 p JOIN fab11.toolgroups_fab11 t ON p.type_name=t.toolgroup GROUP BY t.area ORDER BY t.area",
+    "ordered": false
+  },
+  {
+    "id": "fab12_non_rework_lowest_queue",
+    "category": "filtered_aggregate_ranking",
+    "question": "fab12 시뮬레이션 전체 기간에서 rework_flag가 false인 이벤트의 영역별 queue_minutes 평균을 구해줘. 평균이 작은 하위 2개 영역만, 평균 오름차순이고 동률은 area 오름차순이야. 영역과 평균만 표시하고 반올림하지 마.",
+    "reference_sql": "SELECT area, AVG(queue_minutes) AS mean_queue FROM fab12.live_process_events_fab12 WHERE rework_flag=false GROUP BY area ORDER BY mean_queue ASC,area ASC LIMIT 2",
+    "ordered": true
+  }
+]

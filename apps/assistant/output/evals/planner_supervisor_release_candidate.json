@@ -1,0 +1,374 @@
+{
+  "scope": "local deterministic release quality",
+  "baseline_version": 73,
+  "evaluation_modes": {
+    "text2sql": "local_execution",
+    "rag": "local_lexical_retrieval",
+    "case_search": "local_provenance_retrieval",
+    "impact": "deterministic_contract",
+    "diagnosis": "deterministic_calibration_fixture",
+    "context_memory": "deterministic_multiturn_fixture",
+    "answer_quality": "deterministic_positive_negative_fixture",
+    "adversarial": "deterministic_variant_fixture",
+    "retrieval_abstention": "local_negative_query_fixture"
+  },
+  "external_calls": false,
+  "evaluation_status": "completed",
+  "full_graph": {
+    "status": "not_measured",
+    "reason": "Azure Composer/Supervisor evaluation requires explicit approval for external schema and question transmission."
+  },
+  "passed": false,
+  "failures": [
+    "regression: text2sql.semantic_pass_rate current=0.2278 baseline=1.0",
+    "below minimum: text2sql.semantic_pass_rate current=0.2278 minimum=1.0",
+    "regression: text2sql.ex_rate current=0.2278 baseline=1.0",
+    "below minimum: text2sql.ex_rate current=0.2278 minimum=1.0",
+    "regression: text2sql.em_rate current=0.5443 baseline=1.0",
+    "below minimum: text2sql.em_rate current=0.5443 minimum=1.0",
+    "regression: text2sql.intent_rate current=0.7215 baseline=1.0",
+    "below minimum: text2sql.intent_rate current=0.7215 minimum=1.0",
+    "regression: text2sql.deterministic_sql_coverage current=0.6393 baseline=1.0",
+    "below minimum: text2sql.deterministic_sql_coverage current=0.6393 minimum=1.0",
+    "regression: adversarial.pass_rate current=0.7544 baseline=1.0",
+    "below minimum: adversarial.pass_rate current=0.7544 minimum=1.0",
+    "regression: adversarial.text2sql_pass_rate current=0.125 baseline=1.0",
+    "below minimum: adversarial.text2sql_pass_rate current=0.125 minimum=1.0"
+  ],
+  "metrics": {
+    "text2sql.case_count": {
+      "current": 79,
+      "baseline": 79,
+      "minimum": 79,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "text2sql.semantic_pass_rate": {
+      "current": 0.2278,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": -0.7722,
+      "passed": false
+    },
+    "text2sql.ex_rate": {
+      "current": 0.2278,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": -0.7722,
+      "passed": false
+    },
+    "text2sql.em_rate": {
+      "current": 0.5443,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": -0.4557,
+      "passed": false
+    },
+    "text2sql.intent_rate": {
+      "current": 0.7215,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": -0.2785,
+      "passed": false
+    },
+    "text2sql.deterministic_sql_coverage": {
+      "current": 0.6393,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": -0.3607,
+      "passed": false
+    },
+    "rag.case_count": {
+      "current": 15,
+      "baseline": 15,
+      "minimum": 15,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "rag.recall_at_3": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "rag.mrr": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "rag.incident_issue_alignment_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "case_search.case_count": {
+      "current": 11,
+      "baseline": 11,
+      "minimum": 11,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "case_search.recall_at_3": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "case_search.mrr": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "impact.case_count": {
+      "current": 17,
+      "baseline": 17,
+      "minimum": 17,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "impact.contract_pass_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "diagnosis.case_count": {
+      "current": 14,
+      "baseline": 14,
+      "minimum": 14,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "diagnosis.contract_pass_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "diagnosis.candidate_only_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "diagnosis.taxonomy_precision_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "diagnosis.provenance_calibration_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "diagnosis.evidence_eligibility_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "diagnosis.candidate_ranking_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "diagnosis.conflict_calibration_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "diagnosis.support_level_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "context_memory.case_count": {
+      "current": 10,
+      "baseline": 10,
+      "minimum": 10,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "context_memory.context_accuracy_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "context_memory.normalization_accuracy_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "context_memory.switch_accuracy_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "context_memory.override_accuracy_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "context_memory.inheritance_accuracy_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "context_memory.selection_inheritance_accuracy_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "answer_quality.case_count": {
+      "current": 70,
+      "baseline": 70,
+      "minimum": 70,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "answer_quality.classification_accuracy": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "answer_quality.positive_accept_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "answer_quality.negative_reject_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "adversarial.case_count": {
+      "current": 57,
+      "baseline": 57,
+      "minimum": 57,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "adversarial.pass_rate": {
+      "current": 0.7544,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": -0.2456,
+      "passed": false
+    },
+    "adversarial.planner_pass_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "adversarial.text2sql_pass_rate": {
+      "current": 0.125,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": -0.875,
+      "passed": false
+    },
+    "adversarial.rag_pass_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "adversarial.case_search_pass_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "adversarial.impact_pass_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "adversarial.visualization_pass_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "retrieval_abstention.case_count": {
+      "current": 15,
+      "baseline": 15,
+      "minimum": 15,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "retrieval_abstention.rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "retrieval_abstention.rag_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    },
+    "retrieval_abstention.case_search_rate": {
+      "current": 1.0,
+      "baseline": 1.0,
+      "minimum": 1.0,
+      "delta_from_baseline": 0.0,
+      "passed": true
+    }
+  },
+  "infrastructure": {
+    "postgres": {
+      "status": "available"
+    }
+  }
+}

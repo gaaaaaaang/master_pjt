@@ -1,0 +1,22 @@
+{
+  "git_commit": "4ebf83350a706afb158653e0c51d5c43b60f9c9e",
+  "source_sha256": "607d3d3a64679143db742ade8abf4f3a4fc492e31529db22284fc69685c015d6",
+  "files": {
+    "summary.json": "accb5e163684e821b49b99043f6cf475c41e80f11d332625ff72c2754e72f202",
+    "supervisor_challenge_rejudged.json": "52ab484682498ce7f5fefd78819eaa1255166c01837980a1b434b514a94dc6b9",
+    "ragas_live.json": "56e036b09e3707691542be8942e5a8ae9749e7fbc8a9125a5c64fc441564b704",
+    "planner_supervisor.json": "c1a1a3ed7425bf6f7e5c708ca7275036851d5ecf3e9588fd05914edad3b80378",
+    "supervisor_challenge_validated.json": "2710e4de2eb14ae1d2f84de143d7b8d9d98c016ebda1aa0824a4cafc5d581fa5",
+    "ragas.json": "ccfac61d5aa96e42a499e4ac183a7701042727c6eab15aaeb4352980e501f15f",
+    "ragas_environment_versions.json": "f9124a78f238abe939453076671f576e8ff2f1e8ffa536e6e83ffb48aed6609d",
+    "supervisor_challenge.json": "0d14c5306586c29a5cca0d6bc3a0402bda7a00cc1e9fc01f1b4d87df650d1829",
+    "complex_e2e.json": "0dcb29d5662cea8799e40800c3ffd8b7dba447fb3ff9bf3f69b835f8ccb15be1",
+    "text2sql.json": "092390da765f5e0291d11b21d4a9d3798e00ba630cf2a137f085539842316f9c"
+  },
+  "evaluator_final_sha256": "8517ae7854f5bed5ab396a769c2efc0bf30aaa26ae23e93d0ae8fb120a334198",
+  "excluded_runs": {
+    "ragas.json": "Dependency setup failure; no valid Ragas samples",
+    "supervisor_challenge.json": "Malformed synthetic evidence lacked SQL metadata; superseded by validated fixture"
+  },
+  "report_sha256": "f73b0af3be9687711a9ee13cd40115c0df08bea4c5147502bc4cbf030b13f213"
+}

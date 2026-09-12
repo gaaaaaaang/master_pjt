@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass, field
+from copy import deepcopy
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from typing import Any, Literal, Protocol
 from zoneinfo import ZoneInfo
@@ -10,8 +11,31 @@ from zoneinfo import ZoneInfo
 import httpx
 from psycopg import Error as PsycopgError
 
+from app.agents.usage import model_call, model_http_client, reported_usage
 from app.config import get_settings
+from app.db.fab_catalog import comparison_fabs, normalize_fab, resolve_fab, table_pattern, table_ref
+from app.db.metadata_catalog import load_fab_catalog
 from app.db.read_only import ReadOnlyQueryExecutor, SqlValidationError
+from app.db.schema_retrieval import mentions_table, select_catalog
+from app.sub_agent.semantic_plan import (
+    PLAN_PROMPT,
+    SemanticPlan,
+    request_requirements,
+    validate_plan,
+    validate_sql_plan,
+)
+from app.sub_agent.semantic_sql import compile_single_table
+from app.sub_agent.snapshot_queries import (
+    METRICS,
+    SLOT_METRICS,
+    ambiguous_stock_total,
+    build_snapshot_query,
+    comparison_ranges,
+    period_aggregates,
+    product_grain_unavailable,
+    requires_flexible_aggregation,
+    simulation_areas,
+)
 
 QueryType = Literal[
     "status",
@@ -32,7 +56,7 @@ Text2SQLStatus = Literal[
 @dataclass(frozen=True)
 class QuerySlot:
     value: str
-    source: Literal["explicit_user", "request_context", "alias_match", "parser", "llm_inference"]
+    source: Literal["explicit_user", "request_context", "alias_match", "parser", "llm_inference", "conversation_context"]
     confidence: float
     raw_text: str
 
@@ -42,7 +66,9 @@ class QueryPlan:
     query_type: QueryType
     template_id: str | None
     fab_id: str | None = None
-    data_source_type: Literal["operational_report", "model_master", "release_plan"] | None = None
+    data_source_type: Literal[
+        "operational_report", "model_master", "release_plan", "simulation_snapshot", "mixed"
+    ] | None = None
     slots: dict[str, QuerySlot] = field(default_factory=dict)
     limitations: list[str] = field(default_factory=list)
     source_tables: list[str] = field(default_factory=list)
@@ -53,6 +79,9 @@ class QueryPlan:
     aggregation: str | None = None
     expected_result_shape: str | None = None
     chart_intent: dict[str, Any] | None = None
+    semantic_plan: dict[str, Any] = field(default_factory=dict)
+    grounding: dict[str, Any] = field(default_factory=dict)
+    generation_attempts: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -94,13 +123,8 @@ ROUTE_TABLES_BY_FAB: dict[str, set[str]] = {
     },
 }
 
-FAB_PATTERN = re.compile(
-    r"(?<![A-Za-z0-9_])(?:fab|FAB)\s*[-_ ]?(1[0-3])(?![A-Za-z0-9_])"
-    r"|(?<![A-Za-z0-9_])fab(1[0-3])(?![A-Za-z0-9_])",
-    re.IGNORECASE,
-)
 PRODUCT_PATTERN = re.compile(
-    r"(?<![A-Za-z0-9_])(?:product|part|route_product)[-_ ]?([eE]?\d+)(?![A-Za-z0-9_])",
+    r"(?<![A-Za-z0-9_])(?:product|part|route_product|제품)[-_ ]?([eE]?\d+|[A-Za-z])(?![A-Za-z0-9_])",
     re.IGNORECASE,
 )
 ROUTE_PATTERN = re.compile(
@@ -140,6 +164,14 @@ AREA_ALIASES = {
     "def_met": "Def_Met",
     "cmp": "CMP",
 }
+SIMULATION_AREA_ALIASES = {
+    "cmp": "cmp",
+    "deposition": "deposition",
+    "etch": "etch",
+    "implant": "implant",
+    "metrology": "metrology",
+    "photo": "photo",
+}
 
 STATUS_TERMS = {
     "wip",
@@ -160,6 +192,9 @@ TOOLGROUP_TERMS = {"toolgroup", "tool group", "툴그룹", "설비군", "area", 
 RELEASE_TERMS = {"release", "lotrelease", "릴리즈", "due", "duedate", "납기"}
 PM_BREAKDOWN_TERMS = {"pm", "breakdown", "고장", "장애", "setup", "셋업", "transport", "이송"}
 TREND_TERMS = {
+    "차트",
+    "chart",
+    "추이",
     "추세",
     "트렌드",
     "날짜 기준",
@@ -233,6 +268,23 @@ DATE_BASIS_ALIASES = {
     "compdate": "compdate",
 }
 METRIC_ALIASES = {
+    "queue_time": "avg_queue_minutes",
+    "avg_queue_minutes": "avg_queue_minutes",
+    "avg_cycle_hours": "avg_cycle_hours",
+    "utilization_percent": "util_percent",
+    "정비 시간": "pm_minutes",
+    "정비시간": "pm_minutes",
+    "pm 시간": "pm_minutes",
+    "pm_minutes": "pm_minutes",
+    "downtime": "down_minutes",
+    "down_minutes": "down_minutes",
+    "down_percent": "down_percent",
+    "다운 시간": "down_minutes",
+    "비가동 시간": "down_minutes",
+    "비가동시간": "down_minutes",
+    "대기 시간": "avg_queue_minutes",
+    "대기시간": "avg_queue_minutes",
+    "queue time": "avg_queue_minutes",
     "wip": "wiplotavg",
     "재공": "wiplotavg",
     "현재 wip": "wiplotcur",
@@ -249,6 +301,29 @@ METRIC_ALIASES = {
     "lot completions": "lotcomps",
     "completion": "lotcomps",
     "처리량": "lotcomps",
+    "생산량": "lotcomps",
+    "완료 lot": "lotcomps",
+    "완료lot": "lotcomps",
+    "완료 로트": "lotcomps",
+    "lot_completions": "lotcomps",
+    "lot_starts": "lotstarts",
+    "투입량": "lotstarts",
+    "투입 lot": "lotstarts",
+    "투입lot": "lotstarts",
+    "투입 로트": "lotstarts",
+    "throughput": "lotcomps",
+    "output": "lotcomps",
+    "온도": "temperature_c",
+    "temperature_c": "temperature_c",
+    "습도": "humidity_percent",
+    "humidity_percent": "humidity_percent",
+    "불량 ppm": "defect_ppm",
+    "defect_ppm": "defect_ppm",
+    "병목 점수": "bottleneck_score",
+    "bottleneck_score": "bottleneck_score",
+    "대기 lot": "queue_lots",
+    "대기로트": "queue_lots",
+    "queue_lots": "queue_lots",
     "down": "down_percent",
     "고장": "down_percent",
     "비가동": "down_percent",
@@ -257,6 +332,9 @@ METRIC_ALIASES = {
     "현재 상태": "curstate",
     "current state": "curstate",
     "진행 step": "curstep",
+    "수율": "yield_percent",
+    "yield_percent": "yield_percent",
+    "yield": "yield_percent",
 }
 
 
@@ -504,6 +582,7 @@ class OpenAIText2SQLClient:
         if not self.api_key:
             raise RuntimeError("OPENAI_API_KEY is not configured.")
 
+        schema_context["request_requirements"] = request_requirements(question)
         payload = {
             "model": self.model,
             "messages": [
@@ -519,7 +598,7 @@ class OpenAIText2SQLClient:
                             "query_type": query_type,
                             "fab_id": fab_id,
                             "slots": _serialize_slots(slots),
-                            "schema_context": schema_context,
+                            "schema_context": _compact_model_context(schema_context),
                         },
                         ensure_ascii=False,
                     ),
@@ -534,6 +613,53 @@ class OpenAIText2SQLClient:
                 },
             },
         }
+        if schema_context.get("table_details"):
+            planning_payload = {
+                **payload,
+                "messages": [{"role": "system", "content": PLAN_PROMPT}, payload["messages"][1]],
+                "response_format": {"type": "json_schema", "json_schema": {
+                    "name": "fab_semantic_plan", "strict": True,
+                    "schema": SemanticPlan.strict_response_schema(),
+                }},
+            }
+            raw_plan = self._complete_payload(planning_payload)
+            schema_context["proposed_semantic_plan"] = raw_plan
+            try:
+                semantic_plan = validate_plan(raw_plan, schema_context)
+            except ValueError as exc:
+                return {"supported": False, "answer": "SQL 작성 전 조회 계획 검증에 실패했습니다.",
+                        "limitations": [str(exc)], "failure_stage": "semantic_plan"}
+            if not semantic_plan.supported:
+                return {"supported": False, "answer": semantic_plan.reason,
+                        "limitations": semantic_plan.limitations}
+            schema_context["validated_semantic_plan"] = semantic_plan.model_dump()
+            compiled = compile_single_table(semantic_plan) if query_type != "trend" else None
+            if compiled is not None:
+                columns = [p.column for p in semantic_plan.projections] + [a.alias for a in semantic_plan.aggregates]
+                schema_context.setdefault("grounding", {})["sql_generation_mode"] = "compiled_validated_plan"
+                return {
+                    "supported": True, "sql": compiled, "source_tables": semantic_plan.tables,
+                    "select_items": columns, "filters": [],
+                    "group_by": [p.column for p in semantic_plan.group_by],
+                    "order_by": [f"{s.output} {s.direction}" for s in semantic_plan.order_by],
+                    "aggregation": semantic_plan.aggregates[0].function if semantic_plan.aggregates else None,
+                    "expected_result_shape": semantic_plan.result_grain, "chart_intent": None,
+                    "answer": "검증된 의미 계획을 읽기 전용 SQL로 변환했습니다.",
+                    "limitations": semantic_plan.limitations, "confidence": 0.9,
+                }
+            payload["messages"].append({
+                "role": "user",
+                "content": "Generate SQL faithful to this validated plan. Preserve its tables, columns, "
+                           "joins, filters, aggregation and grain:\n" + semantic_plan.model_dump_json(),
+            })
+        return self._complete_payload(payload)
+
+    def _complete_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
+        kind = payload.get("response_format", {}).get("json_schema", {}).get("name", "text2sql")
+        with model_call(kind, self.model):
+            return self._send_payload(payload)
+
+    def _send_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
         headers = {
             "api-key": self.api_key,
             "Content-Type": "application/json",
@@ -542,7 +668,7 @@ class OpenAIText2SQLClient:
             f"{self.endpoint}/openai/deployments/{self.model}/chat/completions"
             f"?api-version={self.api_version}"
         )
-        with httpx.Client(timeout=self.timeout_seconds) as client:
+        with model_http_client(self.timeout_seconds, endpoint=url) as client:
             response = client.post(url, headers=headers, json=payload)
             try:
                 response.raise_for_status()
@@ -553,8 +679,21 @@ class OpenAIText2SQLClient:
                 raise RuntimeError(
                     f"LLM API returned HTTP {response.status_code}: {detail or 'empty response body'}"
                 ) from exc
-        output_text = _extract_chat_completion_content(response.json())
+        body = response.json()
+        reported_usage(body.get("usage"))
+        output_text = _extract_chat_completion_content(body)
         return json.loads(output_text)
+
+
+def _compact_model_context(context: dict[str, Any]) -> dict[str, Any]:
+    """Keep grounding evidence, omit duplicate descriptions and audit-only rankings."""
+    compact = deepcopy(context)
+    compact.pop("grounding", None)
+    for detail in compact.get("table_details", {}).values():
+        detail.get("semantics", {}).pop("column_meanings", None)
+    for feedback in compact.get("execution_feedback", []):
+        feedback.pop("previous_plan", None)
+    return compact
 
 
 def generate_sql(
@@ -578,6 +717,7 @@ def answer_question(
     question: str,
     *,
     fab: str | None = None,
+    line: str | None = None,
     process: str | None = None,
     product: str | None = None,
     route: str | None = None,
@@ -588,12 +728,29 @@ def answer_question(
     query_type: QueryType | None = None,
     conversation_history: list[dict[str, Any]] | None = None,
     execution_feedback: list[dict[str, Any]] | None = None,
+    execution_context: dict[str, Any] | None = None,
     llm_client: Text2SQLClient | None = None,
     deterministic_only: bool = False,
 ) -> Text2SQLResult:
+    settings = get_settings()
+    should_execute = execute if execute is not None else bool(settings.postgres_dsn)
+    database_catalog = None
+    if should_execute and llm_client is None and not deterministic_only:
+        resolution = resolve_fab(question, fab, conversation_history)
+        targets = comparison_fabs(question, conversation_history) or ([resolution.fab_id] if resolution.fab_id else [])
+        if targets and all(target in ALLOWED_FABS for target in targets):
+            try:
+                database_catalog = {}
+                for target in targets:
+                    database_catalog.update(load_fab_catalog(target))
+            except (RuntimeError, PsycopgError):
+                # The executor remains the authority on a query's failure. A metadata
+                # outage alone is not evidence of a policy denial for every table.
+                pass
     result = plan_text2sql(
         question,
         fab=fab,
+        line=line,
         process=process,
         product=product,
         route=route,
@@ -603,23 +760,28 @@ def answer_question(
         query_type=query_type,
         conversation_history=conversation_history,
         execution_feedback=execution_feedback,
+        execution_context=execution_context,
         llm_client=llm_client,
         deterministic_only=deterministic_only,
+        discover_schema=should_execute and llm_client is None and not deterministic_only,
+        database_catalog=database_catalog,
     )
     if result.status != "succeeded" or not result.sql:
         return result
 
-    settings = get_settings()
-    should_execute = execute if execute is not None else bool(settings.postgres_dsn)
     if not should_execute:
         return result
 
     try:
-        execution = ReadOnlyQueryExecutor().execute(result.sql)
+        executor = ReadOnlyQueryExecutor()
+        execution = executor.execute(result.sql)
     except (RuntimeError, SqlValidationError, PsycopgError) as exc:
         if result.query_type == "status" and _is_missing_autosched_table_error(exc):
             return _operational_data_unavailable(result.plan.fab_id, result.plan.slots) if result.plan else result
-        if result.plan:
+        if (result.plan and result.plan.data_source_type == "simulation_snapshot"
+                and _looks_like_missing_relation_error(str(exc))):
+            return _simulation_data_unavailable(result, error=str(exc))
+        if result.plan and result.plan.data_source_type != "simulation_snapshot":
             repaired = _execute_empty_result_repairs(result)
             if repaired:
                 return repaired
@@ -633,21 +795,46 @@ def answer_question(
             plan=result.plan,
         )
 
-    if execution.row_count == 0 and result.plan:
+    empty_aggregate = bool(execution.rows) and all(
+        row.get("area_count") == 0 or row.get("observation_count") == 0 for row in execution.rows
+    )
+    if (execution.row_count == 0 or empty_aggregate) and result.plan:
+        if result.plan.data_source_type == "simulation_snapshot":
+            return _simulation_data_unavailable(result)
         repaired = _execute_empty_result_repairs(result)
         if repaired:
             return repaired
 
-    limitations = result.limitations
+    limitations = list(result.limitations)
+    interval_lengths = [float(row[key]) for row in execution.rows
+                        for key in ("observation_minutes_min", "observation_minutes_max")
+                        if row.get(key) is not None]
+    if interval_lengths and min(interval_lengths) != max(interval_lengths):
+        limitations.append(
+            f"원자료의 관측 구간 길이가 최소 {min(interval_lengths):g}분, 최대 {max(interval_lengths):g}분으로 다릅니다. "
+            "이 구간들의 단순 평균 차이를 동일한 관측 조건의 공정 개선·악화나 인과 효과로 해석하지 마세요."
+        )
+    if execution.row_count == execution.limit:
+        limitations.append(
+            f"조회 결과가 반환 한도 {execution.limit}행에 도달했습니다. 전체 결과가 아닐 수 있으므로 기간을 줄이거나 집계 단위를 넓혀주세요."
+        )
     if execution.row_count == 0:
         limitations = [*limitations, *_empty_result_limitations(result)]
 
+    rows = execution.rows
+    if result.plan and result.plan.data_source_type == "simulation_snapshot":
+        rows = [
+            {key: value.astimezone(ZoneInfo("Asia/Seoul"))
+             if isinstance(value, datetime) and value.tzinfo is not None else value
+             for key, value in row.items()}
+            for row in rows
+        ]
     return Text2SQLResult(
         status="succeeded",
         query_type=result.query_type,
-        answer=_summarize_execution(result, execution.rows),
+        answer=_summarize_execution(result, rows),
         sql=result.sql,
-        rows=execution.rows,
+        rows=rows,
         columns=execution.columns,
         row_count=execution.row_count,
         confidence=result.confidence,
@@ -660,6 +847,7 @@ def plan_text2sql(
     question: str,
     *,
     fab: str | None = None,
+    line: str | None = None,
     process: str | None = None,
     product: str | None = None,
     route: str | None = None,
@@ -669,10 +857,16 @@ def plan_text2sql(
     query_type: QueryType | None = None,
     conversation_history: list[dict[str, Any]] | None = None,
     execution_feedback: list[dict[str, Any]] | None = None,
+    execution_context: dict[str, Any] | None = None,
     llm_client: Text2SQLClient | None = None,
     deterministic_only: bool = False,
+    discover_schema: bool = False,
+    database_catalog: dict[str, dict[str, Any]] | None = None,
 ) -> Text2SQLResult:
     normalized = _normalize_question(question)
+    if re.search(r"(?:행|레코드|테이블|데이터).{0,30}(?:삭제|비워|비우|드롭|삽입)(?:해|하|줘)", normalized):
+        return Text2SQLResult(status="unsupported", query_type="unsupported",
+                              answer="이 Text2SQL agent는 읽기 전용 조회만 지원합니다. 데이터 변경은 실행하지 않습니다.")
     slots = _extract_slots(
         question,
         normalized,
@@ -684,14 +878,52 @@ def plan_text2sql(
         date_basis=date_basis,
         metric=metric,
     )
+    slots = inherit_followup_metrics(question, slots, conversation_history or [])
+    slots = inherit_followup_period(question, slots, conversation_history or [])
+    slots = inherit_followup_areas(question, slots, conversation_history or [])
+    slots = inherit_result_areas(question, slots, conversation_history or [])
+    targets = comparison_fabs(question, conversation_history)
+    if targets:
+        from app.sub_agent.fab_comparison import plan_comparison
+        return plan_comparison(question, targets, slots, database_catalog or {})
+    resolution = resolve_fab(question, fab, conversation_history)
+    explicit_line = re.search(r"(?<![a-z0-9_])([a-z0-9_-]+)\s*라인(?!\s*차트)|라인\s+([a-z0-9_-]+)", question, re.IGNORECASE)
+    requested_line = next((v for v in explicit_line.groups() if v), None) if explicit_line else line
+    if requested_line:
+        slots["line"] = QuerySlot(requested_line, "explicit_user" if explicit_line else "request_context", 1.0, requested_line)
+    slots.pop("fab_id", None)
+    if resolution.fab_id:
+        slots["fab_id"] = QuerySlot(
+            resolution.fab_id, resolution.source,
+            1.0 if resolution.source == "explicit_user" else 0.9, resolution.raw_text,
+        )
+    # The graph passes its grounded scope alongside the original question so
+    # sequential attempts retain the same approved request context.
+    planner_fab = (execution_context or {}).get("scope", {}).get("fab_id", {})
+    resolved_fab = _normalize_fab(str(planner_fab.get("value") or ""))
+    if resolved_fab and resolution.source != "explicit_user":
+        slots["fab_id"] = QuerySlot(
+            resolved_fab, "request_context", 1.0, str(planner_fab.get("raw_text") or resolved_fab),
+        )
     fab_id = slots.get("fab_id").value if "fab_id" in slots else None
     query_type = query_type or _classify_query_type(normalized)
+    if (query_type == "unsupported" and slots.get("metrics")
+            and slots["metrics"].source == "conversation_context"
+            and re.search(r"조회|보여|알려|현황|상태|어때|\bshow\b", normalized)
+            and not re.search(r"삭제|수정|변경|중지|정지|\b(?:delete|update|drop|stop)\b", normalized)):
+        query_type = "status"
 
     if not fab_id:
         return _clarification(
             query_type=query_type,
-            answer="어느 FAB을 조회할까요? 현재 조회 가능한 대상은 fab10, fab11, fab12, fab13입니다.",
+            answer=resolution.clarification or "조회할 FAB을 지정해주세요.",
             slots=slots,
+        )
+
+    if "unresolved_area_reference" in slots:
+        return _clarification(
+            query_type=query_type, fab_id=fab_id, slots=slots,
+            answer="어느 공정을 뜻하는지 확인이 필요합니다. 공정명을 지정하거나 직전 결과 전체라면 '그 공정들'이라고 말씀해주세요.",
         )
 
     if _has_invalid_explicit_date_range(question) or _has_invalid_calendar_period(question):
@@ -728,11 +960,21 @@ def plan_text2sql(
             slots=slots,
         )
 
+    if (len(_csv_slot(slots, "metrics")) > 1 and not _parse_metrics(normalized)
+            and (slots.get("ranking_direction") or slots.get("threshold_metric")
+                 or re.search(r"가장|제일|상위|하위", normalized))):
+        return _clarification(
+            query_type=query_type,
+            answer="앞서 여러 지표를 조회했습니다. 순위나 조건을 적용할 지표를 하나 지정해주세요.",
+            fab_id=fab_id, slots=slots,
+        )
+
     threshold_metric = _slot_value(slots, "threshold_metric")
     threshold_value = _slot_value(slots, "threshold_value")
     threshold_unit = _slot_value(slots, "threshold_unit")
     percent_metrics = {
-        "util_percent", "ontime_percent", "down_percent", "pm_percent", "proc_percent"
+        "util_percent", "ontime_percent", "down_percent", "pm_percent", "proc_percent",
+        "yield_percent", "humidity_percent", "utilization_percent",
     }
     if threshold_unit == "percent" and threshold_metric not in percent_metrics:
         return _clarification(
@@ -776,7 +1018,63 @@ def plan_text2sql(
             slots=slots,
         )
 
-    if query_type in {"status", "trend"} and _is_unavailable_queue_metric_request(normalized):
+    if database_catalog is not None and llm_client is None:
+        if query_type == "master_data_lookup":
+            equipment_counts = _grounded_equipment_counts(question, slots, fab_id, database_catalog)
+            if equipment_counts:
+                return equipment_counts
+        if query_type in {"status", "trend"} and product_grain_unavailable(
+            question, {key:slot.value for key,slot in slots.items()}, database_catalog
+        ):
+            reason = (f"{fab_id.upper()}의 요청 지표는 현재 공정 영역별 시뮬레이션 관측값으로 저장되어 있고 제품 구분이 없습니다. "
+                      "제품별 수치를 계산하려면 제품 구분이 있는 관측 자료가 필요합니다. 공정 영역별 지표는 조회할 수 있습니다.")
+            return Text2SQLResult(status="data_unavailable", query_type=query_type, answer=reason,
+                limitations=[reason], plan=QueryPlan(query_type=query_type, template_id=None, fab_id=fab_id,
+                                                     slots=slots, limitations=[reason], data_source_type="simulation_snapshot"))
+        if (table_ref(fab_id, "live_process_snapshots") in database_catalog
+                and ambiguous_stock_total(question, {key:slot.value for key,slot in slots.items()})):
+            return _clarification(
+                query_type=query_type, fab_id=fab_id, slots=slots,
+                data_source_type="simulation_snapshot",
+                answer="WIP·대기 LOT는 시점별 재고이므로 기간 내 값을 누적하면 같은 재고를 여러 번 셀 수 있습니다. 기간 평균과 마지막 관측 시점의 합계 중 어느 값을 조회할까요?",
+            )
+        if requested_line and not any(
+            col["name"] in {"line", "line_id", "line_name"}
+            for entry in database_catalog.values() for col in entry.get("columns", [])
+        ):
+            reason = (f"{fab_id.upper()} {requested_line}라인을 구분하는 컬럼이 현재 데이터에 없어 "
+                      "해당 라인의 수치를 조회할 수 없습니다. 공정 영역(etch·photo·cmp 등) 또는 FAB 전체로 조회 범위를 지정해주세요.")
+            return Text2SQLResult(
+                status="data_unavailable", query_type=query_type, answer=reason,
+                limitations=[reason], plan=QueryPlan(query_type=query_type, template_id=None,
+                                                    fab_id=fab_id, slots=slots, limitations=[reason]),
+            )
+        snapshot = build_snapshot_query(
+            question, query_type, fab_id,
+            {key: slot.value for key, slot in slots.items()}, database_catalog,
+            row_limit=get_settings().db_max_rows,
+        )
+        if snapshot:
+            snapshot_slots = dict(slots)
+            if snapshot.area:
+                snapshot_slots["area"] = QuerySlot(snapshot.area, "alias_match", 0.95, snapshot.area)
+            return _deterministic_result(
+                query_type=query_type, fab_id=fab_id, slots=snapshot_slots,
+                template_id="deterministic_simulation_observations",
+                table=table_ref(fab_id, "live_process_snapshots"), sql=snapshot.sql,
+                columns=snapshot.columns, filters=[], order_by=[],
+                expected_result_shape=snapshot.shape, chart_intent=snapshot.chart,
+                data_source_type="simulation_snapshot", additional_limitations=snapshot.limitations,
+            )
+
+    explicit_simulation = _is_explicit_simulation_request(normalized)
+    catalog_queue = _is_unavailable_queue_metric_request(normalized) and any(
+        entry["data_source_type"] == "simulation_snapshot"
+        for entry in (database_catalog or {}).values()
+    )
+    if (query_type in {"status", "trend"}
+            and _is_unavailable_queue_metric_request(normalized)
+            and not explicit_simulation and not catalog_queue):
         return Text2SQLResult(
             status="data_unavailable",
             query_type=query_type,
@@ -793,10 +1091,35 @@ def plan_text2sql(
                 slots=slots,
             ),
         )
+    if (
+        explicit_simulation
+        and database_catalog is None
+        and not discover_schema
+        and query_type in {"status", "trend"}
+        and _is_unavailable_queue_metric_request(normalized)
+        and not requires_flexible_aggregation(question)
+    ):
+        deterministic_simulation = _deterministic_simulation_snapshot_query(
+            slots, fab_id
+        )
+        if deterministic_simulation:
+            return deterministic_simulation
 
-    if llm_client is None or deterministic_only:
+    explicit_catalog_table = any(
+        mentions_table(normalized, ref, entry["logical_table"])
+        and entry["logical_table"] not in SCHEMA_CATALOG.get(_data_source_type(query_type, slots), {})
+        for ref, entry in (database_catalog or {}).items()
+    )
+    if ((llm_client is None or deterministic_only)
+            and not explicit_simulation and not explicit_catalog_table and not catalog_queue
+            and not requires_flexible_aggregation(question)
+            and not (query_type == "master_data_lookup" and re.search(
+                r"개수|건수|몇\s*(?:개|건)|행\s*수|count\s*\(|합계|총합|평균|최댓값|최솟값", normalized))):
         deterministic = _deterministic_fast_path(query_type, slots, fab_id)
-        if deterministic:
+        if deterministic and (
+            database_catalog is None or deterministic.status == "needs_clarification"
+            or (deterministic.sql and set(_extract_table_refs(deterministic.sql)) <= set(database_catalog))
+        ):
             return deterministic
     if deterministic_only:
         return Text2SQLResult(
@@ -817,14 +1140,45 @@ def plan_text2sql(
             ),
         )
 
-    schema_context = _schema_context_for_question(query_type, slots, fab_id)
+    if database_catalog is None and discover_schema:
+        try:
+            database_catalog = load_fab_catalog(fab_id)
+        except (RuntimeError, PsycopgError) as exc:
+            return Text2SQLResult(
+                status="failed", query_type=query_type,
+                answer="이번 요청의 테이블 목록을 확인하지 못했습니다. DB 연결 상태를 확인해주세요.",
+                limitations=[str(exc)], plan=QueryPlan(query_type, None, fab_id=fab_id, slots=slots),
+            )
+    schema_context = _schema_context_for_question(query_type, slots, fab_id, database_catalog)
+    if database_catalog:
+        explicit_sources = [ref for ref, entry in database_catalog.items()
+                            if mentions_table(normalized, ref, entry["logical_table"])]
+        if explicit_sources:
+            schema_context["primary_table_refs"] = explicit_sources
+        elif explicit_simulation or catalog_queue:
+            schema_context["primary_table_refs"] = [
+                ref for ref, entry in database_catalog.items()
+                if entry["data_source_type"] == "simulation_snapshot"
+            ]
     schema_context["conversation_history"] = conversation_history or []
     schema_context["execution_feedback"] = execution_feedback or []
+    schema_context["execution_context"] = execution_context or {}
+    full_schema_context = schema_context
+    if database_catalog:
+        selected, grounding = select_catalog(
+            question, schema_context["table_details"],
+            primary_refs=schema_context["primary_table_refs"],
+        )
+        schema_context = {**schema_context,
+                          "tables": {ref: schema_context["tables"][ref] for ref in selected},
+                          "table_details": selected, "allowed_table_refs": list(selected),
+                          "table_patterns": {ref: schema_context["table_patterns"][ref] for ref in selected},
+                          "grounding": grounding}
     if not schema_context["tables"]:
         return Text2SQLResult(
             status="unsupported",
             query_type=query_type,
-            answer="현재 허용된 schema catalog로 이 질문의 SQL을 만들 수 없습니다.",
+            answer="현재 테이블 목록에서 요청한 지표와 조회 대상을 연결할 정보를 찾지 못했습니다.",
             confidence=0.3,
             limitations=["지원 table catalog에 매핑되는 대상이 없습니다."],
             plan=QueryPlan(query_type=query_type, template_id=None, fab_id=fab_id, slots=slots),
@@ -855,7 +1209,48 @@ def plan_text2sql(
             ),
         )
 
-    return _result_from_llm_output(llm_output, query_type, slots, fab_id, schema_context)
+    result = _result_from_llm_output(llm_output, query_type, slots, fab_id, schema_context)
+    attempts = []
+
+    def record_attempt(candidate, context, action):
+        attempts.append({"attempt": len(attempts) + 1, "action": action,
+                         "status": candidate.status, "sql": candidate.sql,
+                         "issues": candidate.limitations,
+                         "tables": list(context["tables"]),
+                         "semantic_plan": context.get("proposed_semantic_plan", {}),
+                         "grounding": context.get("grounding", {})})
+
+    record_attempt(result, schema_context, "focused_generation")
+    validation_failure = result.status == "failed" or llm_output.get("failure_stage") == "semantic_plan"
+    can_broaden = len(schema_context["tables"]) < len(full_schema_context["tables"])
+    if database_catalog and (validation_failure or (result.status == "unsupported" and can_broaden)):
+        # Two candidate attempts total: repair a grounded structure failure in place,
+        # or broaden on a retrieval miss. Neither action grants new DB permissions.
+        stage = "validation_repair" if validation_failure else "schema_retrieval"
+        retry_context = {**(schema_context if validation_failure else full_schema_context), "execution_feedback": [
+            *(execution_feedback or []),
+            {"stage": stage, "status": result.status,
+             "reason": result.answer, "issues": result.limitations,
+             "previous_sql": result.sql,
+             "previous_plan": schema_context.get("proposed_semantic_plan", {}),
+             "action": "Repair the reported structural error using the same schema."
+             if validation_failure else "Broadened to all actual FAB tables after the focused attempt."},
+        ]}
+        retry_context.pop("validated_semantic_plan", None)
+        retry_context.pop("proposed_semantic_plan", None)
+        try:
+            output = (llm_client or OpenAIText2SQLClient()).create_sql(
+                question=question, query_type=query_type, fab_id=fab_id,
+                slots=slots, schema_context=retry_context,
+            )
+            result = _result_from_llm_output(output, query_type, slots, fab_id, retry_context)
+            record_attempt(result, retry_context, stage)
+        except (RuntimeError, httpx.HTTPError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+            attempts.append({"attempt": 2, "action": stage, "status": "transport_failure",
+                             "issues": [str(exc)]})
+    if result.plan:
+        result = replace(result, plan=replace(result.plan, generation_attempts=attempts))
+    return result
 
 
 def _deterministic_fast_path(
@@ -872,6 +1267,36 @@ def _deterministic_fast_path(
     if query_type == "release_plan_lookup":
         return _deterministic_release_lookup(slots, fab_id)
     return None
+
+
+def _grounded_equipment_counts(
+    question: str,
+    slots: dict[str, QuerySlot],
+    fab_id: str,
+    catalog: dict[str, dict[str, Any]],
+) -> Text2SQLResult | None:
+    """Sum model equipment counts by their exact stored area, without collapsing names."""
+    normalized = question.casefold()
+    if not re.search(r"(?:설비|장비)\s*대수|number_of_tools|tool\s*counts?", normalized):
+        return None
+    if not re.search(r"공정\s*(?:영역)?별|영역별|by\s+area|per\s+area", normalized):
+        return None
+    if re.search(r"현재|지금|실시간|가동|고장|available|running|current|now|평균|최대|최소|상위|하위", normalized):
+        return None
+    if any(key in slots for key in ("area", "areas", "product", "products", "toolgroup", "toolgroups", "route", "line", "date_start", "relative_period", "threshold_metric", "top_n")):
+        return None
+    table = table_ref(fab_id, "toolgroups")
+    entry = catalog.get(table)
+    if not entry or not {"area", "number_of_tools"} <= {column["name"] for column in entry["columns"]}:
+        return None
+    return _deterministic_result(
+        query_type="master_data_lookup", fab_id=fab_id, slots=slots,
+        template_id="deterministic_master_area_equipment_counts", table=table,
+        sql=f"SELECT area, SUM(number_of_tools) AS total_number_of_tools FROM {table} GROUP BY area ORDER BY area ASC",
+        columns=["area", "total_number_of_tools"], filters=[], order_by=["area"],
+        expected_result_shape="rows", data_source_type="model_master",
+        additional_limitations=["설비 대수는 모델 입력에 정의된 값이며 현재 가동 중인 실제 설비 대수가 아닙니다. 공정 영역 이름은 원자료 그대로 구분합니다."],
+    )
 
 
 def _deterministic_master_query(
@@ -891,7 +1316,7 @@ def _deterministic_master_query(
                 query_type="master_data_lookup",
                 answer=f"{fab_id}에는 {product} route table이 없습니다.",
                 confidence=0.98,
-                limitations=["허용된 route table catalog에 요청 대상이 없습니다."],
+                limitations=["현재 경로 테이블 목록에서 요청한 대상을 찾지 못했습니다."],
                 plan=QueryPlan(
                     query_type="master_data_lookup",
                     template_id=None,
@@ -910,7 +1335,7 @@ def _deterministic_master_query(
         if toolgroup:
             predicates.append(f"toolgroup ILIKE {_sql_literal('%' + toolgroup + '%')}")
         predicate = " AND ".join(predicates) if predicates else "TRUE"
-        table = f"{fab_id}.{route_table}"
+        table = table_ref(fab_id, route_table)
         sql = _select_sql(
             columns=columns,
             table=table,
@@ -933,10 +1358,10 @@ def _deterministic_master_query(
 
     if domain == "pm":
         columns = ["p.pm_event_name", "p.type_name", "p.pm_type", "p.mean", "p.ttr_units"]
-        table = f"{fab_id}.pm"
+        table = table_ref(fab_id, 'pm')
         extra_tables: tuple[str, ...] = ()
         if area:
-            toolgroups = f"{fab_id}.toolgroups"
+            toolgroups = table_ref(fab_id, 'toolgroups')
             sql = (
                 f"SELECT {', '.join(columns)}\n"
                 f"FROM {table} p\n"
@@ -969,7 +1394,7 @@ def _deterministic_master_query(
         )
 
     if domain == "breakdown":
-        table = f"{fab_id}.breakdown"
+        table = table_ref(fab_id, 'breakdown')
         raw_columns = [
             "down_event_name", "type_name", "down_type", "mttf", "mttr", "mttr_units"
         ]
@@ -978,7 +1403,7 @@ def _deterministic_master_query(
         )
         additional_tables = ()
         if type_prefix:
-            toolgroups = f"{fab_id}.toolgroups"
+            toolgroups = table_ref(fab_id, 'toolgroups')
             columns = [f"b.{column}" for column in raw_columns]
             sql = (
                 f"SELECT {', '.join(columns)}\n"
@@ -1018,7 +1443,7 @@ def _deterministic_master_query(
     if domain:
         return None
 
-    table = f"{fab_id}.toolgroups"
+    table = table_ref(fab_id, 'toolgroups')
     columns = [
         "area", "toolgroup", "number_of_tools", "toolgrouplocation", "dispatching",
         "ranking_1", "ranking_2", "ranking_3", "tool_wake_up_ranking",
@@ -1054,7 +1479,7 @@ def _deterministic_release_lookup(
     slots: dict[str, QuerySlot],
     fab_id: str,
 ) -> Text2SQLResult:
-    table = f"{fab_id}.lotrelease"
+    table = table_ref(fab_id, 'lotrelease')
     columns = [
         "product_name", "route_name", "lot_name_type", "priority", "wafers_per_lot",
         "start_date", "due_date", "release_scenario",
@@ -1285,7 +1710,7 @@ def _deterministic_status_query(
     )
     sql = _select_sql(
         columns=columns,
-        table=f"{fab_id}.{table}",
+        table=table_ref(fab_id, table),
         predicate=predicate,
         order_by=order_by,
         limit=top_n if 1 <= top_n <= 200 else default_limit,
@@ -1306,7 +1731,7 @@ def _deterministic_status_query(
             if table == "autosched_stn" and len(toolgroups) > 1
             else f"deterministic_status_{table}"
         ),
-        table=f"{fab_id}.{table}",
+        table=table_ref(fab_id, table),
         sql=sql,
         columns=columns,
         filters=filters,
@@ -1321,8 +1746,8 @@ def _deterministic_cross_source_impact_baseline(
     *,
     area: str | None,
 ) -> Text2SQLResult:
-    perf_table = f"{fab_id}.autosched_perf"
-    utilization_table = f"{fab_id}.autosched_stngrp"
+    perf_table = table_ref(fab_id, 'autosched_perf')
+    utilization_table = table_ref(fab_id, 'autosched_stngrp')
     area_predicate = (
         f"\n  AND s.stngrp ILIKE {_sql_literal('%' + area + '%')}" if area else ""
     )
@@ -1420,7 +1845,7 @@ def _deterministic_trend_query(
             ]
             sql = (
                 f"SELECT {', '.join(select_items)}\n"
-                f"FROM {fab_id}.{table}\n"
+                f"FROM {table_ref(fab_id, table)}\n"
                 f"WHERE {' AND '.join(predicates)}\n"
                 "GROUP BY part\n"
                 "ORDER BY part"
@@ -1430,7 +1855,7 @@ def _deterministic_trend_query(
                 fab_id=fab_id,
                 slots=slots,
                 template_id="deterministic_compare_autosched_part_date_range",
-                table=f"{fab_id}.{table}",
+                table=table_ref(fab_id, table),
                 sql=sql,
                 columns=columns,
                 filters=filters,
@@ -1473,7 +1898,7 @@ def _deterministic_trend_query(
         group_by = [date_expression, "stn"]
         sql = (
             f"SELECT {', '.join(select_items)}\n"
-            f"FROM {fab_id}.{table}\n"
+            f"FROM {table_ref(fab_id, table)}\n"
             f"WHERE {predicate}\n"
             f"GROUP BY {', '.join(group_by)}\n"
             f"ORDER BY {date_column} ASC, stn"
@@ -1483,7 +1908,7 @@ def _deterministic_trend_query(
             fab_id=fab_id,
             slots=slots,
             template_id="deterministic_trend_autosched_stn_multi",
-            table=f"{fab_id}.{table}",
+            table=table_ref(fab_id, table),
             sql=sql,
             columns=[date_column, "stn", *metrics],
             filters=filters,
@@ -1521,7 +1946,7 @@ def _deterministic_trend_query(
         group_by = [date_expression, *category]
         sql = (
             f"SELECT {', '.join(select_items)}\n"
-            f"FROM {fab_id}.{table}\n"
+            f"FROM {table_ref(fab_id, table)}\n"
             f"WHERE {predicate}\n"
             f"GROUP BY {', '.join(group_by)}\n"
             f"ORDER BY {date_column} ASC{', stngrp' if area else ''}"
@@ -1531,7 +1956,7 @@ def _deterministic_trend_query(
             fab_id=fab_id,
             slots=slots,
             template_id=f"deterministic_trend_{table}",
-            table=f"{fab_id}.{table}",
+            table=table_ref(fab_id, table),
             sql=sql,
             columns=[date_column, *category, *metrics],
             filters=filters,
@@ -1544,7 +1969,7 @@ def _deterministic_trend_query(
 
     sql = _select_sql(
         columns=columns,
-        table=f"{fab_id}.{table}",
+        table=table_ref(fab_id, table),
         predicate=predicate,
         order_by=order_by,
         limit=200,
@@ -1554,13 +1979,70 @@ def _deterministic_trend_query(
         fab_id=fab_id,
         slots=slots,
         template_id=f"deterministic_compare_{table}",
-        table=f"{fab_id}.{table}",
+        table=table_ref(fab_id, table),
         sql=sql,
         columns=columns,
         filters=filters,
         order_by=order_by,
         expected_result_shape="comparison",
         chart_intent=_chart_intent("grouped_bar", x, metrics),
+    )
+
+
+def _deterministic_simulation_snapshot_query(
+    slots: dict[str, QuerySlot],
+    fab_id: str,
+) -> Text2SQLResult | None:
+    area = _slot_value(slots, "area")
+    metrics = [
+        "avg_queue_minutes",
+        "wip_lots",
+        "queue_lots",
+        "utilization_percent",
+    ]
+    table = table_ref(fab_id, "live_process_snapshots")
+    area_predicate = f"\n  AND s.area = {_sql_literal(area)}" if area else ""
+    filters = [
+        {"field": "interval_end", "operator": ">", "value": "latest - 24 hours"},
+        {"field": "interval_end", "operator": "<=", "value": "latest"},
+    ]
+    if area:
+        filters.append({"field": "area", "operator": "=", "value": area})
+    sql = (
+        "WITH latest AS (\n"
+        f"  SELECT MAX(interval_end) AS max_interval_end FROM {table}\n"
+        ")\n"
+        f"SELECT s.interval_end, s.area, {', '.join(f's.{metric}' for metric in metrics)}\n"
+        f"FROM {table} s\n"
+        "CROSS JOIN latest l\n"
+        "WHERE s.interval_end > l.max_interval_end - INTERVAL '24 hours'\n"
+        "  AND s.interval_end <= l.max_interval_end"
+        f"{area_predicate}\n"
+        "ORDER BY s.interval_end ASC, s.area ASC"
+    )
+    return _deterministic_result(
+        query_type="trend",
+        fab_id=fab_id,
+        slots=slots,
+        template_id="deterministic_simulation_snapshot_queue_trend",
+        table=table,
+        sql=sql,
+        columns=["interval_end", "area", *metrics],
+        filters=filters,
+        group_by=[],
+        order_by=["interval_end ASC", "area ASC"],
+        aggregation=None,
+        expected_result_shape="time_series",
+        chart_intent=_chart_intent(
+            "line",
+            "interval_end",
+            ["avg_queue_minutes", "wip_lots", "queue_lots", "utilization_percent"],
+            series="area",
+        ),
+        data_source_type="simulation_snapshot",
+        additional_limitations=[
+            "live_process_snapshots의 area 값은 cmp/deposition/etch/implant/metrology/photo이며 model master의 Dry_Etch/Wet_Etch와 자동 매핑하지 않습니다."
+        ],
     )
 
 
@@ -1602,7 +2084,7 @@ def _deterministic_date_range_comparison(
         predicate += f"\n  AND stngrp ILIKE {_sql_literal('%' + area + '%')}"
     sql = (
         f"SELECT {', '.join(select_items)}\n"
-        f"FROM {fab_id}.{table}\n"
+        f"FROM {table_ref(fab_id, table)}\n"
         f"WHERE {predicate}\n"
         f"GROUP BY {comparison_expression}\n"
         "ORDER BY comparison_period"
@@ -1612,7 +2094,7 @@ def _deterministic_date_range_comparison(
         fab_id=fab_id,
         slots=slots,
         template_id="deterministic_compare_explicit_date_ranges",
-        table=f"{fab_id}.{table}",
+        table=table_ref(fab_id, table),
         sql=sql,
         columns=["comparison_period", *metrics],
         filters=filters,
@@ -1653,7 +2135,7 @@ def _deterministic_release_trend(
     )
     sql = (
         f"SELECT {date_expression} AS {date_column}, COUNT(*)::bigint AS lot_count\n"
-        f"FROM {fab_id}.lotrelease\n"
+        f"FROM {table_ref(fab_id, 'lotrelease')}\n"
         f"WHERE {where}\n"
         f"GROUP BY {date_expression}\n"
         f"ORDER BY {date_column} ASC"
@@ -1663,7 +2145,7 @@ def _deterministic_release_trend(
         fab_id=fab_id,
         slots=slots,
         template_id="deterministic_lotrelease_daily",
-        table=f"{fab_id}.lotrelease",
+        table=table_ref(fab_id, 'lotrelease'),
         sql=sql,
         columns=[date_column, "lot_count"],
         filters=[],
@@ -1692,6 +2174,9 @@ def _deterministic_result(
     aggregation: str | None = None,
     chart_intent: dict[str, Any] | None = None,
     additional_limitations: list[str] | None = None,
+    data_source_type: Literal[
+        "operational_report", "model_master", "release_plan", "simulation_snapshot", "mixed"
+    ] | None = None,
 ) -> Text2SQLResult:
     ReadOnlyQueryExecutor(dsn="postgresql://validation-only").validate(sql)
     chart_intent = _enrich_chart_intent(
@@ -1702,21 +2187,23 @@ def _deterministic_result(
     source_tables = [table, *additional_tables]
     _validate_sql_tables(sql, set(source_tables))
     _validate_explicit_periods(sql, slots)
-    if table.endswith(".lotrelease"):
-        data_source_type = "release_plan"
+    if data_source_type:
+        resolved_data_source_type = data_source_type
+    elif table == table_ref(fab_id, "lotrelease"):
+        resolved_data_source_type = "release_plan"
     elif ".autosched_" in table:
-        data_source_type = "operational_report"
+        resolved_data_source_type = "operational_report"
     else:
-        data_source_type = "model_master"
+        resolved_data_source_type = "model_master"
     limitations = [
-        *_base_limitations(query_type, data_source_type),
+        *_base_limitations(query_type, resolved_data_source_type),
         *(additional_limitations or []),
     ]
     plan = QueryPlan(
         query_type=query_type,
         template_id=template_id,
         fab_id=fab_id,
-        data_source_type=data_source_type,
+        data_source_type=resolved_data_source_type,
         slots=slots,
         limitations=limitations,
         source_tables=source_tables,
@@ -1748,7 +2235,7 @@ def _current_report_predicate(
         "relative = 'Y'\n"
         "  AND period <> 'WarmUp'\n"
         "  AND report_time = (\n"
-        f"      SELECT MAX(report_time) FROM {fab_id}.{table}\n"
+        f"      SELECT MAX(report_time) FROM {table_ref(fab_id, table)}\n"
         "      WHERE relative = 'Y' AND period <> 'WarmUp'\n"
         "  )"
     )
@@ -1829,17 +2316,27 @@ def _result_from_llm_output(
 
     sql = str(llm_output.get("sql") or "").strip()
     normalization_notes: list[str] = []
-    if schema_context["data_source_type"] == "operational_report":
+    sql_sources = _extract_table_refs(sql)
+    source_kinds = {
+        schema_context.get("table_details", {}).get(ref, {}).get(
+            "data_source_type", schema_context["data_source_type"]
+        ) for ref in sql_sources
+    }
+    actual_source_type = (next(iter(source_kinds)) if len(source_kinds) == 1
+                          else "mixed" if source_kinds else schema_context["data_source_type"])
+    if actual_source_type == "operational_report":
         sql, normalization_notes = _normalize_operational_sql(sql)
     try:
         ReadOnlyQueryExecutor(dsn="postgresql://validation-only").validate(sql)
         _validate_sql_tables(sql, set(schema_context["allowed_table_refs"]))
         _validate_explicit_periods(sql, slots)
+        if schema_context.get("validated_semantic_plan"):
+            validate_sql_plan(sql, SemanticPlan.model_validate(schema_context["validated_semantic_plan"]))
     except (SqlValidationError, ValueError) as exc:
         return Text2SQLResult(
             status="failed",
             query_type=query_type,
-            answer="LLM이 만든 SQL이 read-only allowlist 검증을 통과하지 못했습니다.",
+            answer="생성된 SQL이 요청한 조회 구조와 일치하지 않아 실행 전에 보정을 시도했지만 완료하지 못했습니다.",
             sql=sql or None,
             confidence=0.1,
             limitations=[str(exc)],
@@ -1850,10 +2347,12 @@ def _result_from_llm_output(
                 data_source_type=schema_context["data_source_type"],
                 slots=slots,
                 source_tables=list(llm_output.get("source_tables") or []),
+                semantic_plan=schema_context.get("validated_semantic_plan", {}),
+                grounding=schema_context.get("grounding", {}),
             ),
         )
 
-    source_tables = list(llm_output.get("source_tables") or _extract_table_refs(sql))
+    source_tables = _extract_table_refs(sql)
     chart_intent, chart_notes = _normalize_chart_intent(
         llm_output.get("chart_intent"),
         slots,
@@ -1863,9 +2362,9 @@ def _result_from_llm_output(
         query_type=query_type,
         template_id=None,
         fab_id=fab_id,
-        data_source_type=schema_context["data_source_type"],
+        data_source_type=actual_source_type,
         slots=slots,
-        limitations=_base_limitations(query_type, schema_context["data_source_type"])
+        limitations=_base_limitations(query_type, actual_source_type)
         + normalization_notes
         + chart_notes
         + list(llm_output.get("limitations") or []),
@@ -1877,6 +2376,8 @@ def _result_from_llm_output(
         aggregation=llm_output.get("aggregation"),
         expected_result_shape=llm_output.get("expected_result_shape"),
         chart_intent=chart_intent,
+        semantic_plan=schema_context.get("validated_semantic_plan", {}),
+        grounding=schema_context.get("grounding", {}),
     )
     return Text2SQLResult(
         status="succeeded",
@@ -1893,6 +2394,7 @@ def _schema_context_for_question(
     query_type: QueryType,
     slots: dict[str, QuerySlot],
     fab_id: str,
+    database_catalog: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     data_source_type = _data_source_type(query_type, slots)
     tables: dict[str, list[str]] = {}
@@ -1921,18 +2423,19 @@ def _schema_context_for_question(
             tables.update(SCHEMA_CATALOG[data_source_type])
 
     primary_table_refs = [
-        f"{fab_id}.{table}"
+        table_ref(fab_id, table)
         for table in _primary_tables_for_question(data_source_type, slots)
         if table in tables
     ]
     if not primary_table_refs and len(tables) == 1:
-        primary_table_refs = [f"{fab_id}.{next(iter(tables))}"]
-    return {
+        primary_table_refs = [table_ref(fab_id, next(iter(tables)))]
+    context = {
         "dialect": "postgresql",
         "fab_id": fab_id,
         "data_source_type": data_source_type,
-        "tables": {f"{fab_id}.{table}": columns for table, columns in tables.items()},
-        "allowed_table_refs": [f"{fab_id}.{table}" for table in tables],
+        "tables": {table_ref(fab_id, table): columns for table, columns in tables.items()},
+        "table_patterns": {table_ref(fab_id, table): table_pattern(table) for table in tables},
+        "allowed_table_refs": [table_ref(fab_id, table) for table in tables],
         "primary_table_refs": primary_table_refs,
         "slots": _serialize_slots(slots),
         "metric_catalog": _metric_catalog_for_tables(tables),
@@ -1943,14 +2446,30 @@ def _schema_context_for_question(
             "Do not write DDL, DML, COPY, INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, SET, or comments.",
             "Always include a deterministic ORDER BY when using LIMIT.",
             "Never scan release-plan tables without a selective product, route, scenario, or date predicate.",
-            "For current status, use AutoSched tables only; never infer live status from General Data.",
+            "For observed status use report/snapshot sources; never infer observed status from model input tables.",
+            "Simulation snapshots/events are authorized sources but must be explicitly labeled as simulated data, not actual factory measurements.",
             "Prefer primary_table_refs when present; use other allowed tables only when the primary table cannot answer the question.",
             "Use only columns listed for the chosen table. Do not borrow columns from another table.",
-            "For PM or breakdown lookups constrained by area, resolve area through toolgroups.toolgroup to the event table type_name.",
+            "PM type_name joins toolgroups.toolgroup. Breakdown type_name for area-scoped settings identifies toolgroups.area, not toolgroup; avoid multiplying settings when joining multiple toolgroups per area.",
             "If the user specified date_basis/date_start/date_end slots, preserve those exact constraints.",
             "For lotrelease trends, do not choose between start_date and due_date unless date_basis is explicit.",
         ],
     }
+    if database_catalog is not None:
+        available = {
+            ref: entry for ref, entry in database_catalog.items()
+            if ref == table_ref(fab_id, entry["logical_table"])
+        }
+        context.update({
+            "tables": {ref: [column["name"] for column in entry["columns"]]
+                       for ref, entry in available.items()},
+            "table_details": available,
+            "allowed_table_refs": list(available),
+            "primary_table_refs": [ref for ref in primary_table_refs if ref in available],
+            "table_patterns": {ref: entry["table_pattern"] for ref, entry in available.items()},
+            "catalog_source": "current_database_and_agent_meta",
+        })
+    return context
 
 
 def _system_prompt() -> str:
@@ -1972,6 +2491,15 @@ Hard rules:
    x-axis is temporal. Set series to a result column only when that column identifies categories.
 8. Prefer schema_context.primary_table_refs when present.
 9. Do not select columns that are absent from the selected table.
+10. FAB is resolved before this call. Use exactly the bound schema and suffixed table names
+    in allowed_table_refs (e.g. fab11.toolgroups_fab11). Never switch FABs or emit {fab} placeholders.
+11. A validated plan is the output contract. Emit exactly its projections and aggregates,
+    preserve order_by/result_limit, and add no undeclared filtering conditions.
+12. For each latest_by column, use equality to a same-table SELECT MAX(column) subquery.
+    ORDER BY timestamp DESC LIMIT 1 does not satisfy this contract. When latest_scope is
+    global, MAX must have no filters except the bound fab_id, even when the outer query
+    filters area or another entity. When latest_scope is filtered, MAX must repeat all
+    static filters for that source from the plan. Do not choose the scope again.
 """
 
 
@@ -2050,6 +2578,11 @@ def _primary_tables_for_question(
 
 
 def _base_limitations(query_type: QueryType, data_source_type: str) -> list[str]:
+    if data_source_type == "simulation_snapshot":
+        return ["조회값은 생성된 시뮬레이션 공정 데이터이며 실제 공장 실측값이 아닙니다.",
+                "집계는 선택한 snapshot/event의 시간과 행 단위를 기준으로 합니다."]
+    if data_source_type == "mixed":
+        return ["서로 다른 종류의 데이터를 결합한 조회입니다. 각 소스의 시간·집계 단위와 시뮬레이션 여부를 구분해야 합니다."]
     if data_source_type == "operational_report":
         return [
             "현재 상태 조회는 PostgreSQL에 적재된 AutoSched report 기준입니다.",
@@ -2086,8 +2619,8 @@ def _validate_sql_tables(sql: str, allowed_table_refs: set[str]) -> None:
 
 def _extract_table_refs(sql: str) -> list[str]:
     refs = []
-    for table_ref in TABLE_REF_PATTERN.findall(sql):
-        refs.append(table_ref.replace(" ", "").replace('"', "").lower())
+    for reference in TABLE_REF_PATTERN.findall(sql):
+        refs.append(reference.replace(" ", "").replace('"', "").lower())
     return refs
 
 
@@ -2119,6 +2652,96 @@ def _operational_data_unavailable(
     )
 
 
+def _simulation_data_unavailable(
+    result: Text2SQLResult,
+    *,
+    error: str | None = None,
+) -> Text2SQLResult:
+    plan = result.plan
+    fab_id = plan.fab_id if plan else None
+    slots = plan.slots if plan else {}
+    area = _slot_value(slots, "area")
+    requested = f"{fab_id or '요청 FAB'}"
+    if area:
+        requested += f" area={area!r}"
+    suggestions, diagnostics = _simulation_availability_suggestions(fab_id, area)
+    condition = "최근 24시간" if plan and plan.template_id == "deterministic_simulation_snapshot_queue_trend" else "요청한 대상·기간·필터"
+    reason = f"{requested}의 live_process_snapshots {condition} 조건에 맞는 행이 없습니다."
+    if error and _looks_like_missing_relation_error(error):
+        reason = f"{requested}의 live_process_snapshots 테이블을 찾을 수 없습니다."
+    answer_parts = [reason]
+    if suggestions:
+        answer_parts.append("대신 확인할 수 있는 후보: " + " / ".join(suggestions))
+    else:
+        answer_parts.append(
+            "같은 형식의 질문을 처리하려면 해당 FAB의 live_process_snapshots 적재 상태와 area 값을 먼저 확인해야 합니다."
+        )
+    limitations = [
+        *result.limitations,
+        reason,
+        *diagnostics,
+    ]
+    if error and not _looks_like_missing_relation_error(error):
+        limitations.append(error)
+    return Text2SQLResult(
+        status="data_unavailable",
+        query_type=result.query_type,
+        answer=" ".join(answer_parts),
+        sql=result.sql,
+        confidence=0.85,
+        limitations=list(dict.fromkeys(limitations)),
+        plan=plan,
+    )
+
+
+def _simulation_availability_suggestions(
+    fab_id: str | None,
+    area: str | None,
+) -> tuple[list[str], list[str]]:
+    suggestions: list[str] = []
+    diagnostics: list[str] = []
+    if not fab_id:
+        return suggestions, diagnostics
+    try:
+        executor = ReadOnlyQueryExecutor()
+        current_areas = executor.execute(
+            "SELECT area, COUNT(*) AS rows "
+            f"FROM {table_ref(fab_id, 'live_process_snapshots')} "
+            "GROUP BY area ORDER BY area",
+            limit=200,
+        ).rows
+    except (RuntimeError, SqlValidationError, PsycopgError):
+        current_areas = []
+    if current_areas:
+        area_labels = ", ".join(
+            f"{row['area']}({row['rows']}행)" for row in current_areas[:8]
+        )
+        diagnostics.append(f"{fab_id}에서 사용 가능한 simulation area: {area_labels}")
+        suggestions.append(f"{fab_id}의 다른 area({', '.join(str(row['area']) for row in current_areas[:6])})")
+    if area:
+        available_fabs = []
+        for candidate_fab in sorted(ALLOWED_FABS):
+            try:
+                rows = executor.execute(
+                    "SELECT COUNT(*) AS rows "
+                    f"FROM {table_ref(candidate_fab, 'live_process_snapshots')} "
+                    f"WHERE area = {_sql_literal(area)}",
+                    limit=1,
+                ).rows
+            except (RuntimeError, SqlValidationError, PsycopgError, UnboundLocalError):
+                continue
+            count = int(rows[0]["rows"]) if rows else 0
+            if count:
+                available_fabs.append(f"{candidate_fab}({count}행)")
+        if available_fabs:
+            diagnostics.append(
+                f"area={area!r} 데이터가 있는 FAB: {', '.join(available_fabs)}"
+            )
+            if not any(item.startswith(f"{fab_id}(") for item in available_fabs):
+                suggestions.append(f"같은 area={area!r}가 있는 FAB({', '.join(available_fabs)})")
+    return suggestions, diagnostics
+
+
 def _clarification(
     *,
     query_type: QueryType,
@@ -2144,8 +2767,17 @@ def _clarification(
 
 
 def _summarize_execution(planned: Text2SQLResult, rows: list[dict[str, Any]]) -> str:
+    if rows and rows[0].get("fab"):
+        from app.sub_agent.fab_comparison import comparison_summary, comparison_trend_summary
+        from app.sub_agent.snapshot_queries import SLOT_METRICS
+        selected = planned.plan.slots.get("metrics") if planned.plan else None
+        metrics = {SLOT_METRICS.get(value, value) for value in selected.value.split(",")} if selected else None
+        if summary := comparison_summary(rows, metrics=metrics) or comparison_trend_summary(rows):
+            return summary
     if not rows:
         return "조회는 성공했지만 조건에 맞는 행이 없습니다."
+    if planned.plan and planned.plan.data_source_type == "simulation_snapshot":
+        return f"공정 데이터에서 {len(rows)}개 행을 조회했습니다."
     if planned.query_type == "master_data_lookup":
         return f"General Data 기준으로 {len(rows)}개 행을 조회했습니다."
     if planned.query_type == "release_plan_lookup":
@@ -2225,6 +2857,9 @@ def _execute_empty_result_repairs(result: Text2SQLResult) -> Text2SQLResult | No
                 aggregation=result.plan.aggregation,
                 expected_result_shape=result.plan.expected_result_shape,
                 chart_intent=result.plan.chart_intent,
+                semantic_plan=result.plan.semantic_plan,
+                grounding=result.plan.grounding,
+                generation_attempts=result.plan.generation_attempts,
             ),
         )
     return None
@@ -2487,8 +3122,8 @@ def _pm_area_lookup_sql(fab_id: str, area: str) -> str:
     escaped_area = area.replace("'", "''")
     return (
         "SELECT p.pm_event_name, p.type_name, p.pm_type, p.mean, p.ttr_units "
-        f"FROM {fab_id}.pm p "
-        f"JOIN {fab_id}.toolgroups t ON t.toolgroup = p.type_name "
+        f"FROM {table_ref(fab_id, 'pm')} p "
+        f"JOIN {table_ref(fab_id, 'toolgroups')} t ON t.toolgroup = p.type_name "
         f"WHERE t.area ILIKE '%{escaped_area}%' "
         "ORDER BY p.type_name, p.pm_event_name LIMIT 200"
     )
@@ -2506,6 +3141,148 @@ def _toolgroup_to_type_prefix(toolgroup: str) -> str | None:
     return match.group(1) if match else None
 
 
+def extract_query_slots(
+    question: str,
+    *,
+    fab: str | None = None,
+    process: str | None = None,
+    product: str | None = None,
+    route: str | None = None,
+    equipment: str | None = None,
+    date_basis: str | None = None,
+    metric: str | None = None,
+    conversation_history: list[dict[str, Any]] | None = None,
+) -> dict[str, QuerySlot]:
+    """Extract shared FAB scope without an LLM call, schema lookup, or SQL execution."""
+    slots = _extract_slots(
+        question, _normalize_question(question), fab=fab, process=process,
+        product=product, route=route, equipment=equipment, date_basis=date_basis, metric=metric,
+    )
+    slots = inherit_followup_metrics(question, slots, conversation_history or [])
+    slots = inherit_followup_period(question, slots, conversation_history or [])
+    slots = inherit_followup_areas(question, slots, conversation_history or [])
+    return inherit_result_areas(question, slots, conversation_history or [])
+
+
+PERIOD_SCOPE_KEYS = {"date_start", "date_end", "relative_period", "date_grain", "comparison_date_ranges", "periods"}
+
+
+def inherit_result_areas(question, slots, history):
+    """Resolve 'that process' only from complete, typed SQL result dimensions."""
+    reference = re.search(r"(?:그|해당|이)\s*(?:(?:두|세)\s*)?공정(?:들)?|those\s+processes|that\s+process", question, re.IGNORECASE)
+    if not reference or simulation_areas(question) or _parse_area(_normalize_question(question)):
+        return slots
+    result = None
+    for turn in reversed(history):
+        if turn.get("role") != "assistant":
+            continue
+        metadata = turn.get("metadata") or {}
+        result = metadata.get("query_result_scope")
+        if result or metadata.get("status") != "needs_clarification":
+            break
+    if not isinstance(result, dict) or result.get("source_type") != "text2sql_result" or result.get("status") != "succeeded" or result.get("complete") is not True:
+        return slots
+    fab = resolve_fab(question, _slot_value(slots, "fab_id"), history).fab_id
+    areas = result.get("areas")
+    if (result.get("fab") != fab or not isinstance(areas, list) or not areas
+            or any(not isinstance(area, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,99}", area) for area in areas)):
+        return slots
+    merged = {key:value for key,value in slots.items() if key not in {"area", "areas", "process"}}
+    plural = bool(re.search(r"공정들|(?:두|세)\s*공정|those\s+processes", reference[0], re.IGNORECASE))
+    stated_count = 2 if "두" in reference[0] else 3 if "세" in reference[0] else None
+    if (len(areas) > 1 and not plural) or (stated_count and stated_count != len(areas)):
+        merged["unresolved_area_reference"] = QuerySlot(",".join(areas), "tool_result_context", 1.0, reference[0])
+    else:
+        key = "area" if len(areas) == 1 else "areas"
+        merged[key] = QuerySlot(",".join(areas), "tool_result_context", 1.0, reference[0])
+    return merged
+
+
+def inherit_followup_metrics(question, slots, history):
+    """Keep the latest user-requested metric list when a follow-up refers to it."""
+    if (_parse_metrics(_normalize_question(question))
+            or re.search(r"다른\s*지표|새로운\s*지표", question)
+            or not re.search(r"그\s*(?:두|지표|중|기간)|이\s*지표|같은|동일|그럼|그러면|이어서|그대로|추세도|추이도|those\s+metrics|same\s+metrics", question, re.IGNORECASE)):
+        return slots
+    prior = next((turn for turn in reversed(history) if turn.get("role") == "user"), None)
+    if not prior:
+        return slots
+    metrics = (prior.get("metadata") or {}).get("query_metrics")
+    if metrics is None:
+        metrics = _parse_metrics(_normalize_question(str(prior.get("content", ""))))
+    if not isinstance(metrics, list) or not metrics or any(not isinstance(metric, str) or metric not in set(METRIC_ALIASES.values()) for metric in metrics):
+        return slots
+    merged = dict(slots)
+    merged["metrics"] = QuerySlot(",".join(dict.fromkeys(metrics)), "conversation_context", 0.9, str(prior.get("content", "")))
+    merged["metric"] = QuerySlot(metrics[0], "conversation_context", 0.9, str(prior.get("content", "")))
+    grouped = (prior.get("metadata") or {}).get("query_group_by_area")
+    if grouped is None:
+        grouped = bool(re.search(r"공정별|영역별|각\s*공정|by\s+area|per\s+area", str(prior.get("content", "")), re.IGNORECASE))
+    if grouped and not re.search(r"전체|\bwhole\b", question, re.IGNORECASE):
+        merged["group_by_area"] = QuerySlot("true", "conversation_context", 0.9, str(prior.get("content", "")))
+    if not re.search(r"평균|average|\bmean\b|합계|누적|총합|\btotal\b|\bsum\b", question, re.IGNORECASE):
+        saved = (prior.get("metadata") or {}).get("query_aggregations")
+        if saved is None:
+            saved = _flow_aggregation_contract(str(prior.get("content", "")), metrics)
+        if isinstance(saved, dict) and saved and all(key in METRICS and isinstance(value, str) and value in {"AVG", "SUM"} for key, value in saved.items()):
+            merged["metric_aggregations"] = QuerySlot(json.dumps(saved), "conversation_context", 0.9, str(prior.get("content", "")))
+    return merged
+
+
+def _flow_aggregation_contract(question: str, metrics: list[str]) -> dict[str, str]:
+    if not re.search(r"평균|average|\bmean\b|합계|누적|총합|\btotal\b|\bsum\b", question, re.IGNORECASE):
+        return {}
+    canonical = list(dict.fromkeys(SLOT_METRICS.get(metric, metric) for metric in metrics))
+    if any(metric not in METRICS for metric in canonical):
+        return {}
+    contract = period_aggregates(question.casefold(), canonical) or {}
+    return {metric:operator for metric, operator in contract.items() if METRICS[metric][1] == "flow"}
+
+
+def inherit_followup_areas(question, slots, history):
+    """Preserve an explicit multi-area comparison through a referential follow-up."""
+    if (simulation_areas(question) or _parse_area(_normalize_question(question))
+            or re.search(r"전체|모든|공정별|영역별|\ball\b|by area", question, re.IGNORECASE)
+            or not re.search(r"그\s*(?:두|공정|중)|그럼|그러면|같은|동일|이어서|same|those", question, re.IGNORECASE)):
+        return slots
+    prior = next((turn for turn in reversed(history) if turn.get("role") == "user"), None)
+    if not prior:
+        return slots
+    areas = (prior.get("metadata") or {}).get("query_areas")
+    if areas is None:
+        areas = simulation_areas(str(prior.get("content", "")))
+    if not isinstance(areas, list) or len(areas) < 2 or any(area not in {"cmp", "deposition", "etch", "implant", "metrology", "photo"} for area in areas):
+        return slots
+    merged = {key:value for key,value in slots.items() if key not in {"area", "process"}}
+    merged["areas"] = QuerySlot(",".join(areas), "conversation_context", 0.9, str(prior.get("content", "")))
+    return merged
+
+
+def inherit_followup_period(question, slots, history):
+    """Resolve follow-up time scope from the latest USER turn, never answer text."""
+    referential_diagnosis = bool(
+        re.search(r"왜|원인|이유|진단", question)
+        and re.search(r"(?:그|같은|동일)\s*공정", question)
+    )
+    if not referential_diagnosis and not re.search(r"그\s*중|그\s*기간|같은\s*(?:기간|조건)|동일\s*(?:기간|조건)|그럼|그러면|이어서|다시|그대로", question):
+        return slots
+    if any(key in slots for key in ("date_start", "relative_period", "periods")) or re.search(r"지금|현재|오늘|today|now", question, re.IGNORECASE):
+        return slots
+    prior = next((turn for turn in reversed(history) if turn.get("role") == "user"), None)
+    if not prior:
+        return slots
+    saved = (prior.get("metadata") or {}).get("query_period")
+    if saved is None:
+        saved = {key:slot.value for key, slot in extract_query_slots(str(prior.get("content", ""))).items() if key in PERIOD_SCOPE_KEYS}
+    if not isinstance(saved, dict):
+        return slots
+    merged = dict(slots)
+    for key, value in saved.items():
+        if key in PERIOD_SCOPE_KEYS and isinstance(value, str):
+            merged.setdefault(key, QuerySlot(value, "conversation_context", 0.9, str(prior.get("content", ""))))
+    return merged
+
+
 def _extract_slots(
     question: str,
     normalized_question: str,
@@ -2519,6 +3296,8 @@ def _extract_slots(
     metric: str | None,
 ) -> dict[str, QuerySlot]:
     slots: dict[str, QuerySlot] = {}
+    if re.search(r"공정별|영역별|각\s*공정|by\s+area|per\s+area", question, re.IGNORECASE):
+        slots["group_by_area"] = QuerySlot("true", "parser", 0.9, question)
 
     context_fab = _normalize_fab(fab) if fab else None
     if context_fab:
@@ -2526,6 +3305,9 @@ def _extract_slots(
 
     if process:
         context_area = _parse_area(_normalize_question(process))
+        if not context_area:
+            context_areas = simulation_areas(process)
+            context_area = context_areas[0] if len(context_areas) == 1 else None
         context_toolgroup = _parse_toolgroup(process)
         if context_area:
             slots["area"] = QuerySlot(context_area, "request_context", 0.9, process)
@@ -2591,9 +3373,21 @@ def _extract_slots(
     if lot_id:
         slots["lot_id"] = QuerySlot(lot_id, "parser", 0.9, lot_id)
 
-    area = _parse_area(normalized_question)
+    area = (
+        _parse_simulation_area(normalized_question)
+        if _is_explicit_simulation_request(normalized_question)
+        else _parse_area(normalized_question)
+    )
+    if not area:
+        detected_areas = simulation_areas(normalized_question)
+        if len(detected_areas) == 1:
+            area = detected_areas[0]
     if area:
         slots["area"] = QuerySlot(area, "alias_match", 0.85, area)
+    detected_areas = simulation_areas(normalized_question)
+    if len(detected_areas) > 1:
+        slots.pop("area", None)
+        slots["areas"] = QuerySlot(",".join(detected_areas), "explicit_user", 1.0, question)
 
     release_scenario = _parse_release_scenario(question)
     if release_scenario:
@@ -2662,6 +3456,8 @@ def _extract_slots(
         metrics = [resolved_metric]
     if metrics:
         slots["metrics"] = QuerySlot(",".join(metrics), "alias_match", 0.85, ", ".join(metrics))
+        if aggregates := _flow_aggregation_contract(question, metrics):
+            slots["metric_aggregations"] = QuerySlot(json.dumps(aggregates), "parser", 0.9, question)
 
     threshold = _parse_metric_threshold(normalized_question)
     if not threshold and resolved_metric:
@@ -2792,6 +3588,19 @@ def _parse_ranking_direction(normalized_question: str) -> str | None:
     return None
 
 
+def is_explicit_master_lookup(question: str) -> bool:
+    normalized = _normalize_question(question)
+    if any(term in normalized for term in (
+        "왜", "원인", "진단", "사례", "영향", "병목", "설명", "정의", "차트", "그래프",
+        "why", "cause", "diagnos", "impact", "explain", "chart", "graph",
+    )):
+        return False
+    return (
+        _classify_query_type(normalized) == "master_data_lookup"
+        and any(term in normalized for term in ("목록", "리스트", "구성", "list", "설비 대수", "장비 대수", "설비대수", "장비대수", "number_of_tools"))
+    )
+
+
 def _classify_query_type(normalized_question: str) -> QueryType:
     if _contains_any(normalized_question, TREND_TERMS) or _looks_like_compare(normalized_question):
         return "trend"
@@ -2801,7 +3610,7 @@ def _classify_query_type(normalized_question: str) -> QueryType:
         if _looks_like_operational_status(normalized_question):
             return "status"
         return "master_data_lookup"
-    if _contains_any(normalized_question, STATUS_TERMS):
+    if _contains_any(normalized_question, STATUS_TERMS) or _parse_metrics(normalized_question):
         return "status"
     return "unsupported"
 
@@ -2849,22 +3658,11 @@ def _contains_any(value: str, terms: set[str]) -> bool:
 
 
 def _normalize_fab(value: str | None) -> str | None:
-    if not value:
-        return None
-    raw = value.strip().lower().replace(" ", "")
-    if raw in ALLOWED_FABS:
-        return raw
-    if raw in {"10", "11", "12", "13"}:
-        return f"fab{raw}"
-    return None
+    return normalize_fab(value)
 
 
 def _parse_fab(question: str) -> str | None:
-    match = FAB_PATTERN.search(question)
-    if not match:
-        return None
-    number = match.group(1) or match.group(2)
-    return f"fab{number}"
+    return resolve_fab(question).fab_id
 
 
 def _parse_product(question: str) -> str | None:
@@ -2925,6 +3723,14 @@ def _parse_area(normalized_question: str) -> str | None:
     return None
 
 
+def _parse_simulation_area(normalized_question: str) -> str | None:
+    normalized = normalized_question.replace("-", "_")
+    for alias, canonical in SIMULATION_AREA_ALIASES.items():
+        if re.search(rf"(?<![a-z0-9_]){re.escape(alias)}(?![a-z0-9_])", normalized):
+            return canonical
+    return _parse_area(normalized_question)
+
+
 def _parse_release_scenario(question: str) -> str | None:
     lowered = question.casefold()
     known = [
@@ -2955,13 +3761,21 @@ def _parse_date_grain(normalized_question: str) -> str | None:
 
 
 def _parse_relative_period(normalized_question: str) -> str | None:
-    if "지난주" in normalized_question or "last week" in normalized_question:
+    if match := re.search(r"(?:최근|지난|last|past)\s*(\d+)\s*(?:시간|hours?)", normalized_question):
+        return f"last_{match.group(1)}_hours"
+    if "그저께" in normalized_question or "day before yesterday" in normalized_question:
+        return "day_before_yesterday"
+    if "어제" in normalized_question or "yesterday" in normalized_question:
+        return "yesterday"
+    if "오늘" in normalized_question or "today" in normalized_question:
+        return "today"
+    if re.search(r"지난\s*주", normalized_question) or "last week" in normalized_question:
         return "last_week"
-    if "이번주" in normalized_question or "this week" in normalized_question:
+    if re.search(r"이번\s*주", normalized_question) or "this week" in normalized_question:
         return "this_week"
     if re.search(r"(?:최근|지난)\s*(?:1\s*)?일주일", normalized_question):
         return "last_7_days"
-    if match := re.search(r"최근\s*(\d+)\s*(?:일|days?)", normalized_question):
+    if match := re.search(r"(?:최근|지난|last|past)\s*(\d+)\s*(?:일|days?)", normalized_question):
         return f"last_{match.group(1)}_days"
     if "최근" in normalized_question or "recent" in normalized_question or "latest" in normalized_question:
         return "recent"
@@ -2971,6 +3785,10 @@ def _parse_relative_period(normalized_question: str) -> str | None:
 def _relative_period_bounds(relative_period: str) -> tuple[date | None, date | None]:
     today = datetime.now(tz=ZoneInfo("Asia/Seoul")).date()
     monday = today - timedelta(days=today.weekday())
+    if relative_period in {"today", "yesterday", "day_before_yesterday"}:
+        offset = {"today":0, "yesterday":1, "day_before_yesterday":2}[relative_period]
+        start = today - timedelta(days=offset)
+        return start, start + timedelta(days=1)
     if relative_period == "last_week":
         start = monday - timedelta(days=7)
         return start, monday
@@ -2985,9 +3803,12 @@ def _relative_period_bounds(relative_period: str) -> tuple[date | None, date | N
 
 def _parse_explicit_date_range(question: str) -> tuple[date, date] | None:
     matches = re.findall(r"(?<!\d)(\d{4}[-/.]\d{2}[-/.]\d{2})(?!\d)", question)
-    if len(matches) < 2:
+    if not matches:
         return None
     try:
+        if len(matches) == 1:
+            start = date.fromisoformat(re.sub(r"[/.]", "-", matches[0]))
+            return start, start + timedelta(days=1)
         start, inclusive_end = (
             date.fromisoformat(re.sub(r"[/.]", "-", value)) for value in matches[:2]
         )
@@ -3006,7 +3827,7 @@ def _parse_comparison_date_ranges(
         return []
     matches = re.findall(r"(?<!\d)(\d{4}[-/.]\d{2}[-/.]\d{2})(?!\d)", question)
     if len(matches) != 4:
-        return []
+        return comparison_ranges(normalized_question, {})
     try:
         values = [date.fromisoformat(re.sub(r"[/.]", "-", value)) for value in matches]
     except ValueError:
@@ -3035,7 +3856,7 @@ def _comparison_ranges_from_slot(
 
 def _has_invalid_explicit_date_range(question: str) -> bool:
     matches = re.findall(r"(?<!\d)(\d{4}[-/.]\d{2}[-/.]\d{2})(?!\d)", question)
-    if len(matches) < 2:
+    if not matches:
         return False
     if len(matches) > 2 and len(matches) != 4:
         return True
@@ -3043,7 +3864,7 @@ def _has_invalid_explicit_date_range(question: str) -> bool:
         values = [date.fromisoformat(re.sub(r"[/.]", "-", value)) for value in matches]
     except ValueError:
         return True
-    return any(values[index] > values[index + 1] for index in range(0, len(values), 2))
+    return any(values[index] > values[index + 1] for index in range(0, len(values) - 1, 2))
 
 
 def _has_overlapping_comparison_date_ranges(
@@ -3055,6 +3876,10 @@ def _has_overlapping_comparison_date_ranges(
 
 
 def _has_invalid_calendar_period(question: str) -> bool:
+    for number, unit in re.findall(r"(?:최근|지난|last|past)\s*(-?\d+)\s*(일|days?|시간|hours?)", question, flags=re.IGNORECASE):
+        maximum = 24 * 366 if unit.casefold() in {"시간", "hour", "hours"} else 366
+        if not 1 <= int(number) <= maximum:
+            return True
     quarter_numbers = [
         *re.findall(r"(?<!\d)(\d+)\s*분기", question),
         *re.findall(r"\bq(\d+)\b", question, flags=re.IGNORECASE),
@@ -3202,7 +4027,16 @@ def _parse_metrics(normalized_question: str) -> list[str]:
     normalized = normalized_question.replace("-", " ")
     first_positions: dict[str, int] = {}
     for alias, column in METRIC_ALIASES.items():
-        if len(alias) <= 2 and alias.isascii():
+        if alias == "가동률":
+            match = re.search(r"(?<!비)가동률", normalized)
+            position = match.start() if match else -1
+        elif alias == "비가동":
+            match = re.search(r"비가동(?!\s*시간)", normalized)
+            position = match.start() if match else -1
+        elif alias == "pm":
+            match = re.search(r"(?<![a-z0-9_])pm(?![a-z0-9_]|\s*시간)", normalized)
+            position = match.start() if match else -1
+        elif alias == "down" or (len(alias) <= 2 and alias.isascii()):
             match = re.search(rf"(?<![a-z0-9_]){re.escape(alias)}(?![a-z0-9_])", normalized)
             position = match.start() if match else -1
         else:
@@ -3224,10 +4058,21 @@ def _is_unavailable_queue_metric_request(normalized_question: str) -> bool:
     return any(term in normalized_question for term in queue_terms)
 
 
+def _looks_like_missing_relation_error(message: str) -> bool:
+    normalized = message.casefold()
+    return "does not exist" in normalized or "undefinedtable" in normalized
+
+
+def _is_explicit_simulation_request(normalized_question: str) -> bool:
+    return any(term in normalized_question for term in (
+        "live_process_", "합성", "시뮬레이션", "simulation", "snapshot", "스냅샷",
+    ))
+
+
 def _parse_master_domain(normalized_question: str) -> str | None:
     if "breakdown" in normalized_question or "고장" in normalized_question or "장애" in normalized_question:
         return "breakdown"
-    if "pm" in normalized_question:
+    if re.search(r"(?<![a-z0-9_])pm(?:_fab\d+)?(?![a-z0-9_])", normalized_question):
         return "pm"
     if "setup" in normalized_question or "셋업" in normalized_question:
         return "setups"

@@ -38,8 +38,8 @@ def test_schema_ddl_contains_autosched_metadata_and_numeric_status_columns() -> 
 
     ddl = schema_ddl("fab10", [report], recreate=True)
 
-    assert 'DROP TABLE IF EXISTS "fab10"."autosched_stn"' in ddl
-    assert 'CREATE TABLE IF NOT EXISTS "fab10"."autosched_stn"' in ddl
+    assert 'DROP TABLE IF EXISTS "fab10"."autosched_stn_fab10"' in ddl
+    assert 'CREATE TABLE IF NOT EXISTS "fab10"."autosched_stn_fab10"' in ddl
     assert '"source_file" TEXT NOT NULL' in ddl
     assert '"report_time" TIMESTAMP' in ddl
     assert '"source_report_row" INTEGER NOT NULL' in ddl

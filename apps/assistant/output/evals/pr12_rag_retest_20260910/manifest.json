@@ -1,0 +1,16 @@
+{
+  "commit": "374e1000ea761dc6ea3bbcd98b00191e43f46d8a",
+  "baseline_commit": "4ebf83350a706afb158653e0c51d5c43b60f9c9e",
+  "source_sha256": "e0495baf3e60fe905be81257a2a3a0bf7e8ff7ad35ffaf8ca153479bfa039c30",
+  "corpus_sha256": "e1f598dd34aec69213fab5bb3100d9cc643d84d64ef4d9ff1cbd0199f650c62d",
+  "fixture_sha256": {
+    "rag_extension_eval.json": "258e03ec26e36543f8d5beea6d8127f5e9dfbbb0f5c066ebd1cd68df2c645801"
+  },
+  "files": {
+    "summary.json": "4795db5c1b6995f1ac3019c3c2208f4ba14a4573e4a05723475bad0e10467e5e",
+    "regression.json": "ce2258ac184475d3c66255166091590fc390d4b9bd9a88b612c2c39443184f99",
+    "ragas.json": "dedff70e2d243f73b1c0b44ac86cc86e4c80efcdfd286d6654ccfba50d76fde9",
+    "summarize.py": "f38b1f8ff4682d2fadde2db21ed3e307ffc6f938854910bce3f4d2ce523c4bd7"
+  },
+  "report_sha256": "9942ffe43cd1ddc75426208b7673f9459b9b9c8f531ece1feff66cae8813ada7"
+}

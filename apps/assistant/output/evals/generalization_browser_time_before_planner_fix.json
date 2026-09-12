@@ -1,0 +1,8 @@
+{
+  "kind": "observed browser failure before planner discovery-slot fix",
+  "question": "fab12 시뮬레이션 스냅샷 중 2026-09-07 00:00 UTC 이상 06:00 UTC 미만의 lot_starts 합계 하나만 구해줘.",
+  "observed_planner_status": "needs_clarification",
+  "text2sql_executed": false,
+  "observed_response_summary": "정확한 데이터 계층 또는 테이블명이 지정되지 않아 합계를 산출할 수 없다고 불필요하게 재질문함.",
+  "raw_initial_validation_unchanged": true
+}

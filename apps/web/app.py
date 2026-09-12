@@ -179,6 +179,11 @@ def create_new_conversation() -> None:
     st.session_state.pop("pending_prompt", None)
 
 
+def active_context_label(fab: str, line: str, process: str) -> str:
+    values = [value for value in [fab, line, process] if value]
+    return " / ".join(values) if values else "No context selected"
+
+
 def collect_artifacts(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
     artifacts: list[dict[str, Any]] = []
     for message in messages:
@@ -239,47 +244,181 @@ def render_artifact(artifact: dict[str, Any]) -> None:
         st.json(payload)
 
 
+def queue_suggested_prompt(prompt: str) -> None:
+    st.session_state["pending_prompt"] = prompt
+
+
 st.set_page_config(page_title="FAB Assistant", page_icon="F", layout="wide")
+st.info(
+    "현재 화면은 기존 Streamlit UI입니다. 고도화된 프런트엔드는 React에서 실행됩니다. "
+    "저장소 루트의 별도 터미널에서 `npm --prefix apps/web run dev`를 실행한 뒤 "
+    "[새 FAB 채팅 화면](http://localhost:5173/)을 열어 주세요. "
+    "백엔드는 별도 터미널에서 "
+    "`PYTHONPATH=apps/assistant/src uv run uvicorn app.main:app --reload`로 실행합니다."
+)
 ensure_conversation_state()
 
 st.markdown(
     """
     <style>
-    :root { --green:#16805f; --green-dark:#0f6048; --ink:#1d2a26; --muted:#7a8782; --line:#e6ece9; --soft:#f4f8f6; --panel:#fbfcfb; }
+    :root {
+      --green:#16805f;
+      --green-dark:#0f6048;
+      --mint:#dff3eb;
+      --ink:#18231f;
+      --muted:#74817c;
+      --line:#e3e9e6;
+      --soft:#f6f8f5;
+      --panel:rgba(255,255,255,.84);
+      --shadow:0 22px 70px rgba(27,42,36,.08);
+    }
     #MainMenu, footer { visibility:hidden; }
     header { visibility:hidden; height:0; }
-    .block-container { max-width:none; padding:1.25rem 1.5rem 4.5rem; }
-    [data-testid="stChatMessage"] { padding:.7rem 0; }
+    .stApp {
+      background:
+        radial-gradient(circle at 18% 8%, rgba(236,198,170,.35), transparent 26rem),
+        radial-gradient(circle at 82% 0%, rgba(206,234,222,.48), transparent 24rem),
+        linear-gradient(135deg, #fbfaf7 0%, #f5f8f5 55%, #fff8f2 100%);
+    }
+    .block-container { max-width:none; padding:1.1rem 1.35rem 4.2rem; }
+    [data-testid="stChatMessage"] {
+      background:rgba(255,255,255,.74);
+      border:1px solid rgba(227,233,230,.9);
+      border-radius:1.1rem;
+      box-shadow:0 10px 30px rgba(24,35,31,.04);
+      margin:.8rem 0;
+      padding:.85rem 1rem;
+    }
     [data-testid="stChatMessage"] p { line-height:1.6; }
     [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"] { border-color:var(--line); }
-    .shell-title { border-bottom:1px solid var(--line); margin-bottom:1.1rem; padding-bottom:1rem; }
-    .brand { display:flex; align-items:center; gap:.65rem; padding:.1rem 0 .7rem; }
-    .brand-mark { display:grid; place-items:center; width:2.25rem; height:2.25rem; border-radius:.7rem; background:var(--green); color:white; font-weight:800; }
-    .brand-title { color:var(--ink); font-size:1rem; font-weight:750; }
-    .brand-subtitle { color:var(--muted); font-size:.74rem; margin-top:.12rem; }
-    .eyebrow { color:var(--green); font-size:.72rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
-    .page-title { color:var(--ink); font-size:1.35rem; font-weight:750; letter-spacing:-.02em; margin-top:.15rem; }
+    [data-testid="column"]:has(.history-anchor),
+    [data-testid="column"]:has(.chat-anchor),
+    [data-testid="column"]:has(.artifact-anchor) {
+      background:var(--panel);
+      border:1px solid rgba(227,233,230,.88);
+      border-radius:1.4rem;
+      box-shadow:var(--shadow);
+      min-height:calc(100vh - 8rem);
+      padding:1.05rem;
+      backdrop-filter:blur(18px);
+    }
+    [data-testid="column"]:has(.chat-anchor) { background:rgba(255,255,255,.62); }
+    .shell-title {
+      align-items:center;
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:1rem;
+      padding:.15rem .25rem;
+    }
+    .brand { align-items:center; display:flex; gap:.7rem; }
+    .brand-mark {
+      display:grid;
+      place-items:center;
+      width:2.25rem;
+      height:2.25rem;
+      border-radius:.8rem;
+      background:linear-gradient(135deg, var(--green), #22a976);
+      color:white;
+      font-weight:850;
+      box-shadow:0 12px 28px rgba(22,128,95,.22);
+    }
+    .brand-title { color:var(--ink); font-size:1rem; font-weight:800; }
+    .brand-subtitle { color:var(--muted); font-size:.74rem; margin-top:.08rem; }
+    .top-status {
+      align-items:center;
+      background:rgba(255,255,255,.68);
+      border:1px solid var(--line);
+      border-radius:999px;
+      color:var(--muted);
+      display:flex;
+      font-size:.74rem;
+      gap:.45rem;
+      padding:.48rem .75rem;
+    }
+    .eyebrow { color:var(--green); font-size:.68rem; font-weight:850; letter-spacing:.1em; text-transform:uppercase; }
+    .page-title { color:var(--ink); font-size:1.3rem; font-weight:800; letter-spacing:0; margin-top:.1rem; }
     .panel-title { color:var(--ink); font-size:.82rem; font-weight:750; letter-spacing:.01em; }
     .panel-caption { color:var(--muted); font-size:.75rem; }
-    .side-panel, .artifact-panel { background:var(--panel); border-right:1px solid var(--line); min-height:calc(100vh - 8rem); padding-right:.8rem; }
-    .artifact-panel { border-left:1px solid var(--line); border-right:0; padding-left:.8rem; padding-right:0; }
-    .chat-surface { min-height:calc(100vh - 8rem); padding:0 1rem; }
+    .section-kicker { color:var(--green); font-size:.68rem; font-weight:850; letter-spacing:.08em; margin-bottom:.35rem; text-transform:uppercase; }
+    .side-panel, .artifact-panel, .chat-surface { min-height:calc(100vh - 10rem); }
     .list-item { border-bottom:1px solid var(--line); padding:.8rem .15rem; }
     .list-item strong { color:var(--ink); font-size:.82rem; }
     .list-item span { color:var(--muted); display:block; font-size:.73rem; margin-top:.2rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .dot { display:inline-block; width:.45rem; height:.45rem; border-radius:50%; background:#35a477; margin-right:.35rem; }
     .history-meta { color:var(--muted); font-size:.72rem; margin-top:.15rem; }
-    .welcome { min-height:24rem; padding:5rem 1rem 3rem; text-align:center; }
-    .welcome h1 { color:var(--ink); font-size:2.1rem; letter-spacing:-.055em; margin-bottom:.55rem; }
-    .welcome p { color:var(--muted); }
-    .empty-icon { display:grid; place-items:center; width:3.25rem; height:3.25rem; border-radius:1rem; background:#e5f4ed; color:var(--green); font-size:1.5rem; margin:0 auto 1rem; }
+    .welcome { min-height:23rem; padding:4rem 1rem 2.4rem; text-align:center; }
+    .welcome h1 { color:var(--ink); font-size:2.25rem; letter-spacing:0; line-height:1.12; margin-bottom:.65rem; }
+    .welcome p { color:var(--muted); font-size:.95rem; }
+    .empty-icon {
+      display:grid;
+      place-items:center;
+      width:4rem;
+      height:4rem;
+      border-radius:1.3rem;
+      background:
+        radial-gradient(circle at 35% 20%, #fff6e8, transparent 38%),
+        linear-gradient(135deg, #e5f4ed, #f8ebe2);
+      color:var(--green);
+      font-size:1.7rem;
+      margin:0 auto 1.15rem;
+      box-shadow:0 18px 44px rgba(22,128,95,.13);
+    }
+    .prompt-strip { display:grid; gap:.7rem; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 auto 1.3rem; max-width:48rem; }
+    .prompt-card {
+      background:rgba(255,255,255,.72);
+      border:1px solid var(--line);
+      border-radius:1rem;
+      color:var(--ink);
+      min-height:6.4rem;
+      padding:.9rem;
+      text-align:left;
+    }
+    .prompt-card strong { display:block; font-size:.82rem; margin-bottom:.35rem; }
+    .prompt-card span { color:var(--muted); font-size:.74rem; line-height:1.4; }
     .detail-row { border-bottom:1px solid var(--line); padding:.7rem 0; }
     .detail-label { color:var(--muted); font-size:.72rem; }
     .detail-value { color:var(--ink); font-size:.82rem; font-weight:650; margin-top:.2rem; }
     .status { color:var(--green); font-size:.75rem; font-weight:700; }
-    .artifact-card { border-top:1px solid var(--line); margin-top:.75rem; padding-top:.75rem; }
+    .artifact-card {
+      background:linear-gradient(180deg, rgba(255,255,255,.9), rgba(250,252,250,.78));
+      border:1px solid var(--line);
+      border-radius:1rem;
+      margin-top:.8rem;
+      padding:.85rem;
+    }
     .artifact-kind { color:var(--green); font-size:.68rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
     .artifact-title { color:var(--ink); font-size:.82rem; font-weight:750; line-height:1.35; margin-top:.2rem; }
+    .context-pill {
+      background:rgba(223,243,235,.66);
+      border:1px solid rgba(22,128,95,.18);
+      border-radius:.9rem;
+      color:var(--green-dark);
+      font-size:.78rem;
+      font-weight:750;
+      margin:.75rem 0 1rem;
+      padding:.7rem .8rem;
+    }
+    div.stButton > button {
+      border-radius:.9rem;
+      border:1px solid var(--line);
+      min-height:2.55rem;
+    }
+    div.stButton > button:hover {
+      border-color:rgba(22,128,95,.35);
+      color:var(--green-dark);
+    }
+    div[data-testid="stChatInput"] {
+      border-radius:1.2rem;
+      box-shadow:0 16px 50px rgba(24,35,31,.1);
+    }
+    @media (max-width: 980px) {
+      .prompt-strip { grid-template-columns:1fr; }
+      [data-testid="column"]:has(.history-anchor),
+      [data-testid="column"]:has(.chat-anchor),
+      [data-testid="column"]:has(.artifact-anchor) {
+        min-height:auto;
+      }
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -289,7 +428,9 @@ st.markdown(
     '<div class="shell-title"><div class="brand"><div class="brand-mark">F</div>'
     '<div><div class="brand-title">FAB Assistant</div>'
     '<div class="brand-subtitle">Operations AI workspace</div></div></div>'
-    '<div class="eyebrow">FAB OPERATIONS</div><div class="page-title">Customer conversations</div></div>',
+    '<div><div class="eyebrow">FAB OPERATIONS</div>'
+    '<div class="page-title">Customer conversations</div></div>'
+    '<div class="top-status"><span class="dot"></span> LangGraph online</div></div>',
     unsafe_allow_html=True,
 )
 
@@ -297,7 +438,8 @@ left, center, right = st.columns([0.72, 1.85, 0.88], gap="large")
 conversation = active_conversation()
 
 with right:
-    st.markdown('<div class="artifact-panel">', unsafe_allow_html=True)
+    st.markdown('<span class="artifact-anchor"></span>', unsafe_allow_html=True)
+    st.markdown('<div class="section-kicker">Context</div>', unsafe_allow_html=True)
     st.markdown('<div class="panel-title">Workspace context</div><div class="panel-caption">Applied to this conversation</div>', unsafe_allow_html=True)
     fab = st.text_input("Fab", placeholder="FAB-A", key="fab")
     line = st.text_input("Line", placeholder="M2", key="line")
@@ -307,19 +449,25 @@ with right:
         value=os.getenv("BACKEND_URL", DEFAULT_BACKEND_URL),
         key="backend_url",
     )
-    st.caption("● LangGraph / Text2SQL / PostgreSQL connected")
+    st.markdown(
+        f'<div class="context-pill">{active_context_label(fab, line, process)}</div>',
+        unsafe_allow_html=True,
+    )
+    st.caption("LangGraph / Text2SQL / PostgreSQL connected")
     st.divider()
+    st.markdown('<div class="section-kicker">Vault</div>', unsafe_allow_html=True)
     st.markdown('<div class="panel-title">Generated artifacts</div><div class="panel-caption">Saved from agent tools in this chat</div>', unsafe_allow_html=True)
     artifacts = collect_artifacts(conversation["messages"])
     if artifacts:
+        st.caption(f"{len(artifacts)} saved artifact(s)")
         for artifact in artifacts:
             render_artifact(artifact)
     else:
         st.caption("아직 생성된 SQL, 차트, 데이터 결과가 없습니다.")
-    st.markdown("</div>", unsafe_allow_html=True)
 
 with left:
-    st.markdown('<div class="side-panel">', unsafe_allow_html=True)
+    st.markdown('<span class="history-anchor"></span>', unsafe_allow_html=True)
+    st.markdown('<div class="section-kicker">History</div>', unsafe_allow_html=True)
     if st.button("＋  새 대화", use_container_width=True):
         create_new_conversation()
         st.rerun()
@@ -345,19 +493,40 @@ with left:
     st.divider()
     st.markdown('<div class="panel-title">Mode</div>', unsafe_allow_html=True)
     st.markdown('<div class="list-item"><strong><span class="dot"></span>Trace mode</strong><span>Planner, supervisor, tool events</span></div>', unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
 
 with center:
-    st.markdown('<div class="chat-surface">', unsafe_allow_html=True)
-    st.markdown('<div class="panel-title">FAB Assistant <span class="status">● Online</span></div><div class="panel-caption">Ask about your fab, line, or process</div>', unsafe_allow_html=True)
+    st.markdown('<span class="chat-anchor"></span>', unsafe_allow_html=True)
+    st.markdown('<div class="section-kicker">Chat canvas</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="panel-title">FAB Assistant <span class="status">● Online</span></div>'
+        '<div class="panel-caption">Ask about your fab, line, process, or generated artifacts</div>',
+        unsafe_allow_html=True,
+    )
     st.divider()
     messages: list[dict[str, Any]] = conversation["messages"]
     pending_prompt = st.session_state.get("pending_prompt", "")
     if not messages and not pending_prompt:
         st.markdown(
-            '<div class="welcome"><div class="empty-icon">✦</div><h1>무엇을 도와드릴까요?</h1><p>FAB 운영 데이터를 기반으로 질문을 시작해보세요.</p></div>',
+            '<div class="welcome"><div class="empty-icon">✦</div><h1>무엇을 도와드릴까요?</h1>'
+            '<p>FAB 운영 데이터를 기반으로 질문하면 실행 로그와 산출물이 자동 정리됩니다.</p></div>',
             unsafe_allow_html=True,
         )
+        prompt_cols = st.columns(3)
+        suggestions = [
+            ("Status lookup", "fab10 Dry_Etch toolgroup 목록 보여줘"),
+            ("Trend chart", "fab10의 lotrelease를 날짜 기준 라인차트로 그려줘"),
+            ("Root cause", "최근 공정 지연 원인을 설비/라인 기준으로 요약해줘"),
+        ]
+        for column, (title, prompt_text) in zip(prompt_cols, suggestions, strict=False):
+            with column:
+                st.markdown(
+                    f'<div class="prompt-card"><strong>{title}</strong>'
+                    f'<span>{prompt_text}</span></div>',
+                    unsafe_allow_html=True,
+                )
+                if st.button("Use prompt", key=f"suggest-{title}", use_container_width=True):
+                    queue_suggested_prompt(prompt_text)
+                    st.rerun()
     for item in messages:
         with st.chat_message(item["role"]):
             if item["role"] == "assistant":
@@ -447,4 +616,3 @@ with center:
         key="chat_prompt",
         on_submit=queue_prompt,
     )
-    st.markdown("</div>", unsafe_allow_html=True)

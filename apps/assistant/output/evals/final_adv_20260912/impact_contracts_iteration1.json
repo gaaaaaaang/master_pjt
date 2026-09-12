@@ -1,0 +1,1188 @@
+{
+  "checked_at": "2026-09-12T11:01:36.505153+00:00",
+  "scope": "Check calculator arithmetic against captured raw baselines without DB/model calls.\n\nThis validates the declared first-order formulas and parsing, not causal accuracy\nor the application's full planning/composition path.\n",
+  "db_calls": 0,
+  "model_calls": 0,
+  "source_sha256": "af564c2085d24e2566e19a1795a8fd31c6501ca3b70e9dc25236d7c21e2a123c",
+  "raw_sha256": "0a22b7defa8e6629f1b0a3c374ec2f4836aaa64487d353afdf79c8f3ad50d26f",
+  "cases": 64,
+  "passed": 64,
+  "checks": [
+    {
+      "id": "fab10_0",
+      "question": "fab10 etch 가동률이 5%p 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "85.09",
+        "capacity_delta_percent": "6.242976651267324260207266800",
+        "projected_lotcomps": "3.187289299538019727806218005",
+        "estimated_lotcomps_delta": "0.187289299538019727806218004"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 85.09,
+        "capacity_delta_percent": 6.243,
+        "estimated_capacity_change_percent": 6.243,
+        "estimated_lotcomps_delta": 0.1873,
+        "projected_lotcomps": 3.1873
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_1",
+      "question": "fab10 etch 가동률이 5% 포인트 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "85.09",
+        "capacity_delta_percent": "6.242976651267324260207266800",
+        "projected_lotcomps": "3.187289299538019727806218005",
+        "estimated_lotcomps_delta": "0.187289299538019727806218004"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 85.09,
+        "capacity_delta_percent": 6.243,
+        "estimated_capacity_change_percent": 6.243,
+        "estimated_lotcomps_delta": 0.1873,
+        "projected_lotcomps": 3.1873
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_2",
+      "question": "fab10 etch 가동률이 5퍼센트포인트 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "85.09",
+        "capacity_delta_percent": "6.242976651267324260207266800",
+        "projected_lotcomps": "3.187289299538019727806218005",
+        "estimated_lotcomps_delta": "0.187289299538019727806218004"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 85.09,
+        "capacity_delta_percent": 6.243,
+        "estimated_capacity_change_percent": 6.243,
+        "estimated_lotcomps_delta": 0.1873,
+        "projected_lotcomps": 3.1873
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_3",
+      "question": "fab10 etch 가동률이 5percentage points 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "85.09",
+        "capacity_delta_percent": "6.242976651267324260207266800",
+        "projected_lotcomps": "3.187289299538019727806218005",
+        "estimated_lotcomps_delta": "0.187289299538019727806218004"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 85.09,
+        "capacity_delta_percent": 6.243,
+        "estimated_capacity_change_percent": 6.243,
+        "estimated_lotcomps_delta": 0.1873,
+        "projected_lotcomps": 3.1873
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_4",
+      "question": "fab10 etch 가동률이 5pp 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "85.09",
+        "capacity_delta_percent": "6.242976651267324260207266800",
+        "projected_lotcomps": "3.187289299538019727806218005",
+        "estimated_lotcomps_delta": "0.187289299538019727806218004"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 85.09,
+        "capacity_delta_percent": 6.243,
+        "estimated_capacity_change_percent": 6.243,
+        "estimated_lotcomps_delta": 0.1873,
+        "projected_lotcomps": 3.1873
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_5",
+      "question": "fab10 etch 가동률이 5% 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "84.0945",
+        "capacity_delta_percent": "5.00",
+        "projected_lotcomps": "3.15",
+        "estimated_lotcomps_delta": "0.15"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 84.0945,
+        "capacity_delta_percent": 5.0,
+        "estimated_capacity_change_percent": 5.0,
+        "estimated_lotcomps_delta": 0.15,
+        "projected_lotcomps": 3.15
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_6",
+      "question": "fab10 etch 가동률이 5%p 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "75.09",
+        "capacity_delta_percent": "-6.242976651267324260207266820",
+        "projected_lotcomps": "2.812710700461980272193781995",
+        "estimated_lotcomps_delta": "-0.1872892995380197278062180046"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 75.09,
+        "capacity_delta_percent": -6.243,
+        "estimated_capacity_change_percent": -6.243,
+        "estimated_lotcomps_delta": -0.1873,
+        "projected_lotcomps": 2.8127
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_7",
+      "question": "fab10 etch 가동률이 5% 포인트 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "75.09",
+        "capacity_delta_percent": "-6.242976651267324260207266820",
+        "projected_lotcomps": "2.812710700461980272193781995",
+        "estimated_lotcomps_delta": "-0.1872892995380197278062180046"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 75.09,
+        "capacity_delta_percent": -6.243,
+        "estimated_capacity_change_percent": -6.243,
+        "estimated_lotcomps_delta": -0.1873,
+        "projected_lotcomps": 2.8127
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_8",
+      "question": "fab10 etch 가동률이 5퍼센트포인트 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "75.09",
+        "capacity_delta_percent": "-6.242976651267324260207266820",
+        "projected_lotcomps": "2.812710700461980272193781995",
+        "estimated_lotcomps_delta": "-0.1872892995380197278062180046"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 75.09,
+        "capacity_delta_percent": -6.243,
+        "estimated_capacity_change_percent": -6.243,
+        "estimated_lotcomps_delta": -0.1873,
+        "projected_lotcomps": 2.8127
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_9",
+      "question": "fab10 etch 가동률이 5percentage points 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "75.09",
+        "capacity_delta_percent": "-6.242976651267324260207266820",
+        "projected_lotcomps": "2.812710700461980272193781995",
+        "estimated_lotcomps_delta": "-0.1872892995380197278062180046"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 75.09,
+        "capacity_delta_percent": -6.243,
+        "estimated_capacity_change_percent": -6.243,
+        "estimated_lotcomps_delta": -0.1873,
+        "projected_lotcomps": 2.8127
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_10",
+      "question": "fab10 etch 가동률이 5pp 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "75.09",
+        "capacity_delta_percent": "-6.242976651267324260207266820",
+        "projected_lotcomps": "2.812710700461980272193781995",
+        "estimated_lotcomps_delta": "-0.1872892995380197278062180046"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 75.09,
+        "capacity_delta_percent": -6.243,
+        "estimated_capacity_change_percent": -6.243,
+        "estimated_lotcomps_delta": -0.1873,
+        "projected_lotcomps": 2.8127
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_11",
+      "question": "fab10 etch 가동률이 5% 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "76.0855",
+        "capacity_delta_percent": "-5.00",
+        "projected_lotcomps": "2.85",
+        "estimated_lotcomps_delta": "-0.15"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.09,
+        "projected_util_percent": 76.0855,
+        "capacity_delta_percent": -5.0,
+        "estimated_capacity_change_percent": -5.0,
+        "estimated_lotcomps_delta": -0.15,
+        "projected_lotcomps": 2.85
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_12",
+      "question": "fab10 etch CT가 10% 줄면 영향은?",
+      "expected": {
+        "projected_cycle_time": "0.702"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_cycle_time": 0.78,
+        "projected_cycle_time": 0.702,
+        "cycle_time_change_percent": -10.0
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_13",
+      "question": "fab10 etch 가동률이 120%p 오르면 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_14",
+      "question": "fab10 etch 비가동률이 5%p 오르면 처리량 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab10_15",
+      "question": "fab10 etch 가동률이 5%p 증가한 뒤 3%p 감소하면 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_0",
+      "question": "fab11 etch 가동률이 5%p 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "85.32",
+        "capacity_delta_percent": "6.225099601593625498007968100",
+        "projected_lotcomps": "2.124501992031872509960159363",
+        "estimated_lotcomps_delta": "0.124501992031872509960159362"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 85.32,
+        "capacity_delta_percent": 6.2251,
+        "estimated_capacity_change_percent": 6.2251,
+        "estimated_lotcomps_delta": 0.1245,
+        "projected_lotcomps": 2.1245
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_1",
+      "question": "fab11 etch 가동률이 5% 포인트 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "85.32",
+        "capacity_delta_percent": "6.225099601593625498007968100",
+        "projected_lotcomps": "2.124501992031872509960159363",
+        "estimated_lotcomps_delta": "0.124501992031872509960159362"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 85.32,
+        "capacity_delta_percent": 6.2251,
+        "estimated_capacity_change_percent": 6.2251,
+        "estimated_lotcomps_delta": 0.1245,
+        "projected_lotcomps": 2.1245
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_2",
+      "question": "fab11 etch 가동률이 5퍼센트포인트 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "85.32",
+        "capacity_delta_percent": "6.225099601593625498007968100",
+        "projected_lotcomps": "2.124501992031872509960159363",
+        "estimated_lotcomps_delta": "0.124501992031872509960159362"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 85.32,
+        "capacity_delta_percent": 6.2251,
+        "estimated_capacity_change_percent": 6.2251,
+        "estimated_lotcomps_delta": 0.1245,
+        "projected_lotcomps": 2.1245
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_3",
+      "question": "fab11 etch 가동률이 5percentage points 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "85.32",
+        "capacity_delta_percent": "6.225099601593625498007968100",
+        "projected_lotcomps": "2.124501992031872509960159363",
+        "estimated_lotcomps_delta": "0.124501992031872509960159362"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 85.32,
+        "capacity_delta_percent": 6.2251,
+        "estimated_capacity_change_percent": 6.2251,
+        "estimated_lotcomps_delta": 0.1245,
+        "projected_lotcomps": 2.1245
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_4",
+      "question": "fab11 etch 가동률이 5pp 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "85.32",
+        "capacity_delta_percent": "6.225099601593625498007968100",
+        "projected_lotcomps": "2.124501992031872509960159363",
+        "estimated_lotcomps_delta": "0.124501992031872509960159362"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 85.32,
+        "capacity_delta_percent": 6.2251,
+        "estimated_capacity_change_percent": 6.2251,
+        "estimated_lotcomps_delta": 0.1245,
+        "projected_lotcomps": 2.1245
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_5",
+      "question": "fab11 etch 가동률이 5% 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "84.3360",
+        "capacity_delta_percent": "5.00",
+        "projected_lotcomps": "2.10",
+        "estimated_lotcomps_delta": "0.10"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 84.336,
+        "capacity_delta_percent": 5.0,
+        "estimated_capacity_change_percent": 5.0,
+        "estimated_lotcomps_delta": 0.1,
+        "projected_lotcomps": 2.1
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_6",
+      "question": "fab11 etch 가동률이 5%p 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "75.32",
+        "capacity_delta_percent": "-6.225099601593625498007968130",
+        "projected_lotcomps": "1.875498007968127490039840637",
+        "estimated_lotcomps_delta": "-0.1245019920318725099601593626"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 75.32,
+        "capacity_delta_percent": -6.2251,
+        "estimated_capacity_change_percent": -6.2251,
+        "estimated_lotcomps_delta": -0.1245,
+        "projected_lotcomps": 1.8755
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_7",
+      "question": "fab11 etch 가동률이 5% 포인트 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "75.32",
+        "capacity_delta_percent": "-6.225099601593625498007968130",
+        "projected_lotcomps": "1.875498007968127490039840637",
+        "estimated_lotcomps_delta": "-0.1245019920318725099601593626"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 75.32,
+        "capacity_delta_percent": -6.2251,
+        "estimated_capacity_change_percent": -6.2251,
+        "estimated_lotcomps_delta": -0.1245,
+        "projected_lotcomps": 1.8755
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_8",
+      "question": "fab11 etch 가동률이 5퍼센트포인트 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "75.32",
+        "capacity_delta_percent": "-6.225099601593625498007968130",
+        "projected_lotcomps": "1.875498007968127490039840637",
+        "estimated_lotcomps_delta": "-0.1245019920318725099601593626"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 75.32,
+        "capacity_delta_percent": -6.2251,
+        "estimated_capacity_change_percent": -6.2251,
+        "estimated_lotcomps_delta": -0.1245,
+        "projected_lotcomps": 1.8755
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_9",
+      "question": "fab11 etch 가동률이 5percentage points 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "75.32",
+        "capacity_delta_percent": "-6.225099601593625498007968130",
+        "projected_lotcomps": "1.875498007968127490039840637",
+        "estimated_lotcomps_delta": "-0.1245019920318725099601593626"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 75.32,
+        "capacity_delta_percent": -6.2251,
+        "estimated_capacity_change_percent": -6.2251,
+        "estimated_lotcomps_delta": -0.1245,
+        "projected_lotcomps": 1.8755
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_10",
+      "question": "fab11 etch 가동률이 5pp 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "75.32",
+        "capacity_delta_percent": "-6.225099601593625498007968130",
+        "projected_lotcomps": "1.875498007968127490039840637",
+        "estimated_lotcomps_delta": "-0.1245019920318725099601593626"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 75.32,
+        "capacity_delta_percent": -6.2251,
+        "estimated_capacity_change_percent": -6.2251,
+        "estimated_lotcomps_delta": -0.1245,
+        "projected_lotcomps": 1.8755
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_11",
+      "question": "fab11 etch 가동률이 5% 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "76.3040",
+        "capacity_delta_percent": "-5.00",
+        "projected_lotcomps": "1.90",
+        "estimated_lotcomps_delta": "-0.10"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 80.32,
+        "projected_util_percent": 76.304,
+        "capacity_delta_percent": -5.0,
+        "estimated_capacity_change_percent": -5.0,
+        "estimated_lotcomps_delta": -0.1,
+        "projected_lotcomps": 1.9
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_12",
+      "question": "fab11 etch CT가 10% 줄면 영향은?",
+      "expected": {
+        "projected_cycle_time": "0.738"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_cycle_time": 0.82,
+        "projected_cycle_time": 0.738,
+        "cycle_time_change_percent": -10.0
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_13",
+      "question": "fab11 etch 가동률이 120%p 오르면 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_14",
+      "question": "fab11 etch 비가동률이 5%p 오르면 처리량 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab11_15",
+      "question": "fab11 etch 가동률이 5%p 증가한 뒤 3%p 감소하면 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_0",
+      "question": "fab12 etch 가동률이 5%p 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "84.58",
+        "capacity_delta_percent": "6.282985674792661472731842200",
+        "projected_lotcomps": "6.376979140487559688363910530",
+        "estimated_lotcomps_delta": "0.376979140487559688363910532"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 84.58,
+        "capacity_delta_percent": 6.283,
+        "estimated_capacity_change_percent": 6.283,
+        "estimated_lotcomps_delta": 0.377,
+        "projected_lotcomps": 6.377
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_1",
+      "question": "fab12 etch 가동률이 5% 포인트 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "84.58",
+        "capacity_delta_percent": "6.282985674792661472731842200",
+        "projected_lotcomps": "6.376979140487559688363910530",
+        "estimated_lotcomps_delta": "0.376979140487559688363910532"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 84.58,
+        "capacity_delta_percent": 6.283,
+        "estimated_capacity_change_percent": 6.283,
+        "estimated_lotcomps_delta": 0.377,
+        "projected_lotcomps": 6.377
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_2",
+      "question": "fab12 etch 가동률이 5퍼센트포인트 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "84.58",
+        "capacity_delta_percent": "6.282985674792661472731842200",
+        "projected_lotcomps": "6.376979140487559688363910530",
+        "estimated_lotcomps_delta": "0.376979140487559688363910532"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 84.58,
+        "capacity_delta_percent": 6.283,
+        "estimated_capacity_change_percent": 6.283,
+        "estimated_lotcomps_delta": 0.377,
+        "projected_lotcomps": 6.377
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_3",
+      "question": "fab12 etch 가동률이 5percentage points 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "84.58",
+        "capacity_delta_percent": "6.282985674792661472731842200",
+        "projected_lotcomps": "6.376979140487559688363910530",
+        "estimated_lotcomps_delta": "0.376979140487559688363910532"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 84.58,
+        "capacity_delta_percent": 6.283,
+        "estimated_capacity_change_percent": 6.283,
+        "estimated_lotcomps_delta": 0.377,
+        "projected_lotcomps": 6.377
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_4",
+      "question": "fab12 etch 가동률이 5pp 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "84.58",
+        "capacity_delta_percent": "6.282985674792661472731842200",
+        "projected_lotcomps": "6.376979140487559688363910530",
+        "estimated_lotcomps_delta": "0.376979140487559688363910532"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 84.58,
+        "capacity_delta_percent": 6.283,
+        "estimated_capacity_change_percent": 6.283,
+        "estimated_lotcomps_delta": 0.377,
+        "projected_lotcomps": 6.377
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_5",
+      "question": "fab12 etch 가동률이 5% 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "83.5590",
+        "capacity_delta_percent": "5.00",
+        "projected_lotcomps": "6.30",
+        "estimated_lotcomps_delta": "0.30"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 83.559,
+        "capacity_delta_percent": 5.0,
+        "estimated_capacity_change_percent": 5.0,
+        "estimated_lotcomps_delta": 0.3,
+        "projected_lotcomps": 6.3
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_6",
+      "question": "fab12 etch 가동률이 5%p 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "74.58",
+        "capacity_delta_percent": "-6.282985674792661472731842170",
+        "projected_lotcomps": "5.623020859512440311636089470",
+        "estimated_lotcomps_delta": "-0.3769791404875596883639105302"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 74.58,
+        "capacity_delta_percent": -6.283,
+        "estimated_capacity_change_percent": -6.283,
+        "estimated_lotcomps_delta": -0.377,
+        "projected_lotcomps": 5.623
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_7",
+      "question": "fab12 etch 가동률이 5% 포인트 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "74.58",
+        "capacity_delta_percent": "-6.282985674792661472731842170",
+        "projected_lotcomps": "5.623020859512440311636089470",
+        "estimated_lotcomps_delta": "-0.3769791404875596883639105302"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 74.58,
+        "capacity_delta_percent": -6.283,
+        "estimated_capacity_change_percent": -6.283,
+        "estimated_lotcomps_delta": -0.377,
+        "projected_lotcomps": 5.623
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_8",
+      "question": "fab12 etch 가동률이 5퍼센트포인트 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "74.58",
+        "capacity_delta_percent": "-6.282985674792661472731842170",
+        "projected_lotcomps": "5.623020859512440311636089470",
+        "estimated_lotcomps_delta": "-0.3769791404875596883639105302"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 74.58,
+        "capacity_delta_percent": -6.283,
+        "estimated_capacity_change_percent": -6.283,
+        "estimated_lotcomps_delta": -0.377,
+        "projected_lotcomps": 5.623
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_9",
+      "question": "fab12 etch 가동률이 5percentage points 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "74.58",
+        "capacity_delta_percent": "-6.282985674792661472731842170",
+        "projected_lotcomps": "5.623020859512440311636089470",
+        "estimated_lotcomps_delta": "-0.3769791404875596883639105302"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 74.58,
+        "capacity_delta_percent": -6.283,
+        "estimated_capacity_change_percent": -6.283,
+        "estimated_lotcomps_delta": -0.377,
+        "projected_lotcomps": 5.623
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_10",
+      "question": "fab12 etch 가동률이 5pp 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "74.58",
+        "capacity_delta_percent": "-6.282985674792661472731842170",
+        "projected_lotcomps": "5.623020859512440311636089470",
+        "estimated_lotcomps_delta": "-0.3769791404875596883639105302"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 74.58,
+        "capacity_delta_percent": -6.283,
+        "estimated_capacity_change_percent": -6.283,
+        "estimated_lotcomps_delta": -0.377,
+        "projected_lotcomps": 5.623
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_11",
+      "question": "fab12 etch 가동률이 5% 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "75.6010",
+        "capacity_delta_percent": "-5.00",
+        "projected_lotcomps": "5.70",
+        "estimated_lotcomps_delta": "-0.30"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 79.58,
+        "projected_util_percent": 75.601,
+        "capacity_delta_percent": -5.0,
+        "estimated_capacity_change_percent": -5.0,
+        "estimated_lotcomps_delta": -0.3,
+        "projected_lotcomps": 5.7
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_12",
+      "question": "fab12 etch CT가 10% 줄면 영향은?",
+      "expected": {
+        "projected_cycle_time": "0.684"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_cycle_time": 0.76,
+        "projected_cycle_time": 0.684,
+        "cycle_time_change_percent": -10.0
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_13",
+      "question": "fab12 etch 가동률이 120%p 오르면 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_14",
+      "question": "fab12 etch 비가동률이 5%p 오르면 처리량 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab12_15",
+      "question": "fab12 etch 가동률이 5%p 증가한 뒤 3%p 감소하면 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_0",
+      "question": "fab13 etch 가동률이 5%p 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "83.63",
+        "capacity_delta_percent": "6.358896095637797278392471100",
+        "projected_lotcomps": "6.381533765738267836703548264",
+        "estimated_lotcomps_delta": "0.381533765738267836703548266"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 83.63,
+        "capacity_delta_percent": 6.3589,
+        "estimated_capacity_change_percent": 6.3589,
+        "estimated_lotcomps_delta": 0.3815,
+        "projected_lotcomps": 6.3815
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_1",
+      "question": "fab13 etch 가동률이 5% 포인트 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "83.63",
+        "capacity_delta_percent": "6.358896095637797278392471100",
+        "projected_lotcomps": "6.381533765738267836703548264",
+        "estimated_lotcomps_delta": "0.381533765738267836703548266"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 83.63,
+        "capacity_delta_percent": 6.3589,
+        "estimated_capacity_change_percent": 6.3589,
+        "estimated_lotcomps_delta": 0.3815,
+        "projected_lotcomps": 6.3815
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_2",
+      "question": "fab13 etch 가동률이 5퍼센트포인트 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "83.63",
+        "capacity_delta_percent": "6.358896095637797278392471100",
+        "projected_lotcomps": "6.381533765738267836703548264",
+        "estimated_lotcomps_delta": "0.381533765738267836703548266"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 83.63,
+        "capacity_delta_percent": 6.3589,
+        "estimated_capacity_change_percent": 6.3589,
+        "estimated_lotcomps_delta": 0.3815,
+        "projected_lotcomps": 6.3815
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_3",
+      "question": "fab13 etch 가동률이 5percentage points 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "83.63",
+        "capacity_delta_percent": "6.358896095637797278392471100",
+        "projected_lotcomps": "6.381533765738267836703548264",
+        "estimated_lotcomps_delta": "0.381533765738267836703548266"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 83.63,
+        "capacity_delta_percent": 6.3589,
+        "estimated_capacity_change_percent": 6.3589,
+        "estimated_lotcomps_delta": 0.3815,
+        "projected_lotcomps": 6.3815
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_4",
+      "question": "fab13 etch 가동률이 5pp 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "83.63",
+        "capacity_delta_percent": "6.358896095637797278392471100",
+        "projected_lotcomps": "6.381533765738267836703548264",
+        "estimated_lotcomps_delta": "0.381533765738267836703548266"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 83.63,
+        "capacity_delta_percent": 6.3589,
+        "estimated_capacity_change_percent": 6.3589,
+        "estimated_lotcomps_delta": 0.3815,
+        "projected_lotcomps": 6.3815
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_5",
+      "question": "fab13 etch 가동률이 5% 오르면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "82.5615",
+        "capacity_delta_percent": "5.00",
+        "projected_lotcomps": "6.30",
+        "estimated_lotcomps_delta": "0.30"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 82.5615,
+        "capacity_delta_percent": 5.0,
+        "estimated_capacity_change_percent": 5.0,
+        "estimated_lotcomps_delta": 0.3,
+        "projected_lotcomps": 6.3
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_6",
+      "question": "fab13 etch 가동률이 5%p 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "73.63",
+        "capacity_delta_percent": "-6.358896095637797278392471070",
+        "projected_lotcomps": "5.618466234261732163296451736",
+        "estimated_lotcomps_delta": "-0.3815337657382678367035482642"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 73.63,
+        "capacity_delta_percent": -6.3589,
+        "estimated_capacity_change_percent": -6.3589,
+        "estimated_lotcomps_delta": -0.3815,
+        "projected_lotcomps": 5.6185
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_7",
+      "question": "fab13 etch 가동률이 5% 포인트 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "73.63",
+        "capacity_delta_percent": "-6.358896095637797278392471070",
+        "projected_lotcomps": "5.618466234261732163296451736",
+        "estimated_lotcomps_delta": "-0.3815337657382678367035482642"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 73.63,
+        "capacity_delta_percent": -6.3589,
+        "estimated_capacity_change_percent": -6.3589,
+        "estimated_lotcomps_delta": -0.3815,
+        "projected_lotcomps": 5.6185
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_8",
+      "question": "fab13 etch 가동률이 5퍼센트포인트 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "73.63",
+        "capacity_delta_percent": "-6.358896095637797278392471070",
+        "projected_lotcomps": "5.618466234261732163296451736",
+        "estimated_lotcomps_delta": "-0.3815337657382678367035482642"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 73.63,
+        "capacity_delta_percent": -6.3589,
+        "estimated_capacity_change_percent": -6.3589,
+        "estimated_lotcomps_delta": -0.3815,
+        "projected_lotcomps": 5.6185
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_9",
+      "question": "fab13 etch 가동률이 5percentage points 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "73.63",
+        "capacity_delta_percent": "-6.358896095637797278392471070",
+        "projected_lotcomps": "5.618466234261732163296451736",
+        "estimated_lotcomps_delta": "-0.3815337657382678367035482642"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 73.63,
+        "capacity_delta_percent": -6.3589,
+        "estimated_capacity_change_percent": -6.3589,
+        "estimated_lotcomps_delta": -0.3815,
+        "projected_lotcomps": 5.6185
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_10",
+      "question": "fab13 etch 가동률이 5pp 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "73.63",
+        "capacity_delta_percent": "-6.358896095637797278392471070",
+        "projected_lotcomps": "5.618466234261732163296451736",
+        "estimated_lotcomps_delta": "-0.3815337657382678367035482642"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 73.63,
+        "capacity_delta_percent": -6.3589,
+        "estimated_capacity_change_percent": -6.3589,
+        "estimated_lotcomps_delta": -0.3815,
+        "projected_lotcomps": 5.6185
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_11",
+      "question": "fab13 etch 가동률이 5% 낮추면 처리량 영향은?",
+      "expected": {
+        "projected_util_percent": "74.6985",
+        "capacity_delta_percent": "-5.00",
+        "projected_lotcomps": "5.70",
+        "estimated_lotcomps_delta": "-0.30"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_util_percent": 78.63,
+        "projected_util_percent": 74.6985,
+        "capacity_delta_percent": -5.0,
+        "estimated_capacity_change_percent": -5.0,
+        "estimated_lotcomps_delta": -0.3,
+        "projected_lotcomps": 5.7
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_12",
+      "question": "fab13 etch CT가 10% 줄면 영향은?",
+      "expected": {
+        "projected_cycle_time": "0.693"
+      },
+      "status": "succeeded",
+      "estimates": {
+        "baseline_cycle_time": 0.77,
+        "projected_cycle_time": 0.693,
+        "cycle_time_change_percent": -10.0
+      },
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_13",
+      "question": "fab13 etch 가동률이 120%p 오르면 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_14",
+      "question": "fab13 etch 비가동률이 5%p 오르면 처리량 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    },
+    {
+      "id": "fab13_15",
+      "question": "fab13 etch 가동률이 5%p 증가한 뒤 3%p 감소하면 영향은?",
+      "expected": {},
+      "status": "data_unavailable",
+      "estimates": {},
+      "issues": [],
+      "passed": true
+    }
+  ]
+}

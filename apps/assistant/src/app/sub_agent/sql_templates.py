@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
+from app.db.fab_catalog import table_ref
+
 FabId = Literal["fab10", "fab11", "fab12", "fab13"]
 
 ALLOWED_FABS: set[str] = {"fab10", "fab11", "fab12", "fab13"}
@@ -80,7 +82,7 @@ SELECT
     wiplotavg,
     ontime_percent,
     cycleavg
-FROM {schema}.autosched_perf
+FROM {table_ref(schema, 'autosched_perf')}
 WHERE relative = 'Y'
   AND period <> 'WarmUp'
 ORDER BY report_time DESC NULLS LAST, source_row_id DESC
@@ -113,7 +115,7 @@ SELECT
     proc_percent,
     down_percent,
     pm_percent
-FROM {schema}.autosched_stngrp
+FROM {table_ref(schema, 'autosched_stngrp')}
 WHERE relative = 'Y'
   AND period <> 'WarmUp'{predicate}
 ORDER BY wiplotavg DESC NULLS LAST, util_percent DESC NULLS LAST
@@ -147,7 +149,7 @@ SELECT
     down_percent,
     pm_percent,
     proc_percent
-FROM {schema}.autosched_stn
+FROM {table_ref(schema, 'autosched_stn')}
 WHERE relative = 'Y'
   AND period <> 'WarmUp'{predicate}
 ORDER BY wiplotavg DESC NULLS LAST, util_percent DESC NULLS LAST
@@ -180,7 +182,7 @@ SELECT
     wiplotcur,
     ontime_percent,
     cycleavg
-FROM {schema}.autosched_part
+FROM {table_ref(schema, 'autosched_part')}
 WHERE relative = 'Y'
   AND period <> 'WarmUp'{predicate}
 ORDER BY wiplotavg DESC NULLS LAST, lotcomps DESC NULLS LAST
@@ -208,7 +210,7 @@ SELECT
     curstep,
     cyclemax,
     xtheormax
-FROM {schema}.autosched_lot
+FROM {table_ref(schema, 'autosched_lot')}
 WHERE lot = {_sql_literal(lot_id)}
 ORDER BY source_row_id DESC
 LIMIT 10
@@ -248,7 +250,7 @@ SELECT
     ranking_2,
     ranking_3,
     tool_wake_up_ranking
-FROM {schema}.toolgroups{where_clause}
+FROM {table_ref(schema, 'toolgroups')}{where_clause}
 ORDER BY area, toolgroup
 LIMIT 50
 """.strip(),
@@ -294,7 +296,7 @@ SELECT
     batch_maximum,
     rework_probability_in_percent,
     processing_probability_in_percent_sampling
-FROM {schema}.{table_name}{where_clause}
+FROM {table_ref(schema, table_name)}{where_clause}
 ORDER BY source_row_id
 LIMIT 100
 """.strip(),
@@ -342,7 +344,7 @@ FROM (
         start_date,
         due_date,
         release_scenario
-    FROM {schema}.lotrelease{where_clause}
+    FROM {table_ref(schema, 'lotrelease')}{where_clause}
     UNION ALL
     SELECT
         {_sql_literal(schema)} AS fab_id,
@@ -356,7 +358,7 @@ FROM (
         start_date,
         due_date,
         release_scenario
-    FROM {schema}.lotrelease_variable_due_dates{where_clause}
+    FROM {table_ref(schema, 'lotrelease_variable_due_dates')}{where_clause}
     UNION ALL
     SELECT
         {_sql_literal(schema)} AS fab_id,
@@ -370,7 +372,7 @@ FROM (
         start_date,
         due_date,
         release_scenario
-    FROM {schema}.lotrelease_engineering{where_clause}
+    FROM {table_ref(schema, 'lotrelease_engineering')}{where_clause}
 ) release_plan
 ORDER BY start_date NULLS LAST, due_date NULLS LAST, product_name, lot_name_type
 LIMIT 100

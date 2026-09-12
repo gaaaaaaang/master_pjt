@@ -1,0 +1,1749 @@
+{
+  "mode": "live_questions_only",
+  "completed": 12,
+  "total": 12,
+  "passed": 12,
+  "llm_completed": 12,
+  "results": [
+    {
+      "id": "H-001",
+      "question": "FAB-11의 DE-BE-11 장비 가동률과 down 값을 알려줘",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 5.493,
+      "llm_completed": true,
+      "plan": {
+        "status": "ready",
+        "query_type": "status",
+        "intent": "Retrieve current utilization rate and down percentage for DE-BE-11 equipment in FAB-11.",
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "execution_steps": [
+          {
+            "agent": "text2sql",
+            "action": "Query for the latest available values of util_percent and down_percent for equipment DE_BE_11 in FAB-11.",
+            "required": true,
+            "reason": "Numeric operational status metrics must be retrieved from the database.",
+            "depends_on": [],
+            "input_requirements": [
+              "request scope",
+              "available upstream evidence and its limitations"
+            ]
+          }
+        ],
+        "slots": {
+          "fab_id": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab11"
+          },
+          "toolgroup": {
+            "value": "DE_BE_11",
+            "source": "parser",
+            "confidence": 0.95,
+            "raw_text": "DE_BE_11"
+          },
+          "toolgroups": {
+            "value": "DE_BE_11",
+            "source": "parser",
+            "confidence": 0.95,
+            "raw_text": "DE_BE_11"
+          },
+          "metric": {
+            "value": "util_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "util_percent"
+          },
+          "metrics": {
+            "value": "util_percent,down_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "util_percent, down_percent"
+          },
+          "fab_ids": {
+            "value": "fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab11"
+          },
+          "equipment": {
+            "value": "DE_BE_11",
+            "source": "parser",
+            "confidence": 0.95,
+            "raw_text": "DE_BE_11"
+          }
+        },
+        "intent_analysis": {
+          "question": "FAB-11의 DE-BE-11 장비 가동률과 down 값을 알려줘",
+          "slots": {
+            "fab_id": {
+              "value": "fab11",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab11"
+            },
+            "toolgroup": {
+              "value": "DE_BE_11",
+              "source": "parser",
+              "confidence": 0.95,
+              "raw_text": "DE_BE_11"
+            },
+            "toolgroups": {
+              "value": "DE_BE_11",
+              "source": "parser",
+              "confidence": 0.95,
+              "raw_text": "DE_BE_11"
+            },
+            "metric": {
+              "value": "util_percent",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "util_percent"
+            },
+            "metrics": {
+              "value": "util_percent,down_percent",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "util_percent, down_percent"
+            },
+            "fab_ids": {
+              "value": "fab11",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab11"
+            },
+            "equipment": {
+              "value": "DE_BE_11",
+              "source": "parser",
+              "confidence": 0.95,
+              "raw_text": "DE_BE_11"
+            }
+          },
+          "requested_outcomes": [],
+          "assumptions": [
+            "기간 미지정: 현재 상태 조회는 사용 가능한 최신 보고서 기준이며 실시간 측정이 아닙니다."
+          ],
+          "missing_slots": [],
+          "clarification_question": null
+        },
+        "answer_requirements": [
+          {
+            "requirement_id": "text2sql_evidence",
+            "description": "요청 대상·지표·기간에 맞는 DB 관측값과 조회 기준 확보",
+            "agents": [
+              "text2sql"
+            ],
+            "acceptance_criteria": [
+              "요청 범위 유지: fab_id=fab11, toolgroups=DE_BE_11, metrics=util_percent,down_percent",
+              "근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다."
+            ]
+          }
+        ],
+        "success_criteria": [
+          "Report latest available utilization rate (util_percent) for DE-BE-11 in FAB-11.",
+          "Report latest available down percentage (down_percent) for DE-BE-11 in FAB-11.",
+          "Indicate the time basis of reported values if available."
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [],
+        "clarification_question": null,
+        "limitations": [
+          "If operational data tables (autosched_*) are unavailable, current values cannot be provided.",
+          "Exact timestamp of reported metrics may not be available depending on data model."
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": true,
+        "status": "ready",
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "reason": "The planner specifies that the status query for FAB-11's DE-BE-11 equipment requires direct retrieval of current utilization rate and down percent from the database. There are no missing or ambiguous slots and no additional dependencies, so the initial step is to execute the text2sql sub-agent.",
+        "answer": null,
+        "limitations": [
+          "If operational data tables (autosched_*) are unavailable, current values cannot be provided.",
+          "Exact timestamp of reported metrics may not be available depending on data model."
+        ]
+      }
+    },
+    {
+      "id": "H-002",
+      "question": "fab12 Product_5, Product_6 각각의 WIP 수치를 알려줘",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 6.814,
+      "llm_completed": true,
+      "plan": {
+        "status": "ready",
+        "query_type": "status",
+        "intent": "Retrieve the current WIP values for Product_5 and Product_6 in fab12.",
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "execution_steps": [
+          {
+            "agent": "text2sql",
+            "action": "Query the latest available WIP (wiplotavg) for Product_6 in fab12.",
+            "required": true,
+            "reason": "To get the current WIP status for Product_6.",
+            "depends_on": [],
+            "input_requirements": [
+              "request scope",
+              "available upstream evidence and its limitations"
+            ]
+          }
+        ],
+        "slots": {
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab12"
+          },
+          "product": {
+            "value": "Product_5",
+            "source": "parser",
+            "confidence": 0.9,
+            "raw_text": "Product_5"
+          },
+          "products": {
+            "value": "Product_5,Product_6",
+            "source": "parser",
+            "confidence": 0.9,
+            "raw_text": "Product_5, Product_6"
+          },
+          "route": {
+            "value": "Route_Product_5",
+            "source": "parser",
+            "confidence": 0.8,
+            "raw_text": "Product_5"
+          },
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "fab_ids": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab12"
+          }
+        },
+        "intent_analysis": {
+          "question": "fab12 Product_5, Product_6 각각의 WIP 수치를 알려줘",
+          "slots": {
+            "fab_id": {
+              "value": "fab12",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab12"
+            },
+            "product": {
+              "value": "Product_5",
+              "source": "parser",
+              "confidence": 0.9,
+              "raw_text": "Product_5"
+            },
+            "products": {
+              "value": "Product_5,Product_6",
+              "source": "parser",
+              "confidence": 0.9,
+              "raw_text": "Product_5, Product_6"
+            },
+            "route": {
+              "value": "Route_Product_5",
+              "source": "parser",
+              "confidence": 0.8,
+              "raw_text": "Product_5"
+            },
+            "metric": {
+              "value": "wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "wiplotavg"
+            },
+            "metrics": {
+              "value": "wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "wiplotavg"
+            },
+            "fab_ids": {
+              "value": "fab12",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab12"
+            }
+          },
+          "requested_outcomes": [],
+          "assumptions": [
+            "기간 미지정: 현재 상태 조회는 사용 가능한 최신 보고서 기준이며 실시간 측정이 아닙니다."
+          ],
+          "missing_slots": [],
+          "clarification_question": null
+        },
+        "answer_requirements": [
+          {
+            "requirement_id": "text2sql_evidence",
+            "description": "요청 대상·지표·기간에 맞는 DB 관측값과 조회 기준 확보",
+            "agents": [
+              "text2sql"
+            ],
+            "acceptance_criteria": [
+              "요청 범위 유지: fab_id=fab12, products=Product_5,Product_6, metrics=wiplotavg",
+              "근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다."
+            ]
+          }
+        ],
+        "success_criteria": [
+          "WIP (wiplotavg) values reported separately for Product_5 and Product_6 in fab12",
+          "Values are from the latest available data/report",
+          "Each product has a clearly identified WIP value"
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [],
+        "clarification_question": null,
+        "limitations": [
+          "Queries are limited to the most recent report data, not real-time values.",
+          "If AutoSched live data source is required and unavailable, results may be outdated."
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": true,
+        "status": "ready",
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "reason": "To answer the user's request for the current WIP values (wiplotavg) for both Product_5 and Product_6 in fab12, we must first query the latest available WIP data from the database via the text2sql agent. This step is required for both products to satisfy the query and success criteria. Only after attempting to retrieve this operational evidence can we identify if results are complete, partially missing, or subject to data limitations.",
+        "answer": null,
+        "limitations": [
+          "Only the latest available report data can be provided, not live or real-time WIP measurements.",
+          "If the primary source (AutoSched, etc.) is unavailable, results may be outdated or incomplete."
+        ]
+      }
+    },
+    {
+      "id": "H-003",
+      "question": "팹 13에서 현재 재공 수량을 확인해줘",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 5.322,
+      "llm_completed": true,
+      "plan": {
+        "status": "ready",
+        "query_type": "status",
+        "intent": "Check the current WIP (work-in-progress) quantity in FAB 13.",
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "execution_steps": [
+          {
+            "agent": "text2sql",
+            "action": "Query the latest available WIP quantity (wiplotavg) for FAB 13.",
+            "required": true,
+            "reason": "Status queries for operational quantities are served by text2sql.",
+            "depends_on": [],
+            "input_requirements": [
+              "request scope",
+              "available upstream evidence and its limitations"
+            ]
+          }
+        ],
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab13"
+          },
+          "fab_ids": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab13"
+          }
+        },
+        "intent_analysis": {
+          "question": "팹 13에서 현재 재공 수량을 확인해줘",
+          "slots": {
+            "metric": {
+              "value": "wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "wiplotavg"
+            },
+            "metrics": {
+              "value": "wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "wiplotavg"
+            },
+            "fab_id": {
+              "value": "fab13",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab13"
+            },
+            "fab_ids": {
+              "value": "fab13",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab13"
+            }
+          },
+          "requested_outcomes": [],
+          "assumptions": [
+            "기간 미지정: 현재 상태 조회는 사용 가능한 최신 보고서 기준이며 실시간 측정이 아닙니다."
+          ],
+          "missing_slots": [],
+          "clarification_question": null
+        },
+        "answer_requirements": [
+          {
+            "requirement_id": "text2sql_evidence",
+            "description": "요청 대상·지표·기간에 맞는 DB 관측값과 조회 기준 확보",
+            "agents": [
+              "text2sql"
+            ],
+            "acceptance_criteria": [
+              "요청 범위 유지: metrics=wiplotavg, fab_id=fab13",
+              "근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다."
+            ]
+          }
+        ],
+        "success_criteria": [
+          "Provide the current WIP quantity for FAB 13 using the latest available data.",
+          "Make clear this is not real-time, but the most up-to-date report."
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [],
+        "clarification_question": null,
+        "limitations": [
+          "Real-time WIP quantity is not available; answer is based on the latest available report."
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": true,
+        "status": "ready",
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "reason": "The question requests the current WIP (재공) quantity for FAB 13. Text2SQL is the appropriate agent to query the most recent available database entry for this operational status. No user clarification is needed and all required slots have been resolved. The limitation that only the latest non-real-time report can be provided (not true real-time) will be preserved in the final answer as instructed.",
+        "answer": null,
+        "limitations": [
+          "Real-time WIP quantity is not available; answer is based on the latest available report."
+        ]
+      }
+    },
+    {
+      "id": "H-004",
+      "question": "fab11을 제외하고 fab10의 현재 WIP를 확인해줘",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 5.668,
+      "llm_completed": true,
+      "plan": {
+        "status": "ready",
+        "query_type": "status",
+        "intent": "fab10의 현재 WIP(Work In Process) 현황을 조회하되, fab11의 정보는 제외",
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "execution_steps": [
+          {
+            "agent": "text2sql",
+            "action": "fab10에 대해 최신 WIP(wiplotcur) 데이터를 질의",
+            "required": true,
+            "reason": "FAB별 WIP 수치 현황은 DB에 저장됨. fab11 제외는 쿼리 조건에 반영",
+            "depends_on": [],
+            "input_requirements": [
+              "request scope",
+              "available upstream evidence and its limitations"
+            ]
+          }
+        ],
+        "slots": {
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab10"
+          },
+          "metric": {
+            "value": "wiplotcur",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotcur"
+          },
+          "metrics": {
+            "value": "wiplotcur,wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotcur, wiplotavg"
+          },
+          "fab_ids": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab10"
+          },
+          "line": {
+            "value": "fab10",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "fab10"
+          }
+        },
+        "intent_analysis": {
+          "question": "fab11을 제외하고 fab10의 현재 WIP를 확인해줘",
+          "slots": {
+            "fab_id": {
+              "value": "fab10",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10"
+            },
+            "metric": {
+              "value": "wiplotcur",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "wiplotcur"
+            },
+            "metrics": {
+              "value": "wiplotcur,wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "wiplotcur, wiplotavg"
+            },
+            "fab_ids": {
+              "value": "fab10",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10"
+            },
+            "line": {
+              "value": "fab10",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "fab10"
+            }
+          },
+          "requested_outcomes": [],
+          "assumptions": [
+            "기간 미지정: 현재 상태 조회는 사용 가능한 최신 보고서 기준이며 실시간 측정이 아닙니다."
+          ],
+          "missing_slots": [],
+          "clarification_question": null
+        },
+        "answer_requirements": [
+          {
+            "requirement_id": "text2sql_evidence",
+            "description": "요청 대상·지표·기간에 맞는 DB 관측값과 조회 기준 확보",
+            "agents": [
+              "text2sql"
+            ],
+            "acceptance_criteria": [
+              "요청 범위 유지: fab_id=fab10, metrics=wiplotcur,wiplotavg",
+              "근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다."
+            ]
+          }
+        ],
+        "success_criteria": [
+          "fab10에 한정해 현재 WIP 데이터만 표시하고, fab11 등 타 FAB 데이터가 포함되지 않을 것",
+          "최신(최신 업데이트 시점) WIP 수치를 산출할 것",
+          "WIP 값이 명확히 수치로 나타날 것"
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [],
+        "clarification_question": null,
+        "limitations": [
+          "실시간 값이 아니라 가장 최근 업데이트 시점 데이터일 수 있음",
+          "이상치, 변칙값에 대한 자동 해석/경고는 제공하지 않음"
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": true,
+        "status": "ready",
+        "selected_sub_agents": [
+          "text2sql"
+        ],
+        "reason": "The question requires only numeric operational evidence for fab10's current WIP, explicitly excluding fab11. The planner requires text2sql to fetch the latest available WIP data (wiplotcur) for fab10, satisfying the user's criteria, with the limitation that the value may not be real-time but is the most recent available. This sub-agent execution fulfills all success criteria and answer requirements without needing additional context or knowledge retrieval.",
+        "answer": null,
+        "limitations": [
+          "실시간 값이 아니라 가장 최근 업데이트 시점 데이터일 수 있음",
+          "이상치, 변칙값에 대한 자동 해석/경고는 제공하지 않음"
+        ]
+      }
+    },
+    {
+      "id": "H-005",
+      "question": "fab10의 2020년 2분기 WIP를 월별로 보여줘",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 7.026,
+      "llm_completed": true,
+      "plan": {
+        "status": "ready",
+        "query_type": "trend",
+        "intent": "Show monthly trend of WIP (wiplotavg) for fab10 during Q2 2020.",
+        "selected_sub_agents": [
+          "text2sql",
+          "visualization"
+        ],
+        "execution_steps": [
+          {
+            "agent": "text2sql",
+            "action": "Query monthly wiplotavg for fab10 for April, May, and June 2020",
+            "required": true,
+            "reason": "To get the month-wise WIP values as numerical trend data",
+            "depends_on": [],
+            "input_requirements": [
+              "request scope",
+              "available upstream evidence and its limitations"
+            ]
+          },
+          {
+            "agent": "visualization",
+            "action": "Create a time-series chart or table to display WIP trend per month",
+            "required": true,
+            "reason": "To clearly show the monthly trend as requested",
+            "depends_on": [
+              "text2sql"
+            ],
+            "input_requirements": [
+              "successful SQL rows with matching scope and units"
+            ]
+          }
+        ],
+        "slots": {
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab10"
+          },
+          "date_grain": {
+            "value": "month",
+            "source": "parser",
+            "confidence": 0.85,
+            "raw_text": "month"
+          },
+          "relative_period": {
+            "value": "quarter_2020_q2",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab10의 2020년 2분기 WIP를 월별로 보여줘"
+          },
+          "date_start": {
+            "value": "2020-04-01",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab10의 2020년 2분기 WIP를 월별로 보여줘"
+          },
+          "date_end": {
+            "value": "2020-07-01",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab10의 2020년 2분기 WIP를 월별로 보여줘"
+          },
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg"
+          },
+          "fab_ids": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab10"
+          },
+          "line": {
+            "value": "fab10",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "fab10"
+          },
+          "date_basis": {
+            "value": "2020-04-01 to 2020-07-01",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "fab10의 2020년 2분기 WIP를 월별로 보여줘"
+          }
+        },
+        "intent_analysis": {
+          "question": "fab10의 2020년 2분기 WIP를 월별로 보여줘",
+          "slots": {
+            "fab_id": {
+              "value": "fab10",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10"
+            },
+            "date_grain": {
+              "value": "month",
+              "source": "parser",
+              "confidence": 0.85,
+              "raw_text": "month"
+            },
+            "relative_period": {
+              "value": "quarter_2020_q2",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10의 2020년 2분기 WIP를 월별로 보여줘"
+            },
+            "date_start": {
+              "value": "2020-04-01",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10의 2020년 2분기 WIP를 월별로 보여줘"
+            },
+            "date_end": {
+              "value": "2020-07-01",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10의 2020년 2분기 WIP를 월별로 보여줘"
+            },
+            "metric": {
+              "value": "wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "wiplotavg"
+            },
+            "metrics": {
+              "value": "wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "wiplotavg"
+            },
+            "fab_ids": {
+              "value": "fab10",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10"
+            },
+            "line": {
+              "value": "fab10",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "fab10"
+            },
+            "date_basis": {
+              "value": "2020-04-01 to 2020-07-01",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "fab10의 2020년 2분기 WIP를 월별로 보여줘"
+            }
+          },
+          "requested_outcomes": [
+            "trend"
+          ],
+          "assumptions": [],
+          "missing_slots": [],
+          "clarification_question": null
+        },
+        "answer_requirements": [
+          {
+            "requirement_id": "text2sql_evidence",
+            "description": "요청 대상·지표·기간에 맞는 DB 관측값과 조회 기준 확보",
+            "agents": [
+              "text2sql"
+            ],
+            "acceptance_criteria": [
+              "요청 범위 유지: fab_id=fab10, date_start=2020-04-01, date_end=2020-07-01, metrics=wiplotavg, date_basis=2020-04-01 to 2020-07-01",
+              "근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다."
+            ]
+          },
+          {
+            "requirement_id": "visualization_evidence",
+            "description": "요청한 비교·추세를 실제 조회 결과로 표시",
+            "agents": [
+              "visualization"
+            ],
+            "acceptance_criteria": [
+              "요청 범위 유지: fab_id=fab10, date_start=2020-04-01, date_end=2020-07-01, metrics=wiplotavg, date_basis=2020-04-01 to 2020-07-01",
+              "근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다."
+            ]
+          }
+        ],
+        "success_criteria": [
+          "A chart or table breaking down the WIP (wiplotavg) values for fab10 per month from April 2020 through June 2020 (Q2 2020)",
+          "Values must be shown for each month within the quarter, not just a sum or average for the whole period"
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [],
+        "clarification_question": null,
+        "limitations": [
+          "Monthly breakdown assumes available granularity in source data; if only higher/lower granularity is available, results may be approximate.",
+          "If only daily WIP is stored, aggregation to monthly average may be required."
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": true,
+        "status": "ready",
+        "selected_sub_agents": [
+          "text2sql",
+          "visualization"
+        ],
+        "reason": "The plan is ready and requires numeric WIP values for fab10, broken down by month for April, May, and June 2020. As the first step, the text2sql agent must retrieve the relevant data from the database before progressing to visualization. No clarifications are needed at this stage.",
+        "answer": null,
+        "limitations": [
+          "Monthly breakdown assumes available granularity in source data; if only higher/lower granularity is available, results may be approximate.",
+          "If only daily WIP is stored, aggregation to monthly average may be required."
+        ]
+      }
+    },
+    {
+      "id": "H-006",
+      "question": "fab10 lotrelease 납기 기준 월별 건수",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 6.452,
+      "llm_completed": true,
+      "plan": {
+        "status": "ready",
+        "query_type": "trend",
+        "intent": "월별로 fab10의 lotrelease 테이블에서 납기(due_date) 기준 건수 트렌드를 조회",
+        "selected_sub_agents": [
+          "text2sql",
+          "visualization"
+        ],
+        "execution_steps": [
+          {
+            "agent": "text2sql",
+            "action": "fab10의 lotrelease 테이블에서 due_date 기준 월별 lotrelease 건수를 집계",
+            "required": true,
+            "reason": "월별 트렌드 산출을 위한 데이터 쿼리",
+            "depends_on": [],
+            "input_requirements": [
+              "request scope",
+              "available upstream evidence and its limitations"
+            ]
+          },
+          {
+            "agent": "visualization",
+            "action": "월별 건수 변화 추이 시각화(chart/table)",
+            "required": true,
+            "reason": "트렌드 파악 및 패턴 확인을 위한 시각 자료 제공",
+            "depends_on": [
+              "text2sql"
+            ],
+            "input_requirements": [
+              "successful SQL rows with matching scope and units"
+            ]
+          }
+        ],
+        "slots": {
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab10"
+          },
+          "release_table": {
+            "value": "lotrelease",
+            "source": "parser",
+            "confidence": 0.85,
+            "raw_text": "lotrelease"
+          },
+          "date_basis": {
+            "value": "due_date",
+            "source": "parser",
+            "confidence": 0.9,
+            "raw_text": "due_date"
+          },
+          "date_grain": {
+            "value": "month",
+            "source": "parser",
+            "confidence": 0.85,
+            "raw_text": "month"
+          },
+          "fab_ids": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab10"
+          },
+          "metric": {
+            "value": "건수",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "건수"
+          },
+          "route": {
+            "value": "lotrelease",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "lotrelease"
+          },
+          "line": {
+            "value": "fab10",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "fab10"
+          }
+        },
+        "intent_analysis": {
+          "question": "fab10 lotrelease 납기 기준 월별 건수",
+          "slots": {
+            "fab_id": {
+              "value": "fab10",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10"
+            },
+            "release_table": {
+              "value": "lotrelease",
+              "source": "parser",
+              "confidence": 0.85,
+              "raw_text": "lotrelease"
+            },
+            "date_basis": {
+              "value": "due_date",
+              "source": "parser",
+              "confidence": 0.9,
+              "raw_text": "due_date"
+            },
+            "date_grain": {
+              "value": "month",
+              "source": "parser",
+              "confidence": 0.85,
+              "raw_text": "month"
+            },
+            "fab_ids": {
+              "value": "fab10",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10"
+            },
+            "metric": {
+              "value": "건수",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "건수"
+            },
+            "route": {
+              "value": "lotrelease",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "lotrelease"
+            },
+            "line": {
+              "value": "fab10",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "fab10"
+            }
+          },
+          "requested_outcomes": [
+            "trend"
+          ],
+          "assumptions": [
+            "기간 미지정: 현재 상태 조회는 사용 가능한 최신 보고서 기준이며 실시간 측정이 아닙니다."
+          ],
+          "missing_slots": [],
+          "clarification_question": null
+        },
+        "answer_requirements": [
+          {
+            "requirement_id": "text2sql_evidence",
+            "description": "요청 대상·지표·기간에 맞는 DB 관측값과 조회 기준 확보",
+            "agents": [
+              "text2sql"
+            ],
+            "acceptance_criteria": [
+              "요청 범위 유지: fab_id=fab10, date_basis=due_date",
+              "근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다."
+            ]
+          },
+          {
+            "requirement_id": "visualization_evidence",
+            "description": "요청한 비교·추세를 실제 조회 결과로 표시",
+            "agents": [
+              "visualization"
+            ],
+            "acceptance_criteria": [
+              "요청 범위 유지: fab_id=fab10, date_basis=due_date",
+              "근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다."
+            ]
+          }
+        ],
+        "success_criteria": [
+          "fab10에서 lotrelease(출하) 테이블 기준 월별(YYYY-MM)로 due_date(납기)를 기준으로 한 lotrelease 건수를 표 또는 그래프로 제공",
+          "최근 데이터까지 누락 없이 반영"
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [],
+        "clarification_question": null,
+        "limitations": [
+          "실시간/미래 납기 데이터는 지원하지 않으며, 최신 데이터 기준으로만 제공됨",
+          "lotrelease 및 due_date 칼럼의 명확성은 fab10의 데이터 스키마에 따름"
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": true,
+        "status": "ready",
+        "selected_sub_agents": [
+          "text2sql",
+          "visualization"
+        ],
+        "reason": "The plan is ready and requires Text2SQL to first aggregate monthly lotrelease counts based on due_date in fab10. Visualization must wait for SQL output. No clarifications needed; all required slots are satisfied.",
+        "answer": null,
+        "limitations": [
+          "실시간/미래 납기 데이터는 지원하지 않으며, 최신 데이터 기준으로만 제공됨",
+          "lotrelease 및 due_date 칼럼의 명확성은 fab10의 데이터 스키마에 따름"
+        ]
+      }
+    },
+    {
+      "id": "H-007",
+      "question": "WIP와 cycle time의 개념을 설명해줘",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 4.909,
+      "llm_completed": true,
+      "plan": {
+        "status": "ready",
+        "query_type": "knowledge_lookup",
+        "intent": "WIP와 cycle time의 개념에 대한 설명 제공",
+        "selected_sub_agents": [
+          "rag"
+        ],
+        "execution_steps": [
+          {
+            "agent": "rag",
+            "action": "WIP(wiplotavg)와 cycle time(cycleavg)의 개념을 반도체 공정 관점에서 설명",
+            "required": true,
+            "reason": "개념 정의 및 FAB 관련 지식은 process_basics에서 제공",
+            "depends_on": [],
+            "input_requirements": [
+              "request scope",
+              "available upstream evidence and its limitations"
+            ]
+          }
+        ],
+        "slots": {
+          "metric": {
+            "value": "wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotavg"
+          },
+          "metrics": {
+            "value": "wiplotavg,cycleavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotavg, cycleavg"
+          }
+        },
+        "intent_analysis": {
+          "question": "WIP와 cycle time의 개념을 설명해줘",
+          "slots": {
+            "metric": {
+              "value": "wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "wiplotavg"
+            },
+            "metrics": {
+              "value": "wiplotavg,cycleavg",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "wiplotavg, cycleavg"
+            }
+          },
+          "requested_outcomes": [
+            "knowledge"
+          ],
+          "assumptions": [
+            "기간 미지정: 현재 상태 조회는 사용 가능한 최신 보고서 기준이며 실시간 측정이 아닙니다."
+          ],
+          "missing_slots": [],
+          "clarification_question": null
+        },
+        "answer_requirements": [
+          {
+            "requirement_id": "rag_evidence",
+            "description": "질문과 관련된 공정 지식·점검 지침 및 출처 확보",
+            "agents": [
+              "rag"
+            ],
+            "acceptance_criteria": [
+              "요청 범위 유지: metrics=wiplotavg,cycleavg",
+              "근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다."
+            ]
+          }
+        ],
+        "success_criteria": [
+          "WIP(wiplotavg)와 cycle time(cycleavg)의 정의와 차이점이 명확히 설명될 것",
+          "설명이 반도체 FAB 맥락에 맞춤화되어 있을 것"
+        ],
+        "rag_knowledge_base": "process_basics",
+        "missing_slots": [],
+        "clarification_question": null,
+        "limitations": [
+          "데이터 기반 수치나 실시간 값 제공은 포함되지 않음; 용어 설명만 제공"
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": true,
+        "status": "ready",
+        "selected_sub_agents": [
+          "rag"
+        ],
+        "reason": "Planner selected 'rag' as the only necessary sub-agent for knowledge_lookup about the concepts of WIP(wiplotavg) and cycle time(cycleavg) in a semiconductor FAB, with clear instructions to use process_basics as the knowledge base and with no clarifications required.",
+        "answer": null,
+        "limitations": [
+          "데이터 기반 수치나 실시간 값 제공은 포함되지 않음; 용어 설명만 제공"
+        ]
+      }
+    },
+    {
+      "id": "H-008",
+      "question": "오늘 점심 메뉴 추천해줘",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 4.228,
+      "llm_completed": true,
+      "plan": {
+        "status": "unsupported",
+        "query_type": "unsupported",
+        "intent": "Answer a general lunch menu recommendation request, which is outside semiconductor FAB assistant scope.",
+        "selected_sub_agents": [],
+        "execution_steps": [],
+        "slots": {},
+        "intent_analysis": {
+          "question": "오늘 점심 메뉴 추천해줘",
+          "slots": {},
+          "requested_outcomes": [],
+          "assumptions": [
+            "기간 미지정: 현재 상태 조회는 사용 가능한 최신 보고서 기준이며 실시간 측정이 아닙니다."
+          ],
+          "missing_slots": [],
+          "clarification_question": null
+        },
+        "answer_requirements": [],
+        "success_criteria": [
+          "User receives lunch menu recommendations."
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [],
+        "clarification_question": null,
+        "limitations": [
+          "Lunch menu recommendations are not supported; this request is outside of semiconductor FAB assistant's operational scope."
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": false,
+        "status": "unsupported",
+        "selected_sub_agents": [],
+        "reason": "The user's request for lunch menu recommendations is outside the operational scope of the semiconductor FAB assistant, as determined by the Planner. No FAB-related sub-agents can address this request.",
+        "answer": "죄송합니다. 반도체 FAB 어시스턴트는 점심 메뉴 추천과 같은 일반적인 질문에는 응답할 수 없습니다. FAB 운영, 생산, 진단 등에 관련된 질문을 해주시면 도와드릴 수 있습니다.",
+        "limitations": [
+          "Lunch menu recommendations are not supported; this request is outside of semiconductor FAB assistant's operational scope."
+        ]
+      }
+    },
+    {
+      "id": "H-009",
+      "question": "fab12 utilization이 5퍼센트포인트 감소하면 생산능력에 미치는 영향",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 7.104,
+      "llm_completed": true,
+      "plan": {
+        "status": "ready",
+        "query_type": "impact",
+        "intent": "Calculate the impact on production capacity if fab12 utilization decreases by 5 percentage points.",
+        "selected_sub_agents": [
+          "text2sql",
+          "impact"
+        ],
+        "execution_steps": [
+          {
+            "agent": "text2sql",
+            "action": "Run text2sql for impact",
+            "required": true,
+            "reason": "text2sql is required by the impact route.",
+            "depends_on": [],
+            "input_requirements": [
+              "request scope",
+              "available upstream evidence and its limitations"
+            ]
+          },
+          {
+            "agent": "impact",
+            "action": "Calculate the impact on fab12's production capacity if utilization is decreased by 5 percentage points.",
+            "required": true,
+            "reason": "Needed to connect the utilization change to production output.",
+            "depends_on": [
+              "text2sql"
+            ],
+            "input_requirements": [
+              "successful SQL rows with matching scope and units"
+            ]
+          }
+        ],
+        "slots": {
+          "fab_id": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab12"
+          },
+          "metric": {
+            "value": "util_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "util_percent"
+          },
+          "metrics": {
+            "value": "util_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "util_percent"
+          },
+          "fab_ids": {
+            "value": "fab12",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab12"
+          },
+          "change_amount": {
+            "value": "5",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "5퍼센트포인트"
+          },
+          "change_direction": {
+            "value": "decrease",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "감소"
+          },
+          "line": {
+            "value": "fab12",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "fab12"
+          }
+        },
+        "intent_analysis": {
+          "question": "fab12 utilization이 5퍼센트포인트 감소하면 생산능력에 미치는 영향",
+          "slots": {
+            "fab_id": {
+              "value": "fab12",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab12"
+            },
+            "metric": {
+              "value": "util_percent",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "util_percent"
+            },
+            "metrics": {
+              "value": "util_percent",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "util_percent"
+            },
+            "fab_ids": {
+              "value": "fab12",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab12"
+            },
+            "change_amount": {
+              "value": "5",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "5퍼센트포인트"
+            },
+            "change_direction": {
+              "value": "decrease",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "감소"
+            },
+            "line": {
+              "value": "fab12",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "fab12"
+            }
+          },
+          "requested_outcomes": [
+            "impact"
+          ],
+          "assumptions": [
+            "기간 미지정: 현재 상태 조회는 사용 가능한 최신 보고서 기준이며 실시간 측정이 아닙니다."
+          ],
+          "missing_slots": [],
+          "clarification_question": null
+        },
+        "answer_requirements": [
+          {
+            "requirement_id": "text2sql_evidence",
+            "description": "요청 대상·지표·기간에 맞는 DB 관측값과 조회 기준 확보",
+            "agents": [
+              "text2sql"
+            ],
+            "acceptance_criteria": [
+              "요청 범위 유지: fab_id=fab12, metrics=util_percent",
+              "근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다."
+            ]
+          },
+          {
+            "requirement_id": "impact_evidence",
+            "description": "입력 변화량·기준값·계산식에 근거한 영향 추정과 한계 설명",
+            "agents": [
+              "impact"
+            ],
+            "acceptance_criteria": [
+              "요청 범위 유지: fab_id=fab12, metrics=util_percent",
+              "근거가 없거나 일부만 있으면 부족한 내용을 명시하고 값을 만들지 않는다."
+            ]
+          }
+        ],
+        "success_criteria": [
+          "Quantitative estimate of production capacity change resulting from a 5 percentage point decrease in utilization for fab12.",
+          "Explanation of calculation methodology or assumptions.",
+          "Any relevant contextual factors impacting the result."
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [],
+        "clarification_question": null,
+        "limitations": [
+          "Impact calculation may depend on assumed baseline capacity, operational context, and may not account for all operational dynamics influencing utilization."
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": true,
+        "status": "ready",
+        "selected_sub_agents": [
+          "text2sql",
+          "impact"
+        ],
+        "reason": "The plan requires numeric evidence of fab12's current utilization to calculate the impact of a 5 percentage point decrease. As per planner instructions, impact calculation must be based on successful SQL evidence. Proceed with text2sql to fetch utilization data for fab12.",
+        "answer": null,
+        "limitations": [
+          "If DB evidence cannot be obtained for fab12 utilization, impact calculation will be limited or blocked due to lack of numeric input."
+        ]
+      }
+    },
+    {
+      "id": "H-010",
+      "question": "fab14 현재 가동률 알려줘",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 5.524,
+      "llm_completed": true,
+      "plan": {
+        "status": "needs_clarification",
+        "query_type": "status",
+        "intent": "fab14의 현재 가동률(util_percent) 조회",
+        "selected_sub_agents": [],
+        "execution_steps": [],
+        "slots": {
+          "metric": {
+            "value": "util_percent",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "util_percent"
+          },
+          "metrics": {
+            "value": "util_percent",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "util_percent"
+          },
+          "fab_id": {
+            "value": "fab14",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab14"
+          },
+          "fab_ids": {
+            "value": "fab14",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab14"
+          },
+          "line": {
+            "value": "fab14",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "fab14"
+          }
+        },
+        "intent_analysis": {
+          "question": "fab14 현재 가동률 알려줘",
+          "slots": {
+            "metric": {
+              "value": "util_percent",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "util_percent"
+            },
+            "metrics": {
+              "value": "util_percent",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "util_percent"
+            },
+            "fab_id": {
+              "value": "fab14",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab14"
+            },
+            "fab_ids": {
+              "value": "fab14",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab14"
+            },
+            "line": {
+              "value": "fab14",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "fab14"
+            }
+          },
+          "requested_outcomes": [],
+          "assumptions": [
+            "기간 미지정: 현재 상태 조회는 사용 가능한 최신 보고서 기준이며 실시간 측정이 아닙니다."
+          ],
+          "missing_slots": [
+            "supported_fab"
+          ],
+          "clarification_question": "조회 가능한 FAB은 fab10, fab11, fab12, fab13입니다. 대상을 지정해주세요."
+        },
+        "answer_requirements": [],
+        "success_criteria": [
+          "fab14의 가장 최근 데이터 기준 가동률(util_percent) 값을 명확하게 수치로 제공"
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [
+          "supported_fab"
+        ],
+        "clarification_question": "조회 가능한 FAB은 fab10, fab11, fab12, fab13입니다. 대상을 지정해주세요.",
+        "limitations": [
+          "fab14는 조회 대상 지원 FAB 목록(fab10, fab11, fab12, fab13)에 포함되어 있지 않아 데이터 조회 불가"
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": false,
+        "status": "needs_clarification",
+        "selected_sub_agents": [],
+        "reason": "Planner requires clarification because fab14 is not among the supported/queryable FABs. Only fab10, fab11, fab12, and fab13 are available for data lookup. Can't proceed until user selects a supported FAB.",
+        "answer": "fab14의 현재 가동률을 조회할 수 없습니다. 조회 가능한 FAB은 fab10, fab11, fab12, fab13입니다. 대상 FAB을 지정해 주세요.",
+        "limitations": [
+          "fab14는 조회 지원 FAB 목록에 포함되어 있지 않아 데이터 조회 불가"
+        ]
+      }
+    },
+    {
+      "id": "H-011",
+      "question": "FAB 10 lotrelease 날짜별 추이",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 5.408,
+      "llm_completed": true,
+      "plan": {
+        "status": "needs_clarification",
+        "query_type": "trend",
+        "intent": "Show the trend of lot releases in FAB 10 by date.",
+        "selected_sub_agents": [],
+        "execution_steps": [],
+        "slots": {
+          "fab_id": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab10"
+          },
+          "release_table": {
+            "value": "lotrelease",
+            "source": "parser",
+            "confidence": 0.85,
+            "raw_text": "lotrelease"
+          },
+          "fab_ids": {
+            "value": "fab10",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab10"
+          },
+          "line": {
+            "value": "fab10",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "FAB 10"
+          },
+          "route": {
+            "value": "lotrelease",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "lotrelease"
+          }
+        },
+        "intent_analysis": {
+          "question": "FAB 10 lotrelease 날짜별 추이",
+          "slots": {
+            "fab_id": {
+              "value": "fab10",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10"
+            },
+            "release_table": {
+              "value": "lotrelease",
+              "source": "parser",
+              "confidence": 0.85,
+              "raw_text": "lotrelease"
+            },
+            "fab_ids": {
+              "value": "fab10",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab10"
+            },
+            "line": {
+              "value": "fab10",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "FAB 10"
+            },
+            "route": {
+              "value": "lotrelease",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "lotrelease"
+            }
+          },
+          "requested_outcomes": [
+            "trend"
+          ],
+          "assumptions": [
+            "기간 미지정: 현재 상태 조회는 사용 가능한 최신 보고서 기준이며 실시간 측정이 아닙니다."
+          ],
+          "missing_slots": [
+            "date_basis"
+          ],
+          "clarification_question": "lotrelease 날짜 기준을 start_date(투입일) 또는 due_date(납기일) 중에서 지정해주세요."
+        },
+        "answer_requirements": [],
+        "success_criteria": [
+          "Visual trend chart showing number or volume of lot releases in FAB 10 over time, broken down by specified date basis (start_date or due_date)"
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [
+          "date_basis"
+        ],
+        "clarification_question": "lotrelease 날짜 기준을 start_date(투입일) 또는 due_date(납기일) 중에서 지정해주세요.",
+        "limitations": [
+          "Cannot proceed without clarification of the date basis (start_date vs due_date).",
+          "Data availability may depend on the recency of lotrelease reporting; real-time data may not be accessible."
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": false,
+        "status": "needs_clarification",
+        "selected_sub_agents": [],
+        "reason": "The required date basis for lotrelease (start_date vs due_date) has not been specified. The planner has explicitly requested clarification from the user before proceeding with SQL or visualization steps.",
+        "answer": "lotrelease 날짜 기준을 start_date(투입일) 또는 due_date(납기일) 중에서 지정해주세요. 이 정보가 필요합니다.",
+        "limitations": [
+          "Cannot proceed without clarification of the date basis (start_date vs due_date).",
+          "Data availability may depend on the recency of lotrelease reporting; real-time data may not be accessible."
+        ]
+      }
+    },
+    {
+      "id": "H-012",
+      "question": "fab13과 fab11의 현재 WIP를 비교",
+      "passed": true,
+      "failures": [],
+      "elapsed_seconds": 6.285,
+      "llm_completed": true,
+      "plan": {
+        "status": "needs_clarification",
+        "query_type": "status",
+        "intent": "Compare current WIP between fab13 and fab11.",
+        "selected_sub_agents": [],
+        "execution_steps": [],
+        "slots": {
+          "fab_id": {
+            "value": "fab13",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab13"
+          },
+          "metric": {
+            "value": "wiplotcur",
+            "source": "alias_match",
+            "confidence": 0.8,
+            "raw_text": "wiplotcur"
+          },
+          "metrics": {
+            "value": "wiplotcur,wiplotavg",
+            "source": "alias_match",
+            "confidence": 0.85,
+            "raw_text": "wiplotcur, wiplotavg"
+          },
+          "fab_ids": {
+            "value": "fab13,fab11",
+            "source": "explicit_user",
+            "confidence": 1.0,
+            "raw_text": "fab13, fab11"
+          },
+          "comparison_target": {
+            "value": "fab11",
+            "source": "llm_inference",
+            "confidence": 0.75,
+            "raw_text": "fab11"
+          }
+        },
+        "intent_analysis": {
+          "question": "fab13과 fab11의 현재 WIP를 비교",
+          "slots": {
+            "fab_id": {
+              "value": "fab13",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab13"
+            },
+            "metric": {
+              "value": "wiplotcur",
+              "source": "alias_match",
+              "confidence": 0.8,
+              "raw_text": "wiplotcur"
+            },
+            "metrics": {
+              "value": "wiplotcur,wiplotavg",
+              "source": "alias_match",
+              "confidence": 0.85,
+              "raw_text": "wiplotcur, wiplotavg"
+            },
+            "fab_ids": {
+              "value": "fab13,fab11",
+              "source": "explicit_user",
+              "confidence": 1.0,
+              "raw_text": "fab13, fab11"
+            },
+            "comparison_target": {
+              "value": "fab11",
+              "source": "llm_inference",
+              "confidence": 0.75,
+              "raw_text": "fab11"
+            }
+          },
+          "requested_outcomes": [
+            "comparison"
+          ],
+          "assumptions": [
+            "기간 미지정: 현재 상태 조회는 사용 가능한 최신 보고서 기준이며 실시간 측정이 아닙니다."
+          ],
+          "missing_slots": [
+            "single_fab_scope"
+          ],
+          "clarification_question": "현재 한 번에 하나의 FAB을 조회합니다. 먼저 조회할 FAB을 지정해주세요."
+        },
+        "answer_requirements": [],
+        "success_criteria": [
+          "Retrieve the latest available WIP (wiplotcur and/or wiplotavg) for fab13 and fab11.",
+          "Present a direct numerical comparison of the WIP for both FABs.",
+          "Clearly identify which FAB currently has higher/lower WIP.",
+          "Present results in a comparative, preferably visualized format."
+        ],
+        "rag_knowledge_base": null,
+        "missing_slots": [
+          "single_fab_scope"
+        ],
+        "clarification_question": "현재 한 번에 하나의 FAB을 조회합니다. 먼저 조회할 FAB을 지정해주세요.",
+        "limitations": [
+          "Comparison will rely on the most recent WIP data available; may not reflect live or real-time values.",
+          "If autosched_* operational tables are not accessible, only reporting/latest snapshot data can be used."
+        ],
+        "prompt_version": "planner.v2",
+        "prompt_contract": "You are the Planner agent for a semiconductor FAB assistant.\n\nYour job is to turn a user question into an execution plan. Do not execute tools\nor write SQL directly. Classify the query, identify missing slots, choose the\nminimum required sub-agents, and return a structured plan.\n\nRequired output fields:\n- query_type: status | master_data_lookup | release_plan_lookup | diagnosis | impact | trend | knowledge_lookup | unsupported\n- intent: concise task intent that covers all requested outcomes\n- extracted_slots: semantic inputs not already resolved by request_analysis; each\n  name/value must include raw_text copied verbatim from the CURRENT question. Include\n  line/process/product/equipment/metric, comparison target, and impact change fields\n  where present. Never invent values or fill them from an assistant-generated answer.\n- success_criteria: concrete checks for a satisfactory final answer, covering every\n  requested metric, comparison, period, explanation, calculation and visualization\n- rag_knowledge_base: incident_playbook for incident response/manual guidance, process_basics\n  for semiconductor basics/general reference, null when RAG is not selected\n- missing_slots: required information that must be clarified before execution\n- selected_sub_agents: ordered list from text2sql, rag, impact, case_search, visualization\n- execution_steps: ordered actions for the Supervisor\n- clarification_question: present only when required slots are missing\n- limitations: known data or scope limitations\n\nPolicy:\n- request_analysis contains grounded slots from the shared FAB parser. Preserve every\n  explicit FAB, target, metric, date, comparison and threshold. The current question\n  takes precedence over UI defaults and older conversation context. Never invent a FAB.\n- Decompose all requested outcomes. Each execution action must identify its needed\n  inputs and expected evidence; separate observations, hypotheses, and calculations.\n- Do not ask users for SQL table names, column names, or schema details. Delegate\n  database discovery to Text2SQL. Do not declare data unavailable without tool evidence.\n- Ask only for information that materially changes the answer and cannot be resolved\n  from the question/context. Do not require a product or equipment for a FAB-wide query.\n- Use Text2SQL for database-backed status, master-data, route, release-plan, trend, and\n  numeric evidence gathering.\n- Use RAG for process knowledge and diagnosis support.\n- Use RAG only for knowledge_lookup questions that ask concepts or basic explanations.\n- For RAG, choose incident_playbook for response/manual/incident guidance and\n  process_basics for basic semiconductor concepts or SMT2020/AutoSched documentation.\n- Use Impact only for impact calculation questions.\n- Use Visualization for trend/comparison or chartable tabular results.\n- For an explicit compound request, choose one primary query_type and preserve additional compatible\n  agents needed for every requested part; for example diagnosis+numeric impact also needs Impact,\n  and diagnosis+trend also needs Visualization.\n- If live/current operational data requires AutoSched autosched_* tables that are not\n  available, plan a data_unavailable path. Do not fall back to General Data.\n- Never plan direct equipment control or automatic production actions.\n- When execution_feedback is present, revise the plan instead of repeating the failed\n  combination without a material change.\n- Use conversation_history to resolve follow-up references such as \"that FAB\", \"same\n  route\", or \"compare it\", but never invent missing operational values from history.\n- When an assistant history turn contains negative user_feedback, address the comment and\n  materially revise the plan instead of repeating the same answer strategy.",
+        "execution_mode": "llm_chat_completions"
+      },
+      "supervisor": {
+        "proceed": false,
+        "status": "needs_clarification",
+        "selected_sub_agents": [],
+        "reason": "The Planner requires the user to specify which FAB should be checked first, as current context allows retrieval for only one FAB at a time. The plan cannot proceed until this clarification is provided.",
+        "answer": "현재 한 번에 하나의 FAB만 조회할 수 있습니다. fab13과 fab11 중 먼저 조회할 FAB을 지정해주세요.",
+        "limitations": [
+          "최신 WIP 데이터만 제공 가능하며, 실시간 정보가 아닐 수 있습니다.",
+          "동시에 여러 FAB 비교는 지원되지 않으며, 먼저 한 개의 FAB을 선택해야 합니다."
+        ]
+      }
+    }
+  ]
+}

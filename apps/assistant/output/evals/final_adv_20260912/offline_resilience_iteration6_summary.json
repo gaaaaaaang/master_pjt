@@ -1,0 +1,89 @@
+{
+  "source_sha256": "5fb0f32537a1869d9e16786abbb1ce79be5bb96cbdcd8f396979c962b678a07b",
+  "started_at": "2026-09-12T11:39:53.502878+00:00",
+  "case_count": 34,
+  "positive": {
+    "cases": 32,
+    "status_succeeded": 30
+  },
+  "negative": {
+    "cases": 2,
+    "expected_status_matches": 2
+  },
+  "latency_seconds": {
+    "median": 0.064,
+    "p95_nearest_rank": 0.102,
+    "max": 0.16
+  },
+  "status_counts": {
+    "succeeded": 30,
+    "failed": 2,
+    "data_unavailable": 2
+  },
+  "by_kind": {
+    "comparison": {
+      "cases": 2,
+      "expected_status_matches": 2
+    },
+    "trend": {
+      "cases": 6,
+      "expected_status_matches": 6
+    },
+    "status": {
+      "cases": 6,
+      "expected_status_matches": 6
+    },
+    "area_status": {
+      "cases": 4,
+      "expected_status_matches": 4
+    },
+    "diagnosis": {
+      "cases": 4,
+      "expected_status_matches": 4
+    },
+    "impact": {
+      "cases": 4,
+      "expected_status_matches": 4
+    },
+    "master": {
+      "cases": 4,
+      "expected_status_matches": 4
+    },
+    "knowledge": {
+      "cases": 1,
+      "expected_status_matches": 0
+    },
+    "action": {
+      "cases": 1,
+      "expected_status_matches": 0
+    },
+    "unsupported": {
+      "cases": 2,
+      "expected_status_matches": 2
+    }
+  },
+  "model_calls": {},
+  "failures": [
+    {
+      "id": "fab11_knowledge",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": null,
+      "issues": [
+        "Grounded answer validation failed."
+      ],
+      "error": null
+    },
+    {
+      "id": "fab11_action",
+      "expected": "succeeded",
+      "actual": "failed",
+      "termination_reason": null,
+      "issues": [
+        "Grounded answer validation failed."
+      ],
+      "error": null
+    }
+  ],
+  "interpretation": "Status-based completion on this fixed fixture. Numeric correctness requires the separate raw-row oracle; this is not a general accuracy estimate or an independent assessment of every narrative claim."
+}

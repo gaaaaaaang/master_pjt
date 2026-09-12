@@ -1,0 +1,392 @@
+{
+  "scope": "Real FastAPI routes via in-process ASGI; real LLM and Milvus; no deployed-server/load test.",
+  "git_head": "382c56b025eb0e02e96c4a7d6053d8a82c349bfd",
+  "fixture_sha256": "258e03ec26e36543f8d5beea6d8127f5e9dfbbb0f5c066ebd1cd68df2c645801",
+  "source_sha256": "fb4a635102e823ab6b02f07c396273f4bc1530937f8f827567e8c47ac2ce7de7",
+  "corpus_sha256": "5cd581ec05cf94505e16ec00177d917b094c3e4461784f9da2bb1222e5cf9dca",
+  "manifest_sha256": "de09cc862649ef8538098083359c7b805d1a678606903ec74f26dbab309f35bf",
+  "started_at_utc": "2026-09-07T22:01:22.008312+00:00",
+  "endpoint": "https://skax.ai-talentlab.com",
+  "mode": "stream",
+  "cases": [
+    {
+      "id": "ext_unknown_euv",
+      "query": "3nm EUV 공정 레지스트 노광량의 승인된 최적값을 mJ/cm2로 알려줘.",
+      "seconds": 9.657,
+      "http_status": 200,
+      "final_received": true,
+      "expected_markers": [],
+      "missing_units": [],
+      "complete_retrieval": false,
+      "rag_count": 0,
+      "review_rubric": "corpus에 없음. 수치 답변 보류.",
+      "final": {
+        "conversation_id": "18210f30-1606-4214-b51f-2317ea0f5e29",
+        "status": "data_unavailable",
+        "query_type": "knowledge_lookup",
+        "answer": "질문에 답할 수 있는 문서 근거를 찾지 못했습니다. 구체적인 절차나 수치를 확정할 수 없습니다.",
+        "sql": null,
+        "chart": null,
+        "confidence": null,
+        "limitations": [
+          "Only document-backed facts will be returned; if not found, may report absence of approved value.",
+          "No FAB context provided, so result is for general/reference 3nm EUV process.",
+          "질문을 뒷받침하는 문서 근거를 찾지 못했습니다.",
+          "질문에 답할 수 있는 문서 근거를 찾지 못했습니다. 구체적인 절차나 수치를 확정할 수 없습니다."
+        ],
+        "evidence": [
+          {
+            "source_type": "planner_plan",
+            "title": "Planner plan",
+            "content": "Lookup the approved optimal exposure dose (in mJ/cm2) for 3nm EUV process photoresist.",
+            "metadata": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve the approved optimal value for exposure dose (mJ/cm2) of photoresist in 3nm EUV process from documented knowledge/manual/approval records.",
+                  "required": true,
+                  "reason": "User requests a precise parameter from documented approval/manual, requiring knowledge retrieval rather than database lookup."
+                }
+              ],
+              "slots": {},
+              "model_usage": {
+                "call_count": 1,
+                "failed_calls": 0,
+                "reported_total_tokens": 950,
+                "unreported_usage_calls": 0,
+                "calls": [
+                  {
+                    "kind": "fab_planner_decision",
+                    "model": "gpt-4.1",
+                    "succeeded": true,
+                    "input_tokens": 771,
+                    "output_tokens": 179,
+                    "total_tokens": 950,
+                    "seconds": 2.309
+                  }
+                ]
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2311
+            }
+          }
+        ],
+        "plan": {
+          "status": "ready",
+          "query_type": "knowledge_lookup",
+          "intent": "Lookup the approved optimal exposure dose (in mJ/cm2) for 3nm EUV process photoresist.",
+          "selected_sub_agents": [
+            "rag"
+          ],
+          "execution_steps": [
+            {
+              "agent": "rag",
+              "action": "Retrieve the approved optimal value for exposure dose (mJ/cm2) of photoresist in 3nm EUV process from documented knowledge/manual/approval records.",
+              "required": true,
+              "reason": "User requests a precise parameter from documented approval/manual, requiring knowledge retrieval rather than database lookup."
+            }
+          ],
+          "slots": {},
+          "rag_knowledge_base": "incident_playbook",
+          "missing_slots": [],
+          "clarification_question": null,
+          "limitations": [
+            "Only document-backed facts will be returned; if not found, may report absence of approved value.",
+            "No FAB context provided, so result is for general/reference 3nm EUV process.",
+            "Only document-backed facts will be returned; if not found, may report absence of approved value.",
+            "No FAB context provided, so result is for general/reference 3nm EUV process."
+          ],
+          "prompt_version": "planner.v2"
+        },
+        "agent_runs": [
+          {
+            "agent": "rag",
+            "status": "data_unavailable",
+            "summary": "질문을 뒷받침하는 문서 근거를 찾지 못했습니다.",
+            "metadata": {
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "3nm EUV 공정 레지스트 노광량의 승인된 최적값을 mJ/cm2로 알려줘.",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "nm",
+                    "euv",
+                    "레지스트",
+                    "노광량의",
+                    "승인된",
+                    "최적값",
+                    "cm2"
+                  ],
+                  "subqueries": [
+                    "3nm EUV 공정 레지스트 노광량의 승인된 최적값을 mJ/cm2로 알려줘."
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 0,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 0,
+                "context_chars": 0,
+                "budget_dropped_count": 0,
+                "covered_concepts": [],
+                "uncovered_concepts": [],
+                "latency_ms": 5457.917
+              }
+            }
+          }
+        ],
+        "reflection": {
+          "execution_mode": "post_generation_grounded_review"
+        },
+        "citations": [],
+        "grounding": {
+          "status": "insufficient",
+          "validation": "no_sources",
+          "citations": [],
+          "review": {}
+        },
+        "model_usage": {
+          "call_count": 4,
+          "failed_calls": 0,
+          "reported_total_tokens": 6701,
+          "unreported_usage_calls": 0,
+          "calls": [
+            {
+              "kind": "fab_planner_decision",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 771,
+              "output_tokens": 179,
+              "total_tokens": 950,
+              "seconds": 2.309
+            },
+            {
+              "kind": "fab_supervisor_decision",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 571,
+              "output_tokens": 112,
+              "total_tokens": 683,
+              "seconds": 1.855
+            },
+            {
+              "kind": "embeddings",
+              "model": "text-embedding-3-large",
+              "succeeded": true,
+              "input_tokens": 41,
+              "output_tokens": null,
+              "total_tokens": 41,
+              "seconds": 0.222
+            },
+            {
+              "kind": "fab_rag_rerank",
+              "model": "gpt-4.1",
+              "succeeded": true,
+              "input_tokens": 4515,
+              "output_tokens": 512,
+              "total_tokens": 5027,
+              "seconds": 4.562
+            }
+          ]
+        },
+        "retry_budget_remaining": 0,
+        "elapsed_ms": 9646
+      },
+      "events": [
+        {
+          "event": "trace",
+          "payload": {
+            "type": "run_started",
+            "node": "input",
+            "message": "질문을 접수했습니다.",
+            "data": {
+              "conversation_id": "18210f30-1606-4214-b51f-2317ea0f5e29",
+              "retry_budget_remaining": 0,
+              "timeout_seconds": 120,
+              "elapsed_ms": 0
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "planner",
+            "message": "knowledge_lookup 질의로 분류하고 실행 계획을 만들었습니다.",
+            "data": {
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "status": "ready",
+              "query_type": "knowledge_lookup",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "rag_knowledge_base": "incident_playbook",
+              "missing_slots": [],
+              "execution_steps": [
+                {
+                  "agent": "rag",
+                  "action": "Retrieve the approved optimal value for exposure dose (mJ/cm2) of photoresist in 3nm EUV process from documented knowledge/manual/approval records.",
+                  "required": true,
+                  "reason": "User requests a precise parameter from documented approval/manual, requiring knowledge retrieval rather than database lookup."
+                }
+              ],
+              "slots": {},
+              "model_usage": {
+                "call_count": 1,
+                "failed_calls": 0,
+                "reported_total_tokens": 950,
+                "unreported_usage_calls": 0
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 2311
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "supervisor",
+            "message": "rag",
+            "data": {
+              "status": "ready",
+              "selected_sub_agents": [
+                "rag"
+              ],
+              "reason": "The question requires retrieval of an approved and documented parameter for exposure dose in the 3nm EUV process, matching the Planner's chosen approach: RAG. The next step is retrieving this value from the knowledge/manual/approval records.",
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "model_usage": {
+                "call_count": 2,
+                "failed_calls": 0,
+                "reported_total_tokens": 1633,
+                "unreported_usage_calls": 0
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 4169
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "tool_completed",
+            "node": "rag",
+            "message": "질문을 뒷받침하는 문서 근거를 찾지 못했습니다.",
+            "data": {
+              "status": "data_unavailable",
+              "knowledge_base": "incident_playbook",
+              "retrieval_trace": {
+                "pipeline_version": "hybrid.v2",
+                "plan": {
+                  "query": "3nm EUV 공정 레지스트 노광량의 승인된 최적값을 mJ/cm2로 알려줘.",
+                  "knowledge_bases": [
+                    "incident_playbook"
+                  ],
+                  "concepts": [],
+                  "excluded_concepts": [],
+                  "exact_ids": [],
+                  "fab_ids": [],
+                  "terms": [
+                    "nm",
+                    "euv",
+                    "레지스트",
+                    "노광량의",
+                    "승인된",
+                    "최적값",
+                    "cm2"
+                  ],
+                  "subqueries": [
+                    "3nm EUV 공정 레지스트 노광량의 승인된 최적값을 mJ/cm2로 알려줘."
+                  ],
+                  "require_verified": false
+                },
+                "retrieval_mode": "hybrid",
+                "reranker": "llm.v1",
+                "candidate_limit": 30,
+                "retrieval_channels": [
+                  "bm25:original",
+                  "dense:incident_playbook"
+                ],
+                "reranked_count": 12,
+                "lexical_candidates": 0,
+                "dense_candidates": 25,
+                "fused_candidates": 25,
+                "selected_count": 0,
+                "context_chars": 0,
+                "budget_dropped_count": 0,
+                "covered_concepts": [],
+                "uncovered_concepts": [],
+                "latency_ms": 5457.917
+              },
+              "evidence_count": 0,
+              "model_usage": {
+                "call_count": 4,
+                "failed_calls": 0,
+                "reported_total_tokens": 6701,
+                "unreported_usage_calls": 0
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 9640
+            }
+          }
+        },
+        {
+          "event": "trace",
+          "payload": {
+            "type": "node_completed",
+            "node": "composer",
+            "message": "조회 결과를 근거로 최종 답변을 구성했습니다.",
+            "data": {
+              "answer": "질문에 답할 수 있는 문서 근거를 찾지 못했습니다. 구체적인 절차나 수치를 확정할 수 없습니다.",
+              "grounding": {
+                "status": "insufficient",
+                "validation": "no_sources",
+                "citations": [],
+                "review": {}
+              },
+              "execution_mode": "llm_chat_completions",
+              "model": "gpt-4.1",
+              "model_usage": {
+                "call_count": 4,
+                "failed_calls": 0,
+                "reported_total_tokens": 6701,
+                "unreported_usage_calls": 0
+              },
+              "retry_budget_remaining": 0,
+              "elapsed_ms": 9645
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "artifact_format": "compact.v1",
+  "omitted_debug_fields": "Duplicate final events, repeated per-evidence retrieval traces, intermediate usage call lists and prompt_contract; final evidence, per-run trace, outcomes and final usage remain."
+}

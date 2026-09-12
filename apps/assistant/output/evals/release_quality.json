@@ -2,7 +2,7 @@
   "scope": "local deterministic release quality",
   "baseline_version": 73,
   "evaluation_modes": {
-    "text2sql": "local_execution",
+    "text2sql": "generation_only",
     "rag": "local_lexical_retrieval",
     "case_search": "local_provenance_retrieval",
     "impact": "deterministic_contract",
@@ -349,11 +349,6 @@
       "minimum": 1.0,
       "delta_from_baseline": 0.0,
       "passed": true
-    }
-  },
-  "infrastructure": {
-    "postgres": {
-      "status": "available"
     }
   }
 }

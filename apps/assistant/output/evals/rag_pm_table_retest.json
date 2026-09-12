@@ -1,0 +1,150 @@
+{
+  "retrieval_replayed_from": "apps/assistant/output/evals/rag_chat_extension_spans_final.json",
+  "cases": [
+    {
+      "id": "ext_pm_approval",
+      "seconds": 5.514,
+      "result": {
+        "answer": "PM 연기는 Engineer 승인 없이는 허용하지 않는다. [1]\n\nPM을 단기간 연기하려면 low risk여야 하고 manager 승인이 필요하며 risk memo를 기록해야 한다. [2]\n\n이 내용은 시뮬레이션 참조 자료에 근거하며 실제 사내 승인 SOP가 아닙니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf, p.8\n[2] semiconductor_fab_incident_response_playbook_kr.pdf, p.8",
+        "status": "supported",
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          },
+          {
+            "number": 2,
+            "chunk_id": "826a8c8ba9e44f729a587f08",
+            "quote": "PM short delay low risk and manager approval risk memo",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "page_number": 8
+          }
+        ],
+        "validation": "verified_quotes_and_model_review",
+        "review": {
+          "complete": true,
+          "coverage": [
+            {
+              "requirement": "PM 연기 승인자는 누구인가?",
+              "covered": true,
+              "reason": "PM 연기는 Engineer 승인 없이는 허용하지 않음(즉, Engineer가 승인자임)."
+            },
+            {
+              "requirement": "급한 lot 상황에서 PM 연기를 누가 최종 승인하는가?",
+              "covered": true,
+              "reason": "단기 연기는 manager 승인 필요(Manager 최종 승인)."
+            },
+            {
+              "requirement": "연기에 필요한 복구 기록은 무엇인가?",
+              "covered": true,
+              "reason": "risk memo 작성이 필요함."
+            }
+          ],
+          "checks": [
+            {
+              "claim_index": 0,
+              "supported": true,
+              "reason": "명확하게 'PM 연기는 Engineer 승인 없이는 허용하지 않는다' 명시."
+            },
+            {
+              "claim_index": 1,
+              "supported": true,
+              "reason": "'PM short delay는 low risk, manager approval, risk memo 필요'로 명확히 규정됨."
+            }
+          ]
+        },
+        "version": "source_spans.v3"
+      },
+      "model_usage": {
+        "call_count": 2,
+        "failed_calls": 0,
+        "reported_total_tokens": 4125,
+        "unreported_usage_calls": 0,
+        "calls": [
+          {
+            "kind": "fab_grounded_answer",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 2377,
+            "output_tokens": 104,
+            "total_tokens": 2481,
+            "seconds": 2.198
+          },
+          {
+            "kind": "fab_grounded_review",
+            "model": "gpt-4.1",
+            "succeeded": true,
+            "input_tokens": 1455,
+            "output_tokens": 189,
+            "total_tokens": 1644,
+            "seconds": 3.313
+          }
+        ]
+      },
+      "model_outputs": [
+        {
+          "schema": "fab_grounded_answer",
+          "output": {
+            "status": "supported",
+            "claims": [
+              {
+                "text": "PM 연기는 Engineer 승인 없이는 허용하지 않는다.",
+                "sources": [
+                  {
+                    "quote_id": "826a8c8ba9e44f729a587f08:6"
+                  }
+                ]
+              },
+              {
+                "text": "PM을 단기간 연기하려면 low risk여야 하고 manager 승인이 필요하며 risk memo를 기록해야 한다.",
+                "sources": [
+                  {
+                    "quote_id": "826a8c8ba9e44f729a587f08:decision:1"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "schema": "fab_grounded_review",
+          "output": {
+            "complete": true,
+            "coverage": [
+              {
+                "requirement": "PM 연기 승인자는 누구인가?",
+                "covered": true,
+                "reason": "PM 연기는 Engineer 승인 없이는 허용하지 않음(즉, Engineer가 승인자임)."
+              },
+              {
+                "requirement": "급한 lot 상황에서 PM 연기를 누가 최종 승인하는가?",
+                "covered": true,
+                "reason": "단기 연기는 manager 승인 필요(Manager 최종 승인)."
+              },
+              {
+                "requirement": "연기에 필요한 복구 기록은 무엇인가?",
+                "covered": true,
+                "reason": "risk memo 작성이 필요함."
+              }
+            ],
+            "checks": [
+              {
+                "claim_index": 0,
+                "supported": true,
+                "reason": "명확하게 'PM 연기는 Engineer 승인 없이는 허용하지 않는다' 명시."
+              },
+              {
+                "claim_index": 1,
+                "supported": true,
+                "reason": "'PM short delay는 low risk, manager approval, risk memo 필요'로 명확히 규정됨."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

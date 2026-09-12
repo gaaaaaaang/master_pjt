@@ -1,0 +1,18 @@
+[
+  {"id":"PS-001","question":"FAB13 현재 WIP 값 알려줘","context":{"fab":"fab10"},"status":"ready","query_type":"status","agents":["text2sql"],"slots":{"fab_id":"fab13"}},
+  {"id":"PS-002","question":"fab10 Product_3과 Product_4의 WIP와 cycle time 비교해줘","status":"ready","query_type":"trend","agents":["text2sql","visualization"],"slots":{"products":"Product_3,Product_4"}},
+  {"id":"PS-003","question":"fab12 Dry_Etch 가동률이 80% 이상인 설비군 상위 5개","status":"ready","agents":["text2sql"],"slots":{"fab_id":"fab12","area":"Dry_Etch","threshold_operator":">=","top_n":"5"}},
+  {"id":"PS-004","question":"fab10 WIP 2020년 1분기 월별 추세와 증가 원인을 알려줘","status":"ready","query_type":"diagnosis","agents":["text2sql","rag","case_search","visualization"],"slots":{"date_start":"2020-01-01","date_end":"2020-04-01","date_grain":"month"}},
+  {"id":"PS-005","question":"fab10 Dry_Etch 병목 원인과 utilization 5%p 감소 영향을 계산해줘","status":"ready","query_type":"diagnosis","agents":["text2sql","rag","case_search","impact"],"slots":{"fab_id":"fab10"}},
+  {"id":"PS-006","question":"fab10 현재 WIP 몇 개야?","status":"ready","query_type":"status","agents":["text2sql"],"slots":{"fab_id":"fab10"}},
+  {"id":"PS-007","question":"CMP 공정의 정의를 설명해줘","status":"ready","query_type":"knowledge_lookup","agents":["rag"],"slots":{}},
+  {"id":"PS-008","question":"현재 WIP 몇 개야?","status":"needs_clarification","agents":[],"slots":{}},
+  {"id":"PS-009","question":"fab10과 fab12의 WIP를 비교해줘","status":"needs_clarification","agents":[],"slots":{}},
+  {"id":"PS-010","question":"fab99 현재 WIP","context":{"fab":"fab10"},"status":"needs_clarification","agents":[],"slots":{}},
+  {"id":"PS-011","question":"그중 80% 이상만 상위 5개","context":{"fab":"fab11","process":"Dry_Etch","metric":"util_percent"},"status":"ready","query_type":"status","agents":["text2sql"],"slots":{"fab_id":"fab11","threshold_metric":"util_percent","top_n":"5"}},
+  {"id":"PS-012","question":"fab10 lotrelease 일별 추세","status":"needs_clarification","agents":[],"slots":{}},
+  {"id":"PS-013","question":"fab10 Product_3 lotrelease 건수를 납기일 기준 일별 그래프로 보여줘","status":"ready","query_type":"trend","agents":["text2sql","visualization"],"slots":{"date_basis":"due_date"}},
+  {"id":"PS-014","question":"fab10 DE_BE_11과 DE_BE_12 utilization과 down의 최근 7일 추세","status":"ready","query_type":"trend","agents":["text2sql","visualization"],"slots":{"toolgroups":"DE_BE_11,DE_BE_12"}},
+  {"id":"PS-015","question":"fab10 utilization이 5%p 떨어지면 capacity 영향과 비교 차트를 보여줘","status":"ready","query_type":"impact","agents":["text2sql","impact","visualization"],"slots":{"fab_id":"fab10"}},
+  {"id":"PS-016","question":"fab10 WIP 추세, 증가 원인, 생산 영향도까지 알려줘","status":"ready","query_type":"diagnosis","agents":["text2sql","rag","case_search","impact","visualization"],"slots":{"fab_id":"fab10"}}
+]

@@ -1,0 +1,573 @@
+{
+  "kind": "physical identity/count and current toolgroup key audit; not a content checksum",
+  "at": "2026-09-07T22:35:44.638700+00:00",
+  "tables": 78,
+  "all_same_oid": true,
+  "all_not_decreased": true,
+  "key_checks": [
+    {
+      "fab": "fab10",
+      "duplicate_or_null_toolgroup_rows": 0
+    },
+    {
+      "fab": "fab11",
+      "duplicate_or_null_toolgroup_rows": 0
+    },
+    {
+      "fab": "fab12",
+      "duplicate_or_null_toolgroup_rows": 0
+    },
+    {
+      "fab": "fab13",
+      "duplicate_or_null_toolgroup_rows": 0
+    }
+  ],
+  "results": [
+    {
+      "table": "fab10.autosched_lot_fab10",
+      "same_oid": true,
+      "baseline_rows": 85772,
+      "current_rows": 85772,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.autosched_order_fab10",
+      "same_oid": true,
+      "baseline_rows": 24,
+      "current_rows": 24,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.autosched_part_fab10",
+      "same_oid": true,
+      "baseline_rows": 8,
+      "current_rows": 8,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.autosched_perf_fab10",
+      "same_oid": true,
+      "baseline_rows": 4,
+      "current_rows": 4,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.autosched_semi_fab10",
+      "same_oid": true,
+      "baseline_rows": 418,
+      "current_rows": 418,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.autosched_stn_fab10",
+      "same_oid": true,
+      "baseline_rows": 5772,
+      "current_rows": 5772,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.autosched_stnfam_fab10",
+      "same_oid": true,
+      "baseline_rows": 424,
+      "current_rows": 424,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.autosched_stngrp_fab10",
+      "same_oid": true,
+      "baseline_rows": 48,
+      "current_rows": 48,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.breakdown_fab10",
+      "same_oid": true,
+      "baseline_rows": 77,
+      "current_rows": 77,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.live_process_events_fab10",
+      "same_oid": true,
+      "baseline_rows": 2016,
+      "current_rows": 2592,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.live_process_snapshots_fab10",
+      "same_oid": true,
+      "baseline_rows": 108,
+      "current_rows": 132,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.lotrelease_fab10",
+      "same_oid": true,
+      "baseline_rows": 35,
+      "current_rows": 35,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.lotrelease_engineering_fab10",
+      "same_oid": true,
+      "baseline_rows": 30,
+      "current_rows": 30,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.lotrelease_variable_due_dates_fab10",
+      "same_oid": true,
+      "baseline_rows": 30,
+      "current_rows": 30,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.pm_fab10",
+      "same_oid": true,
+      "baseline_rows": 412,
+      "current_rows": 412,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.route_product_3_fab10",
+      "same_oid": true,
+      "baseline_rows": 983,
+      "current_rows": 983,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.route_product_4_fab10",
+      "same_oid": true,
+      "baseline_rows": 593,
+      "current_rows": 593,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.setup_matrix_implant_gas_fab10",
+      "same_oid": true,
+      "baseline_rows": 73,
+      "current_rows": 73,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.setups_fab10",
+      "same_oid": true,
+      "baseline_rows": 43,
+      "current_rows": 43,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.toolgroups_fab10",
+      "same_oid": true,
+      "baseline_rows": 156,
+      "current_rows": 156,
+      "not_decreased": true
+    },
+    {
+      "table": "fab10.transport_fab10",
+      "same_oid": true,
+      "baseline_rows": 31,
+      "current_rows": 31,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.breakdown_fab11",
+      "same_oid": true,
+      "baseline_rows": 41,
+      "current_rows": 41,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.live_process_events_fab11",
+      "same_oid": true,
+      "baseline_rows": 2016,
+      "current_rows": 2592,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.live_process_snapshots_fab11",
+      "same_oid": true,
+      "baseline_rows": 108,
+      "current_rows": 132,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.lotrelease_fab11",
+      "same_oid": true,
+      "baseline_rows": 51,
+      "current_rows": 51,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.lotrelease_engineering_fab11",
+      "same_oid": true,
+      "baseline_rows": 30,
+      "current_rows": 30,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.lotrelease_variable_due_dates_fab11",
+      "same_oid": true,
+      "baseline_rows": 167159,
+      "current_rows": 167159,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.pm_fab11",
+      "same_oid": true,
+      "baseline_rows": 322,
+      "current_rows": 322,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.route_product_1_fab11",
+      "same_oid": true,
+      "baseline_rows": 551,
+      "current_rows": 551,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.route_product_10_fab11",
+      "same_oid": true,
+      "baseline_rows": 420,
+      "current_rows": 420,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.route_product_2_fab11",
+      "same_oid": true,
+      "baseline_rows": 559,
+      "current_rows": 559,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.route_product_3_fab11",
+      "same_oid": true,
+      "baseline_rows": 613,
+      "current_rows": 613,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.route_product_4_fab11",
+      "same_oid": true,
+      "baseline_rows": 373,
+      "current_rows": 373,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.route_product_5_fab11",
+      "same_oid": true,
+      "baseline_rows": 272,
+      "current_rows": 272,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.route_product_6_fab11",
+      "same_oid": true,
+      "baseline_rows": 323,
+      "current_rows": 323,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.route_product_7_fab11",
+      "same_oid": true,
+      "baseline_rows": 383,
+      "current_rows": 383,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.route_product_8_fab11",
+      "same_oid": true,
+      "baseline_rows": 405,
+      "current_rows": 405,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.route_product_9_fab11",
+      "same_oid": true,
+      "baseline_rows": 414,
+      "current_rows": 414,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.setups_fab11",
+      "same_oid": true,
+      "baseline_rows": 43,
+      "current_rows": 43,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.toolgroups_fab11",
+      "same_oid": true,
+      "baseline_rows": 136,
+      "current_rows": 136,
+      "not_decreased": true
+    },
+    {
+      "table": "fab11.transport_fab11",
+      "same_oid": true,
+      "baseline_rows": 31,
+      "current_rows": 31,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.breakdown_fab12",
+      "same_oid": true,
+      "baseline_rows": 41,
+      "current_rows": 41,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.live_process_events_fab12",
+      "same_oid": true,
+      "baseline_rows": 2016,
+      "current_rows": 2592,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.live_process_snapshots_fab12",
+      "same_oid": true,
+      "baseline_rows": 108,
+      "current_rows": 132,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.lotrelease_fab12",
+      "same_oid": true,
+      "baseline_rows": 37,
+      "current_rows": 37,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.lotrelease_engineering_fab12",
+      "same_oid": true,
+      "baseline_rows": 16750,
+      "current_rows": 16750,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.lotrelease_variable_due_dates_fab12",
+      "same_oid": true,
+      "baseline_rows": 30,
+      "current_rows": 30,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.pm_fab12",
+      "same_oid": true,
+      "baseline_rows": 322,
+      "current_rows": 322,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.route_product_3_fab12",
+      "same_oid": true,
+      "baseline_rows": 613,
+      "current_rows": 613,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.route_product_4_fab12",
+      "same_oid": true,
+      "baseline_rows": 373,
+      "current_rows": 373,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.route_product_e3_fab12",
+      "same_oid": true,
+      "baseline_rows": 613,
+      "current_rows": 613,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.setup_matrix_implant_gas_fab12",
+      "same_oid": true,
+      "baseline_rows": 73,
+      "current_rows": 73,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.setups_fab12",
+      "same_oid": true,
+      "baseline_rows": 43,
+      "current_rows": 43,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.toolgroups_fab12",
+      "same_oid": true,
+      "baseline_rows": 136,
+      "current_rows": 136,
+      "not_decreased": true
+    },
+    {
+      "table": "fab12.transport_fab12",
+      "same_oid": true,
+      "baseline_rows": 31,
+      "current_rows": 31,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.breakdown_fab13",
+      "same_oid": true,
+      "baseline_rows": 41,
+      "current_rows": 41,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.live_process_events_fab13",
+      "same_oid": true,
+      "baseline_rows": 2016,
+      "current_rows": 2592,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.live_process_snapshots_fab13",
+      "same_oid": true,
+      "baseline_rows": 108,
+      "current_rows": 132,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.lotrelease_fab13",
+      "same_oid": true,
+      "baseline_rows": 57,
+      "current_rows": 57,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.lotrelease_engineering_fab13",
+      "same_oid": true,
+      "baseline_rows": 33468,
+      "current_rows": 33468,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.lotrelease_variable_due_dates_fab13",
+      "same_oid": true,
+      "baseline_rows": 167159,
+      "current_rows": 167159,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.pm_fab13",
+      "same_oid": true,
+      "baseline_rows": 322,
+      "current_rows": 322,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_1_fab13",
+      "same_oid": true,
+      "baseline_rows": 551,
+      "current_rows": 551,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_10_fab13",
+      "same_oid": true,
+      "baseline_rows": 420,
+      "current_rows": 420,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_2_fab13",
+      "same_oid": true,
+      "baseline_rows": 559,
+      "current_rows": 559,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_3_fab13",
+      "same_oid": true,
+      "baseline_rows": 613,
+      "current_rows": 613,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_4_fab13",
+      "same_oid": true,
+      "baseline_rows": 373,
+      "current_rows": 373,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_5_fab13",
+      "same_oid": true,
+      "baseline_rows": 272,
+      "current_rows": 272,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_6_fab13",
+      "same_oid": true,
+      "baseline_rows": 323,
+      "current_rows": 323,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_7_fab13",
+      "same_oid": true,
+      "baseline_rows": 383,
+      "current_rows": 383,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_8_fab13",
+      "same_oid": true,
+      "baseline_rows": 405,
+      "current_rows": 405,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_9_fab13",
+      "same_oid": true,
+      "baseline_rows": 414,
+      "current_rows": 414,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_e1_fab13",
+      "same_oid": true,
+      "baseline_rows": 551,
+      "current_rows": 551,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_e2_fab13",
+      "same_oid": true,
+      "baseline_rows": 559,
+      "current_rows": 559,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.route_product_e3_fab13",
+      "same_oid": true,
+      "baseline_rows": 613,
+      "current_rows": 613,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.setups_fab13",
+      "same_oid": true,
+      "baseline_rows": 43,
+      "current_rows": 43,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.toolgroups_fab13",
+      "same_oid": true,
+      "baseline_rows": 136,
+      "current_rows": 136,
+      "not_decreased": true
+    },
+    {
+      "table": "fab13.transport_fab13",
+      "same_oid": true,
+      "baseline_rows": 31,
+      "current_rows": 31,
+      "not_decreased": true
+    }
+  ]
+}

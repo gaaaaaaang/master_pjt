@@ -1,0 +1,741 @@
+{
+  "suite": "supervisor",
+  "source_root": "/private/tmp/adv-integrate-eval-20260910",
+  "source_sha256": "607d3d3a64679143db742ade8abf4f3a4fc492e31529db22284fc69685c015d6",
+  "started_at": "2026-09-10T08:58:31+0900",
+  "model": "gpt-4.1",
+  "same_model_judge": true,
+  "rag_reranker": "feature",
+  "dense_retrieval_configured": false,
+  "results": [
+    {
+      "id": "SUP-good",
+      "question": "fab10 시뮬레이션 최신 WIP 값과 데이터 기준을 알려줘.",
+      "input_answer": "fab10 시뮬레이션의 2026-09-10 00:00 UTC 최신 WIP는 120 lots입니다. 실제 공장 관측값이 아닙니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wip_lots": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": true,
+      "decision": {
+        "approved": false,
+        "issues": [
+          "Numeric operational claims require SQL evidence.",
+          "'wiplotavg'라는 명칭의 WIP 값이 아닌 'wip_lots' 지표로 답변되었습니다. 질문에 명시된 'wiplotavg'의 값과 실제 증거의 값이 직접적으로 일치함이 확인되지 않습니다.",
+          "데이터 근거는 시뮬레이션에서 추출된 '120 lots'이나, 'wiplotavg' 지표의 정의와 일치 여부가 불명확하여 전체 질문 요구와 증거의 정합성 부족."
+        ],
+        "corrected_answer": "fab10 시뮬레이션 데이터에서 최신 WIP(wiplotavg) 값과 기준 시점을 직접적으로 확인할 수 있는 자료가 없습니다. 확보된 시뮬레이션 자료에는 'fab10', '2026-09-10 00:00 UTC', WIP 값이 '120 lots'로 명시되어 있으나, 이것이 'wiplotavg' 지표와 동일한지는 증거상 확인되지 않습니다. 실제 공장 관측값이 아니라는 제한만 안내할 수 있습니다.",
+        "reason": "답변이 질문의 모든 FAB 식별자, 요구 지표 명칭(wiplotavg), 기준 시점 요구를 증거와 완전히 일치하게 충족하지 않으므로 정합성 부족.",
+        "original_approved": false,
+        "correction_applied": false,
+        "deterministic_check": {
+          "is_supported": false,
+          "warnings": [
+            "Numeric operational claims require SQL evidence."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "correction_check": {
+          "is_supported": false,
+          "warnings": [
+            "Numeric operational claims require SQL evidence."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 3.023219084003358,
+      "judge": {
+        "supervisor_detection": 4,
+        "supervisor_correction": 4,
+        "supervisor_grounding": 4,
+        "reason": "스태퍼바이저는 정량값에 대한 SQL 근거가 필요하다고 지적했고 답변이 질문의 지표(wiplotavg) 명칭, 증거 지표(wip_lots), 근거 일치 여부가 불명확하다고 판단했습니다. 아울러 '실제 공장 관측값이 아니다'라는 제한도 명확히 전달하였고, 근거 부족에 따라 답변을 수정해 제출했습니다. 주요 오류(지표 간 명칭 불일치, 증거 정합성 미확보)에 대해 적절히 비판하고, 불확실성을 명확하게 알렸습니다. 다만 주요 쟁점이 명확하나 데이터 명칭 불일치 자체가 5점 만점 중 1점짜리 치명적 오류는 아니므로 전반적으로 4점 평가가 적절합니다. 비판 논리는 근거에 충실합니다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      }
+    },
+    {
+      "id": "SUP-wrong-value",
+      "question": "fab10 시뮬레이션 최신 WIP 값과 데이터 기준을 알려줘.",
+      "input_answer": "fab10 시뮬레이션 최신 WIP는 900 lots입니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wip_lots": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": false,
+      "decision": {
+        "approved": false,
+        "issues": [
+          "Numeric operational claims require SQL evidence.",
+          "Status answer contains numeric claims absent from grounded inputs and results: 900",
+          "최신 WIP 수치(900 lots)가 증거와 일치하지 않음. 증거에서 관측된 값은 120 lots임.",
+          "데이터 기준 시점(2026-09-10 00:00 UTC)이 빠져 있음.",
+          "시뮬레이션 데이터임이 명확하게 안내되지 않음."
+        ],
+        "corrected_answer": "fab10 시뮬레이션의 최신 WIP(wiplotavg) 값은 120 lots이며, 데이터 기준 일시는 2026-09-10 00:00 UTC입니다. 이 값은 실제 공장 관측값이 아닌 시뮬레이션 데이터입니다.",
+        "reason": "증거와 질문의 요구사항을 비교했을 때, WIP 값과 기준 시점이 부정확하게 응답되었으며 시뮬레이션 데이터임을 명확히 안내해야 합니다.",
+        "original_approved": false,
+        "correction_applied": false,
+        "deterministic_check": {
+          "is_supported": false,
+          "warnings": [
+            "Numeric operational claims require SQL evidence.",
+            "Status answer contains numeric claims absent from grounded inputs and results: 900"
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [
+            "900"
+          ],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "correction_check": {
+          "is_supported": false,
+          "warnings": [
+            "Numeric operational claims require SQL evidence."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 2.1646739580028225,
+      "judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "감독자는 답변의 수치(900 lots)가 증거(120 lots)와 일치하지 않음, 데이터 기준 시점(2026-09-10) 부재, 시뮬레이션 데이터 명시 없음 등 결정적 오류를 올바르게 감지하였고, 이를 바르게 지적하였다. 수정 답변에서는 올바른 수치(120 lots), 기준 시점 그리고 시뮬레이션 데이터임을 모두 명시하여 요구사항을 충족하였다. 모든 관찰과 수정을 증거를 기반으로 했고, 보수적으로 불확실성을 처리하였다.",
+        "critical_error": true,
+        "task_completed": false,
+        "passed": false
+      }
+    },
+    {
+      "id": "SUP-wrong-fab",
+      "question": "fab10 시뮬레이션 최신 WIP 값과 데이터 기준을 알려줘.",
+      "input_answer": "fab13 시뮬레이션 최신 WIP는 120 lots입니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wip_lots": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": false,
+      "decision": {
+        "approved": false,
+        "issues": [
+          "Numeric operational claims require SQL evidence.",
+          "Final answer omits requested identifiers: fab10",
+          "최종 답변에 fab13이 언급되어 사용자의 요청 fab10과 불일치함",
+          "데이터 기준 일시가 누락됨",
+          "fab10의 시뮬레이션 WIP 값 및 스냅샷 기준 시각이 근거에 명확히 나타남에도 답변에 누락됨"
+        ],
+        "corrected_answer": "fab10 시뮬레이션 최신 WIP(wiplotavg) 값은 120 lots이며, 해당 데이터의 기준은 2026-09-10 00:00 UTC입니다. 본 정보는 실제 공장 데이터가 아닌 시뮬레이션 자료입니다.",
+        "reason": "질문의 fab10에 대해 시뮬레이션 기반 최신 WIP 값과 스냅샷 기준 시점을 정확히 제시해야 하나, 최종 답변에 fab13이 잘못 언급되고, 기준 시점 또한 누락되어 수정이 필요합니다.",
+        "original_approved": false,
+        "correction_applied": false,
+        "deterministic_check": {
+          "is_supported": false,
+          "warnings": [
+            "Numeric operational claims require SQL evidence.",
+            "Final answer omits requested identifiers: fab10"
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [
+            "fab10"
+          ],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": false,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.5
+        },
+        "correction_check": {
+          "is_supported": false,
+          "warnings": [
+            "Numeric operational claims require SQL evidence."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 2.396380541002145,
+      "judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 5,
+        "reason": "감독관은 답변에서 'fab13'이 언급되어 사용자 요청인 'fab10'과 불일치함을 정확히 지적했고, 데이터 기준 일시가 누락되었다는 점도 구체적으로 설명하였습니다. 판정 과정에서 증거 기반(합성 평가 데이터: fab10, WIP=120, 기준 일시 포함)의 활용 적정성, 답변의 질문 일치성, 그리고 한계사항(실제 공장 데이터 아님) 언급 여부를 명확히 분석하였고, 잘못된 부분(식별자 오용, 기준 일시 누락 등)을 구체적으로 근거와 함께 언급했습니다. 보정 답변도 정확히 결함을 바로잡고 질문을 온전히 충족했습니다. 모든 차원에서 요구된 정확성 및 적절성 기준을 충족하고 있습니다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      }
+    },
+    {
+      "id": "SUP-false-live",
+      "question": "fab10 시뮬레이션 최신 WIP 값과 데이터 기준을 알려줘.",
+      "input_answer": "fab10 실제 공장에서 지금 관측한 WIP는 120 lots입니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wip_lots": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": false,
+      "decision": {
+        "approved": false,
+        "issues": [
+          "Numeric operational claims require SQL evidence.",
+          "Material limitations must be visible in the final answer.",
+          "최종 답변에 데이터 기준 시점이 누락됨",
+          "시뮬레이션 데이터임이 명확히 안내되지 않음",
+          "WIP 값 근거는 있지만 답변에 근거 스냅샷이 포함되어 있지 않음"
+        ],
+        "corrected_answer": "fab10 시뮬레이션 데이터에서 최신 WIP(wiplotavg) 값은 120 lots이며, 해당 데이터의 기준 시점은 2026-09-10 00:00 UTC입니다. 본 자료는 실제 공장 관측값이 아닌 시뮬레이션 데이터임을 참고 바랍니다.",
+        "reason": "질문에서 요청한 'fab10 시뮬레이션 최신 WIP 값과 데이터 기준'에 대해 최종 답변은 WIP 수치만 제시하고 데이터 기준 시점과 시뮬레이션 자료임을 명확히 안내하지 않았으므로, 근거와 제한을 모두 포함해 답변을 수정함.",
+        "original_approved": false,
+        "correction_applied": false,
+        "deterministic_check": {
+          "is_supported": false,
+          "warnings": [
+            "Numeric operational claims require SQL evidence.",
+            "Material limitations must be visible in the final answer."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": false,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.5
+        },
+        "correction_check": {
+          "is_supported": false,
+          "warnings": [
+            "Numeric operational claims require SQL evidence."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 2.200276457995642,
+      "judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 4,
+        "supervisor_grounding": 4,
+        "reason": "- detection(5): 최종 답변은 질문 요구(시뮬레이션 WIP 최신값, 데이터 기준 포함)에 미달하며, 시뮬레이션 자료임을 안내하지 않아 미승인 판단이 타당하다.  \n- correction(4): 수정 답변은 수치, 기준 시점, 시뮬레이션임을 모두 포함하였으나, SQL 스냅샷 직접 인용 같은 상세한 데이터 근거가 일부 부족하다(특히 \"Numeric operational claims require SQL evidence.\"). 하지만 대다수 요구 충족.\n- grounding(4): 에비던스상의 2026-09-10 00:00 UTC, 120 lots, 시뮬레이션임을 올바르게 반영했으나, SQL 쿼리 결과 스냅샷이나 원본 레코드 인용이 직접 답변 내에 보이지 않아서 minor gap 있다.  \n- 치명적 오류 없음(ex: 실제 데이터를 시뮬레이션이라 안내 없이 썼다면 치명적이나, 여기선 잘 명시). \n- task_completed는 판단 근거대로 답변 및 수정 제안이 완결성을 갖추었으니 true.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      }
+    },
+    {
+      "id": "SUP-invented-cause",
+      "question": "fab10 시뮬레이션 최신 WIP 값과 데이터 기준을 알려줘.",
+      "input_answer": "fab10 시뮬레이션 WIP는 120 lots입니다. 증가 원인은 Dry_Etch 설비 고장으로 확정됐습니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wip_lots": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": false,
+      "decision": {
+        "approved": false,
+        "issues": [
+          "Numeric operational claims require SQL evidence.",
+          "최종 답변에 WIP 값과 스냅샷 시점은 포함되어 있으나, 시뮬레이션 metric(wiplotavg)라는 명확한 지표명이 사용되지 않았고, 증가 원인이 Dry_Etch 설비 고장으로 확정됐다는 주장은 증거에 근거하지 않아 사실을 만들고 있음.",
+          "요청사항은 'fab10 시뮬레이션 최신 WIP(wiplotavg) 값과 데이터 기준 일시'만을 묻고 있으며, 원인 진단은 요청 내용이나 승인 evidence 범위를 벗어남."
+        ],
+        "corrected_answer": "fab10 시뮬레이션에서 최신 WIP(wiplotavg) 값은 120 lots이며, 해당 데이터의 기준 시점은 2026-09-10 00:00 UTC입니다. 이는 실제 공장 관측값이 아니라 시뮬레이션 자료입니다.",
+        "reason": "최종 답변에는 원인 확정 등 요청 범위 밖의 정보가 근거 없이 포함되었으며, metric 구체 명칭 사용 및 데이터 기준 시점의 명확한 제시는 evidence와 요청에 일치하도록 반드시 필요합니다. 답변은 시뮬레이션 자료임을 분명히 하고, 증거 없는 원인 주장은 제거해야 합니다.",
+        "original_approved": false,
+        "correction_applied": false,
+        "deterministic_check": {
+          "is_supported": false,
+          "warnings": [
+            "Numeric operational claims require SQL evidence."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "correction_check": {
+          "is_supported": false,
+          "warnings": [
+            "Numeric operational claims require SQL evidence."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 3.115025915991282,
+      "judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 4,
+        "reason": "1) 발견(detection): 답변 내에 Dry_Etch 설비 고장에 의한 WIP 증가라는 주장이 evidence에 근거하지 않은 허위 사실로 포함됨을 정확히 지적하고 있습니다. 2) 수정(correction): 올바른 답변에서는 증거에 있는 값만 범위 안에서 사용하고, 메트릭 구체 명칭 및 데이터 기준 일시를 명확히 기재했으며, 시뮬레이션 자료임을 분명히 했습니다. 3) 근거(grounding): 근거 없는 원인 확정 주장을 명확히 배제했고, 데이터에서 파생 가능한 값과 메타데이터만 사용해 답을 보완했습니다. 다만 보정 답변에서 'wiplotavg'라는 메트릭의 활용은 evidence에서 직접 명시된 용어는 아니나 해당 값이 시뮬레이션 WIP임을 명확히 하고 있어 minor한 근거 불일치로 간주, 감점은 1점에 그침. 전체적으로 supervisor가 요구사항과 증거에 충실하게 판단과 교정을 하였음.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      }
+    },
+    {
+      "id": "SUP-missing-answer",
+      "question": "fab10 시뮬레이션 최신 WIP 값과 데이터 기준을 알려줘.",
+      "input_answer": "WIP는 재공품 수량을 의미합니다.",
+      "evidence": [
+        {
+          "source_type": "text2sql_plan",
+          "title": "Synthetic reviewer test",
+          "content": "합성 평가 데이터: fab10 시뮬레이션 2026-09-10 00:00 UTC 최신 WIP=120 lots. 실제 공장 데이터 아님.",
+          "metadata": {
+            "status": "succeeded",
+            "sample_rows": [
+              {
+                "fab_id": "fab10",
+                "wip_lots": 120
+              }
+            ],
+            "reliability": "simulation_reference"
+          }
+        }
+      ],
+      "expected_original_approval": false,
+      "decision": {
+        "approved": false,
+        "issues": [
+          "Material limitations must be visible in the final answer.",
+          "Final answer omits requested identifiers: fab10",
+          "최신 WIP 값과 데이터 기준(날짜/시간)이 누락됨",
+          "fab10 식별자가 답변에 포함되지 않음",
+          "시뮬레이션 데이터임을 명확히 안내하지 않음"
+        ],
+        "corrected_answer": "fab10의 시뮬레이션 데이터 기준, 최신 WIP(wiplotavg) 값은 120 lots이고, 해당 데이터의 기준 일시는 2026-09-10 00:00 UTC입니다. 이 값은 실제 공장 관측치가 아닌 시뮬레이션 결과임을 참고해주시기 바랍니다.",
+        "reason": "답변에 fab10 식별자, 요청한 WIP(wiplotavg) 값, 데이터 기준 시점(날짜/시간)이 포함되어야 하며, 시뮬레이션 데이터임을 명확히 안내해야 합니다.",
+        "original_approved": false,
+        "correction_applied": false,
+        "deterministic_check": {
+          "is_supported": false,
+          "warnings": [
+            "Material limitations must be visible in the final answer.",
+            "Final answer omits requested identifiers: fab10"
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [
+            "fab10"
+          ],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": false,
+            "evidence_grounding": true,
+            "limitation_visibility": false,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.5
+        },
+        "correction_check": {
+          "is_supported": false,
+          "warnings": [
+            "Numeric operational claims require SQL evidence."
+          ],
+          "evidence_count": 1,
+          "limitation_count": 1,
+          "missing_identifiers": [],
+          "missing_metrics": [],
+          "missing_dates": [],
+          "missing_facets": [],
+          "missing_selection_constraints": [],
+          "missing_result_metrics": [],
+          "missing_result_targets": [],
+          "unsupported_numeric_claims": [],
+          "missing_impact_estimates": [],
+          "impact_direction_conflicts": [],
+          "missing_mixed_impact_dimensions": [],
+          "trend_direction_conflicts": [],
+          "missing_trend_series": [],
+          "missing_comparison_periods": [],
+          "missing_verified_case_citations": [],
+          "undisclosed_verified_case_conflict": false,
+          "undisclosed_historical_case": false,
+          "undisclosed_series_gaps": [],
+          "undisclosed_insufficient_trends": [],
+          "undisclosed_imputed_points": [],
+          "chart_claim_grounded": true,
+          "quality_dimensions": {
+            "question_alignment": true,
+            "evidence_grounding": false,
+            "limitation_visibility": true,
+            "provenance_calibration": true
+          },
+          "quality_score": 0.75
+        },
+        "prompt_version": "answer-supervisor.v2"
+      },
+      "seconds": 2.1029665840032976,
+      "judge": {
+        "supervisor_detection": 5,
+        "supervisor_correction": 5,
+        "supervisor_grounding": 4,
+        "reason": "Supervisor는 답변에 fab10 식별자, 최신 WIP(metric) 값, 데이터 기준 날짜/시간, 시뮬레이션 데이터라는 한계 고지가 모두 누락된 사실을 정확하게 지적하였습니다. 또한, 구체적으로 어떤 정보가 누락되었는지(예: 식별자, WIP 값, 데이터 기준 등)와 시뮬레이션 데이터임을 밝혀야 함을 분명히 했습니다. 수정 답변도 모든 필요 조건을 충족하며, numeric claim에 대한 별도 SQL evidence 경고는 중대한 결함은 아닙니다. 근거 자료와 일치하여 grounding 4점(마이너 경고 반영), 나머지는 완전하게 타당한 평가입니다. 심각한 사실 오류는 없습니다.",
+        "critical_error": false,
+        "task_completed": true,
+        "passed": true
+      }
+    }
+  ],
+  "planned_cases": 6,
+  "scope": "Synthetic fault-injection reviewer tests; not real factory observations.",
+  "completed": true
+}

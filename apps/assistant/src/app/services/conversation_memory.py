@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 from collections import defaultdict, deque
 from dataclasses import dataclass
@@ -9,14 +10,12 @@ from typing import Any
 from uuid import uuid4
 
 from app.config import get_settings
+from app.db.fab_catalog import comparison_fabs, normalize_fab, resolve_fab
 from app.schemas.chat import ChatRequest
 from app.services.state_store import AssistantStateStore
+from app.sub_agent.snapshot_queries import simulation_areas
+from app.sub_agent.text2sql import PERIOD_SCOPE_KEYS, PRODUCT_PATTERN, extract_query_slots
 
-FAB_PATTERN = re.compile(r"\bfab[\s_-]*(\d+)\b", re.IGNORECASE)
-PRODUCT_PATTERN = re.compile(
-    r"(?<![A-Za-z0-9_])(?:product|part)[-_ ]?([eE]?\d+)(?![A-Za-z0-9_])",
-    re.IGNORECASE,
-)
 ROUTE_PATTERN = re.compile(
     r"(?<![A-Za-z0-9_])route[-_ ]?product[-_ ]?([eE]?\d+)(?![A-Za-z0-9_])",
     re.IGNORECASE,
@@ -31,6 +30,23 @@ PROCESS_PATTERN = re.compile(
     re.IGNORECASE,
 )
 METRIC_ALIASES = (
+    ("정비 시간", "pm_minutes"),
+    ("정비시간", "pm_minutes"),
+    ("pm 시간", "pm_minutes"),
+    ("pm_minutes", "pm_minutes"),
+    ("downtime", "down_minutes"),
+    ("down_minutes", "down_minutes"),
+    ("다운 시간", "down_minutes"),
+    ("비가동 시간", "down_minutes"),
+    ("비가동시간", "down_minutes"),
+    ("투입 lot", "lotstarts"),
+    ("투입lot", "lotstarts"),
+    ("투입 로트", "lotstarts"),
+    ("투입량", "lotstarts"),
+    ("수율", "yield_percent"),
+    ("yield", "yield_percent"),
+    ("대기시간", "avg_queue_minutes"),
+    ("대기 시간", "avg_queue_minutes"),
     ("현재 wip", "wiplotcur"),
     ("current wip", "wiplotcur"),
     ("queue time", "queue_time"),
@@ -74,6 +90,9 @@ class ConversationMemory:
         conversation_id = request.conversation_id or str(uuid4())
         history = self.get_history(conversation_id)
         inferred = self._infer_context(history)
+        resets = _scope_resets(request.message)
+        for key in resets:
+            inferred.pop(key, None)
         current = {
             "fab": _parse_fab(request.message),
             "process": _parse_process(request.message),
@@ -86,16 +105,24 @@ class ConversationMemory:
         inherited_metric = (
             inferred.get("metric") if _should_inherit_metric(request.message) else None
         )
+        prior_user = next((turn for turn in reversed(history) if turn.get("role") == "user"), None)
+        prior_metadata = (prior_user or {}).get("metadata") or {}
+        supplied_fab = request.fab
+        if (not current["fab"] and "supplied_fab" in prior_metadata
+                and normalize_fab(request.fab) == normalize_fab(prior_metadata["supplied_fab"])):
+            # An unchanged sidebar default must not undo the FAB named in the
+            # previous question. A newly selected sidebar FAB still takes effect.
+            supplied_fab = inferred.get("fab") or supplied_fab
         prepared = request.model_copy(
             update={
                 "conversation_id": conversation_id,
-                "fab": request.fab or current["fab"] or inferred.get("fab"),
-                "line": request.line or inferred.get("line"),
-                "process": request.process or current["process"] or inferred.get("process"),
-                "product": request.product or current["product"] or inferred.get("product"),
-                "route": request.route or current["route"] or inferred.get("route"),
+                "fab": current["fab"] or supplied_fab or inferred.get("fab"),
+                "line": None if "line" in resets else request.line or inferred.get("line"),
+                "process": current["process"] or (None if "process" in resets else request.process or inferred.get("process")),
+                "product": current["product"] or (None if "product" in resets else request.product or inferred.get("product")),
+                "route": current["route"] or (None if "route" in resets else request.route or inferred.get("route")),
                 "equipment": (
-                    request.equipment or current["equipment"] or inferred.get("equipment")
+                    current["equipment"] or (None if "equipment" in resets else request.equipment or inferred.get("equipment"))
                 ),
                 "date_basis": (
                     request.date_basis or current["date_basis"] or inferred.get("date_basis")
@@ -112,11 +139,15 @@ class ConversationMemory:
         request: ChatRequest,
         answer: str,
         metadata: dict[str, Any] | None = None,
+        supplied_fab: str | None = None,
+        query_result: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         with self._lock:
             self._ensure_loaded(conversation_id)
             turns = self._turns[conversation_id]
+            query_slots = extract_query_slots(request.message, conversation_history=self._serialize(conversation_id))
             user_metadata = {
+                "fab_ids": comparison_fabs(request.message, self._serialize(conversation_id)),
                 "fab": request.fab or _parse_fab(request.message),
                 "line": request.line,
                 "process": request.process or _parse_process(request.message),
@@ -125,8 +156,20 @@ class ConversationMemory:
                 "equipment": request.equipment or _parse_equipment(request.message),
                 "date_basis": request.date_basis or _parse_date_basis(request.message),
                 "metric": request.metric or _parse_metric(request.message),
+                "supplied_fab": supplied_fab,
+                "scope_reset": sorted(_scope_resets(request.message)),
+                "query_areas": query_slots["areas"].value.split(",") if "areas" in query_slots else [],
+                "query_metrics": query_slots["metrics"].value.split(",") if "metrics" in query_slots else [],
+                "query_aggregations": json.loads(query_slots["metric_aggregations"].value) if "metric_aggregations" in query_slots else {},
+                "query_group_by_area": "group_by_area" in query_slots,
+                "query_period": {
+                    key:slot.value for key,slot in query_slots.items() if key in PERIOD_SCOPE_KEYS
+                },
             }
-            assistant_metadata = metadata or {}
+            assistant_metadata = dict(metadata or {})
+            result_scope = _query_result_scope(query_result, request.fab)
+            if result_scope:
+                assistant_metadata["query_result_scope"] = result_scope
             if self._store:
                 self._store.append_exchange(
                     conversation_id=conversation_id,
@@ -223,8 +266,12 @@ class ConversationMemory:
 
     def _infer_context(self, history: list[dict[str, Any]]) -> dict[str, str]:
         context: dict[str, str] = {}
+        blocked: set[str] = set()
         for turn in reversed(history):
+            if turn.get("role") != "user":
+                continue
             metadata = turn.get("metadata") or {}
+            blocked.update(metadata.get("scope_reset") or [])
             for key in (
                 "fab",
                 "line",
@@ -236,7 +283,7 @@ class ConversationMemory:
                 "metric",
             ):
                 value = metadata.get(key)
-                if value and key not in context:
+                if value and key not in context and key not in blocked:
                     context[key] = str(value)
             if "fab" not in context:
                 fab = _parse_fab(str(turn.get("content") or ""))
@@ -245,15 +292,41 @@ class ConversationMemory:
         return context
 
 
+def _query_result_scope(result: dict[str, Any] | None, fab: str | None) -> dict[str, Any] | None:
+    """Persist typed SQL dimensions, never identifiers copied from answer prose."""
+    if not result or result.get("status") != "succeeded" or result.get("limit_reached"):
+        return None
+    rows = result.get("rows") or []
+    if not rows or len(rows) != result.get("row_count") or not normalize_fab(fab):
+        return None
+    if any(not isinstance(row.get("area"), str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,99}", row["area"])
+           or (row.get("fab_id") and row["fab_id"] != normalize_fab(fab)) for row in rows):
+        return None
+    return {"source_type":"text2sql_result", "status":"succeeded", "complete":True,
+            "fab":normalize_fab(fab), "areas":list(dict.fromkeys(row["area"] for row in rows))}
+
+
+def _scope_resets(question: str) -> set[str]:
+    if re.search(r"(?:fab|팹|공장)\s*(?:\d+\s*)?전체|전체\s*(?:fab|팹|공장)", question, re.IGNORECASE):
+        return {"line", "process", "product", "route", "equipment"}
+    if len(simulation_areas(question)) > 1:
+        return {"process", "equipment"}
+    if re.search(r"공정별|영역별|각\s*공정|모든\s*공정|전체\s*공정", question) and not _parse_process(question):
+        return {"process", "equipment"}
+    return set()
+
+
 def _parse_fab(content: str) -> str | None:
-    match = FAB_PATTERN.search(content)
-    return f"fab{match.group(1)}" if match else None
+    return resolve_fab(content).fab_id
 
 
 def _parse_process(content: str) -> str | None:
+    if len(simulation_areas(content)) > 1:
+        return None
     match = PROCESS_PATTERN.search(content)
     if not match:
-        return None
+        areas = simulation_areas(content)
+        return areas[0] if len(areas) == 1 else None
     aliases = {
         "dry_etch": "Dry_Etch",
         "wet_etch": "Wet_Etch",
@@ -297,7 +370,7 @@ def _parse_date_basis(content: str) -> str | None:
 
 def _parse_metric(content: str) -> str | None:
     normalized = content.casefold()
-    for alias, metric in METRIC_ALIASES:
+    for alias, metric in sorted(METRIC_ALIASES, key=lambda item: -len(item[0])):
         if re.search(rf"(?<![a-z0-9_]){re.escape(alias)}(?![a-z0-9_])", normalized):
             return metric
     return None

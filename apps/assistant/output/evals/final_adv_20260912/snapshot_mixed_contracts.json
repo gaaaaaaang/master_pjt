@@ -1,0 +1,402 @@
+[
+  {
+    "id": "fab10_aliases_0",
+    "question": "FAB10 현재 공정별 WIP과 util, cycleavg",
+    "kind": "current",
+    "fab": "fab10",
+    "metrics": [
+      "wip_lots",
+      "utilization_percent",
+      "avg_cycle_hours"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab10_aliases_1",
+    "question": "FAB10 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent",
+    "kind": "current",
+    "fab": "fab10",
+    "metrics": [
+      "avg_queue_minutes",
+      "avg_cycle_hours",
+      "utilization_percent"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab10_aliases_2",
+    "question": "FAB10 현재 공정별 WIP과 PM 시간, 비가동 시간",
+    "kind": "current",
+    "fab": "fab10",
+    "metrics": [
+      "wip_lots",
+      "pm_minutes",
+      "down_minutes"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab10_mixed_flow_0",
+    "question": "FAB10 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계",
+    "kind": "period_mixed",
+    "fab": "fab10",
+    "metrics": [
+      "lot_completions",
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_completions": "mean",
+      "pm_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab10_mixed_flow_1",
+    "question": "FAB10 최근 3일 공정별 완료 LOT 합계와 투입량 평균",
+    "kind": "period_mixed",
+    "fab": "fab10",
+    "metrics": [
+      "lot_starts",
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_starts": "mean",
+      "lot_completions": "sum"
+    }
+  },
+  {
+    "id": "fab10_mixed_flow_2",
+    "question": "FAB10 최근 3일 공정별 평균 정비 시간과 downtime 합계",
+    "kind": "period_mixed",
+    "fab": "fab10",
+    "metrics": [
+      "pm_minutes",
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "pm_minutes": "mean",
+      "down_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab10_mixed_flow_3",
+    "question": "FAB10 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계",
+    "kind": "period_mixed",
+    "fab": "fab10",
+    "metrics": [
+      "lot_starts",
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_starts": "mean",
+      "down_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab11_aliases_0",
+    "question": "FAB11 현재 공정별 WIP과 util, cycleavg",
+    "kind": "current",
+    "fab": "fab11",
+    "metrics": [
+      "wip_lots",
+      "utilization_percent",
+      "avg_cycle_hours"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab11_aliases_1",
+    "question": "FAB11 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent",
+    "kind": "current",
+    "fab": "fab11",
+    "metrics": [
+      "avg_queue_minutes",
+      "avg_cycle_hours",
+      "utilization_percent"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab11_aliases_2",
+    "question": "FAB11 현재 공정별 WIP과 PM 시간, 비가동 시간",
+    "kind": "current",
+    "fab": "fab11",
+    "metrics": [
+      "wip_lots",
+      "pm_minutes",
+      "down_minutes"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab11_mixed_flow_0",
+    "question": "FAB11 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계",
+    "kind": "period_mixed",
+    "fab": "fab11",
+    "metrics": [
+      "lot_completions",
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_completions": "mean",
+      "pm_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab11_mixed_flow_1",
+    "question": "FAB11 최근 3일 공정별 완료 LOT 합계와 투입량 평균",
+    "kind": "period_mixed",
+    "fab": "fab11",
+    "metrics": [
+      "lot_starts",
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_starts": "mean",
+      "lot_completions": "sum"
+    }
+  },
+  {
+    "id": "fab11_mixed_flow_2",
+    "question": "FAB11 최근 3일 공정별 평균 정비 시간과 downtime 합계",
+    "kind": "period_mixed",
+    "fab": "fab11",
+    "metrics": [
+      "pm_minutes",
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "pm_minutes": "mean",
+      "down_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab11_mixed_flow_3",
+    "question": "FAB11 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계",
+    "kind": "period_mixed",
+    "fab": "fab11",
+    "metrics": [
+      "lot_starts",
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_starts": "mean",
+      "down_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab12_aliases_0",
+    "question": "FAB12 현재 공정별 WIP과 util, cycleavg",
+    "kind": "current",
+    "fab": "fab12",
+    "metrics": [
+      "wip_lots",
+      "utilization_percent",
+      "avg_cycle_hours"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab12_aliases_1",
+    "question": "FAB12 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent",
+    "kind": "current",
+    "fab": "fab12",
+    "metrics": [
+      "avg_queue_minutes",
+      "avg_cycle_hours",
+      "utilization_percent"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab12_aliases_2",
+    "question": "FAB12 현재 공정별 WIP과 PM 시간, 비가동 시간",
+    "kind": "current",
+    "fab": "fab12",
+    "metrics": [
+      "wip_lots",
+      "pm_minutes",
+      "down_minutes"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab12_mixed_flow_0",
+    "question": "FAB12 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계",
+    "kind": "period_mixed",
+    "fab": "fab12",
+    "metrics": [
+      "lot_completions",
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_completions": "mean",
+      "pm_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab12_mixed_flow_1",
+    "question": "FAB12 최근 3일 공정별 완료 LOT 합계와 투입량 평균",
+    "kind": "period_mixed",
+    "fab": "fab12",
+    "metrics": [
+      "lot_starts",
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_starts": "mean",
+      "lot_completions": "sum"
+    }
+  },
+  {
+    "id": "fab12_mixed_flow_2",
+    "question": "FAB12 최근 3일 공정별 평균 정비 시간과 downtime 합계",
+    "kind": "period_mixed",
+    "fab": "fab12",
+    "metrics": [
+      "pm_minutes",
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "pm_minutes": "mean",
+      "down_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab12_mixed_flow_3",
+    "question": "FAB12 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계",
+    "kind": "period_mixed",
+    "fab": "fab12",
+    "metrics": [
+      "lot_starts",
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_starts": "mean",
+      "down_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab13_aliases_0",
+    "question": "FAB13 현재 공정별 WIP과 util, cycleavg",
+    "kind": "current",
+    "fab": "fab13",
+    "metrics": [
+      "wip_lots",
+      "utilization_percent",
+      "avg_cycle_hours"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab13_aliases_1",
+    "question": "FAB13 현재 공정별 queue_time과 avg_cycle_hours, utilization_percent",
+    "kind": "current",
+    "fab": "fab13",
+    "metrics": [
+      "avg_queue_minutes",
+      "avg_cycle_hours",
+      "utilization_percent"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab13_aliases_2",
+    "question": "FAB13 현재 공정별 WIP과 PM 시간, 비가동 시간",
+    "kind": "current",
+    "fab": "fab13",
+    "metrics": [
+      "wip_lots",
+      "pm_minutes",
+      "down_minutes"
+    ],
+    "areas": "all"
+  },
+  {
+    "id": "fab13_mixed_flow_0",
+    "question": "FAB13 최근 3일 공정별 완료 LOT 평균과 정비 시간 합계",
+    "kind": "period_mixed",
+    "fab": "fab13",
+    "metrics": [
+      "lot_completions",
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_completions": "mean",
+      "pm_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab13_mixed_flow_1",
+    "question": "FAB13 최근 3일 공정별 완료 LOT 합계와 투입량 평균",
+    "kind": "period_mixed",
+    "fab": "fab13",
+    "metrics": [
+      "lot_starts",
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_starts": "mean",
+      "lot_completions": "sum"
+    }
+  },
+  {
+    "id": "fab13_mixed_flow_2",
+    "question": "FAB13 최근 3일 공정별 평균 정비 시간과 downtime 합계",
+    "kind": "period_mixed",
+    "fab": "fab13",
+    "metrics": [
+      "pm_minutes",
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "pm_minutes": "mean",
+      "down_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab13_mixed_flow_3",
+    "question": "FAB13 최근 3일 공정별 투입 LOT 평균과 비가동 시간 합계",
+    "kind": "period_mixed",
+    "fab": "fab13",
+    "metrics": [
+      "lot_starts",
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "aggregations": {
+      "lot_starts": "mean",
+      "down_minutes": "sum"
+    }
+  }
+]

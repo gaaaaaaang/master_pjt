@@ -5,17 +5,22 @@ from typing import Any
 
 import httpx
 
+from app.agents.context_encoding import ENCODING_INSTRUCTION, encode_context
+from app.agents.evidence_contract import with_evidence_contract
+from app.agents.prompt_context import compact_prompt_data
+from app.agents.usage import model_call, model_http_client, reported_context_usage, reported_usage
 from app.config import get_settings
 
 
 class AzureAgentClient:
-    def __init__(self, *, timeout_seconds: float = 45.0) -> None:
+    def __init__(self, *, timeout_seconds: float = 45.0, temperature: float | None = None) -> None:
         settings = get_settings()
         self.api_key = settings.openai_api_key
         self.model = settings.openai_model
         self.endpoint = settings.openai_endpoint.rstrip("/")
         self.api_version = settings.openai_api_version
         self.timeout_seconds = timeout_seconds
+        self.temperature = temperature
 
     def complete_json(
         self,
@@ -25,6 +30,15 @@ class AzureAgentClient:
         output_schema: dict[str, Any],
         schema_name: str,
     ) -> dict[str, Any]:
+        with model_call(schema_name, self.model):
+            return self._complete_json(
+                system_prompt=system_prompt,
+                input_data=input_data,
+                output_schema=output_schema,
+                schema_name=schema_name,
+            )
+
+    def _complete_json(self, *, system_prompt, input_data, output_schema, schema_name):
         if not self.api_key:
             raise RuntimeError("OPENAI_API_KEY is not configured.")
 
@@ -32,13 +46,20 @@ class AzureAgentClient:
             f"{self.endpoint}/openai/deployments/{self.model}/chat/completions"
             f"?api-version={self.api_version}"
         )
+        context, contract_instruction = with_evidence_contract(input_data)
+        encoded_context, context_stats = encode_context(compact_prompt_data(context))
+        reported_context_usage(context_stats)
+        instructions = [system_prompt, contract_instruction]
+        if context_stats["context_encoding"] != "plain":
+            instructions.append(ENCODING_INSTRUCTION)
+        system_prompt = "\n".join(part for part in instructions if part)
         payload = {
             "model": self.model,
             "messages": [
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": system_prompt + "\nUse the user's language for explanatory strings, warnings and limitations. Preserve schema enums, identifiers and source text exactly. Keep warnings factual and concise; put composition instructions only in instruction fields."},
                 {
                     "role": "user",
-                    "content": json.dumps(input_data, ensure_ascii=False, default=str),
+                    "content": encoded_context,
                 },
             ],
             "response_format": {
@@ -50,8 +71,10 @@ class AzureAgentClient:
                 },
             },
         }
+        if self.temperature is not None:
+            payload["temperature"] = self.temperature
         try:
-            with httpx.Client(timeout=self.timeout_seconds) as client:
+            with model_http_client(self.timeout_seconds, endpoint=url) as client:
                 response = client.post(
                     url,
                     headers={"api-key": self.api_key, "Content-Type": "application/json"},
@@ -73,6 +96,7 @@ class AzureAgentClient:
             body = response.json()
         except ValueError as exc:
             raise RuntimeError("LLM API returned a non-JSON response.") from exc
+        reported_usage(body.get("usage"))
         try:
             content = body["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:
@@ -83,6 +107,13 @@ class AzureAgentClient:
                 for item in content
             )
         try:
-            return json.loads(str(content))
+            result = json.loads(str(content))
         except json.JSONDecodeError as exc:
             raise RuntimeError("LLM response content was not valid JSON.") from exc
+
+        if not isinstance(result, dict):
+            raise RuntimeError("LLM structured response must be a JSON object.")  # noqa: TRY004
+        missing = set(output_schema.get("required", [])) - result.keys()
+        if missing:
+            raise RuntimeError("LLM structured response omitted required fields: " + ", ".join(sorted(missing)))
+        return result

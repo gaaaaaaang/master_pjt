@@ -1,0 +1,163 @@
+{
+  "source_report": "/private/tmp/master_pjt_rag_adv2/apps/assistant/output/evals/rag_adv2/ragas_after.json",
+  "fixed_answers": true,
+  "metric": "Ragas 0.2.15 ResponseRelevancy",
+  "results": [
+    {
+      "id": "ext_pm_approval",
+      "repeat": 1,
+      "response": "PM 연기는 Engineer 승인 없이는 허용하지 않는다. [1]\n\n'PM short delay' 결정은 'low risk and manager approval' 조건에서 허용되고, 'risk memo' 기록이 필요하다. [2]\n\nPM 이후 qualification 또는 dummy run 결과를 기록한다. [3]\n\nPM 작업 완료 후 복구 조건은 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화이다. [4]\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf\n[2] semiconductor_fab_incident_response_playbook_kr.pdf\n[3] semiconductor_fab_incident_response_playbook_kr.pdf\n[4] semiconductor_fab_incident_response_playbook_kr.pdf\n\n인용한 절차의 추가 승인·기록 조건(원문)\n원문: PM short delay low risk and manager approval risk memo [2] (semiconductor_fab_incident_response_playbook_kr.pdf)",
+      "generated": [
+        {
+          "question": "What are the approval and documentation requirements for PM delays and recovery conditions in semiconductor fab incident response procedures?",
+          "noncommittal": 0
+        },
+        {
+          "question": "What are the approval and documentation requirements for PM delays and recovery conditions in semiconductor fab incident response procedures?",
+          "noncommittal": 0
+        },
+        {
+          "question": "What are the approval and documentation requirements for PM delays and recovery conditions in a semiconductor fab according to the incident response playbook?",
+          "noncommittal": 0
+        }
+      ],
+      "similarities": [
+        0.504829910037103,
+        0.504829910037103,
+        0.49763541554901
+      ],
+      "noncommittal_gate": false,
+      "score": 0.5024317452077386
+    },
+    {
+      "id": "ext_pm_approval",
+      "repeat": 2,
+      "response": "PM 연기는 Engineer 승인 없이는 허용하지 않는다. [1]\n\n'PM short delay' 결정은 'low risk and manager approval' 조건에서 허용되고, 'risk memo' 기록이 필요하다. [2]\n\nPM 이후 qualification 또는 dummy run 결과를 기록한다. [3]\n\nPM 작업 완료 후 복구 조건은 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화이다. [4]\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf\n[2] semiconductor_fab_incident_response_playbook_kr.pdf\n[3] semiconductor_fab_incident_response_playbook_kr.pdf\n[4] semiconductor_fab_incident_response_playbook_kr.pdf\n\n인용한 절차의 추가 승인·기록 조건(원문)\n원문: PM short delay low risk and manager approval risk memo [2] (semiconductor_fab_incident_response_playbook_kr.pdf)",
+      "generated": [
+        {
+          "question": "What are the approval and documentation requirements for PM delays and recovery conditions in a semiconductor fab according to the incident response playbook?",
+          "noncommittal": 0
+        },
+        {
+          "question": "What are the approval and documentation requirements for PM delays and recovery conditions in a semiconductor fab according to the incident response playbook?",
+          "noncommittal": 0
+        },
+        {
+          "question": "What are the procedures and approval requirements for PM delay and recovery in a semiconductor fab according to the incident response playbook?",
+          "noncommittal": 0
+        }
+      ],
+      "similarities": [
+        0.49763541554901,
+        0.49763541554901,
+        0.4973971772760143
+      ],
+      "noncommittal_gate": false,
+      "score": 0.49755600279134476
+    },
+    {
+      "id": "ext_pm_approval",
+      "repeat": 3,
+      "response": "PM 연기는 Engineer 승인 없이는 허용하지 않는다. [1]\n\n'PM short delay' 결정은 'low risk and manager approval' 조건에서 허용되고, 'risk memo' 기록이 필요하다. [2]\n\nPM 이후 qualification 또는 dummy run 결과를 기록한다. [3]\n\nPM 작업 완료 후 복구 조건은 설비 상태 AVAILABLE, 관련 alarm clear, PM 지연으로 발생한 WIP backlog 정상화이다. [4]\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf\n[2] semiconductor_fab_incident_response_playbook_kr.pdf\n[3] semiconductor_fab_incident_response_playbook_kr.pdf\n[4] semiconductor_fab_incident_response_playbook_kr.pdf\n\n인용한 절차의 추가 승인·기록 조건(원문)\n원문: PM short delay low risk and manager approval risk memo [2] (semiconductor_fab_incident_response_playbook_kr.pdf)",
+      "generated": [
+        {
+          "question": "What are the approval and documentation requirements for PM delays and recovery conditions in a semiconductor fab according to the incident response playbook?",
+          "noncommittal": 0
+        },
+        {
+          "question": "What are the approval and documentation requirements for PM delays and recovery conditions in a semiconductor fab according to the incident response playbook?",
+          "noncommittal": 0
+        },
+        {
+          "question": "What are the approval and documentation requirements for PM delays and recovery conditions in a semiconductor fab according to the incident response playbook?",
+          "noncommittal": 0
+        }
+      ],
+      "similarities": [
+        0.49763541554901,
+        0.49763541554901,
+        0.49763541554901
+      ],
+      "noncommittal_gate": false,
+      "score": 0.49763541554901
+    },
+    {
+      "id": "ext_knowledge_update",
+      "repeat": 1,
+      "response": "재발 방지 내용을 지식 문서에 반영할 때는 케이스 클로저를 트리거로 하여 Data team이 add/update 결정을 내린다. [1]\n\n새로운 원인 유형, 새로운 조치, 기존 플레이북과 다른 판단이 있을 때 KB 업데이트 후보로 등록해야 한다. [2]\n\n사례 요약 작성 시 실제 수치 기록보다 판단 기준 및 증거 필드를 우선 저장한다. [3]\n\n한 청크에는 한 이슈와 한 주요 의사결정만 담는 품질 기준을 따른다. [4]\n\n태그는 issue_type, fab_area, role, action, recovery_condition 중심으로 설정하며, 5~8 개의 키워드를 권장한다. [5] [6]\n\nchunk_title은 구체적이고 검색 가능하게 작성해야 하며, 소스와 valid(초안, 리뷰, 승인) 상태도 명확하게 기재한다. [6]\n\n질문의 일부 항목은 문서 근거가 부족하여 확정할 수 없습니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf\n[2] semiconductor_fab_incident_response_playbook_kr.pdf\n[3] semiconductor_fab_incident_response_playbook_kr.pdf\n[4] semiconductor_fab_incident_response_playbook_kr.pdf\n[5] semiconductor_fab_incident_response_playbook_kr.pdf\n[6] semiconductor_fab_incident_response_playbook_kr.pdf\n\n버전 번호·개정 이력 관리 기준은 제공된 문서에서 확인되지 않습니다.",
+      "generated": [
+        {
+          "question": "What are the guidelines for reflecting recurrence prevention content in knowledge documents, and are there standards for version number and revision history management?",
+          "noncommittal": 1
+        },
+        {
+          "question": "What are the guidelines for reflecting recurrence prevention content in knowledge documents, and what is the standard for version number and revision history management?",
+          "noncommittal": 1
+        },
+        {
+          "question": "What are the guidelines for reflecting recurrence prevention content in knowledge documents, and what is the standard for managing version numbers and revision history?",
+          "noncommittal": 1
+        }
+      ],
+      "similarities": [
+        0.5865250944689279,
+        0.5823050568161042,
+        0.5915067504569584
+      ],
+      "noncommittal_gate": true,
+      "score": 0.0
+    },
+    {
+      "id": "ext_knowledge_update",
+      "repeat": 2,
+      "response": "재발 방지 내용을 지식 문서에 반영할 때는 케이스 클로저를 트리거로 하여 Data team이 add/update 결정을 내린다. [1]\n\n새로운 원인 유형, 새로운 조치, 기존 플레이북과 다른 판단이 있을 때 KB 업데이트 후보로 등록해야 한다. [2]\n\n사례 요약 작성 시 실제 수치 기록보다 판단 기준 및 증거 필드를 우선 저장한다. [3]\n\n한 청크에는 한 이슈와 한 주요 의사결정만 담는 품질 기준을 따른다. [4]\n\n태그는 issue_type, fab_area, role, action, recovery_condition 중심으로 설정하며, 5~8 개의 키워드를 권장한다. [5] [6]\n\nchunk_title은 구체적이고 검색 가능하게 작성해야 하며, 소스와 valid(초안, 리뷰, 승인) 상태도 명확하게 기재한다. [6]\n\n질문의 일부 항목은 문서 근거가 부족하여 확정할 수 없습니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf\n[2] semiconductor_fab_incident_response_playbook_kr.pdf\n[3] semiconductor_fab_incident_response_playbook_kr.pdf\n[4] semiconductor_fab_incident_response_playbook_kr.pdf\n[5] semiconductor_fab_incident_response_playbook_kr.pdf\n[6] semiconductor_fab_incident_response_playbook_kr.pdf\n\n버전 번호·개정 이력 관리 기준은 제공된 문서에서 확인되지 않습니다.",
+      "generated": [
+        {
+          "question": "What are the guidelines for reflecting recurrence prevention content in knowledge documents, and is there information on version number and revision history management?",
+          "noncommittal": 1
+        },
+        {
+          "question": "What are the guidelines for reflecting recurrence prevention content in knowledge documents, and are there standards for version number and revision history management?",
+          "noncommittal": 1
+        },
+        {
+          "question": "What are the guidelines for reflecting recurrence prevention content in knowledge documents, and how are version numbers and revision history managed?",
+          "noncommittal": 1
+        }
+      ],
+      "similarities": [
+        0.5843274925044939,
+        0.5865250944689279,
+        0.5848283415393901
+      ],
+      "noncommittal_gate": true,
+      "score": 0.0
+    },
+    {
+      "id": "ext_knowledge_update",
+      "repeat": 3,
+      "response": "재발 방지 내용을 지식 문서에 반영할 때는 케이스 클로저를 트리거로 하여 Data team이 add/update 결정을 내린다. [1]\n\n새로운 원인 유형, 새로운 조치, 기존 플레이북과 다른 판단이 있을 때 KB 업데이트 후보로 등록해야 한다. [2]\n\n사례 요약 작성 시 실제 수치 기록보다 판단 기준 및 증거 필드를 우선 저장한다. [3]\n\n한 청크에는 한 이슈와 한 주요 의사결정만 담는 품질 기준을 따른다. [4]\n\n태그는 issue_type, fab_area, role, action, recovery_condition 중심으로 설정하며, 5~8 개의 키워드를 권장한다. [5] [6]\n\nchunk_title은 구체적이고 검색 가능하게 작성해야 하며, 소스와 valid(초안, 리뷰, 승인) 상태도 명확하게 기재한다. [6]\n\n질문의 일부 항목은 문서 근거가 부족하여 확정할 수 없습니다.\n\n[1] semiconductor_fab_incident_response_playbook_kr.pdf\n[2] semiconductor_fab_incident_response_playbook_kr.pdf\n[3] semiconductor_fab_incident_response_playbook_kr.pdf\n[4] semiconductor_fab_incident_response_playbook_kr.pdf\n[5] semiconductor_fab_incident_response_playbook_kr.pdf\n[6] semiconductor_fab_incident_response_playbook_kr.pdf\n\n버전 번호·개정 이력 관리 기준은 제공된 문서에서 확인되지 않습니다.",
+      "generated": [
+        {
+          "question": "What are the guidelines for reflecting recurrence prevention content in knowledge documents, and what is the standard for managing version numbers and revision history?",
+          "noncommittal": 1
+        },
+        {
+          "question": "What are the guidelines for reflecting recurrence prevention content in knowledge documents, and are there standards for version number and revision history management?",
+          "noncommittal": 1
+        },
+        {
+          "question": "What are the guidelines for reflecting recurrence prevention content in knowledge documents, and how are version numbers and revision history managed?",
+          "noncommittal": 1
+        }
+      ],
+      "similarities": [
+        0.5915067504569584,
+        0.5865250944689279,
+        0.5848283415393901
+      ],
+      "noncommittal_gate": true,
+      "score": 0.0
+    }
+  ]
+}

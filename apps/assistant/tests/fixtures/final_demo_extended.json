@@ -1,0 +1,14 @@
+[
+  {"id":"fab11_knowledge","kind":"knowledge","question":"Cycle Time Degradation이 뭐야? WIP이나 가동률과 어떤 관계가 있어? 문서 근거로 설명해줘."},
+  {"id":"fab11_action","kind":"action","question":"FAB11 etch 공정 Queue Time이 길어졌을 때 운영자가 어떤 순서로 점검하고 대응하면 좋을지 문서 근거로 알려줘."},
+  {"id":"fab12_week_compare","kind":"comparison","question":"FAB12 공정별 평균 WIP을 지난주와 이번주로 비교해줘."},
+  {"id":"fab13_area_compare","kind":"comparison","question":"FAB13 etch와 photo의 현재 수율을 비교해줘."},
+  {"id":"fab11_yesterday","kind":"trend","question":"FAB11 어제 공정별 평균 대기 시간을 차트로 보여줘."},
+  {"id":"fab12_korean_area","kind":"status","question":"FAB12 식각 공정의 현재 수율과 가동률은 얼마야?"},
+  {"id":"fab13_rank","kind":"status","question":"FAB13에서 지금 WIP이 가장 많은 공정 3개를 보여줘."},
+  {"id":"fab11_multi_metric","kind":"trend","question":"FAB11 etch 최근 24시간 WIP과 Queue Time 추세를 보여줘."},
+  {"id":"fab12_impact","kind":"impact","question":"FAB12 etch 가동률이 5%p 떨어지면 처리량에 얼마나 영향이 있어?"},
+  {"id":"fab13_impact","kind":"impact","question":"FAB13 etch 가동률이 5%p 떨어지면 처리량에 얼마나 영향이 있어?"},
+  {"id":"fab11_unknown_scope","kind":"unsupported","question":"FAB11 C라인의 현재 WIP을 알려줘."},
+  {"id":"fab12_unknown_granularity","kind":"unsupported","question":"FAB12 제품별 현재 수율을 알려줘."}
+]

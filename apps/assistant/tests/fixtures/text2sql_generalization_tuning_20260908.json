@@ -1,0 +1,212 @@
+[
+  {
+    "id": "t01",
+    "category": "snapshot_total",
+    "question": "fab10 시뮬레이션 최신 스냅샷의 공장 전체 대기 롯 수를 합산해줘. 합계 하나만.",
+    "reference_sql": "SELECT SUM(queue_lots) FROM fab10.live_process_snapshots_fab10 WHERE interval_end=(SELECT MAX(interval_end) FROM fab10.live_process_snapshots_fab10)",
+    "expected_fab": "fab10",
+    "ordered": false
+  },
+  {
+    "id": "t02",
+    "category": "snapshot_filter",
+    "question": "11번 팹 시뮬레이션에서 최신 시점 photo 영역의 재공 롯 수만 알려줘.",
+    "reference_sql": "SELECT wip_lots FROM fab11.live_process_snapshots_fab11 WHERE area='photo' AND interval_end=(SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11)",
+    "expected_fab": "fab11",
+    "ordered": false
+  },
+  {
+    "id": "t03",
+    "category": "time_range",
+    "question": "fab12 상세 시뮬레이션 이벤트 중 interval_end가 2026-09-07 00:00 UTC 이상 12:00 UTC 미만인 행 개수만 알려줘.",
+    "reference_sql": "SELECT COUNT(*) FROM fab12.live_process_events_fab12 WHERE interval_end>='2026-09-07 00:00+00' AND interval_end<'2026-09-07 12:00+00'",
+    "expected_fab": "fab12",
+    "ordered": false
+  },
+  {
+    "id": "t04",
+    "category": "boolean",
+    "question": "fab13 시뮬레이션 전체 상세 이벤트 중 재작업 표시가 없는 것(rework_flag=false)의 건수만 세줘.",
+    "reference_sql": "SELECT COUNT(*) FROM fab13.live_process_events_fab13 WHERE rework_flag=false",
+    "expected_fab": "fab13",
+    "ordered": false
+  },
+  {
+    "id": "t05",
+    "category": "flow_total",
+    "question": "fab10 시뮬레이션 스냅샷에서 2026-09-07 00:00 UTC 이상 12:00 UTC 미만 구간의 완료 롯 수(lot_completions)를 모두 더해줘. 합계만.",
+    "reference_sql": "SELECT SUM(lot_completions) FROM fab10.live_process_snapshots_fab10 WHERE interval_end>='2026-09-07 00:00+00' AND interval_end<'2026-09-07 12:00+00'",
+    "expected_fab": "fab10",
+    "ordered": false
+  },
+  {
+    "id": "t06",
+    "category": "ratio_average",
+    "question": "fab11 시뮬레이션 최신 시점의 영역별 수율(yield_percent)을 단순 평균해줘. 가중 평균 아닌 산술 평균 한 값만.",
+    "reference_sql": "SELECT AVG(yield_percent) FROM fab11.live_process_snapshots_fab11 WHERE interval_end=(SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11)",
+    "expected_fab": "fab11",
+    "ordered": false
+  },
+  {
+    "id": "t07",
+    "category": "model_count",
+    "question": "fab12 모델의 공정 영역별 설비 대수 합계를 구해줘. 현재 가동 대수가 아닌 number_of_tools 합계야. 영역과 합계만.",
+    "reference_sql": "SELECT area,SUM(number_of_tools) FROM fab12.toolgroups_fab12 GROUP BY area",
+    "expected_fab": "fab12",
+    "ordered": false
+  },
+  {
+    "id": "t08",
+    "category": "join",
+    "question": "fab13에서 설비군과 매칭되는 breakdown 모델 설정의 행 수를 공정 영역별로 세줘. 영역과 설정 건수만.",
+    "reference_sql": "SELECT t.area,COUNT(b.source_row_id) FROM fab13.breakdown_fab13 b JOIN fab13.toolgroups_fab13 t ON b.type_name=t.toolgroup GROUP BY t.area",
+    "expected_fab": "fab13",
+    "ordered": false
+  },
+  {
+    "id": "t09",
+    "category": "multiple_measures",
+    "question": "fab10 시뮬레이션 최신 시점의 공장 전체 재공 합계와 대기 합계를 구해줘. 결과 컬럼은 SUM(wip_lots), SUM(queue_lots) 순서의 두 개만.",
+    "reference_sql": "SELECT SUM(wip_lots),SUM(queue_lots) AS queue_total FROM fab10.live_process_snapshots_fab10 WHERE interval_end=(SELECT MAX(interval_end) FROM fab10.live_process_snapshots_fab10)",
+    "expected_fab": "fab10",
+    "ordered": false,
+    "ordered_columns": true
+  },
+  {
+    "id": "t10",
+    "category": "ranking",
+    "question": "fab11 시뮬레이션 최신 스냅샷에서 queue_lots가 가장 큰 영역 4개를 보여줘. 대기 롯 내림차순, 동률은 area 오름차순. 영역과 대기 롯 수만.",
+    "reference_sql": "SELECT area,queue_lots FROM fab11.live_process_snapshots_fab11 WHERE interval_end=(SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11) ORDER BY queue_lots DESC,area ASC LIMIT 4",
+    "expected_fab": "fab11",
+    "ordered": true
+  },
+  {
+    "id": "t11",
+    "category": "aggregate_ranking",
+    "question": "fab12 시뮬레이션 상세 이벤트 전체 기간의 영역별 평균 process_minutes가 가장 낮은 영역 3개. 평균 오름차순, 동률 area 오름차순으로 영역과 평균만.",
+    "reference_sql": "SELECT area,AVG(process_minutes) AS mean_process FROM fab12.live_process_events_fab12 GROUP BY area ORDER BY mean_process ASC,area ASC LIMIT 3",
+    "expected_fab": "fab12",
+    "ordered": true
+  },
+  {
+    "id": "t12",
+    "category": "empty",
+    "question": "fab13 시뮬레이션 상세 이벤트에서 area가 no_such_area인 행의 개수만 세줘. 다른 영역으로 바꾸지 마.",
+    "reference_sql": "SELECT COUNT(*) FROM fab13.live_process_events_fab13 WHERE area='no_such_area'",
+    "expected_fab": "fab13",
+    "ordered": false
+  },
+  {
+    "id": "t13",
+    "category": "context",
+    "question": "시뮬레이션 최신 스냅샷의 영역 개수만 세줘.",
+    "reference_sql": "SELECT COUNT(*) FROM fab11.live_process_snapshots_fab11 WHERE interval_end=(SELECT MAX(interval_end) FROM fab11.live_process_snapshots_fab11)",
+    "expected_fab": "fab11",
+    "ordered": false,
+    "context": {
+      "fab": "fab11"
+    }
+  },
+  {
+    "id": "t14",
+    "category": "context_override",
+    "question": "이번에는 fab12 시뮬레이션 최신 스냅샷의 영역 개수만 세줘.",
+    "reference_sql": "SELECT COUNT(*) FROM fab12.live_process_snapshots_fab12 WHERE interval_end=(SELECT MAX(interval_end) FROM fab12.live_process_snapshots_fab12)",
+    "expected_fab": "fab12",
+    "ordered": false,
+    "context": {
+      "fab": "fab10",
+      "conversation_history": [
+        {
+          "role": "user",
+          "content": "fab13 상태 알려줘"
+        }
+      ]
+    }
+  },
+  {
+    "id": "t15",
+    "category": "case_variation",
+    "question": "FAB-13 시뮬레이션 최신 스냅샷에서 area가 정확히 etch인 queue_lots 값만.",
+    "reference_sql": "SELECT queue_lots FROM fab13.live_process_snapshots_fab13 WHERE area='etch' AND interval_end=(SELECT MAX(interval_end) FROM fab13.live_process_snapshots_fab13)",
+    "expected_fab": "fab13",
+    "ordered": false
+  },
+  {
+    "id": "t16",
+    "category": "distinct",
+    "question": "fab10 시뮬레이션 전체 상세 이벤트의 서로 다른 event_kind 개수만 알려줘.",
+    "reference_sql": "SELECT COUNT(DISTINCT event_kind) FROM fab10.live_process_events_fab10",
+    "expected_fab": "fab10",
+    "ordered": false
+  },
+  {
+    "id": "t17",
+    "category": "minmax",
+    "question": "fab11 시뮬레이션 전체 상세 이벤트에서 queue_minutes 최솟값과 최댓값을 그 순서로 두 컬럼만 반환해줘.",
+    "reference_sql": "SELECT MIN(queue_minutes),MAX(queue_minutes) FROM fab11.live_process_events_fab11",
+    "expected_fab": "fab11",
+    "ordered": false,
+    "ordered_columns": true
+  },
+  {
+    "id": "t18",
+    "category": "null",
+    "question": "fab12 시뮬레이션 전체 상세 이벤트에서 lot_id가 NULL인 행 개수만 알려줘.",
+    "reference_sql": "SELECT COUNT(*) FROM fab12.live_process_events_fab12 WHERE lot_id IS NULL",
+    "expected_fab": "fab12",
+    "ordered": false
+  },
+  {
+    "id": "t19",
+    "category": "model_filter",
+    "question": "fab13 toolgroups 모델에서 area가 Dry_Etch인 설비군 행의 개수만 구해줘. 설비 대수 합계가 아니라 행 개수야.",
+    "reference_sql": "SELECT COUNT(*) FROM fab13.toolgroups_fab13 WHERE area='Dry_Etch'",
+    "expected_fab": "fab13",
+    "ordered": false
+  },
+  {
+    "id": "t20",
+    "category": "multi_filter",
+    "question": "fab10 시뮬레이션 전체 상세 이벤트에서 area가 etch 또는 photo이고 queue_minutes가 30보다 큰 행의 개수만.",
+    "reference_sql": "SELECT COUNT(*) FROM fab10.live_process_events_fab10 WHERE area IN ('etch','photo') AND queue_minutes>30",
+    "expected_fab": "fab10",
+    "ordered": false
+  },
+  {
+    "id": "t21",
+    "category": "clarification",
+    "question": "시뮬레이션 최신 WIP를 알려줘.",
+    "expected_statuses": [
+      "needs_clarification"
+    ]
+  },
+  {
+    "id": "t22",
+    "category": "clarification",
+    "question": "fab99 시뮬레이션 최신 WIP를 알려줘.",
+    "expected_statuses": [
+      "needs_clarification"
+    ]
+  },
+  {
+    "id": "t23",
+    "category": "unavailable_measurement",
+    "question": "fab10의 실제 실측 wafer 불량 원인별 검사 건수를 알려줘. 시뮬레이션이나 모델 입력으로 대체하지 말고, 존재하는 실제 검사 데이터만 써줘.",
+    "expected_statuses": [
+      "unsupported",
+      "needs_clarification",
+      "data_unavailable"
+    ]
+  },
+  {
+    "id": "t24",
+    "category": "write_rejection",
+    "question": "fab11 live_process_events에서 모든 행을 삭제해줘.",
+    "expected_statuses": [
+      "unsupported",
+      "needs_clarification",
+      "data_unavailable"
+    ]
+  }
+]

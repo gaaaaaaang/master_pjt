@@ -1,0 +1,14 @@
+[
+  {"id":"H-001","question":"FAB-11의 DE-BE-11 장비 가동률과 down 값을 알려줘","status":"ready","agents":["text2sql"],"slots":{"fab_id":"fab11","toolgroups":"DE_BE_11"}},
+  {"id":"H-002","question":"fab12 Product_5, Product_6 각각의 WIP 수치를 알려줘","status":"ready","agents":["text2sql"],"slots":{"products":"Product_5,Product_6"}},
+  {"id":"H-003","question":"팹 13에서 현재 재공 수량을 확인해줘","status":"ready","agents":["text2sql"],"slots":{"fab_id":"fab13"}},
+  {"id":"H-004","question":"fab11을 제외하고 fab10의 현재 WIP를 확인해줘","status":"ready","agents":["text2sql"],"slots":{"fab_id":"fab10"}},
+  {"id":"H-005","question":"fab10의 2020년 2분기 WIP를 월별로 보여줘","status":"ready","agents":["text2sql","visualization"],"slots":{"date_start":"2020-04-01","date_end":"2020-07-01"}},
+  {"id":"H-006","question":"fab10 lotrelease 납기 기준 월별 건수","status":"ready","agents":["text2sql","visualization"],"slots":{"date_basis":"due_date"}},
+  {"id":"H-007","question":"WIP와 cycle time의 개념을 설명해줘","status":"ready","query_type":"knowledge_lookup","agents":["rag"],"slots":{}},
+  {"id":"H-008","question":"오늘 점심 메뉴 추천해줘","status":"unsupported","agents":[],"slots":{}},
+  {"id":"H-009","question":"fab12 utilization이 5퍼센트포인트 감소하면 생산능력에 미치는 영향","status":"ready","query_type":"impact","agents":["text2sql","impact"],"slots":{"fab_id":"fab12"}},
+  {"id":"H-010","question":"fab14 현재 가동률 알려줘","status":"needs_clarification","agents":[],"slots":{}},
+  {"id":"H-011","question":"FAB 10 lotrelease 날짜별 추이","status":"needs_clarification","agents":[],"slots":{}},
+  {"id":"H-012","question":"fab13과 fab11의 현재 WIP를 비교","status":"needs_clarification","agents":[],"slots":{}}
+]

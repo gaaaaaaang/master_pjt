@@ -1,0 +1,578 @@
+[
+  {
+    "question": "FAB12 최근 7일 공정별 수율 추세",
+    "sql": "WITH observations AS (SELECT interval_end, area, AVG(yield_percent) AS yield_percent, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND interval_end >= TIMESTAMPTZ '2026-09-06 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' GROUP BY interval_end, area) SELECT date_trunc('day', interval_end AT TIME ZONE 'Asia/Seoul') AS observed_at, area, AVG(yield_percent) AS yield_percent, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY date_trunc('day', interval_end AT TIME ZONE 'Asia/Seoul'), area ORDER BY observed_at ASC, area",
+    "rows": [
+      {
+        "observed_at": "2026-09-06 00:00:00",
+        "area": "cmp",
+        "yield_percent": "96.1142857142857143",
+        "observation_count": 7,
+        "first_observed_at": "2026-09-06 02:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-06 00:00:00",
+        "area": "deposition",
+        "yield_percent": "96.0371428571428571",
+        "observation_count": 7,
+        "first_observed_at": "2026-09-06 02:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-06 00:00:00",
+        "area": "etch",
+        "yield_percent": "95.9905714285714286",
+        "observation_count": 7,
+        "first_observed_at": "2026-09-06 02:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-06 00:00:00",
+        "area": "implant",
+        "yield_percent": "96.1490000000000000",
+        "observation_count": 7,
+        "first_observed_at": "2026-09-06 02:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-06 00:00:00",
+        "area": "metrology",
+        "yield_percent": "95.9848571428571429",
+        "observation_count": 7,
+        "first_observed_at": "2026-09-06 02:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-06 00:00:00",
+        "area": "photo",
+        "yield_percent": "95.9338571428571429",
+        "observation_count": 7,
+        "first_observed_at": "2026-09-06 02:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-07 00:00:00",
+        "area": "cmp",
+        "yield_percent": "96.0037777777777778",
+        "observation_count": 9,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-07 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-07 00:00:00",
+        "area": "deposition",
+        "yield_percent": "96.1657777777777778",
+        "observation_count": 9,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-07 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-07 00:00:00",
+        "area": "etch",
+        "yield_percent": "96.0057777777777778",
+        "observation_count": 9,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-07 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-07 00:00:00",
+        "area": "implant",
+        "yield_percent": "96.1516666666666667",
+        "observation_count": 9,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-07 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-07 00:00:00",
+        "area": "metrology",
+        "yield_percent": "96.0098888888888889",
+        "observation_count": 9,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-07 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-07 00:00:00",
+        "area": "photo",
+        "yield_percent": "96.0056666666666667",
+        "observation_count": 9,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-07 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-08 00:00:00",
+        "area": "cmp",
+        "yield_percent": "96.2114166666666667",
+        "observation_count": 12,
+        "first_observed_at": "2026-09-07 16:00:00+00:00",
+        "last_observed_at": "2026-09-08 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-08 00:00:00",
+        "area": "deposition",
+        "yield_percent": "96.1503333333333333",
+        "observation_count": 12,
+        "first_observed_at": "2026-09-07 16:00:00+00:00",
+        "last_observed_at": "2026-09-08 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-08 00:00:00",
+        "area": "etch",
+        "yield_percent": "96.0906666666666667",
+        "observation_count": 12,
+        "first_observed_at": "2026-09-07 16:00:00+00:00",
+        "last_observed_at": "2026-09-08 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-08 00:00:00",
+        "area": "implant",
+        "yield_percent": "96.1850833333333333",
+        "observation_count": 12,
+        "first_observed_at": "2026-09-07 16:00:00+00:00",
+        "last_observed_at": "2026-09-08 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-08 00:00:00",
+        "area": "metrology",
+        "yield_percent": "96.1014166666666667",
+        "observation_count": 12,
+        "first_observed_at": "2026-09-07 16:00:00+00:00",
+        "last_observed_at": "2026-09-08 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-08 00:00:00",
+        "area": "photo",
+        "yield_percent": "96.2121666666666667",
+        "observation_count": 12,
+        "first_observed_at": "2026-09-07 16:00:00+00:00",
+        "last_observed_at": "2026-09-08 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-09 00:00:00",
+        "area": "cmp",
+        "yield_percent": "99.4572121212121212",
+        "observation_count": 33,
+        "first_observed_at": "2026-09-09 06:30:00+00:00",
+        "last_observed_at": "2026-09-09 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-09 00:00:00",
+        "area": "deposition",
+        "yield_percent": "99.4409696969696970",
+        "observation_count": 33,
+        "first_observed_at": "2026-09-09 06:30:00+00:00",
+        "last_observed_at": "2026-09-09 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-09 00:00:00",
+        "area": "etch",
+        "yield_percent": "99.4218181818181818",
+        "observation_count": 33,
+        "first_observed_at": "2026-09-09 06:30:00+00:00",
+        "last_observed_at": "2026-09-09 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-09 00:00:00",
+        "area": "implant",
+        "yield_percent": "99.4439393939393939",
+        "observation_count": 33,
+        "first_observed_at": "2026-09-09 06:30:00+00:00",
+        "last_observed_at": "2026-09-09 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-09 00:00:00",
+        "area": "metrology",
+        "yield_percent": "99.4613939393939394",
+        "observation_count": 33,
+        "first_observed_at": "2026-09-09 06:30:00+00:00",
+        "last_observed_at": "2026-09-09 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-09 00:00:00",
+        "area": "photo",
+        "yield_percent": "99.4562727272727273",
+        "observation_count": 33,
+        "first_observed_at": "2026-09-09 06:30:00+00:00",
+        "last_observed_at": "2026-09-09 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-10 00:00:00",
+        "area": "cmp",
+        "yield_percent": "99.4398390804597701",
+        "observation_count": 87,
+        "first_observed_at": "2026-09-09 15:15:00+00:00",
+        "last_observed_at": "2026-09-10 14:30:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-10 00:00:00",
+        "area": "deposition",
+        "yield_percent": "99.4413563218390805",
+        "observation_count": 87,
+        "first_observed_at": "2026-09-09 15:15:00+00:00",
+        "last_observed_at": "2026-09-10 14:30:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-10 00:00:00",
+        "area": "etch",
+        "yield_percent": "99.4165862068965517",
+        "observation_count": 87,
+        "first_observed_at": "2026-09-09 15:15:00+00:00",
+        "last_observed_at": "2026-09-10 14:30:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-10 00:00:00",
+        "area": "implant",
+        "yield_percent": "99.4544137931034483",
+        "observation_count": 87,
+        "first_observed_at": "2026-09-09 15:15:00+00:00",
+        "last_observed_at": "2026-09-10 14:30:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-10 00:00:00",
+        "area": "metrology",
+        "yield_percent": "99.4347241379310345",
+        "observation_count": 87,
+        "first_observed_at": "2026-09-09 15:15:00+00:00",
+        "last_observed_at": "2026-09-10 14:30:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-10 00:00:00",
+        "area": "photo",
+        "yield_percent": "99.4187356321839080",
+        "observation_count": 87,
+        "first_observed_at": "2026-09-09 15:15:00+00:00",
+        "last_observed_at": "2026-09-10 14:30:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-11 00:00:00",
+        "area": "cmp",
+        "yield_percent": "99.4136860465116279",
+        "observation_count": 86,
+        "first_observed_at": "2026-09-10 15:15:00+00:00",
+        "last_observed_at": "2026-09-11 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-11 00:00:00",
+        "area": "deposition",
+        "yield_percent": "99.4322325581395349",
+        "observation_count": 86,
+        "first_observed_at": "2026-09-10 15:15:00+00:00",
+        "last_observed_at": "2026-09-11 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-11 00:00:00",
+        "area": "etch",
+        "yield_percent": "99.4596976744186047",
+        "observation_count": 86,
+        "first_observed_at": "2026-09-10 15:15:00+00:00",
+        "last_observed_at": "2026-09-11 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-11 00:00:00",
+        "area": "implant",
+        "yield_percent": "99.4597325581395349",
+        "observation_count": 86,
+        "first_observed_at": "2026-09-10 15:15:00+00:00",
+        "last_observed_at": "2026-09-11 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-11 00:00:00",
+        "area": "metrology",
+        "yield_percent": "99.4196744186046512",
+        "observation_count": 86,
+        "first_observed_at": "2026-09-10 15:15:00+00:00",
+        "last_observed_at": "2026-09-11 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-11 00:00:00",
+        "area": "photo",
+        "yield_percent": "99.4468720930232558",
+        "observation_count": 86,
+        "first_observed_at": "2026-09-10 15:15:00+00:00",
+        "last_observed_at": "2026-09-11 14:45:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-12 00:00:00",
+        "area": "cmp",
+        "yield_percent": "99.4660000000000000",
+        "observation_count": 1,
+        "first_observed_at": "2026-09-11 15:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-12 00:00:00",
+        "area": "deposition",
+        "yield_percent": "99.2750000000000000",
+        "observation_count": 1,
+        "first_observed_at": "2026-09-11 15:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-12 00:00:00",
+        "area": "etch",
+        "yield_percent": "99.4570000000000000",
+        "observation_count": 1,
+        "first_observed_at": "2026-09-11 15:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-12 00:00:00",
+        "area": "implant",
+        "yield_percent": "99.4650000000000000",
+        "observation_count": 1,
+        "first_observed_at": "2026-09-11 15:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-12 00:00:00",
+        "area": "metrology",
+        "yield_percent": "99.4790000000000000",
+        "observation_count": 1,
+        "first_observed_at": "2026-09-11 15:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      },
+      {
+        "observed_at": "2026-09-12 00:00:00",
+        "area": "photo",
+        "yield_percent": "99.4660000000000000",
+        "observation_count": 1,
+        "first_observed_at": "2026-09-11 15:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "15.0000000000000000"
+      }
+    ]
+  },
+  {
+    "question": "FAB12 공정별 WIP 지난주와 이번주 비교",
+    "sql": "WITH observations AS (SELECT interval_end, area, SUM(wip_lots) AS wip_lots, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND ((interval_end >= TIMESTAMPTZ '2026-08-31 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-07 00:00:00+09:00') OR (interval_end >= TIMESTAMPTZ '2026-09-07 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00')) GROUP BY interval_end, area) SELECT CASE WHEN interval_end >= TIMESTAMPTZ '2026-08-31 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-07 00:00:00+09:00' THEN '2026-08-31 ~ 2026-09-06' WHEN interval_end >= TIMESTAMPTZ '2026-09-07 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' THEN '2026-09-07 ~ 2026-09-12' END AS comparison_period, area, AVG(wip_lots) AS wip_lots, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY CASE WHEN interval_end >= TIMESTAMPTZ '2026-08-31 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-07 00:00:00+09:00' THEN '2026-08-31 ~ 2026-09-06' WHEN interval_end >= TIMESTAMPTZ '2026-09-07 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-13 00:00:00+09:00' THEN '2026-09-07 ~ 2026-09-12' END, area ORDER BY comparison_period, area",
+    "rows": [
+      {
+        "comparison_period": "2026-08-31 ~ 2026-09-06",
+        "area": "cmp",
+        "wip_lots": "239.1000000000000000",
+        "observation_count": 10,
+        "first_observed_at": "2026-09-04 17:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "comparison_period": "2026-08-31 ~ 2026-09-06",
+        "area": "deposition",
+        "wip_lots": "193.8000000000000000",
+        "observation_count": 10,
+        "first_observed_at": "2026-09-04 17:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "comparison_period": "2026-08-31 ~ 2026-09-06",
+        "area": "etch",
+        "wip_lots": "199.0000000000000000",
+        "observation_count": 10,
+        "first_observed_at": "2026-09-04 17:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "comparison_period": "2026-08-31 ~ 2026-09-06",
+        "area": "implant",
+        "wip_lots": "216.7000000000000000",
+        "observation_count": 10,
+        "first_observed_at": "2026-09-04 17:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "comparison_period": "2026-08-31 ~ 2026-09-06",
+        "area": "metrology",
+        "wip_lots": "285.0000000000000000",
+        "observation_count": 10,
+        "first_observed_at": "2026-09-04 17:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "comparison_period": "2026-08-31 ~ 2026-09-06",
+        "area": "photo",
+        "wip_lots": "186.1000000000000000",
+        "observation_count": 10,
+        "first_observed_at": "2026-09-04 17:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "comparison_period": "2026-09-07 ~ 2026-09-12",
+        "area": "cmp",
+        "wip_lots": "54.2192982456140351",
+        "observation_count": 228,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "comparison_period": "2026-09-07 ~ 2026-09-12",
+        "area": "deposition",
+        "wip_lots": "46.9780701754385965",
+        "observation_count": 228,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "comparison_period": "2026-09-07 ~ 2026-09-12",
+        "area": "etch",
+        "wip_lots": "50.4780701754385965",
+        "observation_count": 228,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "comparison_period": "2026-09-07 ~ 2026-09-12",
+        "area": "implant",
+        "wip_lots": "41.1622807017543860",
+        "observation_count": 228,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "comparison_period": "2026-09-07 ~ 2026-09-12",
+        "area": "metrology",
+        "wip_lots": "57.6271929824561404",
+        "observation_count": 228,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "comparison_period": "2026-09-07 ~ 2026-09-12",
+        "area": "photo",
+        "wip_lots": "45.3114035087719298",
+        "observation_count": 228,
+        "first_observed_at": "2026-09-06 16:00:00+00:00",
+        "last_observed_at": "2026-09-11 15:00:00+00:00",
+        "observation_minutes_min": "15.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      }
+    ]
+  },
+  {
+    "question": "FAB12 지난주 etch와 photo 평균 수율 비교",
+    "sql": "WITH observations AS (SELECT interval_end, area, AVG(yield_percent) AS yield_percent, MIN(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_min, MAX(EXTRACT(EPOCH FROM (interval_end - interval_start)) / 60.0) AS observation_minutes_max FROM fab12.live_process_snapshots_fab12 WHERE fab_id = 'fab12' AND area IN ('etch', 'photo') AND interval_end >= TIMESTAMPTZ '2026-08-31 00:00:00+09:00' AND interval_end < TIMESTAMPTZ '2026-09-07 00:00:00+09:00' GROUP BY interval_end, area) SELECT area, AVG(yield_percent) AS yield_percent, COUNT(*) AS observation_count, MIN(interval_end) AS first_observed_at, MAX(interval_end) AS last_observed_at, MIN(observation_minutes_min) AS observation_minutes_min, MAX(observation_minutes_max) AS observation_minutes_max FROM observations GROUP BY area ORDER BY area ASC",
+    "rows": [
+      {
+        "area": "etch",
+        "yield_percent": "95.9854000000000000",
+        "observation_count": 10,
+        "first_observed_at": "2026-09-04 17:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      },
+      {
+        "area": "photo",
+        "yield_percent": "95.9417000000000000",
+        "observation_count": 10,
+        "first_observed_at": "2026-09-04 17:00:00+00:00",
+        "last_observed_at": "2026-09-06 14:00:00+00:00",
+        "observation_minutes_min": "120.0000000000000000",
+        "observation_minutes_max": "120.0000000000000000"
+      }
+    ]
+  }
+]

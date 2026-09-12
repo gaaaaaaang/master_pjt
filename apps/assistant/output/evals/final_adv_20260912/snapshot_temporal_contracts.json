@@ -1,0 +1,2858 @@
+[
+  {
+    "id": "fab10_wip_lots_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 재공 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_wip_lots_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 재공 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_wip_lots_daily",
+    "question": "FAB10 최근 3일 공정별 재공 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_wip_lots_period_rank",
+    "question": "FAB10 최근 3일 공정별 재공 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "wip_lots": "mean"
+    }
+  },
+  {
+    "id": "fab10_queue_lots_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 대기 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_queue_lots_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 대기 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_queue_lots_daily",
+    "question": "FAB10 최근 3일 공정별 대기 LOT 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_queue_lots_period_rank",
+    "question": "FAB10 최근 3일 공정별 대기 LOT 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "queue_lots": "mean"
+    }
+  },
+  {
+    "id": "fab10_avg_queue_minutes_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 대기 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_avg_queue_minutes_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 대기 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_avg_queue_minutes_daily",
+    "question": "FAB10 최근 3일 공정별 대기 시간 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_avg_queue_minutes_period_rank",
+    "question": "FAB10 최근 3일 공정별 대기 시간 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "avg_queue_minutes": "mean"
+    }
+  },
+  {
+    "id": "fab10_avg_cycle_hours_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 Cycle Time 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_avg_cycle_hours_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 Cycle Time 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_avg_cycle_hours_daily",
+    "question": "FAB10 최근 3일 공정별 Cycle Time 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_avg_cycle_hours_period_rank",
+    "question": "FAB10 최근 3일 공정별 Cycle Time 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "avg_cycle_hours": "mean"
+    }
+  },
+  {
+    "id": "fab10_yield_percent_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 수율 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_yield_percent_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 수율 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_yield_percent_daily",
+    "question": "FAB10 최근 3일 공정별 수율 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_yield_percent_period_rank",
+    "question": "FAB10 최근 3일 공정별 수율 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "yield_percent": "mean"
+    }
+  },
+  {
+    "id": "fab10_utilization_percent_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 가동률 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_utilization_percent_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 가동률 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_utilization_percent_daily",
+    "question": "FAB10 최근 3일 공정별 가동률 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_utilization_percent_period_rank",
+    "question": "FAB10 최근 3일 공정별 가동률 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "utilization_percent": "mean"
+    }
+  },
+  {
+    "id": "fab10_lot_completions_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 완료 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_lot_completions_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 완료 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_lot_completions_daily",
+    "question": "FAB10 최근 3일 공정별 완료 LOT 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_lot_completions_period_rank",
+    "question": "FAB10 최근 3일 공정별 완료 LOT 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "lot_completions": "sum"
+    }
+  },
+  {
+    "id": "fab10_lot_starts_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 투입량 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_lot_starts_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 투입량 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_lot_starts_daily",
+    "question": "FAB10 최근 3일 공정별 투입량 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_lot_starts_period_rank",
+    "question": "FAB10 최근 3일 공정별 투입량 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "lot_starts": "sum"
+    }
+  },
+  {
+    "id": "fab10_down_minutes_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 downtime 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_down_minutes_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 downtime 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_down_minutes_daily",
+    "question": "FAB10 최근 3일 공정별 downtime 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_down_minutes_period_rank",
+    "question": "FAB10 최근 3일 공정별 downtime 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "down_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab10_pm_minutes_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 정비 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_pm_minutes_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 정비 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_pm_minutes_daily",
+    "question": "FAB10 최근 3일 공정별 정비 시간 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_pm_minutes_period_rank",
+    "question": "FAB10 최근 3일 공정별 정비 시간 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "pm_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab10_bottleneck_score_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 bottleneck_score 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_bottleneck_score_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 bottleneck_score 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_bottleneck_score_daily",
+    "question": "FAB10 최근 3일 공정별 bottleneck_score 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_bottleneck_score_period_rank",
+    "question": "FAB10 최근 3일 공정별 bottleneck_score 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "bottleneck_score": "mean"
+    }
+  },
+  {
+    "id": "fab10_temperature_c_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 온도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_temperature_c_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 온도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_temperature_c_daily",
+    "question": "FAB10 최근 3일 공정별 온도 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_temperature_c_period_rank",
+    "question": "FAB10 최근 3일 공정별 온도 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "temperature_c": "mean"
+    }
+  },
+  {
+    "id": "fab10_humidity_percent_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 습도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_humidity_percent_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 습도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_humidity_percent_daily",
+    "question": "FAB10 최근 3일 공정별 습도 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_humidity_percent_period_rank",
+    "question": "FAB10 최근 3일 공정별 습도 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "humidity_percent": "mean"
+    }
+  },
+  {
+    "id": "fab10_defect_ppm_hourly_etch",
+    "question": "FAB10 etch 최근 24시간 불량 ppm 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab10_defect_ppm_hourly_전체",
+    "question": "FAB10 전체 최근 24시간 불량 ppm 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab10",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab10_defect_ppm_daily",
+    "question": "FAB10 최근 3일 공정별 불량 ppm 일별 추세",
+    "kind": "daily",
+    "fab": "fab10",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab10_defect_ppm_period_rank",
+    "question": "FAB10 최근 3일 공정별 불량 ppm 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab10",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "defect_ppm": "mean"
+    }
+  },
+  {
+    "id": "fab11_wip_lots_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 재공 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_wip_lots_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 재공 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_wip_lots_daily",
+    "question": "FAB11 최근 3일 공정별 재공 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_wip_lots_period_rank",
+    "question": "FAB11 최근 3일 공정별 재공 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "wip_lots": "mean"
+    }
+  },
+  {
+    "id": "fab11_queue_lots_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 대기 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_queue_lots_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 대기 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_queue_lots_daily",
+    "question": "FAB11 최근 3일 공정별 대기 LOT 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_queue_lots_period_rank",
+    "question": "FAB11 최근 3일 공정별 대기 LOT 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "queue_lots": "mean"
+    }
+  },
+  {
+    "id": "fab11_avg_queue_minutes_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 대기 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_avg_queue_minutes_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 대기 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_avg_queue_minutes_daily",
+    "question": "FAB11 최근 3일 공정별 대기 시간 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_avg_queue_minutes_period_rank",
+    "question": "FAB11 최근 3일 공정별 대기 시간 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "avg_queue_minutes": "mean"
+    }
+  },
+  {
+    "id": "fab11_avg_cycle_hours_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 Cycle Time 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_avg_cycle_hours_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 Cycle Time 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_avg_cycle_hours_daily",
+    "question": "FAB11 최근 3일 공정별 Cycle Time 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_avg_cycle_hours_period_rank",
+    "question": "FAB11 최근 3일 공정별 Cycle Time 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "avg_cycle_hours": "mean"
+    }
+  },
+  {
+    "id": "fab11_yield_percent_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 수율 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_yield_percent_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 수율 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_yield_percent_daily",
+    "question": "FAB11 최근 3일 공정별 수율 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_yield_percent_period_rank",
+    "question": "FAB11 최근 3일 공정별 수율 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "yield_percent": "mean"
+    }
+  },
+  {
+    "id": "fab11_utilization_percent_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 가동률 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_utilization_percent_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 가동률 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_utilization_percent_daily",
+    "question": "FAB11 최근 3일 공정별 가동률 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_utilization_percent_period_rank",
+    "question": "FAB11 최근 3일 공정별 가동률 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "utilization_percent": "mean"
+    }
+  },
+  {
+    "id": "fab11_lot_completions_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 완료 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_lot_completions_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 완료 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_lot_completions_daily",
+    "question": "FAB11 최근 3일 공정별 완료 LOT 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_lot_completions_period_rank",
+    "question": "FAB11 최근 3일 공정별 완료 LOT 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "lot_completions": "sum"
+    }
+  },
+  {
+    "id": "fab11_lot_starts_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 투입량 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_lot_starts_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 투입량 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_lot_starts_daily",
+    "question": "FAB11 최근 3일 공정별 투입량 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_lot_starts_period_rank",
+    "question": "FAB11 최근 3일 공정별 투입량 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "lot_starts": "sum"
+    }
+  },
+  {
+    "id": "fab11_down_minutes_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 downtime 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_down_minutes_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 downtime 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_down_minutes_daily",
+    "question": "FAB11 최근 3일 공정별 downtime 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_down_minutes_period_rank",
+    "question": "FAB11 최근 3일 공정별 downtime 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "down_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab11_pm_minutes_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 정비 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_pm_minutes_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 정비 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_pm_minutes_daily",
+    "question": "FAB11 최근 3일 공정별 정비 시간 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_pm_minutes_period_rank",
+    "question": "FAB11 최근 3일 공정별 정비 시간 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "pm_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab11_bottleneck_score_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 bottleneck_score 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_bottleneck_score_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 bottleneck_score 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_bottleneck_score_daily",
+    "question": "FAB11 최근 3일 공정별 bottleneck_score 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_bottleneck_score_period_rank",
+    "question": "FAB11 최근 3일 공정별 bottleneck_score 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "bottleneck_score": "mean"
+    }
+  },
+  {
+    "id": "fab11_temperature_c_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 온도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_temperature_c_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 온도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_temperature_c_daily",
+    "question": "FAB11 최근 3일 공정별 온도 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_temperature_c_period_rank",
+    "question": "FAB11 최근 3일 공정별 온도 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "temperature_c": "mean"
+    }
+  },
+  {
+    "id": "fab11_humidity_percent_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 습도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_humidity_percent_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 습도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_humidity_percent_daily",
+    "question": "FAB11 최근 3일 공정별 습도 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_humidity_percent_period_rank",
+    "question": "FAB11 최근 3일 공정별 습도 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "humidity_percent": "mean"
+    }
+  },
+  {
+    "id": "fab11_defect_ppm_hourly_etch",
+    "question": "FAB11 etch 최근 24시간 불량 ppm 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab11_defect_ppm_hourly_전체",
+    "question": "FAB11 전체 최근 24시간 불량 ppm 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab11",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab11_defect_ppm_daily",
+    "question": "FAB11 최근 3일 공정별 불량 ppm 일별 추세",
+    "kind": "daily",
+    "fab": "fab11",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab11_defect_ppm_period_rank",
+    "question": "FAB11 최근 3일 공정별 불량 ppm 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab11",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "defect_ppm": "mean"
+    }
+  },
+  {
+    "id": "fab12_wip_lots_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 재공 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_wip_lots_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 재공 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_wip_lots_daily",
+    "question": "FAB12 최근 3일 공정별 재공 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_wip_lots_period_rank",
+    "question": "FAB12 최근 3일 공정별 재공 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "wip_lots": "mean"
+    }
+  },
+  {
+    "id": "fab12_queue_lots_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 대기 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_queue_lots_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 대기 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_queue_lots_daily",
+    "question": "FAB12 최근 3일 공정별 대기 LOT 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_queue_lots_period_rank",
+    "question": "FAB12 최근 3일 공정별 대기 LOT 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "queue_lots": "mean"
+    }
+  },
+  {
+    "id": "fab12_avg_queue_minutes_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 대기 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_avg_queue_minutes_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 대기 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_avg_queue_minutes_daily",
+    "question": "FAB12 최근 3일 공정별 대기 시간 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_avg_queue_minutes_period_rank",
+    "question": "FAB12 최근 3일 공정별 대기 시간 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "avg_queue_minutes": "mean"
+    }
+  },
+  {
+    "id": "fab12_avg_cycle_hours_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 Cycle Time 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_avg_cycle_hours_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 Cycle Time 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_avg_cycle_hours_daily",
+    "question": "FAB12 최근 3일 공정별 Cycle Time 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_avg_cycle_hours_period_rank",
+    "question": "FAB12 최근 3일 공정별 Cycle Time 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "avg_cycle_hours": "mean"
+    }
+  },
+  {
+    "id": "fab12_yield_percent_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 수율 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_yield_percent_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 수율 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_yield_percent_daily",
+    "question": "FAB12 최근 3일 공정별 수율 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_yield_percent_period_rank",
+    "question": "FAB12 최근 3일 공정별 수율 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "yield_percent": "mean"
+    }
+  },
+  {
+    "id": "fab12_utilization_percent_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 가동률 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_utilization_percent_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 가동률 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_utilization_percent_daily",
+    "question": "FAB12 최근 3일 공정별 가동률 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_utilization_percent_period_rank",
+    "question": "FAB12 최근 3일 공정별 가동률 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "utilization_percent": "mean"
+    }
+  },
+  {
+    "id": "fab12_lot_completions_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 완료 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_lot_completions_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 완료 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_lot_completions_daily",
+    "question": "FAB12 최근 3일 공정별 완료 LOT 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_lot_completions_period_rank",
+    "question": "FAB12 최근 3일 공정별 완료 LOT 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "lot_completions": "sum"
+    }
+  },
+  {
+    "id": "fab12_lot_starts_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 투입량 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_lot_starts_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 투입량 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_lot_starts_daily",
+    "question": "FAB12 최근 3일 공정별 투입량 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_lot_starts_period_rank",
+    "question": "FAB12 최근 3일 공정별 투입량 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "lot_starts": "sum"
+    }
+  },
+  {
+    "id": "fab12_down_minutes_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 downtime 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_down_minutes_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 downtime 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_down_minutes_daily",
+    "question": "FAB12 최근 3일 공정별 downtime 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_down_minutes_period_rank",
+    "question": "FAB12 최근 3일 공정별 downtime 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "down_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab12_pm_minutes_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 정비 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_pm_minutes_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 정비 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_pm_minutes_daily",
+    "question": "FAB12 최근 3일 공정별 정비 시간 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_pm_minutes_period_rank",
+    "question": "FAB12 최근 3일 공정별 정비 시간 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "pm_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab12_bottleneck_score_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 bottleneck_score 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_bottleneck_score_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 bottleneck_score 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_bottleneck_score_daily",
+    "question": "FAB12 최근 3일 공정별 bottleneck_score 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_bottleneck_score_period_rank",
+    "question": "FAB12 최근 3일 공정별 bottleneck_score 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "bottleneck_score": "mean"
+    }
+  },
+  {
+    "id": "fab12_temperature_c_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 온도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_temperature_c_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 온도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_temperature_c_daily",
+    "question": "FAB12 최근 3일 공정별 온도 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_temperature_c_period_rank",
+    "question": "FAB12 최근 3일 공정별 온도 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "temperature_c": "mean"
+    }
+  },
+  {
+    "id": "fab12_humidity_percent_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 습도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_humidity_percent_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 습도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_humidity_percent_daily",
+    "question": "FAB12 최근 3일 공정별 습도 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_humidity_percent_period_rank",
+    "question": "FAB12 최근 3일 공정별 습도 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "humidity_percent": "mean"
+    }
+  },
+  {
+    "id": "fab12_defect_ppm_hourly_etch",
+    "question": "FAB12 etch 최근 24시간 불량 ppm 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab12_defect_ppm_hourly_전체",
+    "question": "FAB12 전체 최근 24시간 불량 ppm 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab12",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab12_defect_ppm_daily",
+    "question": "FAB12 최근 3일 공정별 불량 ppm 일별 추세",
+    "kind": "daily",
+    "fab": "fab12",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab12_defect_ppm_period_rank",
+    "question": "FAB12 최근 3일 공정별 불량 ppm 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab12",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "defect_ppm": "mean"
+    }
+  },
+  {
+    "id": "fab13_wip_lots_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 재공 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_wip_lots_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 재공 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_wip_lots_daily",
+    "question": "FAB13 최근 3일 공정별 재공 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_wip_lots_period_rank",
+    "question": "FAB13 최근 3일 공정별 재공 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "wip_lots"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "wip_lots": "mean"
+    }
+  },
+  {
+    "id": "fab13_queue_lots_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 대기 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_queue_lots_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 대기 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_queue_lots_daily",
+    "question": "FAB13 최근 3일 공정별 대기 LOT 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_queue_lots_period_rank",
+    "question": "FAB13 최근 3일 공정별 대기 LOT 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "queue_lots"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "queue_lots": "mean"
+    }
+  },
+  {
+    "id": "fab13_avg_queue_minutes_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 대기 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_avg_queue_minutes_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 대기 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_avg_queue_minutes_daily",
+    "question": "FAB13 최근 3일 공정별 대기 시간 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_avg_queue_minutes_period_rank",
+    "question": "FAB13 최근 3일 공정별 대기 시간 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "avg_queue_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "avg_queue_minutes": "mean"
+    }
+  },
+  {
+    "id": "fab13_avg_cycle_hours_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 Cycle Time 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_avg_cycle_hours_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 Cycle Time 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_avg_cycle_hours_daily",
+    "question": "FAB13 최근 3일 공정별 Cycle Time 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_avg_cycle_hours_period_rank",
+    "question": "FAB13 최근 3일 공정별 Cycle Time 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "avg_cycle_hours"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "avg_cycle_hours": "mean"
+    }
+  },
+  {
+    "id": "fab13_yield_percent_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 수율 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_yield_percent_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 수율 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_yield_percent_daily",
+    "question": "FAB13 최근 3일 공정별 수율 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_yield_percent_period_rank",
+    "question": "FAB13 최근 3일 공정별 수율 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "yield_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "yield_percent": "mean"
+    }
+  },
+  {
+    "id": "fab13_utilization_percent_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 가동률 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_utilization_percent_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 가동률 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_utilization_percent_daily",
+    "question": "FAB13 최근 3일 공정별 가동률 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_utilization_percent_period_rank",
+    "question": "FAB13 최근 3일 공정별 가동률 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "utilization_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "utilization_percent": "mean"
+    }
+  },
+  {
+    "id": "fab13_lot_completions_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 완료 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_lot_completions_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 완료 LOT 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_lot_completions_daily",
+    "question": "FAB13 최근 3일 공정별 완료 LOT 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_lot_completions_period_rank",
+    "question": "FAB13 최근 3일 공정별 완료 LOT 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "lot_completions"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "lot_completions": "sum"
+    }
+  },
+  {
+    "id": "fab13_lot_starts_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 투입량 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_lot_starts_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 투입량 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_lot_starts_daily",
+    "question": "FAB13 최근 3일 공정별 투입량 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_lot_starts_period_rank",
+    "question": "FAB13 최근 3일 공정별 투입량 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "lot_starts"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "lot_starts": "sum"
+    }
+  },
+  {
+    "id": "fab13_down_minutes_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 downtime 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_down_minutes_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 downtime 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_down_minutes_daily",
+    "question": "FAB13 최근 3일 공정별 downtime 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_down_minutes_period_rank",
+    "question": "FAB13 최근 3일 공정별 downtime 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "down_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "down_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab13_pm_minutes_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 정비 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_pm_minutes_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 정비 시간 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_pm_minutes_daily",
+    "question": "FAB13 최근 3일 공정별 정비 시간 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_pm_minutes_period_rank",
+    "question": "FAB13 최근 3일 공정별 정비 시간 합계 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "pm_minutes"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "pm_minutes": "sum"
+    }
+  },
+  {
+    "id": "fab13_bottleneck_score_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 bottleneck_score 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_bottleneck_score_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 bottleneck_score 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_bottleneck_score_daily",
+    "question": "FAB13 최근 3일 공정별 bottleneck_score 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_bottleneck_score_period_rank",
+    "question": "FAB13 최근 3일 공정별 bottleneck_score 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "bottleneck_score"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "bottleneck_score": "mean"
+    }
+  },
+  {
+    "id": "fab13_temperature_c_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 온도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_temperature_c_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 온도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_temperature_c_daily",
+    "question": "FAB13 최근 3일 공정별 온도 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_temperature_c_period_rank",
+    "question": "FAB13 최근 3일 공정별 온도 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "temperature_c"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "temperature_c": "mean"
+    }
+  },
+  {
+    "id": "fab13_humidity_percent_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 습도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_humidity_percent_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 습도 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_humidity_percent_daily",
+    "question": "FAB13 최근 3일 공정별 습도 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_humidity_percent_period_rank",
+    "question": "FAB13 최근 3일 공정별 습도 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "humidity_percent"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "humidity_percent": "mean"
+    }
+  },
+  {
+    "id": "fab13_defect_ppm_hourly_etch",
+    "question": "FAB13 etch 최근 24시간 불량 ppm 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": [
+      "etch"
+    ],
+    "hours": 24
+  },
+  {
+    "id": "fab13_defect_ppm_hourly_전체",
+    "question": "FAB13 전체 최근 24시간 불량 ppm 시간별 추세",
+    "kind": "hourly",
+    "fab": "fab13",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": [],
+    "hours": 24
+  },
+  {
+    "id": "fab13_defect_ppm_daily",
+    "question": "FAB13 최근 3일 공정별 불량 ppm 일별 추세",
+    "kind": "daily",
+    "fab": "fab13",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": "all",
+    "days": 3
+  },
+  {
+    "id": "fab13_defect_ppm_period_rank",
+    "question": "FAB13 최근 3일 공정별 불량 ppm 평균 상위 3개",
+    "kind": "period_rank",
+    "fab": "fab13",
+    "metrics": [
+      "defect_ppm"
+    ],
+    "areas": "all",
+    "days": 3,
+    "limit": 3,
+    "direction": "desc",
+    "aggregations": {
+      "defect_ppm": "mean"
+    }
+  }
+]

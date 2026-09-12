@@ -1,0 +1,50 @@
+{
+  "sql": "SELECT SUM(wip_lots) AS total_wip_lots\nFROM fab12.live_process_snapshots_fab12\nWHERE fab_id = 'fab12'\n  AND interval_end = (\n    SELECT MAX(interval_end)\n    FROM fab12.live_process_snapshots_fab12\n    WHERE fab_id = 'fab12'\n  )",
+  "plan": {
+    "supported": true,
+    "reason": "latest FAB total",
+    "tables": [
+      "fab12.live_process_snapshots_fab12"
+    ],
+    "projections": [],
+    "aggregates": [
+      {
+        "source": {
+          "table": "fab12.live_process_snapshots_fab12",
+          "column": "wip_lots"
+        },
+        "function": "sum",
+        "alias": "total_wip_lots"
+      }
+    ],
+    "group_by": [],
+    "filters": [
+      {
+        "source": {
+          "table": "fab12.live_process_snapshots_fab12",
+          "column": "fab_id"
+        },
+        "operator": "eq",
+        "values": [
+          "fab12"
+        ]
+      }
+    ],
+    "joins": [],
+    "latest_by": [
+      {
+        "table": "fab12.live_process_snapshots_fab12",
+        "column": "interval_end"
+      }
+    ],
+    "time_basis": "interval_end",
+    "result_grain": "whole fab",
+    "limitations": []
+  },
+  "rows": [
+    {
+      "total_wip_lots": 1183
+    }
+  ],
+  "expected": 1183
+}

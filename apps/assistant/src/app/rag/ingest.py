@@ -22,7 +22,7 @@ class KnowledgeChunk:
     source: str
     title: str
     content: str
-    metadata: dict[str, str] = field(default_factory=dict)
+    metadata: dict = field(default_factory=dict)
 
 
 def ingest_documents(
@@ -92,11 +92,12 @@ def build_chunks_for_paths(
 
 
 def write_chunks(output_path: Path, chunks: list[KnowledgeChunk]) -> None:
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", encoding="utf-8") as handle:
-        for chunk in chunks:
-            handle.write(json.dumps(asdict(chunk), ensure_ascii=False, sort_keys=True))
-            handle.write("\n")
+    from app.rag.manifest import atomic_write
+
+    text = "".join(
+        json.dumps(asdict(chunk), ensure_ascii=False, sort_keys=True) + "\n" for chunk in chunks
+    )
+    atomic_write(output_path, text)
 
 
 def load_chunks(input_path: Path) -> list[dict]:
@@ -108,6 +109,7 @@ def load_chunks(input_path: Path) -> list[dict]:
             line = line.strip()
             if line:
                 chunks.append(json.loads(line))
+    validate_chunks(chunks)
     return chunks
 
 
@@ -141,25 +143,82 @@ def _chunks_for_file(
 ) -> list[KnowledgeChunk]:
     if path.suffix.lower() not in SUPPORTED_SUFFIXES:
         return []
+    units = _extract_units(path)
+    document_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+    title = path.stem
+    chunks = []
+    index = 0
+    document_text = "\n".join(text for _, _, text in units)
+    scope_match = re.search(r"(?i)fab(\d+)\s*[-–~]\s*fab(\d+)", document_text[:3000])
+    document_fabs = []
+    if scope_match:
+        first, last = map(int, scope_match.groups())
+        if 0 <= last - first <= 20:
+            document_fabs = [f"fab{number}" for number in range(first, last + 1)]
+    simulation = "simulation" in document_text.casefold() or "시뮬레이션" in document_text
+    reference_summary = "프로젝트 참고 문서" in document_text[:800]
+    for page, section, text in units:
+        for content in _split_text(text, chunk_target_chars, chunk_overlap_chars):
+            metadata = _infer_metadata(path, content)
+            if document_fabs:
+                metadata["fab_ids"] = document_fabs
+            metadata.update(
+                {
+                    "chunk_index": str(index),
+                    "page_number": page,
+                    "section_title": section,
+                    "document_version": document_hash,
+                    "ingestion_version": "structure.v2",
+                    "reliability": "reference_summary" if reference_summary else "simulation_reference" if simulation else "unverified_reference",
+                    "playbook_ids": list(dict.fromkeys(re.findall(r"\bPB-[A-Z]+-\d+\b", content))),
+                }
+            )
+            from app.rag.query import concepts
+
+            metadata["concepts"] = sorted(concepts(content))
+            chunks.append(
+                KnowledgeChunk(
+                    chunk_id=_chunk_id(collection, knowledge_base, path, index, content),
+                    collection=collection,
+                    knowledge_base=knowledge_base,
+                    source=str(path),
+                    title=section or title,
+                    content=content,
+                    metadata=metadata,
+                )
+            )
+            index += 1
+    return chunks
+
+
+def _extract_units(path: Path) -> list[tuple[int | None, str, str]]:
+    """Preserve PDF pages and Markdown headings before bounded character splitting."""
+    if path.suffix.lower() == ".pdf":
+        from pypdf import PdfReader
+
+        return [
+            (number, _page_title(text, path.stem), text)
+            for number, page in enumerate(PdfReader(path).pages, 1)
+            if (text := _clean_text(page.extract_text() or ""))
+        ]
     text = _extract_text(path)
     if not text:
         return []
-    title = path.stem
-    chunks = []
-    for index, content in enumerate(_split_text(text, chunk_target_chars, chunk_overlap_chars)):
-        metadata = {**_infer_metadata(path, content), "chunk_index": str(index)}
-        chunks.append(
-            KnowledgeChunk(
-                chunk_id=_chunk_id(collection, knowledge_base, path, index, content),
-                collection=collection,
-                knowledge_base=knowledge_base,
-                source=str(path),
-                title=title,
-                content=content,
-                metadata=metadata,
-            )
-        )
-    return chunks
+    if path.suffix.lower() == ".md":
+        parts = re.split(r"(?m)(?=^#{1,6}\s+)", text)
+        return [
+            (None, part.splitlines()[0].lstrip("# "), part.strip())
+            for part in parts
+            if part.strip()
+        ]
+    return [(None, path.stem, text)]
+
+
+def _page_title(text: str, fallback: str) -> str:
+    for line in text.splitlines():
+        if re.match(r"^\d{1,2}\.\s+", line.strip()):
+            return line.strip()
+    return fallback
 
 
 def _extract_text(path: Path) -> str:
@@ -188,7 +247,9 @@ def _extract_docx(path: Path) -> str:
     try:
         from docx import Document
     except ImportError as exc:
-        raise RuntimeError("python-docx is required to ingest DOCX files. Install the rag extra.") from exc
+        raise RuntimeError(
+            "python-docx is required to ingest DOCX files. Install the rag extra."
+        ) from exc
 
     document = Document(path)
     paragraphs = [paragraph.text for paragraph in document.paragraphs]
@@ -238,9 +299,6 @@ def _infer_metadata(path: Path, text: str) -> dict[str, str]:
                 metadata["issue_type"] = issue_type
                 metadata["issue_types"] = issue_type
                 break
-    playbook_ids = list(dict.fromkeys(re.findall(r"\bpb-[a-z0-9-]+\b", lower)))
-    if playbook_ids:
-        metadata["playbook_ids"] = ",".join(playbook_ids)
     fab_match = re.search(r"\bfab(?:[-_ ]?)(1[0-3])\b", lower)
     if fab_match:
         metadata["fab_id"] = f"fab{fab_match.group(1)}"
@@ -269,3 +327,20 @@ def _clean_text(text: str) -> str:
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
+
+
+def validate_chunks(chunks: list[dict]) -> None:
+    seen = set()
+    for number, chunk in enumerate(chunks, 1):
+        if not isinstance(chunk, dict):
+            raise TypeError(f"Corpus record {number} must be an object.")
+        cid = chunk.get("chunk_id")
+        if not isinstance(cid, str) or not cid or cid in seen:
+            raise ValueError(f"Corpus record {number} has an invalid or duplicate chunk ID.")
+        seen.add(cid)
+        if chunk.get("knowledge_base") not in {"incident_playbook", "process_basics"}:
+            raise ValueError(f"Corpus record {number} has an unknown knowledge base.")
+        if not isinstance(chunk.get("content"), str) or not chunk["content"].strip():
+            raise ValueError(f"Corpus record {number} has no text content.")
+        if not isinstance(chunk.get("metadata", {}), dict):
+            raise TypeError(f"Corpus record {number} metadata must be an object.")

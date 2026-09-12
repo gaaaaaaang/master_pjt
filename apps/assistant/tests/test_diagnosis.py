@@ -19,7 +19,7 @@ def test_synthesis_separates_observations_candidates_and_cases() -> None:
                 "row_count": 1,
                 "columns": ["stn", "down_percent"],
                 "sample_rows": [{"stn": "DE_BE_11", "down_percent": 12.5}],
-                "sql": "SELECT stn, down_percent FROM fab10.autosched_stn",
+                "sql": "SELECT stn, down_percent FROM fab10.autosched_stn_fab10",
             },
         },
         {
@@ -84,7 +84,7 @@ def test_empty_successful_sql_result_is_not_an_operational_observation() -> None
                     "status": "succeeded",
                     "row_count": 0,
                     "sample_rows": [],
-                    "sql": "SELECT * FROM fab10.autosched_perf WHERE FALSE",
+                    "sql": "SELECT * FROM fab10.autosched_perf_fab10 WHERE FALSE",
                 },
             }
         ]
@@ -144,7 +144,7 @@ def test_candidates_are_ranked_by_corroboration_reliability_and_observation() ->
                     "row_count": 1,
                     "columns": ["stn", "down_percent"],
                     "sample_rows": [{"stn": "DE_BE_11", "down_percent": 12.5}],
-                    "sql": "SELECT stn, down_percent FROM fab10.autosched_stn",
+                    "sql": "SELECT stn, down_percent FROM fab10.autosched_stn_fab10",
                 },
             },
             {

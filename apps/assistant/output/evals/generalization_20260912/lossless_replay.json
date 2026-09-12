@@ -1,0 +1,110 @@
+{
+  "mode": "local_replay_composite_context_not_exact_model_request",
+  "all_roundtrips_equal": true,
+  "results": [
+    {
+      "id": "fab11_wip",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 13631,
+      "context_sent_bytes": 9977,
+      "context_shared_objects": 6,
+      "old_input_bytes": 12796
+    },
+    {
+      "id": "fab13_wip",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 15676,
+      "context_sent_bytes": 11844,
+      "context_shared_objects": 6,
+      "old_input_bytes": 14841
+    },
+    {
+      "id": "screenshot_comparison",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 74433,
+      "context_sent_bytes": 39587,
+      "context_shared_objects": 25,
+      "old_input_bytes": 66450
+    },
+    {
+      "id": "implicit_comparison",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 41015,
+      "context_sent_bytes": 27021,
+      "context_shared_objects": 19,
+      "old_input_bytes": 38874
+    },
+    {
+      "id": "total_trend",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 99130,
+      "context_sent_bytes": 51459,
+      "context_shared_objects": 21,
+      "old_input_bytes": 96234
+    },
+    {
+      "id": "fab10_wip",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 13968,
+      "context_sent_bytes": 10204,
+      "context_shared_objects": 6,
+      "old_input_bytes": 13129
+    },
+    {
+      "id": "fab12_status",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 16427,
+      "context_sent_bytes": 11192,
+      "context_shared_objects": 7,
+      "old_input_bytes": 15398
+    },
+    {
+      "id": "fab12_followup",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 17607,
+      "context_sent_bytes": 12551,
+      "context_shared_objects": 8,
+      "old_input_bytes": 16703
+    },
+    {
+      "id": "fab12_impact",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 38944,
+      "context_sent_bytes": 23506,
+      "context_shared_objects": 14,
+      "old_input_bytes": 37022
+    },
+    {
+      "id": "fab12_trend",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 80444,
+      "context_sent_bytes": 29697,
+      "context_shared_objects": 28,
+      "old_input_bytes": 74144
+    },
+    {
+      "id": "fab12_rank",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 30864,
+      "context_sent_bytes": 21429,
+      "context_shared_objects": 9,
+      "old_input_bytes": 29420
+    },
+    {
+      "id": "fab13_diagnosis",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 68261,
+      "context_sent_bytes": 42053,
+      "context_shared_objects": 23,
+      "old_input_bytes": 61529
+    },
+    {
+      "id": "process_knowledge",
+      "context_encoding": "shared_tables_v1",
+      "context_original_bytes": 20170,
+      "context_sent_bytes": 18823,
+      "context_shared_objects": 1,
+      "old_input_bytes": 19121
+    }
+  ]
+}

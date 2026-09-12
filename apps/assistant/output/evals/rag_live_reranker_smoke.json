@@ -1,0 +1,455 @@
+{
+  "model": "gpt-4.1",
+  "cases": [
+    {
+      "query": "설비 고장 초기 대응과 Lot Hold 격리 절차를 함께 설명해",
+      "trace": {
+        "pipeline_version": "hybrid.v1",
+        "plan": {
+          "query": "설비 고장 초기 대응과 Lot Hold 격리 절차를 함께 설명해",
+          "knowledge_bases": [
+            "incident_playbook"
+          ],
+          "concepts": [
+            "equipment_down",
+            "lot_hold"
+          ],
+          "excluded_concepts": [],
+          "exact_ids": [],
+          "fab_ids": [],
+          "terms": [
+            "설비",
+            "고장",
+            "초기",
+            "대응",
+            "lot",
+            "hold",
+            "격리",
+            "concept:equipment_down",
+            "concept:lot_hold"
+          ],
+          "subqueries": [
+            "설비 고장 초기 대응과 Lot Hold 격리 절차를 함께 설명해",
+            "설비 고장",
+            "lot hold"
+          ],
+          "require_verified": false
+        },
+        "retrieval_mode": "bm25",
+        "reranker": "llm.v1",
+        "candidate_limit": 30,
+        "retrieval_channels": [
+          "bm25:original",
+          "bm25:subquery1",
+          "bm25:subquery2"
+        ],
+        "reranked_count": 8,
+        "lexical_candidates": 23,
+        "dense_candidates": 0,
+        "fused_candidates": 23,
+        "selected_count": 3,
+        "context_chars": 2193,
+        "covered_concepts": [
+          "equipment_down",
+          "lot_hold"
+        ],
+        "uncovered_concepts": [],
+        "latency_ms": 9159.082
+      },
+      "limitations": [],
+      "evidence": [
+        {
+          "chunk_id": "448e9fe7c0a26836a9eb0b32",
+          "title": "05. 공통 대응 프로세스",
+          "metadata": {
+            "chunk_index": "4",
+            "concepts": [
+              "dispatch",
+              "lot_hold",
+              "rca",
+              "recovery"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "all",
+            "page_number": 5,
+            "playbook_ids": [
+              "PB-GEN-004"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "05. 공통 대응 프로세스",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "score": 3.072332,
+            "retrieval_features": {
+              "term_coverage": 0.4444,
+              "concept_matches": [
+                "lot_hold"
+              ],
+              "focus_matches": [],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.023321,
+              "relevance_grade": 3,
+              "relevance_reason": "공통 FAB 돌발상황 대응 프로세스를 통해, 설비 고장과 같은 이슈 감지 시 즉각적 lot 격리(Lot Hold) 또는 hold 후보 전환, 확인 기록, 납기 영향시 추가 조치 등, 설비 고장 초기 대응과 Lot Hold 격리를 절차상 연계해 설명한다. 두 절차가 연계된 전형적인 대응 흐름을 모두 포괄하여 3점을 부여함."
+            },
+            "retrieval_ranks": {
+              "0": 5,
+              "2": 3
+            },
+            "retrieval_mode": "bm25"
+          }
+        },
+        {
+          "chunk_id": "949c72912ec914f87682d1ce",
+          "title": "07. 장비 고장 대응",
+          "metadata": {
+            "chunk_index": "6",
+            "concepts": [
+              "equipment_down",
+              "hot_lot",
+              "recovery",
+              "wip"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "equipment_down",
+            "page_number": 7,
+            "playbook_ids": [
+              "PB-EQ-001"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "07. 장비 고장 대응",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "score": 2.14655,
+            "retrieval_features": {
+              "term_coverage": 0.6667,
+              "concept_matches": [
+                "equipment_down"
+              ],
+              "focus_matches": [
+                "equipment_down"
+              ],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.032166,
+              "relevance_grade": 2,
+              "relevance_reason": "이 문서는 설비 고장 발생 시 초기 대응 절차(감지, 정지, lot 식별 등)와 lot hold/reroute 판단 및 품질 영향 lot 식별 등, 초기 격리·대응 주요 단계를 구체적으로 다룸. 하지만 lot hold의 상세 기준과 기록, 후속 모니터링 등 Lot Hold 격리 절차의 전 과정을 모두 설명하지는 않는다."
+            },
+            "retrieval_ranks": {
+              "0": 1,
+              "1": 1,
+              "2": 6
+            },
+            "retrieval_mode": "bm25"
+          }
+        },
+        {
+          "chunk_id": "4456402d14afcca1262205d0",
+          "title": "13. Lot Hold 판단",
+          "metadata": {
+            "chunk_index": "12",
+            "concepts": [
+              "lot_hold",
+              "lot_release",
+              "recovery"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "lot_hold",
+            "page_number": 13,
+            "playbook_ids": [
+              "PB-HL-001"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "13. Lot Hold 판단",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "score": 2.112335,
+            "retrieval_features": {
+              "term_coverage": 0.3333,
+              "concept_matches": [
+                "lot_hold"
+              ],
+              "focus_matches": [
+                "lot_hold"
+              ],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.023348,
+              "relevance_grade": 2,
+              "relevance_reason": "이 자료는 Lot Hold의 판단 기준, 격리 절차, 필수 기록 항목 등 Lot Hold 격리 절차에 대해 구체적으로 설명한다. 하지만 설비 고장에 대한 초기 대응의 상세 과정이 없다. 따라서 질의의 일부(격리 절차)만 직접 뒷받침하므로 2점."
+            },
+            "retrieval_ranks": {
+              "0": 6,
+              "2": 1
+            },
+            "retrieval_mode": "bm25"
+          }
+        }
+      ]
+    },
+    {
+      "query": "예방정비가 늦어져 가용 설비가 부족할 때 대응 방법",
+      "trace": {
+        "pipeline_version": "hybrid.v1",
+        "plan": {
+          "query": "예방정비가 늦어져 가용 설비가 부족할 때 대응 방법",
+          "knowledge_bases": [
+            "incident_playbook"
+          ],
+          "concepts": [
+            "pm"
+          ],
+          "excluded_concepts": [],
+          "exact_ids": [],
+          "fab_ids": [],
+          "terms": [
+            "예방정비",
+            "늦어져",
+            "가용",
+            "설비",
+            "부족할",
+            "대응",
+            "concept:pm"
+          ],
+          "subqueries": [
+            "예방정비가 늦어져 가용 설비가 부족할 때 대응 방법"
+          ],
+          "require_verified": false
+        },
+        "retrieval_mode": "bm25",
+        "reranker": "feature.v1_fallback",
+        "candidate_limit": 30,
+        "retrieval_channels": [
+          "bm25:original"
+        ],
+        "reranker_error": "ValueError",
+        "lexical_candidates": 15,
+        "dense_candidates": 0,
+        "fused_candidates": 15,
+        "selected_count": 3,
+        "context_chars": 2457,
+        "covered_concepts": [
+          "pm"
+        ],
+        "uncovered_concepts": [],
+        "latency_ms": 8476.459
+      },
+      "limitations": [
+        "리랭커 호출 실패로 규칙 기반 정렬 결과를 사용했습니다."
+      ],
+      "evidence": [
+        {
+          "chunk_id": "826a8c8ba9e44f729a587f08",
+          "title": "08. PM 지연과 설비 가용성 저하",
+          "metadata": {
+            "chunk_index": "7",
+            "concepts": [
+              "hot_lot",
+              "pm",
+              "queue_time",
+              "recovery",
+              "wip"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "pm_delay",
+            "page_number": 8,
+            "playbook_ids": [
+              "PB-EQ-002"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "08. PM 지연과 설비 가용성 저하",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "score": 1.044965,
+            "retrieval_features": {
+              "term_coverage": 0.2857,
+              "concept_matches": [
+                "pm"
+              ],
+              "focus_matches": [
+                "pm"
+              ],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.016393
+            },
+            "retrieval_ranks": {
+              "0": 1
+            },
+            "retrieval_mode": "bm25"
+          }
+        },
+        {
+          "chunk_id": "d10adf524831c6774d823097",
+          "title": "11. 수율 저하 대응",
+          "metadata": {
+            "chunk_index": "10",
+            "concepts": [
+              "pm",
+              "rca",
+              "recovery",
+              "yield"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "yield_drop",
+            "page_number": 11,
+            "playbook_ids": [
+              "PB-YD-001"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "11. 수율 저하 대응",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "score": 0.573016,
+            "retrieval_features": {
+              "term_coverage": 0.2857,
+              "concept_matches": [
+                "pm"
+              ],
+              "focus_matches": [],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.015873
+            },
+            "retrieval_ranks": {
+              "0": 3
+            },
+            "retrieval_mode": "bm25"
+          }
+        },
+        {
+          "chunk_id": "9ba6a61997def9b3b5e224d8",
+          "title": "20. RCA 템플릿",
+          "metadata": {
+            "chunk_index": "19",
+            "concepts": [
+              "etch",
+              "pm",
+              "rca",
+              "recovery"
+            ],
+            "document_version": "1846eca3b3204f78bea4173675f0a1383cc2b7087aff1291665147fca20c26a5",
+            "fab_ids": [
+              "fab10",
+              "fab11",
+              "fab12",
+              "fab13"
+            ],
+            "ingestion_version": "structure.v2",
+            "issue_type": "rca",
+            "page_number": 20,
+            "playbook_ids": [
+              "PB-RCA-001"
+            ],
+            "reliability": "simulation_reference",
+            "section_title": "20. RCA 템플릿",
+            "source_document": "semiconductor_fab_incident_response_playbook_kr.pdf",
+            "source_type": "pdf",
+            "score": 0.356371,
+            "retrieval_features": {
+              "term_coverage": 0.1429,
+              "concept_matches": [
+                "pm"
+              ],
+              "focus_matches": [],
+              "excluded_matches": [],
+              "exact_id_match": false,
+              "structural_noise": false,
+              "fusion_score": 0.013514
+            },
+            "retrieval_ranks": {
+              "0": 14
+            },
+            "retrieval_mode": "bm25"
+          }
+        }
+      ]
+    },
+    {
+      "query": "최신 EUV 레지스트의 최적 노광량 숫자를 알려줘",
+      "trace": {
+        "pipeline_version": "hybrid.v1",
+        "plan": {
+          "query": "최신 EUV 레지스트의 최적 노광량 숫자를 알려줘",
+          "knowledge_bases": [
+            "process_basics"
+          ],
+          "concepts": [],
+          "excluded_concepts": [],
+          "exact_ids": [],
+          "fab_ids": [],
+          "terms": [
+            "최신",
+            "euv",
+            "레지스트의",
+            "최적",
+            "노광량",
+            "숫자"
+          ],
+          "subqueries": [
+            "최신 EUV 레지스트의 최적 노광량 숫자를 알려줘"
+          ],
+          "require_verified": false
+        },
+        "retrieval_mode": "bm25",
+        "reranker": "feature.v1",
+        "candidate_limit": 30,
+        "retrieval_channels": [
+          "bm25:original"
+        ],
+        "lexical_candidates": 0,
+        "dense_candidates": 0,
+        "fused_candidates": 0,
+        "selected_count": 0,
+        "context_chars": 0,
+        "covered_concepts": [],
+        "uncovered_concepts": [],
+        "latency_ms": 10.624
+      },
+      "limitations": [
+        "질문을 뒷받침하는 문서 근거를 찾지 못했습니다."
+      ],
+      "evidence": []
+    }
+  ]
+}

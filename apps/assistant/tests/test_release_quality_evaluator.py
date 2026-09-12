@@ -14,7 +14,7 @@ def test_current_local_metrics_match_saved_baseline() -> None:
 
     report = build_report(collect_metrics(), baseline)
 
-    assert report["passed"] is True
+    assert report["passed"] is True, "\n".join(report["failures"])
     assert report["failures"] == []
     assert report["external_calls"] is False
     assert report["full_graph"]["status"] == "not_measured"

@@ -1,5 +1,6 @@
 import math
 from datetime import date, datetime, timedelta
+from itertools import pairwise
 from numbers import Real
 from typing import Any
 
@@ -39,7 +40,7 @@ def build_chart_spec(
     if series_field in {x_field, *y_fields}:
         raise ValueError("Chart series field must differ from x and y encodings.")
     _validate_chart_rows(rows, x_field=x_field, y_fields=y_fields)
-    y_domain = _numeric_domain(rows, y_fields)
+    y_domain = _numeric_domain(rows, y_fields, include_zero=chart_type != "line" or chart_intent.get("y_zero", True))
     ordered_rows = _order_line_rows(rows, x_field) if chart_type == "line" else list(rows)
     source_rows = list(ordered_rows)
     expected_x_values = (
@@ -139,6 +140,8 @@ def build_chart_spec(
                 expected_x_values=expected_x_values,
             )
             chart["imputed_points"] = imputed_points
+            chart["observation_basis"] = _observation_basis(source_rows)
+        _add_comparison_facts(chart, source_rows, x_field, y_fields, series_field)
         return chart
 
     y_field = y_fields[0]
@@ -191,9 +194,44 @@ def build_chart_spec(
             expected_x_values=expected_x_values,
         )
         chart["imputed_points"] = imputed_points
+        chart["observation_basis"] = _observation_basis(source_rows)
         if imputed_points:
             chart["source_rows"] = source_rows
+    _add_comparison_facts(chart, source_rows, x_field, y_fields, series_field)
     return chart
+
+
+def _add_comparison_facts(chart, rows, x_field, y_fields, series_field):
+    """Register derived differences with their exact operands and direction."""
+    if chart["type"] == "line":
+        return
+    chart["observation_basis"] = _observation_basis(rows)
+    labels = list(dict.fromkeys(row[x_field] for row in rows))
+    if len(labels) != 2:
+        return
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        groups.setdefault(str(row[series_field]) if series_field else "all", []).append(row)
+    summaries = []
+    for group, points in groups.items():
+        by_label = {row[x_field]: row for row in points}
+        if len(points) != 2 or any(label not in by_label for label in labels):
+            continue
+        for metric in y_fields:
+            before = float(_numeric_value(by_label[labels[0]][metric]))
+            after = float(_numeric_value(by_label[labels[1]][metric]))
+            delta = after - before
+            summaries.append({
+                "series": group, "metric": metric,
+                "baseline_label": labels[0], "comparison_label": labels[1],
+                "baseline_value": _rounded_number(before), "comparison_value": _rounded_number(after),
+                "absolute_delta": _rounded_number(delta),
+                "percent_delta": _rounded_number(delta / before * 100) if before else None,
+                "delta_unit": "percentage_points" if metric.endswith("percent") else "same_as_metric",
+                "formula": "absolute_delta = comparison_value - baseline_value; percent_delta = absolute_delta / baseline_value * 100 (baseline != 0)",
+                "interpretation": "조회 집계값의 산술 차이입니다. 서로 다른 관측 구간·조건의 성능 개선이나 인과 효과를 뜻하지 않습니다.",
+            })
+    chart["comparison_summary"] = summaries
 
 
 def _build_trend_summary(
@@ -232,6 +270,11 @@ def _build_trend_summary(
         start_value = float(first[y_field])
         end_value = float(last[y_field])
         absolute_delta = end_value - start_value
+        values = [float(point[y_field]) for point in points]
+        deltas = [b - a for a, b in pairwise(values)]
+        rises = any(delta > 0 for delta in deltas)
+        falls = any(delta < 0 for delta in deltas)
+        movement = "fluctuating" if rises and falls else "increasing" if rises else "decreasing" if falls else "constant"
         item = {
             "series": label,
             "start_x": first[x_field],
@@ -239,6 +282,7 @@ def _build_trend_summary(
             "start_value": _rounded_number(start_value),
             "end_value": _rounded_number(end_value),
             "absolute_delta": _rounded_number(absolute_delta),
+            "movement": movement,
             "percent_delta": (
                 _rounded_number(absolute_delta / start_value * 100)
                 if start_value != 0
@@ -247,6 +291,27 @@ def _build_trend_summary(
         }
         summary.append(item)
     return summary
+
+
+def _observation_basis(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    basis: dict[str, Any] = {
+        "coverage_scope": "returned_axis_points_only",
+        "interpretation": "날짜별 값의 존재는 하루 전체의 관측 완료를 의미하지 않습니다. 처음·마지막 시각과 관측 구간 수를 확인하세요.",
+    }
+    observed = [row for row in rows if row.get("first_observed_at") is not None
+                and row.get("last_observed_at") is not None]
+    if observed:
+        basis.update(first_observed_at=min(row["first_observed_at"] for row in observed),
+                     last_observed_at=max(row["last_observed_at"] for row in observed))
+    counts = [row["observation_count"] for row in rows if isinstance(row.get("observation_count"), (int, float))]
+    if counts:
+        basis.update(minimum_observations_per_bucket=min(counts), maximum_observations_per_bucket=max(counts))
+    durations = [_numeric_value(row[key]) for row in rows
+                 for key in ("observation_minutes_min", "observation_minutes_max") if row.get(key) is not None]
+    if durations:
+        basis.update(minimum_interval_minutes=min(durations), maximum_interval_minutes=max(durations),
+                     mixed_interval_lengths=min(durations) != max(durations))
+    return basis
 
 
 def _build_series_gaps(
@@ -535,11 +600,11 @@ def _numeric_value(value: Any) -> int | float:
 
 
 def _numeric_domain(
-    rows: list[dict[str, Any]], y_fields: list[str]
+    rows: list[dict[str, Any]], y_fields: list[str], *, include_zero: bool = True
 ) -> list[int | float]:
     values = [_numeric_value(row[field]) for row in rows for field in y_fields]
-    lower = min(0, min(values))
-    upper = max(0, max(values))
+    lower = min(0, min(values)) if include_zero else min(values)
+    upper = max(0, max(values)) if include_zero else max(values)
     if lower == upper:
-        upper = 1
+        upper = lower + max(1, abs(lower) * 0.01)
     return [lower, upper]

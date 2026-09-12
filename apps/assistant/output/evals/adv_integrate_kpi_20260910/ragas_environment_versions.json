@@ -1,0 +1,10 @@
+{
+  "ragas": "0.2.15",
+  "openai": "1.109.1",
+  "langchain-openai": "0.3.35",
+  "langchain-core": "0.3.86",
+  "psycopg": "3.3.5",
+  "sqlglot": "27.29.0",
+  "numpy": "2.5.3",
+  "pandas": "2.3.3"
+}

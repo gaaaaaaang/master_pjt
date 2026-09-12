@@ -1,0 +1,49 @@
+{
+  "raw_sha256": "48d2610ad3af95487ef3ef3ed994515f4b9cf1a2cf8b419311396c3d68cfc1f9",
+  "report_sha256": "5a257581c59306d294114c76e09ce2a3229991c2d5babd58c4f8427a9a6a11c4",
+  "scope": "Independent arithmetic and scope checks; not complete narrative accuracy.",
+  "checks": [
+    {
+      "id": "fab11_wip",
+      "audited": true,
+      "passed": true,
+      "rows": 1,
+      "checked_cells": 2,
+      "errors": []
+    },
+    {
+      "id": "fab13_wip",
+      "audited": true,
+      "passed": true,
+      "rows": 1,
+      "checked_cells": 2,
+      "errors": []
+    },
+    {
+      "id": "screenshot_comparison",
+      "audited": true,
+      "passed": true,
+      "rows": 12,
+      "checked_cells": 108,
+      "errors": []
+    },
+    {
+      "id": "implicit_comparison",
+      "audited": true,
+      "passed": true,
+      "rows": 12,
+      "checked_cells": 48,
+      "errors": []
+    },
+    {
+      "id": "total_trend",
+      "audited": true,
+      "passed": true,
+      "rows": 50,
+      "checked_cells": 300,
+      "errors": []
+    }
+  ],
+  "audited": 5,
+  "passed": 5
+}

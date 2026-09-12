@@ -473,7 +473,16 @@ class FakeMilvusClient:
         del collection_name
         return {"row_count": len(self.inserted)}
 
-    def search(self, *, collection_name: str, data, filter: str, limit: int, output_fields: list[str]):
+    def search(
+        self,
+        *,
+        collection_name: str,
+        data,
+        filter: str,
+        limit: int,
+        output_fields: list[str],
+        timeout: float = 10.0,
+    ):
         del collection_name, data, limit, output_fields
         self.last_filter = filter
         return self.search_result

@@ -1,19 +1,24 @@
+import asyncio
 import json
 import logging
 import time
 from dataclasses import asdict
 from typing import Any
 
+import httpx
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 
 from app.agents.graph import build_agent_graph, initial_graph_state
+from app.agents.intent import resolved_request_context
 from app.config import get_settings
 from app.schemas.chat import ChatRequest, ChatResponse, FeedbackRequest, FeedbackResponse
+from app.services.answer_presentation import present_response
 from app.services.chat_service import ChatService
 from app.services.conversation_memory import conversation_memory
 from app.services.feedback_service import feedback_service
+from app.sub_agent.result_delivery import query_result_payload
 
 router = APIRouter(tags=["chat"])
 service = ChatService()
@@ -56,7 +61,17 @@ DEFAULT_TRACE_CASES = [
 @router.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest) -> ChatResponse:
     logger.info("chat.start message=%s fab=%s", request.message, request.fab)
-    response = service.ask(request)
+    try:
+        response = service.ask(request)
+    except (KeyError, RuntimeError, ValueError, TypeError, httpx.HTTPError) as exc:
+        logger.error("chat.failed error_type=%s", type(exc).__name__)
+        raise HTTPException(
+            status_code=504 if isinstance(exc, httpx.TimeoutException) else 502,
+            detail={
+                "error": "에이전트 실행을 완료하지 못했습니다.",
+                "error_type": type(exc).__name__,
+            },
+        ) from exc
     logger.info(
         "chat.done conversation_id=%s query_type=%s sql=%s chart=%s",
         response.conversation_id,
@@ -98,42 +113,39 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
             request.message,
         )
         try:
-            for update in graph.stream(state, stream_mode="updates"):
-                if await http_request.is_disconnected():
-                    logger.info(
-                        "stream.cancelled conversation_id=%s reason=client_disconnected",
-                        state["conversation_id"],
-                    )
-                    yield _sse(
-                        "cancelled",
-                        _with_stream_telemetry(
-                            {
-                                "type": "run_cancelled",
-                                "node": "supervisor",
-                                "message": "클라이언트 연결이 종료되어 stream을 중단했습니다.",
-                                "data": {
-                                    "conversation_id": state["conversation_id"],
-                                    "reason": "client_disconnected",
-                                    "retry_budget_remaining": state.get(
-                                        "retry_budget_remaining", 0
-                                    ),
-                                },
-                            },
-                            started_at,
-                        ),
-                    )
-                    return
-                if time.monotonic() - started_at > get_settings().stream_timeout_seconds:
-                    raise TimeoutError("SSE stream exceeded configured timeout.")
-                for patch in update.values():
-                    state.update(patch)
-                    if event := patch.get("stream_event"):
-                        _log_stream_event(event)
-                        event_data = event.setdefault("data", {})
-                        event_data["retry_budget_remaining"] = state.get(
-                            "retry_budget_remaining", 0
+            async with asyncio.timeout(get_settings().stream_timeout_seconds):
+                async for update in graph.astream(state, config={"recursion_limit": 100}, stream_mode="updates"):
+                    if await http_request.is_disconnected():
+                        logger.info(
+                            "stream.cancelled conversation_id=%s reason=client_disconnected",
+                            state["conversation_id"],
                         )
-                        yield _sse("trace", _with_stream_telemetry(event, started_at))
+                        yield _sse(
+                            "cancelled",
+                            _with_stream_telemetry(
+                                {
+                                    "type": "run_cancelled",
+                                    "node": "supervisor",
+                                    "message": "클라이언트 연결이 종료되어 stream을 중단했습니다.",
+                                    "data": {
+                                        "conversation_id": state["conversation_id"],
+                                        "reason": "client_disconnected",
+                                        "retry_budget_remaining": state.get("retry_budget_remaining", 0),
+                                    },
+                                },
+                                started_at,
+                            ),
+                        )
+                        return
+                    if time.monotonic() - started_at > get_settings().stream_timeout_seconds:
+                        raise TimeoutError("SSE stream exceeded configured timeout.")
+                    for patch in update.values():
+                        state.update(patch)
+                        if event := patch.get("stream_event"):
+                            _log_stream_event(event)
+                            event_data = event.setdefault("data", {})
+                            event_data["retry_budget_remaining"] = state.get("retry_budget_remaining", 0)
+                            yield _sse("trace", _with_stream_telemetry(event, started_at))
 
             final = {
                 "conversation_id": state["conversation_id"],
@@ -141,6 +153,7 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                 "query_type": state["plan"].query_type,
                 "answer": state.get("answer"),
                 "sql": state.get("sql"),
+                "query_result": query_result_payload(state.get("text2sql_result")),
                 "chart": state.get("chart"),
                 "confidence": state.get("confidence"),
                 "limitations": state.get("limitations", []),
@@ -157,6 +170,9 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                 "reflection_decisions": state.get("reflection_decisions", []),
                 "termination_reason": state.get("termination_reason"),
                 "reflection": state.get("reflection", {}),
+                "citations": state.get("citations", []),
+                "grounding": state.get("grounding", {}),
+                "model_usage": state.get("model_usage", {}),
                 "answer_review": state.get("answer_review", {}),
             }
             logger.info(
@@ -167,10 +183,13 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                 final["sql"],
                 bool(final["chart"]),
             )
+            final = present_response(final)
             final_history = conversation_memory.append_exchange(
                 conversation_id=state["conversation_id"],
-                request=prepared,
-                answer=str(state.get("answer") or ""),
+                request=prepared.model_copy(update=resolved_request_context(state["plan"].slots)),
+                answer=str(final.get("answer") or ""),
+                supplied_fab=request.fab,
+                query_result=final["query_result"],
                 metadata={
                     "query_type": final["query_type"],
                     "status": final["status"],
@@ -196,7 +215,14 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                     started_at,
                 ),
             )
-        except (KeyError, RuntimeError, TimeoutError, TypeError, ValueError) as exc:
+        except (
+            KeyError,
+            RuntimeError,
+            TimeoutError,
+            TypeError,
+            ValueError,
+            httpx.HTTPError,
+        ) as exc:
             logger.exception("stream.failed message=%s", request.message)
             yield _sse(
                 "error",
@@ -206,7 +232,9 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                         "node": "supervisor",
                         "message": "에이전트 실행 중 오류가 발생했습니다.",
                         "data": {
-                            "error": str(exc),
+                            "error": "에이전트 실행을 완료하지 못했습니다.",
+                            "error_type": type(exc).__name__,
+                            "model_usage": state["usage_ledger"].snapshot(),
                             "conversation_id": state["conversation_id"],
                             "retry_budget_remaining": state.get(
                                 "retry_budget_remaining", 0
@@ -216,6 +244,11 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                     started_at,
                 ),
             )
+
+        finally:
+            # The sync worker may finish its current HTTP call after disconnect/timeout.
+            # Share cancellation with its context so it cannot start review/retry calls.
+            state["usage_ledger"].cancel()
 
     return StreamingResponse(
         event_source(),
@@ -305,6 +338,9 @@ def _trace_case(case: dict[str, Any]) -> dict[str, Any]:
         "termination_reason": result.termination_reason,
         "evidence": [item.model_dump() for item in result.evidence],
         "reflection": result.reflection,
+        "citations": result.citations,
+        "grounding": result.grounding,
+        "model_usage": result.model_usage,
         "answer_review": result.answer_review,
         "prompt_versions": {
             "planner": result.plan.prompt_version if result.plan else None,
