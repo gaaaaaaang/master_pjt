@@ -140,6 +140,46 @@ def sync_metadata(conn: psycopg.Connection) -> list[dict[str, Any]]:
     return records
 
 
+def probe_entity_sources(catalog: dict, entities: dict, *, max_tables: int = 8) -> dict:
+    """Bounded read-only existence probes, not guesses from column names.
+
+    Each annotation names the exact predicate checked. A timeout stays unknown.
+    No source is removed and a negative probe is not a claim about other sources.
+    """
+    from copy import deepcopy
+    from app.sub_agent.business_query import ENTITY_COLUMNS
+
+    result = deepcopy(catalog)
+    candidates = []
+    for ref, entry in result.items():
+        names = {c["name"] for c in entry["columns"]}
+        bindings = {}
+        for kind, value in entities.items():
+            editorial = entry.get("semantics", {}).get("entity_columns", {}).get(kind)
+            matches = names & ENTITY_COLUMNS.get(kind, set())
+            column = editorial if editorial in names else kind if kind in matches else next(iter(sorted(matches)), None)
+            if column:
+                bindings[column] = value
+        if bindings and len(bindings) == len(entities):
+            candidates.append((ref, bindings))
+    if not candidates:
+        return result
+    with psycopg.connect(get_settings().postgres_dsn, connect_timeout=3, autocommit=True) as conn:
+        for ref, bindings in candidates[:max_tables]:
+            try:
+                with conn.transaction():
+                    conn.execute('SET TRANSACTION READ ONLY')
+                    conn.execute("SET LOCAL statement_timeout = '1s'")
+                    schema, table = ref.split('.', 1)
+                    predicates = sql.SQL(' AND ').join(sql.SQL('{} = %s').format(sql.Identifier(c)) for c in bindings)
+                    row = conn.execute(sql.SQL('SELECT EXISTS (SELECT 1 FROM {}.{} WHERE {} LIMIT 1)').format(
+                        sql.Identifier(schema), sql.Identifier(table), predicates), list(bindings.values())).fetchone()
+                result[ref]['entity_presence'] = {'predicates': bindings, 'matches': row[0]}
+            except psycopg.Error:
+                result[ref]['entity_presence'] = {'predicates': bindings, 'matches': None}
+    return result
+
+
 def load_fab_catalog(fab: str) -> dict[str, dict[str, Any]]:
     if fab not in ALLOWED_FABS:
         raise ValueError("Unsupported FAB")
@@ -166,12 +206,15 @@ def load_fab_catalog(fab: str) -> dict[str, dict[str, Any]]:
                         entry[key] = definition[key]
         for entry in tables.values():
             if (entry["logical_table"] in {"fab_process_raw_events", "live_process_snapshots", "live_process_events", "toolgroups"}
-                    and any(column["name"] == "area" for column in entry["columns"])):
-                cur.execute(sql.SQL("SELECT DISTINCT area AS value FROM {}.{} WHERE area IS NOT NULL ORDER BY area LIMIT 33").format(
-                    sql.Identifier(fab), sql.Identifier(entry["logical_table"] + "_" + fab)))
-                values = [row["value"] for row in cur.fetchall()]
-                if len(values) <= 32:
-                    entry["value_domains"] = {"area": values}
+                    or entry["logical_table"].startswith("route_product_")):
+                domain_columns = {column["name"] for column in entry["columns"]} & {"area", "event_type", "event_status", "state"}
+                for column in sorted(domain_columns):
+                    cur.execute(sql.SQL("SELECT DISTINCT {} AS value FROM {}.{} WHERE {} IS NOT NULL ORDER BY {} LIMIT 33").format(
+                        sql.Identifier(column), sql.Identifier(fab), sql.Identifier(entry["logical_table"] + "_" + fab),
+                        sql.Identifier(column), sql.Identifier(column)))
+                    values = [row["value"] for row in cur.fetchall()]
+                    if len(values) <= 32:
+                        entry.setdefault("value_domains", {})[column] = values
     # Physical schema discovery is authoritative for columns and availability; cached
     # definitions and old conversation errors can never remove a newly available table.
     enriched = {ref: enrich(entry) for ref, entry in tables.items()}

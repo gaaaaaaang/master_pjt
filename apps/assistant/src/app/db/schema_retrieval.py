@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.db.semantic_metadata import enrich
+from app.sub_agent.business_query import ENTITY_COLUMNS, record_requirements
 
 
 @dataclass(frozen=True)
@@ -32,9 +33,10 @@ def mentions_table(question: str, table_ref: str, logical_table: str) -> bool:
 
 
 def rank_tables(question: str, catalog: dict[str, dict[str, Any]], *,
-                primary_refs: list[str] | None = None) -> list[RankedTable]:
+                primary_refs: list[str] | None = None, slots: dict | None = None) -> list[RankedTable]:
     q = question.casefold()
     primary = set(primary_refs or [])
+    business = record_requirements(question, slots)
     tokens = {token for token in re.findall(r"[a-z][a-z0-9_]+|[가-힣]{2,}", q)
               if token not in {"보여줘", "알려줘", "조회", "목록", "fab10", "fab11", "fab12", "fab13"}}
     ranked = []
@@ -43,6 +45,23 @@ def rank_tables(question: str, catalog: dict[str, dict[str, Any]], *,
         logical = entry["logical_table"]
         reasons = []
         score = 0.0
+        names = {column["name"] for column in entry["columns"]}
+        if entry.get("entity_presence", {}).get("matches") is True:
+            score += 60
+            reasons.append("matching_entity_observed")
+        for kind in business["entities"]:
+            if names & ENTITY_COLUMNS[kind]:
+                score += 20
+                reasons.append("entity:" + kind)
+        if set(business["facets"]) & {"history", "reason", "setter", "latest_record", "availability"} and names & {"event_type", "event_time", "reason_code", "hold_reason", "set_by"}:
+            score += 6
+            reasons.append("business_records")
+        if "mapping" in business["facets"] and names & {"route", "step", "mapping_id"}:
+            score += 8
+            reasons.append("mapping_structure")
+            if entry.get("data_source_type") == "model_master":
+                score += 12
+                reasons.append("registered_mapping_structure")
         explicit = mentions_table(q, ref, logical)
         if explicit:
             score += 100
@@ -72,11 +91,11 @@ def rank_tables(question: str, catalog: dict[str, dict[str, Any]], *,
 
 
 def select_catalog(question: str, catalog: dict[str, dict[str, Any]], *,
-                   primary_refs: list[str] | None = None, max_tables: int = 6
+                   primary_refs: list[str] | None = None, max_tables: int = 6, slots: dict | None = None
                    ) -> tuple[dict[str, dict[str, Any]], dict[str, Any]]:
     if max_tables < 1:
         raise ValueError("max_tables must be positive")
-    ranked = rank_tables(question, catalog, primary_refs=primary_refs)
+    ranked = rank_tables(question, catalog, primary_refs=primary_refs, slots=slots)
     positive = [entry for entry in ranked if entry.score > 0]
     # No evidence of relevance: broaden instead of silently guessing an arbitrary subset.
     chosen = ranked if not positive else positive[:max_tables]

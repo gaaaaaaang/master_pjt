@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-09-12T16:27:03.078011+00:00",
+  "endpoint": "http://127.0.0.1:8000/api/chat/stream",
+  "git_head": "94b38d6aa2b02061300fe0a1651c975c5a31e0a2",
+  "scope": "Seven independent live HTTP SSE requests, no mocks; FAB10 synthetic data, IDs substituted from DB; resource group supplied for Q5.",
+  "mapping": {
+    "[LOT_ID]": "FAB10-IM-09121559-015",
+    "[EQUIPMENT_ID]": "FAB10_ETCH_TG01_EQ03",
+    "[AREA_ID]": "etch"
+  }
+}
