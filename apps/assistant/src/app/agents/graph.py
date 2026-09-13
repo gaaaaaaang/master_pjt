@@ -27,7 +27,7 @@ from app.sub_agent.fab_comparison import comparison_facts
 from app.sub_agent.impact import estimate_output_delta
 from app.sub_agent.rag import INCIDENT_PLAYBOOK, retrieve_evidence
 from app.sub_agent.reflection import reflect_agent_output
-from app.sub_agent.result_delivery import result_cardinality, sample_evidence_rows
+from app.sub_agent.result_delivery import query_result_payload, result_cardinality, sample_evidence_rows
 from app.sub_agent.result_facts import observation_trends
 from app.sub_agent.text2sql import QueryType, Text2SQLResult, answer_question
 from app.sub_agent.visualization import build_chart_spec
@@ -345,8 +345,8 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
             "query_type": result.query_type,
             "row_count": result.row_count,
             "columns": result.columns,
-            "row_limit": get_settings().db_max_rows,
-            "limit_reached": result.row_count >= get_settings().db_max_rows,
+            "row_limit": query_result_payload(result)["row_limit"],
+            "limit_reached": query_result_payload(result)["limit_reached"],
             "sample_rows": sample_evidence_rows(result.rows),
             "sample_is_complete": len(result.rows) <= 60,
             "result_cardinality": result_cardinality(result.rows),
@@ -1683,6 +1683,10 @@ def _result_scope_issues(plan: PlannerDecision, result: Text2SQLResult) -> list[
                 issues.append("FAB comparison has inconsistent observation times or process-area coverage.")
     if expected_fab and result.plan.fab_id and expected_fab.value != result.plan.fab_id:
         issues.append(f"FAB scope mismatch: requested {expected_fab.value}, returned {result.plan.fab_id}.")
+    for key in ("lot_id", "equipment_id", "resource_group"):
+        expected, actual = plan.slots.get(key), result.plan.slots.get(key)
+        if expected and (not actual or expected.value != actual.value):
+            issues.append(f"Missing or changed entity scope: {key}={expected.value}")
     for key in ("products", "toolgroups", "area", "date_start", "date_end", "date_basis"):
         expected = plan.slots.get(key)
         actual = result.plan.slots.get(key)

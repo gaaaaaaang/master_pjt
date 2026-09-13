@@ -5,6 +5,7 @@ import re
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+from app.sub_agent.business_query import FACET_COLUMNS, RECORD_PROMPT, current_filter_columns, facet_columns, record_requirements, validate_record_plan
 
 
 class StrictModel(BaseModel):
@@ -39,6 +40,13 @@ class SortItem(StrictModel):
     direction: Literal["asc", "desc"]
 
 
+class AnswerCoverage(StrictModel):
+    requirement: Literal["history", "reason", "setter", "availability", "work_code", "mapping", "latest_record"]
+    status: Literal["available", "partial", "unavailable"]
+    columns: list[ColumnRef]
+    reason: str
+
+
 class SemanticPlan(StrictModel):
     supported: bool
     reason: str
@@ -55,9 +63,11 @@ class SemanticPlan(StrictModel):
     order_by: list[SortItem] = Field(default_factory=list)
     result_limit: int | None = Field(default=None, ge=1, le=200)
     latest_scope: Literal["global", "filtered"] = "global"
+    answer_coverage: list[AnswerCoverage] = Field(default_factory=list)
+    set_operation: Literal["union_all"] | None = None
 
     @classmethod
-    def strict_response_schema(cls) -> dict[str, Any]:
+    def strict_response_schema(cls, context: dict | None = None) -> dict[str, Any]:
         """Require new fields from the model while allowing older saved plans to load."""
         schema = cls.model_json_schema()
 
@@ -73,6 +83,22 @@ class SemanticPlan(StrictModel):
                     visit(value)
 
         visit(schema)
+        business = (context or {}).get("request_requirements", {}).get("business_request", {})
+        if business.get("entities"):
+            schema["properties"]["latest_scope"]["enum"] = ["filtered"]
+        constrained_availability = ("availability" in business.get("facets", [])
+            and not any(facet_columns("availability", table, context or {}) for table in (context or {}).get("tables", {})))
+        if (constrained_availability or (business.get("current") and set(business.get("entities", {})) & {"lot_id", "equipment_id"}
+                and "history" not in business.get("facets", []))):
+            # Current state is a premise to check, not a pre-filter selecting an
+            # old matching failure. Keep this constraint in model output grammar.
+            columns = sorted({c for cols in (context or {}).get("tables", {}).values() for c in cols}
+                             & current_filter_columns(context or {}, business))
+            if columns:
+                schema["$defs"]["Predicate"]["properties"]["source"] = {
+                    "type": "object", "additionalProperties": False,
+                    "properties": {"table": {"type": "string"}, "column": {"type": "string", "enum": columns}},
+                    "required": ["table", "column"]}
         return schema
 
 
@@ -81,6 +107,14 @@ Return the structured semantic plan only. Never include SQL expressions in table
 Use only exact physical tables and columns in schema_context. Choose the smallest sufficient
 set; projections and group_by refer to source columns. Declare EVERY source table and every
 join key and every static filter. SQL must not add undeclared row restrictions. Separate predicates, dimensions and aggregates. Preserve explicit FAB, process,
+For identically shaped partitions such as product-specific route tables, use set_operation=union_all
+instead of joining the partitions. Declare the same projection column names in the same order
+for EVERY branch table, and its applicable filters. Do not add a toolgroup join if the route
+already has all requested fields. union_all supports row projections without aggregates or joins;
+order_by and result_limit apply to the combined output. Otherwise set_operation=null.
+Alternatively, projections/filters/latest_by referencing ONLY the first table are a shared
+UNION template applied identically to EVERY declared table; all referenced columns must exist
+in every table. Do not mix a shared template with branch-specific predicates.
 For a row count use function=count_rows and source.column="*" (SQL COUNT(*)).
 With joins it counts joined result rows, not non-null keys or distinct source entities.
 Use function=count for COUNT(column), which excludes nulls; these are different contracts.
@@ -124,7 +158,7 @@ Counting DISTINCT setting identities avoids join fanout; it does not make the ma
 Never silently replace report data with synthetic data; disclose the selected source.
 If data or required meaning is absent, supported=false with a precise reason. Do not infer
 access policy from prior assistant failures. Do not invent units or join relationships.
-"""
+""" + RECORD_PROMPT
 
 
 def request_requirements(question: str) -> dict[str, Any]:
@@ -134,6 +168,9 @@ def request_requirements(question: str) -> dict[str, Any]:
     total = any(term in q for term in ("합계", "합산", "총합", "total", "sum"))
     breakdown = bool(re.search(r"영역별로|공정별로|각\s*(?:영역|공정)|per area|by area", q))
     requirements = {}
+    business = record_requirements(question)
+    if business["record_lookup"]:
+        requirements["business_request"] = business
     if whole and total and not breakdown:
         requirements.update({"whole_factory_total": True,
                              "forbidden_output_dimensions": ["area", "toolgroup", "equipment_id"],
@@ -207,6 +244,8 @@ def validate_plan(raw: dict[str, Any], context: dict[str, Any]) -> SemanticPlan:
     plan = SemanticPlan.model_validate(raw)
     if not plan.supported:
         return plan
+    if plan.set_operation:
+        return validate_union_plan(plan, context)
     # Models sometimes express the same latest intent as an eq placeholder.
     # Normalize only known markers, never arbitrary SQL strings or real timestamps.
     latest = list(plan.latest_by)
@@ -262,12 +301,36 @@ def validate_plan(raw: dict[str, Any], context: dict[str, Any]) -> SemanticPlan:
     if not plan.projections and not plan.aggregates:
         raise ValueError("Plan has no result columns")
     output_names = [ref.column for ref in plan.projections] + [a.alias for a in plan.aggregates]
+    # A real source column used solely as a tie breaker may be projected in a
+    # row query. This preserves deterministic ordering without inventing fields.
+    if not plan.aggregates and not plan.group_by and not output_count:
+        for item in plan.answer_coverage:
+            for ref in item.columns:
+                if (ref.table in plan.tables and ref.column in tables.get(ref.table, [])
+                        and ref not in plan.projections):
+                    plan = plan.model_copy(update={"projections": [*plan.projections, ref]})
+                    output_names.append(ref.column)
+        for item in plan.order_by:
+            sources = [table for table in plan.tables if item.output in tables.get(table, [])]
+            if item.output not in output_names and len(sources) == 1:
+                plan = plan.model_copy(update={"projections": [*plan.projections, ColumnRef(table=sources[0], column=item.output)]})
+                output_names.append(item.output)
     for item in plan.order_by:
         if output_names.count(item.output) != 1:
             raise ValueError("Sort output must identify one declared output column or aggregate alias")
     if plan.result_limit is not None and not plan.order_by:
         raise ValueError("A planned top-N result requires an explicit ordering")
     requirements = context.get("request_requirements", {})
+    validate_record_plan(plan, context)
+    coverage = []
+    for item in plan.answer_coverage:
+        if (item.status == "partial" and item.requirement in FACET_COLUMNS
+                and not any(c.column in facet_columns(item.requirement, c.table, context) for c in item.columns)):
+            item = item.model_copy(update={"status": "unavailable", "reason": (
+                f"No defined business field for {item.requirement} in selected evidence. "
+                "Returned event descriptions/roles/states are context only and do not answer this field.")})
+        coverage.append(item)
+    plan = plan.model_copy(update={"answer_coverage": coverage})
     explicit_filters = list(plan.filters)
     for constraint in requirements.get('explicit_null_filters', []):
         sources = [table for table in plan.tables if constraint['column'] in tables[table]]
@@ -405,7 +468,100 @@ def validate_plan(raw: dict[str, Any], context: dict[str, Any]) -> SemanticPlan:
     return plan
 
 
+def union_branch_plans(plan: SemanticPlan) -> list[SemanticPlan]:
+    branches = []
+    for table in plan.tables:
+        projections = [p for p in plan.projections if p.table == table]
+        names = {p.column for p in projections}
+        coverage = [item.model_copy(update={"columns": [ColumnRef(table=table, column=name)
+                    for name in dict.fromkeys(c.column for c in item.columns) if name in names]})
+                    for item in plan.answer_coverage]
+        branches.append(plan.model_copy(update={
+            "set_operation": None, "tables": [table], "projections": projections,
+            "filters": [p for p in plan.filters if p.source.table == table],
+            "latest_by": [p for p in plan.latest_by if p.table == table],
+            "order_by": [], "result_limit": None, "answer_coverage": coverage}))
+    return branches
+
+
+def validate_union_plan(plan: SemanticPlan, context: dict) -> SemanticPlan:
+    if len(plan.tables) < 2 or len(set(plan.tables)) != len(plan.tables) or plan.joins or plan.aggregates or plan.group_by:
+        raise ValueError("UNION ALL requires distinct row-source tables without joins or aggregates")
+    if any(p.table not in plan.tables for p in plan.projections):
+        raise ValueError("UNION projection references an undeclared source")
+    if any(p.source.table not in plan.tables for p in plan.filters):
+        raise ValueError("UNION predicate references an undeclared source")
+    # A homogeneous UNION can use one common shape rather than repeat it for
+    # every partition. Expand the entire template (including predicates), never
+    # just projections, before validating and compiling individual branches.
+    first = plan.tables[0]
+    if (plan.projections and {p.table for p in plan.projections} == {first}
+            and all(p.source.table == first for p in plan.filters)
+            and all(p.table == first for p in plan.latest_by)):
+        refs = [*plan.projections, *plan.latest_by, *(p.source for p in plan.filters)]
+        if any(ref.column not in context.get("tables", {}).get(table, []) for table in plan.tables for ref in refs):
+            raise ValueError("Shared UNION template columns must exist in every declared source")
+        plan = plan.model_copy(update={
+            "projections": [p.model_copy(update={"table": table}) for table in plan.tables for p in plan.projections],
+            "latest_by": [p.model_copy(update={"table": table}) for table in plan.tables for p in plan.latest_by],
+            "filters": [p.model_copy(update={"source": p.source.model_copy(update={"table": table})})
+                        for table in plan.tables for p in plan.filters]})
+    branch_context = {**context, "request_requirements": {k: v for k, v in context.get("request_requirements", {}).items() if k != "result_limit"}}
+    branches = [validate_plan(branch.model_dump(), branch_context) for branch in union_branch_plans(plan)]
+    names = [p.column for p in branches[0].projections]
+    if any([p.column for p in branch.projections] != names for branch in branches[1:]):
+        raise ValueError("UNION ALL branches must project the same column names in the same order")
+    if any(names.count(item.output) != 1 for item in plan.order_by):
+        raise ValueError("UNION ordering must use unambiguous combined output columns")
+    if plan.result_limit and not plan.order_by:
+        raise ValueError("UNION limit requires ordering")
+    requested_limit = context.get("request_requirements", {}).get("result_limit")
+    if requested_limit is not None and plan.result_limit != requested_limit:
+        raise ValueError("UNION limit must preserve requested top-N")
+    coverage = []
+    for item in plan.answer_coverage:
+        items = [c for branch in branches for c in branch.answer_coverage if c.requirement == item.requirement]
+        states = {c.status for c in items}
+        state = "available" if states == {"available"} else "unavailable" if states == {"unavailable"} else "partial"
+        coverage.append(item.model_copy(update={"status": state, "reason": ' '.join(dict.fromkeys(c.reason for c in items if c.reason))}))
+    return plan.model_copy(update={"projections": [p for branch in branches for p in branch.projections], "answer_coverage": coverage})
+
+
+def validate_union_sql(sql: str, plan: SemanticPlan) -> None:
+    from sqlglot import exp, parse_one
+    root = parse_one(sql, read="postgres")
+    if not isinstance(root, exp.Union) or root.args.get("offset"):
+        raise ValueError("Expected an explicit UNION ALL with no offset")
+    order = root.args.get("order")
+    actual_order = [(item.this.name, "desc" if item.args.get("desc") else "asc") for item in order.expressions] if order else []
+    if actual_order != [(item.output, item.direction) for item in plan.order_by]:
+        raise ValueError("UNION ordering differs from the plan")
+    limit = root.args.get("limit")
+    if (limit.expression.sql() if limit else None) != (str(plan.result_limit) if plan.result_limit else None):
+        raise ValueError("UNION limit differs from the plan")
+    def leaves(node):
+        if isinstance(node, exp.Subquery):
+            return leaves(node.this)
+        if isinstance(node, exp.Union):
+            if node.args.get("distinct") is not False:
+                raise ValueError("UNION DISTINCT changes the declared row multiplicity")
+            if node is not root and any(node.args.get(k) for k in ("order", "limit", "offset")):
+                raise ValueError("Only the combined UNION output may be limited or sorted")
+            return leaves(node.this) + leaves(node.expression)
+        if not isinstance(node, exp.Select) or any(node.args.get(k) for k in ("limit", "offset")):
+            raise ValueError("UNION branch must be an untruncated SELECT")
+        return [node]
+    queries = leaves(root)
+    branches = union_branch_plans(plan)
+    if len(queries) != len(branches):
+        raise ValueError("UNION branch count differs from the plan")
+    for query, branch in zip(queries, branches):
+        validate_sql_plan(query.sql(dialect="postgres"), branch)
+
+
 def validate_sql_plan(sql: str, plan: SemanticPlan) -> None:
+    if plan.set_operation:
+        return validate_union_sql(sql, plan)
     """Check physical sources and aggregate/dimension output lineage against the plan.
 
     This checks structure, not general equivalence of arbitrary SQL predicates.

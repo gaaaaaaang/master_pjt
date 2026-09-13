@@ -14,9 +14,10 @@ from psycopg import Error as PsycopgError
 from app.agents.usage import model_call, model_http_client, reported_usage
 from app.config import get_settings
 from app.db.fab_catalog import comparison_fabs, normalize_fab, resolve_fab, table_pattern, table_ref
-from app.db.metadata_catalog import load_fab_catalog
+from app.db.metadata_catalog import load_fab_catalog, probe_entity_sources
 from app.db.read_only import ReadOnlyQueryExecutor, SqlValidationError
 from app.db.schema_retrieval import mentions_table, select_catalog
+from app.sub_agent.business_query import ENTITY_COLUMNS, entity_literals, record_requirements
 from app.sub_agent.semantic_plan import (
     PLAN_PROMPT,
     SemanticPlan,
@@ -96,6 +97,7 @@ class Text2SQLResult:
     confidence: float = 0.0
     limitations: list[str] = field(default_factory=list)
     plan: QueryPlan | None = None
+    row_limit: int | None = None
 
 
 class Text2SQLClient(Protocol):
@@ -583,6 +585,9 @@ class OpenAIText2SQLClient:
             raise RuntimeError("OPENAI_API_KEY is not configured.")
 
         schema_context["request_requirements"] = request_requirements(question)
+        business = record_requirements(question, slots)
+        if business["record_lookup"]:
+            schema_context["request_requirements"]["business_request"] = business
         payload = {
             "model": self.model,
             "messages": [
@@ -619,7 +624,7 @@ class OpenAIText2SQLClient:
                 "messages": [{"role": "system", "content": PLAN_PROMPT}, payload["messages"][1]],
                 "response_format": {"type": "json_schema", "json_schema": {
                     "name": "fab_semantic_plan", "strict": True,
-                    "schema": SemanticPlan.strict_response_schema(),
+                    "schema": SemanticPlan.strict_response_schema(schema_context),
                 }},
             }
             raw_plan = self._complete_payload(planning_payload)
@@ -630,12 +635,13 @@ class OpenAIText2SQLClient:
                 return {"supported": False, "answer": "SQL 작성 전 조회 계획 검증에 실패했습니다.",
                         "limitations": [str(exc)], "failure_stage": "semantic_plan"}
             if not semantic_plan.supported:
+                schema_context["validated_semantic_plan"] = semantic_plan.model_dump()
                 return {"supported": False, "answer": semantic_plan.reason,
                         "limitations": semantic_plan.limitations}
             schema_context["validated_semantic_plan"] = semantic_plan.model_dump()
             compiled = compile_single_table(semantic_plan) if query_type != "trend" else None
             if compiled is not None:
-                columns = [p.column for p in semantic_plan.projections] + [a.alias for a in semantic_plan.aggregates]
+                columns = list(dict.fromkeys([p.column for p in semantic_plan.projections] + [a.alias for a in semantic_plan.aggregates]))
                 schema_context.setdefault("grounding", {})["sql_generation_mode"] = "compiled_validated_plan"
                 return {
                     "supported": True, "sql": compiled, "source_tables": semantic_plan.tables,
@@ -743,6 +749,13 @@ def answer_question(
                 database_catalog = {}
                 for target in targets:
                     database_catalog.update(load_fab_catalog(target))
+                entities = entity_literals(question)
+                for key in ENTITY_COLUMNS:
+                    slot = (execution_context or {}).get('scope', {}).get(key, {})
+                    if key not in entities and slot.get('value'):
+                        entities[key] = slot['value']
+                if entities:
+                    database_catalog = probe_entity_sources(database_catalog, entities)
             except (RuntimeError, PsycopgError):
                 # A failed discovery (including a partially loaded multi-FAB catalog)
                 # is not an authoritative empty catalog or an unsupported question.
@@ -799,6 +812,7 @@ def answer_question(
         row.get("area_count") == 0 or row.get("observation_count") == 0 for row in execution.rows
     )
     if ((execution.row_count == 0 or empty_aggregate) and result.plan
+            and not record_requirements(question, result.plan.slots)["record_lookup"]
             and result.plan.data_source_type == "simulation_snapshot"):
         return _simulation_data_unavailable(result)
 
@@ -811,9 +825,11 @@ def answer_question(
             f"원자료의 관측 구간 길이가 최소 {min(interval_lengths):g}분, 최대 {max(interval_lengths):g}분으로 다릅니다. "
             "이 구간들의 단순 평균 차이를 동일한 관측 조건의 공정 개선·악화나 인과 효과로 해석하지 마세요."
         )
-    if execution.row_count == execution.limit:
+    from app.sub_agent.result_delivery import effective_row_limit
+    limit = effective_row_limit(result.sql, execution.limit)
+    if execution.row_count >= limit:
         limitations.append(
-            f"조회 결과가 반환 한도 {execution.limit}행에 도달했습니다. 전체 결과가 아닐 수 있으므로 기간을 줄이거나 집계 단위를 넓혀주세요."
+            f"조회 결과가 반환 한도 {limit}행에 도달했습니다. 반환 행 수를 전체 건수로 해석할 수 없습니다."
         )
     if execution.row_count == 0:
         limitations = [*limitations, *_empty_result_limitations(result)]
@@ -837,6 +853,7 @@ def answer_question(
         confidence=result.confidence,
         limitations=limitations,
         plan=result.plan,
+        row_limit=limit,
     )
 
 
@@ -875,6 +892,16 @@ def plan_text2sql(
         date_basis=date_basis,
         metric=metric,
     )
+    for key in ENTITY_COLUMNS:
+        item = (execution_context or {}).get("scope", {}).get(key, {})
+        value = item.get("value") if isinstance(item, dict) else None
+        raw = item.get("raw_text", "") if isinstance(item, dict) else ""
+        if key not in slots and value and value in raw and raw.casefold() in question.casefold():
+            slots[key] = QuerySlot(value, "llm_inference", 0.9, raw)
+    if record_requirements(question, slots)["record_lookup"]:
+        for key in ("metric", "metrics"):
+            if key in slots and slots[key].value == "curstate" and "curstate" not in question.casefold():
+                slots.pop(key)
     slots = inherit_followup_metrics(question, slots, conversation_history or [])
     slots = inherit_followup_period(question, slots, conversation_history or [])
     slots = inherit_followup_areas(question, slots, conversation_history or [])
@@ -1107,7 +1134,11 @@ def plan_text2sql(
         and entry["logical_table"] not in SCHEMA_CATALOG.get(_data_source_type(query_type, slots), {})
         for ref, entry in (database_catalog or {}).items()
     )
+    business = record_requirements(question, slots)
+    detailed_record = bool(set(business["facets"]) - {"latest_record"})
     if ((llm_client is None or deterministic_only)
+            and (deterministic_only or not business["record_lookup"]
+                 or (database_catalog is None and not detailed_record))
             and not explicit_simulation and not explicit_catalog_table and not catalog_queue
             and not requires_flexible_aggregation(question)
             and not (query_type == "master_data_lookup" and re.search(
@@ -1147,6 +1178,8 @@ def plan_text2sql(
                 limitations=[str(exc)], plan=QueryPlan(query_type, None, fab_id=fab_id, slots=slots),
             )
     schema_context = _schema_context_for_question(query_type, slots, fab_id, database_catalog)
+    if business["record_lookup"] and (database_catalog is not None or detailed_record):
+        schema_context["primary_table_refs"] = []
     if database_catalog:
         explicit_sources = [ref for ref, entry in database_catalog.items()
                             if mentions_table(normalized, ref, entry["logical_table"])]
@@ -1165,6 +1198,7 @@ def plan_text2sql(
         selected, grounding = select_catalog(
             question, schema_context["table_details"],
             primary_refs=schema_context["primary_table_refs"],
+            slots=slots,
         )
         schema_context = {**schema_context,
                           "tables": {ref: schema_context["tables"][ref] for ref in selected},
@@ -1202,6 +1236,7 @@ def plan_text2sql(
                 fab_id=fab_id,
                 data_source_type=schema_context["data_source_type"],
                 slots=slots,
+                semantic_plan=schema_context.get("validated_semantic_plan", {}),
                 source_tables=schema_context["allowed_table_refs"],
             ),
         )
@@ -2297,7 +2332,7 @@ def _result_from_llm_output(
 ) -> Text2SQLResult:
     if not llm_output.get("supported", False):
         return Text2SQLResult(
-            status="unsupported",
+            status="failed" if llm_output.get("failure_stage") == "semantic_plan" else "unsupported",
             query_type=query_type,
             answer=str(llm_output.get("answer") or "LLM이 지원 불가로 판단했습니다."),
             confidence=float(llm_output.get("confidence") or 0.3),
@@ -2308,6 +2343,7 @@ def _result_from_llm_output(
                 fab_id=fab_id,
                 data_source_type=schema_context["data_source_type"],
                 slots=slots,
+                semantic_plan=schema_context.get("validated_semantic_plan", {}),
             ),
         )
 
@@ -3246,6 +3282,23 @@ def _extract_slots(
     if master_domain:
         slots["master_domain"] = QuerySlot(master_domain, "parser", 0.8, master_domain)
 
+    for kind, value in entity_literals(question).items():
+        slots[kind] = QuerySlot(value, "explicit_user", 1.0, value)
+    business = record_requirements(question, slots)
+    if business["facets"] and not re.search(r"률|율|%|percent|평균|합계|건수|개수|시간|minutes|hours", question, re.IGNORECASE):
+        for key in ("metric", "metrics"):
+            if key in slots and slots[key].value not in question:
+                slots.pop(key)
+    if (set(business["facets"]) & {"mapping", "work_code"} and "area" in slots
+            and slots["area"].value.casefold() not in question.casefold()):
+        # Translated concepts are not literal database keys (계측 != 'metrology').
+        slots["area_concept"] = replace(slots.pop("area"), raw_text=question)
+    if "equipment_id" in slots or "resource_group" in slots:
+        # A prefix parser must not shorten an individual equipment/group ID.
+        entity = slots.get("equipment_id") or slots["resource_group"]
+        if slots.get("toolgroup") and slots["toolgroup"].value != entity.value:
+            slots.pop("toolgroup", None)
+            slots.pop("toolgroups", None)
     return slots
 
 

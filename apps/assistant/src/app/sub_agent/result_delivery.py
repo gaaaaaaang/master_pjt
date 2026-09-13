@@ -2,6 +2,21 @@
 from app.config import get_settings
 
 
+def effective_row_limit(sql, maximum):
+    """Use the outer LIMIT, never an inner/CTE limit that may not bound output."""
+    from sqlglot import exp, parse_one
+    from sqlglot.errors import SqlglotError
+    try:
+        node = parse_one(sql or "", read="postgres")
+        limit = node.args.get("limit") if node else None
+        literal = limit.expression if limit else None
+        if isinstance(literal, exp.Literal) and literal.is_int:
+            return min(maximum, max(0, int(literal.this)))
+    except (SqlglotError, ValueError):
+        pass
+    return maximum
+
+
 def result_cardinality(rows):
     values = {"returned_row_count": len(rows)}
     if rows and all(row.get("area") is not None for row in rows):
@@ -28,8 +43,12 @@ def result_presentation(evidence):
 def query_result_payload(result):
     if result is None:
         return None
-    limit = get_settings().db_max_rows
-    return {"status": result.status, "columns": result.columns,
+    limit = result.row_limit if result.row_limit is not None else effective_row_limit(result.sql, get_settings().db_max_rows)
+    coverage = result.plan.semantic_plan.get("answer_coverage", []) if result.plan else []
+    answer_status = (result.status if result.status != "succeeded" else
+                     "empty" if not result.rows else
+                     "partial" if result.row_count >= limit or any(item["status"] != "available" for item in coverage) else "complete")
+    return {"status": result.status, "answer_status": answer_status, "answer_coverage": coverage, "columns": result.columns,
             "rows": result.rows, "row_count": result.row_count,
             "row_limit": limit, "limit_reached": result.row_count >= limit}
 

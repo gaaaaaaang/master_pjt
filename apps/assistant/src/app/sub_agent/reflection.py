@@ -98,6 +98,45 @@ def verify_response(
     if not answer.strip():
         warnings.append("Final answer is empty.")
 
+    for item in evidence:
+        metadata = item.get("metadata") or {}
+        coverage = ((metadata.get("query_plan") or {}).get("semantic_plan") or {}).get("answer_coverage", [])
+        if (coverage and metadata.get("status") == "succeeded" and metadata.get("row_count") == 0
+                and re.search(r"실존하지|존재한\s*적.{0,8}없|never\s+existed", answer, re.IGNORECASE)):
+            warnings.append("An empty scoped lookup does not prove the entity never existed. State only that no matching records were found in the queried source and scope.")
+        missing = [field["requirement"] for field in coverage
+                   if field.get("status") == "unavailable"]
+        if missing:
+            semantic_warning(
+                "Check unavailable business fields " + ", ".join(missing) +
+                ": the answer must explicitly say they cannot be determined. "
+                "Calling narrative the restriction/downtime reason, or actor_role the setter, "
+                "is a violation even with a disclaimer that it is unofficial or only a role. "
+                "These fields describe events/recording roles only. Preserve available event observations.",
+                "business_field_coverage",
+            )
+        if "setter" in missing and re.search(
+                r"설정자\s*(?:정보|필드)?(?:는|가)[^\n.!?]{0,50}actor_role", answer, re.IGNORECASE):
+            warnings.append("Unavailable setter is falsely attributed to actor_role. State that the setter cannot be determined; actor_role is only the event recording role.")
+        requested_only_context = ("setter" in missing
+            and not any(field.get("requirement") == "reason" for field in coverage)
+            and not any(column in {"reason", "reason_code", "hold_reason", "hold_reason_code", "down_reason", "down_reason_code"}
+                        for column in metadata.get("columns") or []))
+        if "reason" in missing or requested_only_context:
+            for row in metadata.get("sample_rows") or []:
+                narrative = row.get("narrative")
+                if not isinstance(narrative, str) or not narrative.strip():
+                    continue
+                # An exact returned description attributed as a missing reason
+                # contradicts the field contract; an "unofficial" caveat cannot
+                # establish that semantic relationship.
+                attributed = re.search(
+                    r"(?:사유(?:로는|로|는|가)|reason\s*(?:is|:))[^\n.!?]{0,160}"
+                    + re.escape(narrative), answer, re.IGNORECASE,
+                )
+                if attributed:
+                    warnings.append("Unavailable business reason is falsely attributed to the returned narrative. Describe it only as an event description and state that the reason cannot be determined.")
+
     if query_type in {"status", "diagnosis", "impact", "trend"} and not evidence:
         warnings.append("Evidence is required for operational answers.")
 
@@ -175,7 +214,8 @@ def verify_response(
     if _has_rag_knowledge_base(evidence, "process_basics") and _sounds_like_operational_action(answer):
         semantic_warning("Process basics answers must not turn into operational dispatch or equipment action.")
 
-    if _contains_numeric_claim(answer) and not _has_sql_evidence(evidence):
+    numeric_answer = _without_grounded_result_counts(answer, evidence)
+    if _numeric_claims(numeric_answer) and _contains_numeric_claim(numeric_answer) and not _has_sql_evidence(evidence):
         warnings.append("Numeric operational claims require SQL evidence.")
 
     impact_requested = query_type == "impact" or _question_requests_impact(question or "")
@@ -203,7 +243,7 @@ def verify_response(
     undisclosed_row_limit = any(
         item.get("source_type") == "text2sql_plan" and item.get("metadata", {}).get("limit_reached")
         for item in evidence
-    ) and not re.search(r"한도|상한|\d+\s*행\s*(?:만|까지만)|truncat|row limit|return limit", answer, re.IGNORECASE)
+    ) and not re.search(r"한도|상한|반환\s*제한|\d+\s*행\s*(?:반환\s*)?(?:제한|만|까지만)|최신\s*(?:\d+|한)\s*건|truncat|row limit|return limit", answer, re.IGNORECASE)
     if undisclosed_row_limit:
         warnings.append("Answers must disclose the reached query row limit; complete scope is not established.")
 
@@ -1912,6 +1952,9 @@ def _without_grounded_result_counts(answer: str, evidence: list[dict[str, Any]])
         count = metadata.get("row_count")
         if isinstance(count, int) and count >= 0:
             row_counts.add(count)
+        row_limit = metadata.get("row_limit")
+        if metadata.get("limit_reached") and isinstance(row_limit, int):
+            answer = re.sub(rf"(?i)(?:LIMIT|반환\s*한도|반환\s*제한)\s*[:=(]?\s*{row_limit}(?![\d.])", "반환 한도", answer)
         distinct_areas = metadata.get("result_cardinality", {}).get("distinct_area_count")
         if isinstance(distinct_areas, int) and distinct_areas > 0:
             area_counts.add(distinct_areas)

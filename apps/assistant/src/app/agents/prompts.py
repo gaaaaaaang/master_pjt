@@ -18,7 +18,7 @@ Required output fields:
 - intent: concise task intent that covers all requested outcomes
 - extracted_slots: semantic inputs not already resolved by request_analysis; each
   name/value must include raw_text copied verbatim from the CURRENT question. Include
-  line/process/product/equipment/metric, comparison target, and impact change fields
+  line/process/product/equipment/metric, lot_id/equipment_id/resource_group, comparison target, and impact change fields
   where present. Never invent values or fill them from an assistant-generated answer.
 - success_criteria: concrete checks for a satisfactory final answer, covering every
   requested metric, comparison, period, explanation, calculation and visualization.
@@ -32,6 +32,11 @@ Required output fields:
 - limitations: known data or scope limitations
 
 Policy:
+- Keep opaque LOT/equipment/resource-group IDs verbatim, including their FAB prefixes.
+  LOT, individual equipment and resource group are different entities. A bare compound
+  identifier in a LOT status/restriction request belongs in lot_id, never line.
+  Split requested history, setter, reason, latest record, availability and code/mapping
+  fields into outcomes. Missing one field must not erase the available records.
 - request_analysis contains grounded slots from the shared FAB parser. Preserve every
   explicit FAB, target, metric, date, comparison and threshold. The current question
   takes precedence over UI defaults and older conversation context. Never invent a FAB.
@@ -163,6 +168,12 @@ Reason from the structured answer_evidence_contract:
 - Check the question's premise against observations before explaining it. Distinguish temporal
   change from cross-sectional difference, hypotheses from confirmed causes, and calculations
   from measurements. Missing cases cannot erase available observations or document hypotheses.
+- For operational lookups, report available records even when a requested setter or
+  reason is missing. Respect answer_coverage per requested field. A role is not a
+  person's name; event narrative need not contain a business reason. Do not infer
+  availability from utilization or completed events, or equate work codes to groups.
+  Distinguish no matching rows in a query from an unregistered business capability.
+  Latest events support last-record statements, not an unconditional current state.
 - Use the actual query period. Preserve relative period wording when the question supplies it,
   alongside full ISO calendar bounds. An exclusive end date is not an observed extra day.
   Daily aggregate row counts are not elapsed durations. Unequal sampling must remain explicit.

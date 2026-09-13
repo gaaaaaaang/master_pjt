@@ -172,6 +172,9 @@ def intent_payload(analysis: IntentAnalysis) -> dict[str, Any]:
 
 
 LLM_SLOT_NAMES = {
+    "lot_id",
+    "equipment_id",
+    "resource_group",
     "line",
     "process",
     "product",
@@ -210,6 +213,8 @@ def enrich_analysis(analysis: IntentAnalysis, extracted: list[dict[str, Any]]) -
             or not raw.strip()
             or raw.casefold() not in analysis.question.casefold()
         ):
+            continue
+        if name in {"lot_id", "equipment_id", "resource_group"} and value not in raw:
             continue
         # A copied span proves presence, not its semantic type. In particular
         # FAB IDs and process aliases must not acquire an invented line scope.
