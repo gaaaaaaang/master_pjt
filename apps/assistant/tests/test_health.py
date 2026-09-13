@@ -20,6 +20,44 @@ def test_health() -> None:
     assert response.json() == {"status": "ok"}
 
 
+def test_readiness_does_not_report_database_outage_as_healthy(monkeypatch):
+    from psycopg import OperationalError
+
+    def offline(*args, **kwargs):
+        raise OperationalError("private DSN details")
+
+    monkeypatch.setattr("app.main.psycopg.connect", offline)
+    response = client.get("/health/ready")
+    assert response.status_code == 503
+    assert response.json() == {"status": "degraded", "database": "unavailable"}
+    assert "private" not in response.text
+    assert client.get("/health").status_code == 200
+
+
+def test_readiness_checks_every_fab_and_empty_tables(monkeypatch):
+    from unittest.mock import MagicMock
+
+    connection = MagicMock()
+    cursor = connection.__enter__.return_value.cursor.return_value.__enter__.return_value
+    cursor.fetchone.side_effect = [("table",), (True,), (None,), ("table",), (False,), ("table",), (True,)]
+    monkeypatch.setattr("app.main.psycopg.connect", lambda *a, **kw: connection)
+    response = client.get("/health/ready")
+    assert response.status_code == 503
+    assert response.json()["fabs"] == {"fab10": "ready", "fab11": "missing_table", "fab12": "empty", "fab13": "ready"}
+
+
+def test_readiness_ready_only_when_all_fabs_have_observations(monkeypatch):
+    from unittest.mock import MagicMock
+
+    connection = MagicMock()
+    cursor = connection.__enter__.return_value.cursor.return_value.__enter__.return_value
+    cursor.fetchone.side_effect = [("table",), (True,)] * 4
+    monkeypatch.setattr("app.main.psycopg.connect", lambda *a, **kw: connection)
+    response = client.get("/health/ready")
+    assert response.status_code == 200
+    assert set(response.json()["fabs"].values()) == {"ready"}
+
+
 def test_status_chat_works_in_mock_mode() -> None:
     response = client.post("/api/chat", json={"message": "지금 fab10 WIP 몇 개야?"})
     assert response.status_code == 200

@@ -5,10 +5,21 @@ outside this subset still use SQL generation and the same AST validator.
 """
 from __future__ import annotations
 
-from app.sub_agent.semantic_plan import SemanticPlan, validate_sql_plan
+from app.sub_agent.semantic_plan import SemanticPlan, union_branch_plans, validate_sql_plan
 
 
 def compile_single_table(plan: SemanticPlan) -> str | None:
+    if plan.set_operation:
+        parts = [compile_single_table(branch) for branch in union_branch_plans(plan)]
+        if any(part is None for part in parts):
+            return None
+        sql = ' UNION ALL '.join(f'({part})' for part in parts)
+        if plan.order_by:
+            sql += ' ORDER BY ' + ', '.join('"' + item.output.replace('"', '""') + '" ' + item.direction.upper() for item in plan.order_by)
+        if plan.result_limit:
+            sql += f' LIMIT {plan.result_limit}'
+        validate_sql_plan(sql, plan)
+        return sql
     if not plan.supported or len(plan.tables) != 1 or plan.joins:
         return None
     if plan.aggregates and any(p not in plan.group_by for p in plan.projections):

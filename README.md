@@ -21,6 +21,11 @@ FAB10~13의 `live_process_snapshots`가 적재된 환경에서는 네 FAB의 최
 `feat/final_adv`의 시연 순서, 데이터 기준, 인덱스 재현과 검산 방법은 [FAB 데모 실행 안내](docs/final_adv_demo_runbook.md)를 참고하세요.
 화면 상단 **질문 가이드**에서 FAB10~13별 현황·진단·영향·추세 대화와 문서 지식·대응 절차 질문을 입력할 수 있습니다.
 
+분석 답변은 모델이 작성하고 근거 검증을 통과해야 합니다. 특정 질문의 답변을 하드코딩하거나,
+모델·검토 실패를 정해진 분석 문장으로 대체하는 fallback을 추가하지 않습니다. 수정이 필요하면
+공통 프롬프트·근거 계약·실행 코드를 개선하고 실모델로 검증합니다.
+[기본 질문 복구와 fallback 제거 기록](docs/default_question_recovery_20260913.md)을 참고하세요.
+
 ## 실행
 
 고도화된 사용자 화면은 **React (`http://localhost:5173/`)** 입니다.
@@ -37,6 +42,8 @@ PYTHONPATH=apps/assistant/src uv run uvicorn app.main:app --reload
 ```
 
 기존 `.env`가 있으면 복사 단계는 생략해 현재 API·DB 설정을 보존합니다.
+로컬 DB는 Docker 실행 후 `docker compose up -d postgres`로 기동합니다.
+`/health/ready`는 FAB10~13 데이터의 연결·적재 여부를 확인합니다.
 
 별도 터미널의 저장소 루트에서 React를 실행합니다.
 

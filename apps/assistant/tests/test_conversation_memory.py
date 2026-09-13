@@ -1,10 +1,10 @@
-from app.agents.planner import create_plan
 from app.schemas.chat import ChatRequest, FeedbackRequest
 from app.services.chat_service import ChatService
 from app.services.conversation_memory import ConversationMemory
 from app.services.feedback_service import FeedbackService
 from app.services.state_store import AssistantStateStore
 from app.sub_agent.text2sql import plan_text2sql
+from test_planner_supervisor_contracts import plan_for
 
 
 class FailingPlannerLLM:
@@ -386,13 +386,12 @@ def test_follow_up_selection_flows_from_memory_through_planner_to_text2sql() -> 
         )
     )
 
-    plan = create_plan(
+    plan = plan_for(
         follow_up.message,
         fab=follow_up.fab,
         process=follow_up.process,
         metric=follow_up.metric,
         conversation_history=history,
-        llm_client=FailingPlannerLLM(),
     )
     result = plan_text2sql(
         follow_up.message,

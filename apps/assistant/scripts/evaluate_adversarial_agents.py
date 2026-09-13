@@ -35,16 +35,13 @@ def evaluate_case(
     failures: list[str] = []
     details: dict[str, Any] = {}
     if agent == "planner":
-        result = create_plan(case["question"], llm_client=OfflinePlannerClient())
-        details = {"query_type": result.query_type, "agents": result.selected_sub_agents}
-        if result.query_type != case["expected_query_type"]:
-            failures.append(
-                f"query_type expected={case['expected_query_type']} actual={result.query_type}"
-            )
-        if result.selected_sub_agents != case["expected_agents"]:
-            failures.append(
-                f"agents expected={case['expected_agents']} actual={result.selected_sub_agents}"
-            )
+        details = {"evaluation_mode": "model_outage_propagation", "planning_accuracy": "not_measured"}
+        try:
+            create_plan(case["question"], llm_client=OfflinePlannerClient())
+        except RuntimeError:
+            pass
+        else:
+            failures.append("Planner synthesized a plan despite model unavailability")
     elif agent == "text2sql":
         result = (
             answer_question(

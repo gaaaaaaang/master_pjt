@@ -773,7 +773,7 @@ def test_follow_up_product_comparison_merges_context_and_explicit_product() -> N
     llm = FakeLLM(
         llm_payload(
             "SELECT part, cycleavg, ontime_percent FROM fab10.autosched_part_fab10 "
-            "WHERE part IN ('Product_3', 'Product_4') AND period <> 'WarmUp' ORDER BY part",
+            "WHERE part IN ('part_3', 'part_4') AND period <> 'WarmUp' ORDER BY part",
             source_tables=["fab10.autosched_part_fab10"],
             chart_intent={
                 "type": "grouped_bar",
@@ -851,7 +851,7 @@ def test_period_comparison_rejects_sql_that_omits_requested_period() -> None:
     assert "Period_2" in " ".join(result.limitations)
 
 
-def test_operational_warmup_filter_is_normalized_to_period_column() -> None:
+def test_model_sql_predicate_is_not_silently_rewritten() -> None:
     llm = FakeLLM(
         llm_payload(
             "SELECT stn, curstate FROM fab10.autosched_stn_fab10 "
@@ -863,9 +863,8 @@ def test_operational_warmup_filter_is_normalized_to_period_column() -> None:
     result = plan_text2sql("fab10 DE_BE_11 설비 현재 상태 알려줘", llm_client=llm)
 
     assert result.status == "succeeded"
-    assert "period <> 'WarmUp'" in (result.sql or "")
-    assert "curstate <> 'WarmUp'" not in (result.sql or "")
-    assert any("WarmUp" in limitation for limitation in result.limitations)
+    assert "curstate <> 'WarmUp'" in result.sql
+    assert "period <> 'WarmUp'" not in result.sql
 
 
 def test_ambiguous_lotrelease_date_basis_asks_for_clarification() -> None:
@@ -1094,13 +1093,13 @@ LIMIT 50
     assert schema_context["allowed_table_refs"] == ["fab10.breakdown_fab10"]
 
 
-def test_operational_product_alias_is_normalized_before_execution(monkeypatch) -> None:
+def test_model_supplied_catalog_value_is_preserved_before_execution(monkeypatch) -> None:
     llm = FakeLLM(
         llm_payload(
             """
 SELECT part, wiplotavg
 FROM fab10.autosched_part_fab10
-WHERE part ILIKE '%Product_3%'
+WHERE part ILIKE '%part_3%'
 ORDER BY report_time DESC NULLS LAST, source_row_id DESC
 LIMIT 20
 """.strip(),
@@ -1134,10 +1133,10 @@ LIMIT 20
     assert result.row_count == 1
     assert "part_3" in (result.sql or "")
     assert len(executed_sql) == 1
-    assert any("part_N" in limitation for limitation in result.limitations)
+    assert executed_sql == [result.sql]
 
 
-def test_empty_pm_area_result_retries_with_toolgroup_join(monkeypatch) -> None:
+def test_empty_pm_area_result_preserves_query_without_canned_join(monkeypatch) -> None:
     llm = FakeLLM(
         llm_payload(
             "SELECT pm_event_name, type_name, mean FROM fab10.pm_fab10 "
@@ -1177,15 +1176,12 @@ def test_empty_pm_area_result_retries_with_toolgroup_join(monkeypatch) -> None:
     result = answer_question("fab10 Dry_Etch 관련 PM mean 조회", execute=True, llm_client=llm)
 
     assert result.status == "succeeded"
-    assert result.row_count == 1
-    assert "JOIN fab10.toolgroups_fab10" in (result.sql or "")
-    assert result.plan is not None
-    assert result.plan.source_tables == ["fab10.pm_fab10", "fab10.toolgroups_fab10"]
-    assert len(executed_sql) == 2
-    assert any("PM type_name" in limitation for limitation in result.limitations)
+    assert result.row_count == 0
+    assert "JOIN" not in result.sql
+    assert len(executed_sql) == 1
 
 
-def test_empty_breakdown_type_result_retries_prefix_match(monkeypatch) -> None:
+def test_empty_breakdown_type_result_does_not_relax_exact_filter(monkeypatch) -> None:
     llm = FakeLLM(
         llm_payload(
             "SELECT type_name, mttr FROM fab10.breakdown_fab10 "
@@ -1221,11 +1217,11 @@ def test_empty_breakdown_type_result_retries_prefix_match(monkeypatch) -> None:
     result = answer_question("fab10 DE_BE 타입 고장 MTTR 알려줘", execute=True, llm_client=llm)
 
     assert result.status == "succeeded"
-    assert result.row_count == 1
-    assert "ILIKE 'DE_BE%'" in (result.sql or "")
+    assert result.row_count == 0
+    assert "type_name = 'DE_BE'" in result.sql
     assert result.plan is not None
     assert result.plan.slots["type_prefix"].value == "DE_BE"
-    assert len(executed_sql) == 2
+    assert len(executed_sql) == 1
 
 
 def test_empty_relative_date_result_explains_snapshot_range(monkeypatch) -> None:

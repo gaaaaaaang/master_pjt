@@ -420,31 +420,6 @@ def apply_review(
         verdicts[index] = check["supported"]
     if set(verdicts) != set(range(count)):
         raise ValueError("Review must check every claim.")
-    # Lifecycle fields alone cannot establish revision policy. This absence check
-    # is deliberately narrow: matching terminology still requires model review.
-    version_terms = r"버전|개정|변경\s*이력|\bversion\b|\brevision\b|\bchangelog\b|change\s+history|\bv\d+\.\d+"
-    missing_version_policy = bool(
-        re.search(version_terms, question, re.IGNORECASE)
-        and not any(
-            re.search(version_terms, source["content"], re.IGNORECASE)
-            for source in sources.values()
-        )
-    )
-    if missing_version_policy:
-        review = deepcopy(review)
-        review["complete"] = False
-        review["coverage"].append({
-            "requirement": "버전·개정 이력 관리 기준",
-            "covered": False,
-            "reason": "원문에 버전·개정 이력 근거가 없으며 문서 상태로 대체할 수 없습니다.",
-        })
-        for check in review["checks"]:
-            index = check["claim_index"]
-            if re.search(version_terms, output["claims"][index]["text"], re.IGNORECASE):
-                verdicts[index] = False
-                check["supported"] = False
-                check["reason"] = "버전·개정 이력 주장에 대응하는 원문 근거가 없습니다."
-        coverage = review["coverage"]
     retained = [claim for i, claim in enumerate(output["claims"]) if verdicts[i]]
     complete = (
         review["complete"]
@@ -460,74 +435,7 @@ def apply_review(
         sources,
     )
     result.review = review
-    if missing_version_policy:
-        result.answer += "\n\n버전 번호·개정 이력 관리 기준은 제공된 문서에서 확인되지 않습니다."
-        result.review["missing_version_policy"] = True
     result.validation = "verified_quotes_and_model_review"
-    return result
-
-
-def retain_procedural_requirements(
-    result: GroundedAnswer, question: str, sources: dict[str, dict]
-) -> GroundedAnswer:
-    """Expose explicit approval/record requirements when a supported summary omits one.
-
-    This is an extractive safeguard for procedural questions, not a semantic policy
-    engine. It does not infer roles, authority hierarchy, or applicability.
-    """
-    approval_requested = bool(re.search(r"승인|허가|approv", question, re.IGNORECASE))
-    records_requested = bool(re.search(r"기록|남길|남겨|record|log", question, re.IGNORECASE))
-    if result.status == "insufficient" or not (approval_requested or records_requested):
-        return result
-    cited_ids = {citation["chunk_id"] for citation in result.citations}
-    additions = []
-    for cid in sorted(cited_ids):
-        source = sources[cid]
-        # Standalone prose requirements, not generic owner/RACI descriptions.
-        parts = re.split(r"(?<=[.!?。])\s+|\n[ \t]*[-•][ \t]*\n", source["content"])
-        quotes = [
-            part.strip().removeprefix("-\n")
-            for part in parts
-            if (
-                (approval_requested and re.search(r"승인[^.\n]*(?:없이는|필요|요구)", part))
-                or (records_requested and re.search(r"기록(?:한다|해야|하여|하도록|할)", part))
-            ) and len(part.strip()) <= 600
-        ]
-        quotes.extend(
-            row["quote"] for row in decision_rows(source["content"])
-            if approval_requested and re.search(r"approval", row["allowed_when"], re.IGNORECASE)
-        )
-        seen = set()
-        for quote in quotes:
-            key = normalized(quote)
-            if key in seen or key not in normalized(source["content"]):
-                continue
-            seen.add(key)
-            # Only exact textual coverage is safe to deduplicate here. A cited
-            # quote alone does not prove its conditions survived the summary.
-            if key in normalized(result.answer):
-                continue
-            citation = next(
-                (item for item in result.citations
-                 if item["chunk_id"] == cid and normalized(item["quote"]) == key),
-                None,
-            )
-            if citation is None:
-                citation = {
-                    "number": len(result.citations) + 1,
-                    "chunk_id": cid,
-                    "quote": quote,
-                    "source_document": source["source_document"],
-                    "page_number": source["page_number"],
-                }
-                result.citations.append(citation)
-            page = f", p.{source['page_number']}" if source["page_number"] is not None else ""
-            additions.append(
-                f"원문: {key} [{citation['number']}] ({source['source_document']}{page})"
-            )
-    if additions:
-        result.answer += "\n\n인용한 절차의 추가 승인·기록 조건(원문)\n" + "\n".join(additions)
-        result.review["extractive_requirement_count"] = len(additions)
     return result
 
 
@@ -602,9 +510,7 @@ def compose_grounded(
             schema_name="fab_grounded_review",
         )
         stage = "review_validation"
-        result = retain_procedural_requirements(
-            apply_review(output, review, sources, question=question), question, sources
-        )
+        result = apply_review(output, review, sources, question=question)
         result.review.update(generation_attempts=generation_attempts, validation_errors=validation_errors)
         return result
     except (ValueError, TypeError, RuntimeError, httpx.HTTPError) as exc:

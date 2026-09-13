@@ -18,7 +18,7 @@ def test_current_local_metrics_match_saved_baseline() -> None:
     assert report["failures"] == []
     assert report["external_calls"] is False
     assert report["full_graph"]["status"] == "not_measured"
-    assert report["baseline_version"] == 73
+    assert report["baseline_version"] == 74
     assert report["evaluation_modes"]["diagnosis"] == "deterministic_calibration_fixture"
     assert report["evaluation_modes"]["context_memory"] == "deterministic_multiturn_fixture"
     assert report["evaluation_modes"]["text2sql"] == "generation_only"

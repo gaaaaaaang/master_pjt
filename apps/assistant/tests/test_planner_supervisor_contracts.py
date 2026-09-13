@@ -40,7 +40,18 @@ class Recorded:
 
 
 def plan_for(question, **kwargs):
-    return create_plan(question, llm_client=Offline(), **kwargs)
+    # These test grounding/route contracts with a successful model response.
+    # Model outages are tested separately and must not synthesize a plan.
+    analysis = analyze_request(question, **kwargs)
+    outcomes = analysis.requested_outcomes
+    kind = next((k for k in ("diagnosis", "impact", "trend", "knowledge") if k in outcomes), "status")
+    if kind == "knowledge":
+        kind = "knowledge_lookup"
+    return create_plan(question, llm_client=Recorded({
+        "status": "ready", "query_type": kind, "intent": question,
+        "selected_sub_agents": ["rag"] if kind == "knowledge_lookup" else [], "execution_steps": [], "missing_slots": [],
+        "clarification_question": None, "limitations": [], "rag_knowledge_base": None,
+    }), **kwargs)
 
 
 @pytest.mark.parametrize("question", [
@@ -49,7 +60,7 @@ def plan_for(question, **kwargs):
     "FAB13 장비 고장 대응 절차를 설명해줘",
     "Queue Time 초과 lot은 어떻게 조치해야 해?",
 ])
-def test_model_outage_procedure_request_still_requires_incident_documents(question):
+def test_grounded_procedure_request_requires_incident_documents(question):
     plan = plan_for(question)
     assert plan.query_type == "knowledge_lookup"
     assert plan.selected_sub_agents == ["rag"]
@@ -57,7 +68,7 @@ def test_model_outage_procedure_request_still_requires_incident_documents(questi
     assert "knowledge" in plan.intent_analysis.requested_outcomes
 
 
-def test_model_outage_procedure_words_do_not_replace_an_actual_diagnosis_request():
+def test_procedure_words_do_not_replace_an_actual_diagnosis_request():
     plan = plan_for("FAB11 etch 대기 시간 증가 원인과 점검 순서를 문서 근거로 알려줘")
     assert plan.query_type == "diagnosis"
     assert set(plan.selected_sub_agents) >= {"text2sql", "rag", "case_search"}
@@ -594,7 +605,7 @@ def test_fab_aliases_and_explicit_exclusions(question, expected):
     assert plan.slots["fab_id"].value == expected
 
 
-def test_supported_correction_restores_supplied_limitations():
+def test_model_correction_must_preserve_supplied_limitations():
     from app.agents.supervisor import review_final_answer
 
     question = "fab10 현재 WIP"
@@ -620,7 +631,7 @@ def test_supported_correction_restores_supplied_limitations():
             {
                 "approved": False,
                 "issues": ["wrong WIP value"],
-                "corrected_answer": "fab10 현재 WIP=123입니다.",
+                "corrected_answer": "fab10 현재 WIP=123입니다. 합성 테스트 데이터 기준입니다.",
                 "reason": "replace unsupported number",
             }
         ),
@@ -647,7 +658,7 @@ def test_resolved_fab_exclusion_reaches_actual_sql_planning():
     assert "fab10." not in (result.sql or "")
 
 
-def test_composer_trace_reports_its_own_fallback_not_reflection_mode(monkeypatch):
+def test_composer_outage_does_not_synthesize_an_answer(monkeypatch):
     from app.agents.graph import _composer_node
 
     monkeypatch.setattr("app.agents.llm_nodes.AzureAgentClient", lambda: Offline())
@@ -658,8 +669,8 @@ def test_composer_trace_reports_its_own_fallback_not_reflection_mode(monkeypatch
         answer_parts=["fab10 WIP 데이터가 없습니다."],
         status="data_unavailable",
     )
-    patch = _composer_node(state)
-    assert patch["stream_event"]["data"]["execution_mode"] == "deterministic_fallback"
+    with pytest.raises(RuntimeError, match="offline test"):
+        _composer_node(state)
 
 
 def test_selected_sql_target_guides_downstream_retrieval_but_failure_does_not():

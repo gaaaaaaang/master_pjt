@@ -161,10 +161,13 @@ def fake_agent_chat_completions(monkeypatch):
             question = input_data["question"]
             answer = input_data["final_answer"]
             return {
-                "approved": check["is_supported"],
-                "issues": check["warnings"],
-                "corrected_answer": None if check["is_supported"] else f"{question}\n{answer}",
+                "approved": (not check["blocking_warnings"]),
+                "issues": check["blocking_warnings"],
+                "corrected_answer": None if (not check["blocking_warnings"]) else f"{question}\n{answer}",
                 "reason": "test final-answer review",
+                "semantic_checks": [{"warning_index": item["warning_index"], "violated": False,
+                                     "reason": "fixture supported"}
+                                    for item in input_data["semantic_review_items"]],
             }
         raise AssertionError(f"Unexpected schema: {schema_name}")
 

@@ -109,12 +109,16 @@ def test_text2sql_can_read_new_tables_and_columns_outside_static_catalog():
 
 
 def test_graph_requeries_after_old_missing_table_error(monkeypatch):
+    from app.agents.llm import AzureAgentClient
+    original = AzureAgentClient.complete_json
     def complete(_self, **kwargs):
         if kwargs["schema_name"] == "fab_planner_decision":
             return unavailable_plan()
         if kwargs["schema_name"] == "fab_supervisor_decision":
             return rejected_review()
-        raise RuntimeError("Use deterministic review/composition in this integration test")
+        if kwargs["schema_name"] == "fab_final_answer":
+            return {"answer": "fab10 Dry_Etch의 toolgroup은 DE_BE_11입니다. 저장된 모델 입력 기준입니다."}
+        return original(_self, **kwargs)
 
     monkeypatch.setattr("app.agents.graph.answer_question", answer_question)
     monkeypatch.setattr("app.agents.llm.AzureAgentClient.complete_json", complete)

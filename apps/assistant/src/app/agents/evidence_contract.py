@@ -22,6 +22,14 @@ EVIDENCE_CONTRACT_INSTRUCTION = (
     "do not recompute them from rounded values in prose. An estimate is conditional "
     "on its supplied assumptions. "
     "Missing evidence is a specific information gap, not an access-policy restriction. "
+    "For record lookups, answer_coverage separates requested fields: give available "
+    "records and explain only the missing fields. A role is not a person's identity, "
+    "a last event is not an authoritative current state, and a group is not a work code. "
+    "Partial availability must never erase actual observations. "
+    "When reason is partial/unavailable, lead with the specific business reason being "
+    "unconfirmed, then describe the actual event. Do not quote a generic narrative as "
+    "the requested reason or claim it contains a decision reason. actor_role describes "
+    "the recording actor; it does not prove who imposed the restriction. "
     "Never present internal contract keys or data encodings in user-facing prose."
 )
 
@@ -41,6 +49,7 @@ def answer_evidence_contract(evidence: list[dict[str, Any]]) -> dict[str, Any]:
                 "sample_is_complete": metadata.get("sample_is_complete") is True,
                 "row_limit_reached": metadata.get("limit_reached") is True,
                 "scope": (metadata.get("query_plan") or {}).get("slots") or {},
+                "answer_coverage": ((metadata.get("query_plan") or {}).get("semantic_plan") or {}).get("answer_coverage", []),
                 "fields": metadata.get("columns") or (list(rows[0]) if rows else []),
                 "temporal_summaries": metadata.get("metric_summaries") if successful else [],
                 "cross_group_summary": metadata.get("fab_comparison") if successful else None,

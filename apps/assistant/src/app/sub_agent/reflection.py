@@ -85,15 +85,63 @@ def verify_response(
     evidence = evidence or []
     limitations = limitations or []
     warnings: list[str] = []
+    semantic_warnings: list[str] = []
+    semantic_review_topics: list[str] = []
+
+    def semantic_warning(message: str, topic: str = "claim_support") -> None:
+        # Lexical probes identify topics for independent model review. They do
+        # not establish whether arbitrary natural-language claims are entailed.
+        warnings.append(message)
+        semantic_warnings.append(message)
+        semantic_review_topics.append(topic)
 
     if not answer.strip():
         warnings.append("Final answer is empty.")
+
+    for item in evidence:
+        metadata = item.get("metadata") or {}
+        coverage = ((metadata.get("query_plan") or {}).get("semantic_plan") or {}).get("answer_coverage", [])
+        if (coverage and metadata.get("status") == "succeeded" and metadata.get("row_count") == 0
+                and re.search(r"실존하지|존재한\s*적.{0,8}없|never\s+existed", answer, re.IGNORECASE)):
+            warnings.append("An empty scoped lookup does not prove the entity never existed. State only that no matching records were found in the queried source and scope.")
+        missing = [field["requirement"] for field in coverage
+                   if field.get("status") == "unavailable"]
+        if missing:
+            semantic_warning(
+                "Check unavailable business fields " + ", ".join(missing) +
+                ": the answer must explicitly say they cannot be determined. "
+                "Calling narrative the restriction/downtime reason, or actor_role the setter, "
+                "is a violation even with a disclaimer that it is unofficial or only a role. "
+                "These fields describe events/recording roles only. Preserve available event observations.",
+                "business_field_coverage",
+            )
+        if "setter" in missing and re.search(
+                r"설정자\s*(?:정보|필드)?(?:는|가)[^\n.!?]{0,50}actor_role", answer, re.IGNORECASE):
+            warnings.append("Unavailable setter is falsely attributed to actor_role. State that the setter cannot be determined; actor_role is only the event recording role.")
+        requested_only_context = ("setter" in missing
+            and not any(field.get("requirement") == "reason" for field in coverage)
+            and not any(column in {"reason", "reason_code", "hold_reason", "hold_reason_code", "down_reason", "down_reason_code"}
+                        for column in metadata.get("columns") or []))
+        if "reason" in missing or requested_only_context:
+            for row in metadata.get("sample_rows") or []:
+                narrative = row.get("narrative")
+                if not isinstance(narrative, str) or not narrative.strip():
+                    continue
+                # An exact returned description attributed as a missing reason
+                # contradicts the field contract; an "unofficial" caveat cannot
+                # establish that semantic relationship.
+                attributed = re.search(
+                    r"(?:사유(?:로는|로|는|가)|reason\s*(?:is|:))[^\n.!?]{0,160}"
+                    + re.escape(narrative), answer, re.IGNORECASE,
+                )
+                if attributed:
+                    warnings.append("Unavailable business reason is falsely attributed to the returned narrative. Describe it only as an event description and state that the reason cannot be determined.")
 
     if query_type in {"status", "diagnosis", "impact", "trend"} and not evidence:
         warnings.append("Evidence is required for operational answers.")
 
     if _mentions_general_data(evidence) and _sounds_like_live_state(answer):
-        warnings.append("General Data must not be described as live/current factory state.")
+        semantic_warning("General Data must not be described as live/current factory state.", "source_scope")
 
     if query_type == "diagnosis" and _has_only_rag_evidence(evidence):
         warnings.append("RAG evidence alone cannot prove the actual root cause.")
@@ -102,32 +150,32 @@ def verify_response(
         warnings.append("Diagnosis answers require a candidate-only evidence synthesis.")
 
     if query_type == "diagnosis" and not _mentions_diagnosis_uncertainty(answer):
-        warnings.append("Diagnosis answers must label causes as candidates rather than confirmed facts.")
+        semantic_warning("Diagnosis answers must label causes as candidates rather than confirmed facts.", "causal_calibration")
 
     if (
         query_type == "diagnosis"
         and _diagnosis_has_no_supported_candidates(evidence)
         and not _discloses_no_diagnosis_candidate(answer)
     ):
-        warnings.append(
+        semantic_warning(
             "Diagnosis answers must disclose when evidence cannot support any cause candidate."
         )
 
     if (any(item.get("metadata", {}).get("fab_comparison") for item in evidence)
             and re.search(r"(?:주된|주요|직접적인|직접적)\s*원인(?:입니다|이다|으로\s*확인)", answer)):
-        warnings.append("Cross-FAB area contributions must not be presented as confirmed causes.")
+        semantic_warning("Cross-FAB area contributions must not be presented as confirmed causes.")
 
     if (query_type == "diagnosis" and _diagnosis_has_no_supported_candidates(evidence)
             and re.search(r"후보로\s*(?:볼\s*수\s*있|제시할\s*수\s*있|제시합니다)"
                           r"|원인\s*후보(?:는|로는)[^.!?\n]{0,120}(?:정비|고장|투입|병목)"
                           r"|(?:영향|기여|원인)[^.!?\n]{0,60}가능성(?:이|은|도)?\s*(?:있|높)", answer)):
-        warnings.append("Diagnosis answer introduces a cause candidate despite an empty supported candidate set.")
+        semantic_warning("Diagnosis answer introduces a cause candidate despite an empty supported candidate set.")
 
     if query_type == "diagnosis" and _has_simulated_evidence(evidence) and not _discloses_simulation(answer):
-        warnings.append("Diagnosis answers must disclose simulated reference sources.")
+        semantic_warning("Diagnosis answers must disclose simulated reference sources.", "source_scope")
 
     if query_type == "diagnosis" and _omits_top_diagnosis_candidate(answer, evidence):
-        warnings.append("Diagnosis answers must preserve the highest-ranked cause candidate.")
+        semantic_warning("Diagnosis answers must preserve the highest-ranked cause candidate.")
 
     missing_verified_case_citations = (
         _missing_verified_case_citations(answer, evidence)
@@ -147,7 +195,7 @@ def verify_response(
         else False
     )
     if undisclosed_verified_case_conflict:
-        warnings.append("Diagnosis answers must disclose conflicting verified case causes.")
+        semantic_warning("Diagnosis answers must disclose conflicting verified case causes.")
 
     undisclosed_historical_case = (
         _has_historical_verified_case(evidence)
@@ -156,22 +204,23 @@ def verify_response(
         else False
     )
     if undisclosed_historical_case:
-        warnings.append(
+        semantic_warning(
             "Diagnosis answers must disclose verified cases outside the requested period."
         )
 
     if _has_rag_knowledge_base(evidence, "incident_playbook") and _sounds_like_direct_action(answer):
-        warnings.append("Incident playbook answers must be framed as review guidance, not automatic action.")
+        semantic_warning("Incident playbook answers must be framed as review guidance, not automatic action.")
 
     if _has_rag_knowledge_base(evidence, "process_basics") and _sounds_like_operational_action(answer):
-        warnings.append("Process basics answers must not turn into operational dispatch or equipment action.")
+        semantic_warning("Process basics answers must not turn into operational dispatch or equipment action.")
 
-    if _contains_numeric_claim(answer) and not _has_sql_evidence(evidence):
+    numeric_answer = _without_grounded_result_counts(answer, evidence)
+    if _numeric_claims(numeric_answer) and _contains_numeric_claim(numeric_answer) and not _has_sql_evidence(evidence):
         warnings.append("Numeric operational claims require SQL evidence.")
 
     impact_requested = query_type == "impact" or _question_requests_impact(question or "")
     if impact_requested and not _mentions_calculation_boundary(answer, evidence):
-        warnings.append("Impact answers must include input-data and calculation limitations.")
+        semantic_warning("Impact answers must include input-data and calculation limitations.")
 
     missing_mixed_impact_dimensions = (
         _missing_mixed_impact_dimension_disclosures(answer, evidence)
@@ -189,12 +238,12 @@ def verify_response(
         and limitations
         and not _mentions_limitation(answer)
     ):
-        warnings.append("Material limitations must be visible in the final answer.")
+        semantic_warning("Material limitations must be visible in the final answer.", "material_limitations")
 
     undisclosed_row_limit = any(
         item.get("source_type") == "text2sql_plan" and item.get("metadata", {}).get("limit_reached")
         for item in evidence
-    ) and not re.search(r"한도|상한|\d+\s*행\s*(?:만|까지만)|truncat|row limit|return limit", answer, re.IGNORECASE)
+    ) and not re.search(r"한도|상한|반환\s*제한|\d+\s*행\s*(?:반환\s*)?(?:제한|만|까지만)|최신\s*(?:\d+|한)\s*건|truncat|row limit|return limit", answer, re.IGNORECASE)
     if undisclosed_row_limit:
         warnings.append("Answers must disclose the reached query row limit; complete scope is not established.")
 
@@ -428,6 +477,10 @@ def verify_response(
     return {
         "is_supported": bool(answer.strip()) and not warnings,
         "warnings": warnings,
+        "blocking_warnings": [warning for warning in warnings if warning not in semantic_warnings],
+        "semantic_warnings": semantic_warnings,
+        "semantic_review_topics": semantic_review_topics,
+        "semantic_review_required": True,
         "evidence_count": len(evidence),
         "limitation_count": len(limitations),
         "missing_identifiers": missing_identifiers,
@@ -1899,6 +1952,9 @@ def _without_grounded_result_counts(answer: str, evidence: list[dict[str, Any]])
         count = metadata.get("row_count")
         if isinstance(count, int) and count >= 0:
             row_counts.add(count)
+        row_limit = metadata.get("row_limit")
+        if metadata.get("limit_reached") and isinstance(row_limit, int):
+            answer = re.sub(rf"(?i)(?:LIMIT|반환\s*한도|반환\s*제한)\s*[:=(]?\s*{row_limit}(?![\d.])", "반환 한도", answer)
         distinct_areas = metadata.get("result_cardinality", {}).get("distinct_area_count")
         if isinstance(distinct_areas, int) and distinct_areas > 0:
             area_counts.add(distinct_areas)

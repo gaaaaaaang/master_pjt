@@ -127,6 +127,17 @@ def definition(logical: str, columns: list[dict[str, Any]]) -> dict[str, Any]:
             metrics.append({"id": name, "column": name, "definition": description,
                             "unit": unit, "kind": kind, "aggregation_rule": rule})
     notes = ["업무 담당자가 검토한 SSOT가 아니다. 코드/적재 구조에서 확인한 의미와 미확인 의미를 구분한다."]
+    if logical == "fab_process_raw_events":
+        descriptions.update({
+            "lot_id": {"description": "개별 LOT 식별자. FAB 접두사를 포함한 전체 값으로 비교한다."},
+            "equipment_id": {"description": "개별 장비 식별자. toolgroup과 구분한다."},
+            "actor_role": {"description": "이벤트 기록 주체의 역할. 개인 설정자 이름이나 사용자 ID가 아니다."},
+            "event_status": {"description": "해당 이벤트 상태. 현재 LOT/장비 상태 마스터가 아니다."},
+            "narrative": {"description": "합성 이벤트 설명. 검증된 업무 사유 코드가 아니다."},
+        })
+        notes.append("LOT/장비별 마지막 이벤트와 이력을 조회할 수 있다. 개인 설정자·업무 사유·현재 상태 확정은 별도 근거가 필요하다.")
+    if logical == "toolgroups" or logical.startswith("route_product_"):
+        notes.append("계측 관련 모델 영역은 Def_Met, Litho_Met, TF_Met로 구분된다. toolgroup은 설비군이며 작업 코드가 아니다. 모델 공정 경로는 공식 현장 계측 매핑과 구분한다.")
     relationships = []
     if logical in {"pm", "breakdown"} or logical.startswith("route_product_"):
         left_key = "type_name" if logical in {"pm", "breakdown"} else "toolgroup"
@@ -176,6 +187,9 @@ def enrich(entry: dict[str, Any]) -> dict[str, Any]:
             continue
         if not result.get(key) or (key == "description" and result[key] == result["logical_table"].replace("_", " ")):
             result[key] = value
+    if result.get("semantics", {}).get("managed_by") != "editor":
+        result.setdefault("semantics", {})["notes"] = list(dict.fromkeys([
+            *result.get("semantics", {}).get("notes", []), *defaults["semantics"]["notes"]]))
     for column in result["columns"]:
         meaning = defaults["semantics"]["column_meanings"].get(column["name"], {})
         editorial = result.get("semantics", {}).get("column_meanings", {})

@@ -16,7 +16,7 @@ from app.agents.intent import (
 )
 from app.agents.llm import AzureAgentClient
 from app.agents.prompts import PLANNER_PROMPT_VERSION, PLANNER_SYSTEM_PROMPT
-from app.db.fab_catalog import comparison_fabs, normalize_fab, resolve_fab
+from app.db.fab_catalog import resolve_fab
 from app.sub_agent.text2sql import QuerySlot, is_explicit_master_lookup
 
 AgentName = Literal["text2sql", "rag", "impact", "case_search", "visualization"]
@@ -166,48 +166,25 @@ def create_plan(
         route=route, equipment=equipment, date_basis=date_basis, metric=metric,
         conversation_history=conversation_history,
     )
-    if len(analysis.slots.get("fab_ids", QuerySlot("", "parser", 1, "")).value.split(",")) > 1 and not analysis.missing_slots:
-        comparison = _create_deterministic_fallback_plan(
-            message, fab=analysis.slots["fab_id"].value, line=line, process=process,
-            product=product, route=route, equipment=equipment, date_basis=date_basis,
-            metric=metric or (analysis.slots.get("metric").value if analysis.slots.get("metric") else None),
-            reason="bounded FAB comparison",
-        )
-        return _ground_plan(replace(comparison, limitations=[], execution_mode="fab_comparison"), analysis)
-    try:
-        output = (llm_client or AzureAgentClient()).complete_json(
-            system_prompt=PLANNER_SYSTEM_PROMPT,
-            input_data={
-                "question": message,
-                "request_analysis": intent_payload(analysis),
-                "request_fab": fab,
-                "request_line": line,
-                "request_process": process,
-                "request_product": product,
-                "request_route": route,
-                "request_equipment": equipment,
-                "request_date_basis": date_basis,
-                "request_metric": metric,
-                "conversation_history": conversation_history or [],
-                "execution_feedback": execution_feedback or [],
-            },
-            output_schema=PLANNER_OUTPUT_SCHEMA,
-            schema_name="fab_planner_decision",
-        )
-    except RuntimeError as exc:
-        fallback = _create_deterministic_fallback_plan(
-            message,
-            fab=analysis.slots["fab_id"].value if "fab_id" in analysis.slots else fab,
-            line=line,
-            process=process,
-            product=product,
-            route=route,
-            equipment=equipment,
-            date_basis=date_basis,
-            metric=metric,
-            reason=str(exc),
-        )
-        return _ground_plan(fallback, analysis)
+    output = (llm_client or AzureAgentClient()).complete_json(
+        system_prompt=PLANNER_SYSTEM_PROMPT,
+        input_data={
+            "question": message,
+            "request_analysis": intent_payload(analysis),
+            "request_fab": fab,
+            "request_line": line,
+            "request_process": process,
+            "request_product": product,
+            "request_route": route,
+            "request_equipment": equipment,
+            "request_date_basis": date_basis,
+            "request_metric": metric,
+            "conversation_history": conversation_history or [],
+            "execution_feedback": execution_feedback or [],
+        },
+        output_schema=PLANNER_OUTPUT_SCHEMA,
+        schema_name="fab_planner_decision",
+    )
     analysis = enrich_analysis(analysis, output.get("extracted_slots", []))
     fab_id = analysis.slots["fab_id"].value if "fab_id" in analysis.slots else None
     if is_explicit_master_lookup(message) and output["query_type"] in {"status", "trend"}:
@@ -261,154 +238,6 @@ def create_plan(
         clarification_question=output["clarification_question"],
         limitations=list(output["limitations"]),
     ), analysis)
-
-
-def _create_deterministic_fallback_plan(
-    message: str,
-    *,
-    fab: str | None,
-    line: str | None,
-    process: str | None,
-    product: str | None,
-    route: str | None,
-    equipment: str | None,
-    date_basis: str | None,
-    metric: str | None,
-    reason: str,
-) -> PlannerDecision:
-    normalized = message.casefold().replace("-", "_")
-    fab_id = resolve_fab(message, fab).fab_id
-    if comparison_fabs(message):
-        fab_id = normalize_fab(fab) or comparison_fabs(message)[0]
-    procedure = is_procedure_request(message)
-    knowledge = procedure or any(
-        term in normalized
-        for term in ("뭐야", "무엇", "설명", "기초", "매뉴얼", "대응 절차", "sop")
-    ) or bool(re.search(r"(?<!공)정의", normalized))
-    has_bare_selection = bool(metric) and bool(
-        re.search(
-            r"(?:>=|<=|>|<)\s*\d|\d+(?:\.\d+)?\s*(?:%|퍼센트|percent)?\s*"
-            r"(?:이상|이하|초과|미만)|(?:상위|하위|top|bottom)\s*\d+",
-            normalized,
-        )
-    )
-    operational_status = (bool(fab_id) or bool(metric) or any(
-        term in normalized for term in ("wip", "재공", "가동률", "queue", "cycle", "수율", "처리량")
-    )) and (
-        has_bare_selection
-        or any(
-            term in normalized
-            for term in ("현재", "지금", "상태", "몇", "값", "수치", "current", "status")
-        )
-    )
-    if any(
-        term in normalized
-        for term in ("왜", "원인", "진단", "유사 사례", "병목", "이유", "까닭")
-    ):
-        query_type = "diagnosis"
-    elif any(
-        term in normalized
-        for term in (
-            "영향",
-            "늘면",
-            "떨어지면",
-            "내려가면",
-            "줄어들면",
-            "증가하면",
-            "감소하면",
-            "계산",
-        )
-    ):
-        query_type = "impact"
-    elif any(
-        term in normalized
-            for term in ("추세", "추이", "비교", "차이", "차트", "그래프", "일별", "주별", "월별", "날짜별", "기간별", "흐름", "변화")
-    ):
-        query_type = "trend"
-    elif procedure:
-        query_type = "knowledge_lookup"
-    elif operational_status:
-        query_type = "status"
-    elif knowledge:
-        query_type = "knowledge_lookup"
-    elif "lotrelease" in normalized or "release plan" in normalized:
-        query_type = "release_plan_lookup"
-    elif is_explicit_master_lookup(message) or any(term in normalized for term in ("목록", "toolgroup", "설비군", "route 구성")):
-        query_type = "master_data_lookup"
-    elif fab_id:
-        query_type = "status"
-    else:
-        query_type = "unsupported"
-
-    ambiguous_release_date = (
-        query_type == "trend"
-        and ("lotrelease" in normalized or "release" in normalized)
-        and any(term in normalized for term in ("날짜", "일별", "추세"))
-        and not date_basis
-        and "start_date" not in normalized
-        and "due_date" not in normalized
-    )
-    needs_fab = query_type not in {"knowledge_lookup", "unsupported"} and not fab_id
-    if ambiguous_release_date:
-        status: PlanStatus = "needs_clarification"
-        missing_slots = ["date_basis"]
-        clarification = "lotrelease 날짜 기준을 start_date 또는 due_date 중에서 지정해주세요."
-    elif needs_fab:
-        status = "needs_clarification"
-        missing_slots = ["fab_id"]
-        clarification = "어느 FAB을 조회할까요?"
-    elif query_type == "unsupported":
-        status = "unsupported"
-        missing_slots = []
-        clarification = None
-    else:
-        status = "ready"
-        missing_slots = []
-        clarification = None
-
-    agents = list(REQUIRED_AGENT_ROUTES.get(query_type, [])) if status == "ready" else []
-    if status == "ready":
-        agents.extend(_deterministic_compound_agents(normalized, query_type))
-        agents = [agent for agent in AGENT_EXECUTION_ORDER if agent in set(agents)]
-    steps = [
-        ExecutionStep(
-            agent=agent,
-            action=f"Run {agent} for deterministic fallback {query_type}",
-            required=query_type != "diagnosis",
-            reason="Planner LLM was unavailable; required route invariant was applied.",
-        )
-        for agent in agents
-    ]
-    if query_type == "diagnosis":
-        steps = [replace(step, required=False) for step in steps]
-
-    slots = {}
-    for key, value in (
-        ("fab_id", fab_id),
-        ("line", line),
-        ("process", process),
-        ("product", product),
-        ("route", route),
-        ("equipment", equipment),
-        ("date_basis", date_basis),
-        ("metric", metric),
-    ):
-        if value:
-            slots[key] = QuerySlot(str(value), "request_context", 0.8, str(value))
-
-    return PlannerDecision(
-        status=status,
-        query_type=query_type,
-        intent=f"Deterministic fallback plan for: {message}",
-        selected_sub_agents=agents,
-        execution_steps=steps,
-        slots=slots,
-        rag_knowledge_base=_infer_rag_knowledge_base(message, query_type, agents),
-        missing_slots=missing_slots,
-        clarification_question=clarification,
-        limitations=[f"Planner LLM unavailable; deterministic routing was used: {reason}"],
-        execution_mode="deterministic_fallback",
-    )
 
 
 def _extract_fab(normalized: str) -> str | None:

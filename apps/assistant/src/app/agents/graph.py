@@ -27,7 +27,7 @@ from app.sub_agent.fab_comparison import comparison_facts
 from app.sub_agent.impact import estimate_output_delta
 from app.sub_agent.rag import INCIDENT_PLAYBOOK, retrieve_evidence
 from app.sub_agent.reflection import reflect_agent_output
-from app.sub_agent.result_delivery import result_cardinality, sample_evidence_rows
+from app.sub_agent.result_delivery import query_result_payload, result_cardinality, sample_evidence_rows
 from app.sub_agent.result_facts import observation_trends
 from app.sub_agent.text2sql import QueryType, Text2SQLResult, answer_question
 from app.sub_agent.visualization import build_chart_spec
@@ -199,11 +199,7 @@ def _supervisor_node(state: AgentState) -> dict[str, Any]:
                 "status": plan.status,
                 "selected_sub_agents": plan.selected_sub_agents,
                 "reason": decision["reason"],
-                "execution_mode": (
-                    "deterministic_fallback"
-                    if decision.get("fallback_used")
-                    else "llm_chat_completions"
-                ),
+                "execution_mode": "llm_chat_completions",
                 "model": get_settings().openai_model,
                 "reasoning": reasoning,
             },
@@ -349,8 +345,8 @@ def _text2sql_node(state: AgentState) -> dict[str, Any]:
             "query_type": result.query_type,
             "row_count": result.row_count,
             "columns": result.columns,
-            "row_limit": get_settings().db_max_rows,
-            "limit_reached": result.row_count >= get_settings().db_max_rows,
+            "row_limit": query_result_payload(result)["row_limit"],
+            "limit_reached": query_result_payload(result)["limit_reached"],
             "sample_rows": sample_evidence_rows(result.rows),
             "sample_is_complete": len(result.rows) <= 60,
             "result_cardinality": result_cardinality(result.rows),
@@ -974,19 +970,7 @@ def _answer_supervisor_node(state: AgentState) -> dict[str, Any]:
     limitations = list(state.get("limitations", []))
     if not review["approved"]:
         review["rejected_answer"] = answer
-        result = state.get("text2sql_result")
-        if result and result.status == "succeeded" and result.rows:
-            fab = result.plan.fab_id.upper() if result.plan and result.plan.fab_id else "요청 조건"
-            basis = {
-                "simulation_snapshot": "생성된 시뮬레이션 관측값",
-                "model_master": "SMT2020 정적 모델 입력",
-                "operational_report": "저장된 운영 보고서",
-                "release_plan": "등록된 투입 계획",
-            }.get(result.plan.data_source_type if result.plan else "", "조회 데이터")
-            answer = (f"{fab} 조회는 완료되어 {result.row_count}개 행을 확인했습니다({basis} 기준). "
-                      "해석 문장은 최종 근거 검증을 통과하지 못했습니다. "
-                      "조회 데이터와 기준 시각은 결과 표 및 데이터·SQL 보기에서 확인할 수 있습니다.")
-            review["presentation_fallback"] = "verified_query_rows_only"
+        answer = "답변의 근거 검증을 완료하지 못했습니다. 검증 결과와 수집된 근거를 확인해주세요."
         limitations.append("해석 문장이 최종 근거 검증을 통과하지 못해 분석을 완료하지 못했습니다.")
     termination_reason = state.get("termination_reason")
     status = state.get("status", "succeeded")
@@ -1019,11 +1003,7 @@ def _answer_supervisor_node(state: AgentState) -> dict[str, Any]:
                 "approved": review["approved"],
                 "revised": revised,
                 "issues": review["issues"],
-                "execution_mode": (
-                    "deterministic_fallback"
-                    if review.get("fallback_used")
-                    else "llm_chat_completions"
-                ),
+                "execution_mode": "llm_chat_completions",
                 "reasoning": reasoning,
             },
         },
@@ -1059,11 +1039,7 @@ def _reflection_node(state: AgentState) -> dict[str, Any]:
             "coverage": requirement_coverage(state["plan"], state.get("active_results", {})),
         },
     )
-    reflection["execution_mode"] = (
-        "deterministic_fallback"
-        if reflection.get("fallback_used")
-        else "llm_chat_completions"
-    )
+    reflection["execution_mode"] = "llm_chat_completions"
     reflection["model"] = get_settings().openai_model
     action = str(reflection.get("action") or "compose")
     retry_target = reflection.get("retry_target")
@@ -1707,6 +1683,10 @@ def _result_scope_issues(plan: PlannerDecision, result: Text2SQLResult) -> list[
                 issues.append("FAB comparison has inconsistent observation times or process-area coverage.")
     if expected_fab and result.plan.fab_id and expected_fab.value != result.plan.fab_id:
         issues.append(f"FAB scope mismatch: requested {expected_fab.value}, returned {result.plan.fab_id}.")
+    for key in ("lot_id", "equipment_id", "resource_group"):
+        expected, actual = plan.slots.get(key), result.plan.slots.get(key)
+        if expected and (not actual or expected.value != actual.value):
+            issues.append(f"Missing or changed entity scope: {key}={expected.value}")
     for key in ("products", "toolgroups", "area", "date_start", "date_end", "date_basis"):
         expected = plan.slots.get(key)
         actual = result.plan.slots.get(key)

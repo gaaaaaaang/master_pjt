@@ -14,9 +14,10 @@ from psycopg import Error as PsycopgError
 from app.agents.usage import model_call, model_http_client, reported_usage
 from app.config import get_settings
 from app.db.fab_catalog import comparison_fabs, normalize_fab, resolve_fab, table_pattern, table_ref
-from app.db.metadata_catalog import load_fab_catalog
+from app.db.metadata_catalog import load_fab_catalog, probe_entity_sources
 from app.db.read_only import ReadOnlyQueryExecutor, SqlValidationError
 from app.db.schema_retrieval import mentions_table, select_catalog
+from app.sub_agent.business_query import ENTITY_COLUMNS, entity_literals, record_requirements
 from app.sub_agent.semantic_plan import (
     PLAN_PROMPT,
     SemanticPlan,
@@ -96,6 +97,7 @@ class Text2SQLResult:
     confidence: float = 0.0
     limitations: list[str] = field(default_factory=list)
     plan: QueryPlan | None = None
+    row_limit: int | None = None
 
 
 class Text2SQLClient(Protocol):
@@ -583,6 +585,9 @@ class OpenAIText2SQLClient:
             raise RuntimeError("OPENAI_API_KEY is not configured.")
 
         schema_context["request_requirements"] = request_requirements(question)
+        business = record_requirements(question, slots)
+        if business["record_lookup"]:
+            schema_context["request_requirements"]["business_request"] = business
         payload = {
             "model": self.model,
             "messages": [
@@ -619,7 +624,7 @@ class OpenAIText2SQLClient:
                 "messages": [{"role": "system", "content": PLAN_PROMPT}, payload["messages"][1]],
                 "response_format": {"type": "json_schema", "json_schema": {
                     "name": "fab_semantic_plan", "strict": True,
-                    "schema": SemanticPlan.strict_response_schema(),
+                    "schema": SemanticPlan.strict_response_schema(schema_context),
                 }},
             }
             raw_plan = self._complete_payload(planning_payload)
@@ -630,12 +635,13 @@ class OpenAIText2SQLClient:
                 return {"supported": False, "answer": "SQL 작성 전 조회 계획 검증에 실패했습니다.",
                         "limitations": [str(exc)], "failure_stage": "semantic_plan"}
             if not semantic_plan.supported:
+                schema_context["validated_semantic_plan"] = semantic_plan.model_dump()
                 return {"supported": False, "answer": semantic_plan.reason,
                         "limitations": semantic_plan.limitations}
             schema_context["validated_semantic_plan"] = semantic_plan.model_dump()
             compiled = compile_single_table(semantic_plan) if query_type != "trend" else None
             if compiled is not None:
-                columns = [p.column for p in semantic_plan.projections] + [a.alias for a in semantic_plan.aggregates]
+                columns = list(dict.fromkeys([p.column for p in semantic_plan.projections] + [a.alias for a in semantic_plan.aggregates]))
                 schema_context.setdefault("grounding", {})["sql_generation_mode"] = "compiled_validated_plan"
                 return {
                     "supported": True, "sql": compiled, "source_tables": semantic_plan.tables,
@@ -743,10 +749,21 @@ def answer_question(
                 database_catalog = {}
                 for target in targets:
                     database_catalog.update(load_fab_catalog(target))
+                entities = entity_literals(question)
+                for key in ENTITY_COLUMNS:
+                    slot = (execution_context or {}).get('scope', {}).get(key, {})
+                    if key not in entities and slot.get('value'):
+                        entities[key] = slot['value']
+                if entities:
+                    database_catalog = probe_entity_sources(database_catalog, entities)
             except (RuntimeError, PsycopgError):
-                # The executor remains the authority on a query's failure. A metadata
-                # outage alone is not evidence of a policy denial for every table.
-                pass
+                # A failed discovery (including a partially loaded multi-FAB catalog)
+                # is not an authoritative empty catalog or an unsupported question.
+                return Text2SQLResult(
+                    status="failed", query_type=query_type or "status",
+                    answer="DB 연결 또는 테이블 목록 조회에 실패해 공정 데이터를 확인하지 못했습니다. DB 연결 상태를 확인한 뒤 다시 시도해주세요.",
+                    limitations=["DB 조회 장애로 관측값을 확보하지 못했습니다. 지원하지 않는 질문이나 데이터 부재로 판단할 수 없습니다."],
+                )
     result = plan_text2sql(
         question,
         fab=fab,
@@ -781,10 +798,6 @@ def answer_question(
         if (result.plan and result.plan.data_source_type == "simulation_snapshot"
                 and _looks_like_missing_relation_error(str(exc))):
             return _simulation_data_unavailable(result, error=str(exc))
-        if result.plan and result.plan.data_source_type != "simulation_snapshot":
-            repaired = _execute_empty_result_repairs(result)
-            if repaired:
-                return repaired
         return Text2SQLResult(
             status="failed",
             query_type=result.query_type,
@@ -798,12 +811,10 @@ def answer_question(
     empty_aggregate = bool(execution.rows) and all(
         row.get("area_count") == 0 or row.get("observation_count") == 0 for row in execution.rows
     )
-    if (execution.row_count == 0 or empty_aggregate) and result.plan:
-        if result.plan.data_source_type == "simulation_snapshot":
-            return _simulation_data_unavailable(result)
-        repaired = _execute_empty_result_repairs(result)
-        if repaired:
-            return repaired
+    if ((execution.row_count == 0 or empty_aggregate) and result.plan
+            and not record_requirements(question, result.plan.slots)["record_lookup"]
+            and result.plan.data_source_type == "simulation_snapshot"):
+        return _simulation_data_unavailable(result)
 
     limitations = list(result.limitations)
     interval_lengths = [float(row[key]) for row in execution.rows
@@ -814,9 +825,11 @@ def answer_question(
             f"원자료의 관측 구간 길이가 최소 {min(interval_lengths):g}분, 최대 {max(interval_lengths):g}분으로 다릅니다. "
             "이 구간들의 단순 평균 차이를 동일한 관측 조건의 공정 개선·악화나 인과 효과로 해석하지 마세요."
         )
-    if execution.row_count == execution.limit:
+    from app.sub_agent.result_delivery import effective_row_limit
+    limit = effective_row_limit(result.sql, execution.limit)
+    if execution.row_count >= limit:
         limitations.append(
-            f"조회 결과가 반환 한도 {execution.limit}행에 도달했습니다. 전체 결과가 아닐 수 있으므로 기간을 줄이거나 집계 단위를 넓혀주세요."
+            f"조회 결과가 반환 한도 {limit}행에 도달했습니다. 반환 행 수를 전체 건수로 해석할 수 없습니다."
         )
     if execution.row_count == 0:
         limitations = [*limitations, *_empty_result_limitations(result)]
@@ -840,6 +853,7 @@ def answer_question(
         confidence=result.confidence,
         limitations=limitations,
         plan=result.plan,
+        row_limit=limit,
     )
 
 
@@ -878,6 +892,16 @@ def plan_text2sql(
         date_basis=date_basis,
         metric=metric,
     )
+    for key in ENTITY_COLUMNS:
+        item = (execution_context or {}).get("scope", {}).get(key, {})
+        value = item.get("value") if isinstance(item, dict) else None
+        raw = item.get("raw_text", "") if isinstance(item, dict) else ""
+        if key not in slots and value and value in raw and raw.casefold() in question.casefold():
+            slots[key] = QuerySlot(value, "llm_inference", 0.9, raw)
+    if record_requirements(question, slots)["record_lookup"]:
+        for key in ("metric", "metrics"):
+            if key in slots and slots[key].value == "curstate" and "curstate" not in question.casefold():
+                slots.pop(key)
     slots = inherit_followup_metrics(question, slots, conversation_history or [])
     slots = inherit_followup_period(question, slots, conversation_history or [])
     slots = inherit_followup_areas(question, slots, conversation_history or [])
@@ -1110,7 +1134,11 @@ def plan_text2sql(
         and entry["logical_table"] not in SCHEMA_CATALOG.get(_data_source_type(query_type, slots), {})
         for ref, entry in (database_catalog or {}).items()
     )
+    business = record_requirements(question, slots)
+    detailed_record = bool(set(business["facets"]) - {"latest_record"})
     if ((llm_client is None or deterministic_only)
+            and (deterministic_only or not business["record_lookup"]
+                 or (database_catalog is None and not detailed_record))
             and not explicit_simulation and not explicit_catalog_table and not catalog_queue
             and not requires_flexible_aggregation(question)
             and not (query_type == "master_data_lookup" and re.search(
@@ -1150,6 +1178,8 @@ def plan_text2sql(
                 limitations=[str(exc)], plan=QueryPlan(query_type, None, fab_id=fab_id, slots=slots),
             )
     schema_context = _schema_context_for_question(query_type, slots, fab_id, database_catalog)
+    if business["record_lookup"] and (database_catalog is not None or detailed_record):
+        schema_context["primary_table_refs"] = []
     if database_catalog:
         explicit_sources = [ref for ref, entry in database_catalog.items()
                             if mentions_table(normalized, ref, entry["logical_table"])]
@@ -1168,6 +1198,7 @@ def plan_text2sql(
         selected, grounding = select_catalog(
             question, schema_context["table_details"],
             primary_refs=schema_context["primary_table_refs"],
+            slots=slots,
         )
         schema_context = {**schema_context,
                           "tables": {ref: schema_context["tables"][ref] for ref in selected},
@@ -1205,6 +1236,7 @@ def plan_text2sql(
                 fab_id=fab_id,
                 data_source_type=schema_context["data_source_type"],
                 slots=slots,
+                semantic_plan=schema_context.get("validated_semantic_plan", {}),
                 source_tables=schema_context["allowed_table_refs"],
             ),
         )
@@ -2300,7 +2332,7 @@ def _result_from_llm_output(
 ) -> Text2SQLResult:
     if not llm_output.get("supported", False):
         return Text2SQLResult(
-            status="unsupported",
+            status="failed" if llm_output.get("failure_stage") == "semantic_plan" else "unsupported",
             query_type=query_type,
             answer=str(llm_output.get("answer") or "LLM이 지원 불가로 판단했습니다."),
             confidence=float(llm_output.get("confidence") or 0.3),
@@ -2311,11 +2343,11 @@ def _result_from_llm_output(
                 fab_id=fab_id,
                 data_source_type=schema_context["data_source_type"],
                 slots=slots,
+                semantic_plan=schema_context.get("validated_semantic_plan", {}),
             ),
         )
 
     sql = str(llm_output.get("sql") or "").strip()
-    normalization_notes: list[str] = []
     sql_sources = _extract_table_refs(sql)
     source_kinds = {
         schema_context.get("table_details", {}).get(ref, {}).get(
@@ -2324,8 +2356,6 @@ def _result_from_llm_output(
     }
     actual_source_type = (next(iter(source_kinds)) if len(source_kinds) == 1
                           else "mixed" if source_kinds else schema_context["data_source_type"])
-    if actual_source_type == "operational_report":
-        sql, normalization_notes = _normalize_operational_sql(sql)
     try:
         ReadOnlyQueryExecutor(dsn="postgresql://validation-only").validate(sql)
         _validate_sql_tables(sql, set(schema_context["allowed_table_refs"]))
@@ -2365,7 +2395,6 @@ def _result_from_llm_output(
         data_source_type=actual_source_type,
         slots=slots,
         limitations=_base_limitations(query_type, actual_source_type)
-        + normalization_notes
         + chart_notes
         + list(llm_output.get("limitations") or []),
         source_tables=source_tables,
@@ -2485,7 +2514,11 @@ Hard rules:
 3. Do not generate DDL, DML, COPY, comments, SET, locks, or multiple statements.
 4. Preserve explicit user constraints. If the request cannot be answered from the allowed schema, set supported=false.
 5. Add a LIMIT no higher than 200 unless the query is an aggregate time series.
-6. For SC-001 current status, prefer latest non-WarmUp operational report rows.
+6. For current status, prefer the latest available observations according to the supplied
+   source semantics. Bind entity values and categorical filters from the supplied catalog,
+   column descriptions and observed values. Do not assume a user-facing label is a stored value.
+   On execution feedback, re-examine those bindings and joins using the catalog. Preserve
+   explicit scope and predicates: an empty result does not authorize broadening the query.
 7. For trend chart requests, include chart_intent with the output x/y column aliases. For a
    multi-metric comparison, set y to all requested numeric aliases and use grouped_bar unless the
    x-axis is temporal. Set series to a result column only when that column identifies categories.
@@ -2817,238 +2850,6 @@ def _is_missing_autosched_table_error(exc: Exception) -> bool:
     return "autosched_" in message and ("does not exist" in message or "undefinedtable" in message)
 
 
-def _execute_empty_result_repairs(result: Text2SQLResult) -> Text2SQLResult | None:
-    if not result.sql or not result.plan:
-        return None
-
-    executor = ReadOnlyQueryExecutor()
-    for repaired_sql, repair_note in _empty_result_repair_candidates(result):
-        if repaired_sql == result.sql:
-            continue
-        try:
-            execution = executor.execute(repaired_sql)
-        except (RuntimeError, SqlValidationError, PsycopgError):
-            continue
-        if execution.row_count == 0:
-            continue
-        limitations = [*result.limitations, repair_note]
-        return Text2SQLResult(
-            status="succeeded",
-            query_type=result.query_type,
-            answer=_summarize_execution(result, execution.rows),
-            sql=repaired_sql,
-            rows=execution.rows,
-            columns=execution.columns,
-            row_count=execution.row_count,
-            confidence=min(result.confidence, 0.72),
-            limitations=limitations,
-            plan=QueryPlan(
-                query_type=result.plan.query_type,
-                template_id=result.plan.template_id,
-                fab_id=result.plan.fab_id,
-                data_source_type=result.plan.data_source_type,
-                slots=result.plan.slots,
-                limitations=limitations,
-                source_tables=_extract_table_refs(repaired_sql),
-                select_items=result.plan.select_items,
-                filters=result.plan.filters,
-                group_by=result.plan.group_by,
-                order_by=result.plan.order_by,
-                aggregation=result.plan.aggregation,
-                expected_result_shape=result.plan.expected_result_shape,
-                chart_intent=result.plan.chart_intent,
-                semantic_plan=result.plan.semantic_plan,
-                grounding=result.plan.grounding,
-                generation_attempts=result.plan.generation_attempts,
-            ),
-        )
-    return None
-
-
-def _empty_result_repair_candidates(result: Text2SQLResult) -> list[tuple[str, str]]:
-    if not result.sql or not result.plan:
-        return []
-    candidates: list[tuple[str, str]] = []
-    if result.plan.data_source_type == "operational_report":
-        repaired = _repair_operational_period_filters(result.sql)
-        if repaired != result.sql:
-            candidates.append(
-                (
-                    repaired,
-                    "빈 결과 보정: AutoSched에 없는 synthetic period 값을 WarmUp 제외 조건으로 재시도했습니다.",
-                )
-            )
-
-    product = _slot_value(result.plan.slots, "product")
-    if product:
-        product_alias = _product_to_part_alias(product)
-        if product_alias and product_alias != product:
-            repaired = _repair_operational_period_filters(
-                _replace_sql_string_literal_value(result.sql, product, product_alias)
-            )
-            candidates.append(
-                (
-                    repaired,
-                    f"빈 결과 보정: product alias {product!r}를 AutoSched part 값 {product_alias!r}로 재시도했습니다.",
-                )
-            )
-
-    area = _slot_value(result.plan.slots, "area")
-    if area and result.plan.data_source_type == "model_master":
-        master_domain = _slot_value(result.plan.slots, "master_domain")
-        if master_domain == "pm" and result.plan.fab_id:
-            candidates.append(
-                (
-                    _pm_area_lookup_sql(result.plan.fab_id, area),
-                    f"빈 결과 보정: PM type_name을 toolgroups와 연결해 area {area!r} 기준으로 재조회했습니다.",
-                )
-            )
-        repaired = _repair_exact_type_or_area_filter(result.sql, area)
-        if repaired != result.sql:
-            candidates.append(
-                (
-                    repaired,
-                    f"빈 결과 보정: exact type/area filter {area!r}를 부분 일치로 재시도했습니다.",
-                )
-            )
-
-    toolgroup = _slot_value(result.plan.slots, "toolgroup")
-    if toolgroup and result.plan.data_source_type == "model_master":
-        type_alias = _toolgroup_to_type_prefix(toolgroup)
-        if type_alias and type_alias != toolgroup:
-            repaired = _repair_exact_type_or_area_filter(
-                _replace_sql_string_literal_value(result.sql, toolgroup, type_alias),
-                type_alias,
-            )
-            candidates.append(
-                (
-                    repaired,
-                    f"빈 결과 보정: toolgroup {toolgroup!r}를 type prefix {type_alias!r}로 재시도했습니다.",
-                )
-            )
-    type_prefix = _slot_value(result.plan.slots, "type_prefix")
-    if type_prefix and result.plan.data_source_type == "model_master":
-        repaired = _repair_type_prefix_filter(result.sql, type_prefix)
-        if repaired != result.sql:
-            candidates.append(
-                (
-                    repaired,
-                    f"빈 결과 보정: equipment type {type_prefix!r}를 prefix 부분 일치로 재시도했습니다.",
-                )
-            )
-    repaired = _repair_breakdown_type_filter(result.sql)
-    if repaired != result.sql:
-        candidates.append(
-            (
-                repaired,
-                "빈 결과 보정: breakdown down_type exact filter를 type_name 부분 일치로 재시도했습니다.",
-            )
-        )
-    return candidates
-
-
-def _repair_operational_period_filters(sql: str) -> str:
-    repaired = re.sub(
-        r"\bperiod\s*=\s*'(?:Operational|Queue)'",
-        "period <> 'WarmUp'",
-        sql,
-        flags=re.IGNORECASE,
-    )
-    repaired = re.sub(
-        r"\brelative\s*=\s*0\b",
-        "relative = 'Y'",
-        repaired,
-        flags=re.IGNORECASE,
-    )
-    repaired = re.sub(
-        r"\brelative\s*=\s*'(?:Normal|Now)'",
-        "relative = 'Y'",
-        repaired,
-        flags=re.IGNORECASE,
-    )
-    repaired = re.sub(
-        r"\brelative\s*<>\s*'WarmUp'",
-        "relative = 'Y'",
-        repaired,
-        flags=re.IGNORECASE,
-    )
-    return repaired
-
-
-def _repair_exact_type_or_area_filter(sql: str, value: str) -> str:
-    literal = re.escape(value)
-    return re.sub(
-        rf"\b(type_name|area)\s*=\s*'{literal}'",
-        lambda match: f"{match.group(1)} ILIKE '%{value}%'",
-        sql,
-        flags=re.IGNORECASE,
-    )
-
-
-def _repair_breakdown_type_filter(sql: str) -> str:
-    return re.sub(
-        r"\bdown_type\s*=\s*'([A-Za-z]+_[A-Za-z]+)'",
-        lambda match: f"type_name ILIKE '%{match.group(1)}%'",
-        sql,
-        flags=re.IGNORECASE,
-    )
-
-
-def _repair_type_prefix_filter(sql: str, value: str) -> str:
-    literal = re.escape(value)
-    return re.sub(
-        rf"\btype_name\s*=\s*'{literal}'",
-        f"type_name ILIKE '{value}%'",
-        sql,
-        flags=re.IGNORECASE,
-    )
-
-
-def _replace_sql_string_literal_value(sql: str, source: str, target: str) -> str:
-    replacements = {
-        source,
-        source.lower(),
-        source.upper(),
-        source.replace("_", " "),
-        source.replace("_", "-"),
-    }
-    repaired = sql
-    for value in sorted(replacements, key=len, reverse=True):
-        escaped = re.escape(value)
-        repaired = re.sub(
-            rf"('(?:%[^']*)?){escaped}((?:[^']*%)?')",
-            lambda match: f"{match.group(1)}{target}{match.group(2)}",
-            repaired,
-            flags=re.IGNORECASE,
-        )
-    return repaired
-
-
-def _normalize_operational_sql(sql: str) -> tuple[str, list[str]]:
-    notes: list[str] = []
-    repaired = re.sub(
-        r"(?P<prefix>'[^']*)Product_(?P<number>\d+)(?P<suffix>[^']*')",
-        lambda match: (
-            f"{match.group('prefix')}part_{match.group('number')}{match.group('suffix')}"
-        ),
-        sql,
-        flags=re.IGNORECASE,
-    )
-    if repaired != sql:
-        notes.append("AutoSched product literal을 실제 part_N 값으로 정규화했습니다.")
-    sql = repaired
-    repaired = re.sub(
-        r"\b(?:(?P<alias>[a-z_][a-z0-9_]*)\.)?(?:curstate|relative)\s*"
-        r"(?:<>|!=|NOT\s+ILIKE)\s*'%?WarmUp%?'",
-        lambda match: f"{match.group('alias') + '.' if match.group('alias') else ''}period <> 'WarmUp'",
-        sql,
-        flags=re.IGNORECASE,
-    )
-    if repaired != sql:
-        notes.append("WarmUp 제외 조건을 AutoSched period 컬럼에 적용하도록 정규화했습니다.")
-    return repaired, notes
-
-
 def _normalize_chart_intent(
     chart_intent: Any,
     slots: dict[str, QuerySlot],
@@ -3116,17 +2917,6 @@ def _enrich_chart_intent(
     if range_end := _slot_value(slots, "date_end"):
         enriched["range_end_exclusive"] = range_end
     return enriched
-
-
-def _pm_area_lookup_sql(fab_id: str, area: str) -> str:
-    escaped_area = area.replace("'", "''")
-    return (
-        "SELECT p.pm_event_name, p.type_name, p.pm_type, p.mean, p.ttr_units "
-        f"FROM {table_ref(fab_id, 'pm')} p "
-        f"JOIN {table_ref(fab_id, 'toolgroups')} t ON t.toolgroup = p.type_name "
-        f"WHERE t.area ILIKE '%{escaped_area}%' "
-        "ORDER BY p.type_name, p.pm_event_name LIMIT 200"
-    )
 
 
 def _product_to_part_alias(product: str) -> str | None:
@@ -3492,6 +3282,23 @@ def _extract_slots(
     if master_domain:
         slots["master_domain"] = QuerySlot(master_domain, "parser", 0.8, master_domain)
 
+    for kind, value in entity_literals(question).items():
+        slots[kind] = QuerySlot(value, "explicit_user", 1.0, value)
+    business = record_requirements(question, slots)
+    if business["facets"] and not re.search(r"률|율|%|percent|평균|합계|건수|개수|시간|minutes|hours", question, re.IGNORECASE):
+        for key in ("metric", "metrics"):
+            if key in slots and slots[key].value not in question:
+                slots.pop(key)
+    if (set(business["facets"]) & {"mapping", "work_code"} and "area" in slots
+            and slots["area"].value.casefold() not in question.casefold()):
+        # Translated concepts are not literal database keys (계측 != 'metrology').
+        slots["area_concept"] = replace(slots.pop("area"), raw_text=question)
+    if "equipment_id" in slots or "resource_group" in slots:
+        # A prefix parser must not shorten an individual equipment/group ID.
+        entity = slots.get("equipment_id") or slots["resource_group"]
+        if slots.get("toolgroup") and slots["toolgroup"].value != entity.value:
+            slots.pop("toolgroup", None)
+            slots.pop("toolgroups", None)
     return slots
 
 
