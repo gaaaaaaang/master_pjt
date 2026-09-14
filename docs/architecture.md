@@ -391,6 +391,17 @@ transaction으로 기록되고 최근 bounded history만 graph에 전달한다. 
 equipment, date basis context는 후속 질문의 structured request context로 복원된다. 사용자가 남긴
 helpful/unhelpful feedback은 해당 assistant turn과 당시 history snapshot에 연결되어 다음 Planner,
 Reflection, Composer 입력에 포함된다. 테스트 환경은 별도 임시 state DB를 사용한다.
+서버 `message_id`로 평가 대상 답변을 고정하며, 오래된 브라우저 대화는 질문·답변 원문이
+유일하게 일치할 때만 연결한다. 평가·metadata·history snapshot·예시 후보를 같은 SQLite
+transaction으로 저장한다. 상세 evidence/citations/answer review는 DB에 보존하되 일반 대화
+history에서 제외하여 다음 Planner의 입력이 과도하게 커지지 않게 한다.
+좋은 평가 중 성공한 답변은 `feedback_examples` 검토 후보가 된다. 상세 근거가 저장되지 않은
+과거 답변은 검토자가 실제 확인한 원본 근거를 별도 기록해야 승인할 수 있다. 로컬 CLI에서
+검토·비식별화한 질문/답변을 승인하면, 같은 query type의 유사 질문에 최대 3개 예시를 Composer
+입력으로 전달한다. 문서 Composer에도 같은 규칙을 적용하며, 과거 예시는 현재 근거나 인용으로
+사용하지 않는다. 평가 변경/검토 취소는 즉시 다음 검색에서 반영된다.
+복구한 기존 평가는 원본 feedback을 보존하고 `feedback_relinks`에 수정 snapshot과 사유를 남긴다.
+운영 방법은 [feedback_few_shot.md](feedback_few_shot.md)를 참고한다.
 기본 RAG, incident case, state DB 경로는 현재 작업 디렉터리가 아니라 assistant package root에서
 계산한다. Live scenario evaluator는 `--live`가 없으면 Azure/DB 호출 전에 종료한다.
 

@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     app_env: str = "local"
     mock_mode: bool = True
     openai_api_key: str | None = None
-    openai_model: str = "gpt-4.1"
+    openai_model: str = "gpt-5.6-luna"
     openai_endpoint: str = "https://skax.ai-talentlab.com"
     openai_api_version: str = "2024-12-01-preview"
     mysql_dsn: str | None = None
@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     rag_rerank_limit: int = Field(default=12, ge=1, le=40)
     incident_case_store_path: str = str(APP_ROOT / "output/cases/incidents.jsonl")
     assistant_state_store_path: str = str(APP_ROOT / "output/state/assistant.sqlite3")
+    feedback_few_shot_enabled: bool = True
+    feedback_few_shot_limit: int = Field(default=3, ge=0, le=3)
+    feedback_few_shot_min_similarity: float = Field(default=0.35, ge=0, le=1)
     embedding_model: str = "text-embedding-3-large"
     embedding_dimension: int = Field(default=3072, ge=1)
     embedding_revision: str = "text-embedding-3-large.v1"

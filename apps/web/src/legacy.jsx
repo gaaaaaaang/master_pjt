@@ -82,6 +82,8 @@ function App() {
                 role: "assistant",
                 content: payload.data.answer || "",
                 conversationId: payload.data.conversation_id,
+                messageId: payload.data.message_id,
+                question: outgoing,
                 feedback: null,
               },
             ]);
@@ -122,6 +124,9 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           conversation_id: message.conversationId,
+          message_id: message.messageId,
+          question: message.question,
+          answer: message.content,
           helpful,
           trace_id: `web-message-${messageIndex}`,
         }),

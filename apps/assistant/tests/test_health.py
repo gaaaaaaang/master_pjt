@@ -63,6 +63,7 @@ def test_status_chat_works_in_mock_mode() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["query_type"] == "status"
+    assert body["message_id"] == body["conversation_history"][-1]["metadata"]["message_id"]
     assert "OPENAI_API_KEY" in " ".join(body["limitations"])
     assert body["agent_reflections"][0]["agent_name"] == "text2sql"
     assert body["supervisor_reviews"][0]["agent_name"] == "text2sql"
@@ -95,6 +96,21 @@ def test_feedback_rejects_unknown_conversation() -> None:
 
     assert response.status_code == 404
     assert response.json()["detail"] == "conversation_id was not found"
+
+
+def test_feedback_api_targets_old_answer_and_rejects_ambiguous_request():
+    from app.services.feedback_service import feedback_store
+
+    first = client.post("/api/chat", json={"message": "지금 fab10 WIP 몇 개야?"}).json()
+    client.post("/api/chat", json={"message": "fab12 WIP도 보여줘", "conversation_id": first["conversation_id"]})
+    payload = {"conversation_id": first["conversation_id"], "helpful": True}
+    assert client.post("/api/feedback", json=payload).status_code == 409
+    assert client.post("/api/feedback", json={**payload, "message_id": "missing"}).status_code == 404
+    response = client.post("/api/feedback", json={**payload, "message_id": first["message_id"]})
+    assert response.status_code == 200
+    assert response.json()["message_id"] == first["message_id"]
+    snapshot = feedback_store.list_feedback(conversation_id=first["conversation_id"])[0]["history"]
+    assert snapshot[-1]["metadata"]["message_id"] == first["message_id"]
 
 
 def test_meta_reflects_shell_stack() -> None:

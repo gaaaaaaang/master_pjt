@@ -8,9 +8,10 @@ from app.rag.grounding import compose_grounded
 
 
 @pytest.mark.parametrize("temperature", [None, 0.0])
-def test_sampling_is_explicit_only_for_opted_in_clients(monkeypatch, temperature):
+@pytest.mark.parametrize("model", ["gpt-4.1", "gpt-5.6-luna"])
+def test_sampling_is_explicit_only_for_supported_clients(monkeypatch, temperature, model):
     monkeypatch.setattr("app.agents.llm.get_settings", lambda: SimpleNamespace(
-        openai_api_key="test-only", openai_model="gpt-4.1", openai_endpoint="https://test.invalid",
+        openai_api_key="test-only", openai_model=model, openai_endpoint="https://test.invalid",
         openai_api_version="test",
     ))
     payloads = []
@@ -27,7 +28,7 @@ def test_sampling_is_explicit_only_for_opted_in_clients(monkeypatch, temperature
         system_prompt="test", input_data={}, output_schema={"required": ["ok"]}, schema_name="test",
     )
     assert result == {"ok": True}
-    if temperature is None:
+    if temperature is None or model == "gpt-5.6-luna":
         assert "temperature" not in payloads[0]
     else:
         assert payloads[0]["temperature"] == 0.0

@@ -33,10 +33,14 @@ class ChatService:
                 "status": result.status,
                 "sql": result.sql,
                 "limitations": result.limitations,
+                "evidence": [item.model_dump() if hasattr(item, "model_dump") else item for item in result.evidence],
+                "citations": result.citations,
+                "answer_review": result.answer_review,
             },
         )
         return ChatResponse(
             conversation_id=result.conversation_id,
+            message_id=updated_history[-1]["metadata"]["message_id"],
             status=result.status,
             query_type=result.query_type,
             answer=presentation["answer"],

@@ -7,6 +7,7 @@ from app.agents.llm import AzureAgentClient
 from app.agents.planner import PlannerDecision
 from app.agents.prompts import ANSWER_COMPOSER_SYSTEM_PROMPT
 from app.rag.grounding import compose_grounded
+from app.services.few_shot_service import FEW_SHOT_RULES, select_feedback_examples
 from app.sub_agent.result_delivery import result_presentation
 
 REFLECTION_SCHEMA = {
@@ -180,9 +181,15 @@ def compose_with_llm(
     grounding: dict[str, Any] | None = None,
     conversation_history: list[dict[str, Any]] | None = None,
     diagnostics: dict[str, Any] | None = None,
+    conversation_id: str | None = None,
 ) -> str:
+    examples = select_feedback_examples(question, query_type=plan.query_type,
+                                        conversation_id=conversation_id)
+    if diagnostics is not None:
+        diagnostics["feedback_example_ids"] = [item["message_id"] for item in examples]
+    example_pairs = [{"question": item["question"], "answer": item["answer"]} for item in examples]
     if uses_document_grounding(plan, evidence):
-        result = compose_grounded(question, evidence)
+        result = compose_grounded(question, evidence, feedback_examples=example_pairs) if examples else compose_grounded(question, evidence)
         if diagnostics is not None:
             diagnostics["execution_mode"] = "document_grounded"
         if grounding is not None:
@@ -201,12 +208,13 @@ def compose_with_llm(
             scope="mixed_tool_answer",
         )
     output = AzureAgentClient().complete_json(
-        system_prompt=ANSWER_COMPOSER_SYSTEM_PROMPT,
+        system_prompt=ANSWER_COMPOSER_SYSTEM_PROMPT + ("\n\n" + FEW_SHOT_RULES if examples else ""),
         input_data={
             "question": question, "plan": {k: v for k, v in asdict(plan).items() if k not in {"prompt_contract", "prompt_version"}}, "tool_summaries": compact_summaries(answer_parts),
             "result_presentation": result_presentation(evidence),
             "evidence": compact_evidence(evidence), "limitations": limitations, "reflection": reflection,
             "conversation_history": conversation_history or [],
+            "feedback_examples": example_pairs,
         },
         output_schema=COMPOSER_SCHEMA,
         schema_name="fab_final_answer",

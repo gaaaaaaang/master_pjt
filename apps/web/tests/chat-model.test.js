@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { consumeSse, parseSseBlock, buildPayload, toCsv, resultStatus, requestForAttempt, restoreMessages, rowsFromResult } from '../src/chat-model.js';
+import { consumeSse, parseSseBlock, buildPayload, toCsv, resultStatus, requestForAttempt, restoreMessages, rowsFromResult, feedbackPayload } from '../src/chat-model.js';
 function response(chunks) { return new Response(new ReadableStream({ start(controller) { for (const c of chunks) controller.enqueue(typeof c === 'string' ? new TextEncoder().encode(c) : c); controller.close(); } }), { headers: { 'Content-Type': 'text/event-stream' } }); }
 test('SSE handles UTF-8 split across bytes and CRLF split across chunks', async () => {
   const text = 'event: trace\r\ndata: {"type":"node_completed","message":"한글"}\r\n\r\nevent: final\r\ndata: {"type":"run_completed","data":{"answer":"완료"}}\r\n\r\n';
@@ -41,4 +41,13 @@ test('Data export preserves all query rows instead of the five-row stream previe
 test('Multi-metric chart export uses original wide rows rather than expanded plotting points', () => {
   const source = [{ day: '2026-09-12', wip: 33, yield: 99.4 }];
   assert.deepEqual(rowsFromResult({ chart: { source_rows: source, rows: [{ value: 33 }, { value: 99.4 }] } }), source);
+});
+
+test('Feedback uses the server answer ID and refuses ambiguous legacy answers', () => {
+  const message = { id: 'browser-id', result: { conversation_id: 'conversation', message_id: 'server-id' } };
+  assert.deepEqual(feedbackPayload(message, false, ' 기간 설명 '), {
+    conversation_id: 'conversation', message_id: 'server-id', helpful: false,
+    comment: '기간 설명', trace_id: 'browser-id',
+  });
+  assert.equal(feedbackPayload({ id: 'old-id', result: { conversation_id: 'conversation' } }, true), null);
 });

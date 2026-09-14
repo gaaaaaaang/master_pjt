@@ -443,6 +443,8 @@ def test_feedback_is_linked_to_persisted_conversation_snapshot(tmp_path) -> None
             "helpful": False,
             "comment": "기간 설명이 부족합니다.",
             "trace_id": "trace-1",
+            "feedback_id": result.feedback_id,
+            "target_message_id": records[0]["history"][-1]["metadata"]["message_id"],
         }
     ]
 

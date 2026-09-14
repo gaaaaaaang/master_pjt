@@ -1,0 +1,66 @@
+{
+  "synthetic_only": true,
+  "production_state_modified": false,
+  "results": [
+    {
+      "case": "document_current_rule",
+      "few_shot": false,
+      "passed": false,
+      "answer": "문서 검색은 완료했지만 답변 생성·검토 모델을 사용할 수 없습니다. 제공된 문서 근거의 원문을 확인해 주세요.",
+      "diagnostics": {
+        "feedback_example_ids": [],
+        "execution_mode": "document_grounded"
+      },
+      "grounding": {
+        "status": "insufficient",
+        "validation": "rejected",
+        "citations": [],
+        "review": {
+          "stage": "review_api",
+          "generation_attempts": 1,
+          "validation_errors": [],
+          "error_type": "RuntimeError",
+          "reason": "Model API failed"
+        },
+        "version": "source_spans.v8"
+      }
+    }
+  ],
+  "usage": {
+    "call_count": 2,
+    "network_call_count": 2,
+    "failed_calls": 1,
+    "skipped_calls": 0,
+    "reported_total_tokens": 902,
+    "unreported_usage_calls": 1,
+    "calls": [
+      {
+        "kind": "fab_grounded_answer",
+        "model": "gpt-4.1",
+        "succeeded": true,
+        "input_tokens": 866,
+        "output_tokens": 36,
+        "total_tokens": 902,
+        "context_encoding": "plain",
+        "context_original_bytes": 400,
+        "context_sent_bytes": 400,
+        "transport_attempted": true,
+        "seconds": 1.62
+      },
+      {
+        "kind": "fab_grounded_review",
+        "model": "gpt-4.1",
+        "succeeded": false,
+        "input_tokens": null,
+        "output_tokens": null,
+        "total_tokens": null,
+        "context_encoding": "plain",
+        "context_original_bytes": 528,
+        "context_sent_bytes": 528,
+        "transport_attempted": true,
+        "error_type": "RuntimeError",
+        "seconds": 45.005
+      }
+    ]
+  }
+}

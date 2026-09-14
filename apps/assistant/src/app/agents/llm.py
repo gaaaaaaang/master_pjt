@@ -71,7 +71,8 @@ class AzureAgentClient:
                 },
             },
         }
-        if self.temperature is not None:
+        # The Luna deployment only accepts its default sampling temperature.
+        if self.temperature is not None and self.model != "gpt-5.6-luna":
             payload["temperature"] = self.temperature
         try:
             with model_http_client(self.timeout_seconds, endpoint=url) as client:
