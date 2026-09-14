@@ -98,3 +98,13 @@ export function restoreMessages(messages) {
     ...(message.feedback === 'pending' ? { feedback: null } : {}),
   }));
 }
+
+// Use the server's answer ID; browser IDs cannot identify a persisted answer.
+export function feedbackPayload(message, helpful, comment = '') {
+  if (!message.result?.conversation_id) return null;
+  const target = message.result.message_id ? { message_id: message.result.message_id }
+    : message.question && message.result.answer ? { question: message.question, answer: message.result.answer } : null;
+  if (!target) return null;
+  return { conversation_id: message.result.conversation_id, ...target,
+    helpful, comment: comment.trim() || null, trace_id: message.id };
+}

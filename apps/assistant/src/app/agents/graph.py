@@ -897,6 +897,7 @@ def _composer_node(state: AgentState) -> dict[str, Any]:
         grounding=grounding,
         conversation_history=state.get("conversation_history", []),
         diagnostics=diagnostics,
+        conversation_id=state["conversation_id"],
     )
     status = state.get("status", "succeeded")
     if status == "ready":
@@ -918,6 +919,7 @@ def _composer_node(state: AgentState) -> dict[str, Any]:
             "answer_part_count": len(state.get("answer_parts", [])),
             "evidence_count": len(state.get("evidence", [])),
             "limitation_count": len(state.get("limitations", [])),
+            "feedback_example_ids": diagnostics.get("feedback_example_ids", []),
         },
     )
     return {

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Chart } from './charts';
 import { Icon, Brand, Chip, CopyButton, AnswerText, DataTable, Drawer, Inspector, downloadRows } from './ui';
-import { consumeSse, requestForAttempt, restoreMessages, progressLabel, rowsFromResult } from './chat-model';
+import { consumeSse, requestForAttempt, restoreMessages, progressLabel, rowsFromResult, feedbackPayload } from './chat-model';
 import { answerReport } from './answer-report';
 import { QuestionGuide } from './question-guide.jsx';
 import { restoreWorkspaceUi } from './session-ui';
@@ -42,6 +42,7 @@ function Workspace() {
   const [notice, setNotice] = useState('');
   const [connection, setConnection] = useState('checking');
   const abortRef = useRef(null);
+  const feedbackPending = useRef(new Set());
   const textarea = useRef(null);
   const scrollRef = useRef(null);
   const shouldFollow = useRef(false);
@@ -141,13 +142,20 @@ function Workspace() {
       patchMessage(conversation, messageId, { status: cancelled ? 'cancelled' : 'failed', events, error: cancelled ? '' : timedOut ? '응답 대기 시간이 길어졌어요. 질문 범위를 좁혀 다시 시도해 주세요.' : error instanceof TypeError ? '서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.' : error.message });
     } finally { clearTimeout(timer); abortRef.current = null; setBusy(false); textarea.current?.focus(); }
   }
-  async function feedback(message, helpful) {
+  async function feedback(message, helpful, comment = '') {
     if (isPreview) { setNotice('예시 화면에서는 피드백을 전송하지 않아요.'); return; }
-    if (!message.result?.conversation_id || message.feedback) return;
+    if (!message.result?.conversation_id || message.feedback === 'pending' || feedbackPending.current.has(message.id)) return;
+    const payload = feedbackPayload(message, helpful, comment);
+    if (!payload) { setNotice('이전 버전의 답변은 평가를 연결할 수 없어요. 새로 질문한 답변부터 평가해 주세요.'); return; }
+    const previousFeedback = message.feedback;
     const conversation = active.id;
+    feedbackPending.current.add(message.id);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
     patchMessage(conversation, message.id, { feedback: 'pending' });
-    try { const response = await fetch(`${API_BASE}/feedback`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ conversation_id: message.result.conversation_id, helpful, trace_id: message.id }) }); if (!response.ok) throw new Error(); patchMessage(conversation, message.id, { feedback: helpful ? 'helpful' : 'unhelpful' }); setNotice('피드백을 남겼어요. 고마워요.'); }
-    catch { patchMessage(conversation, message.id, { feedback: null }); setNotice('피드백을 저장하지 못했어요. 다시 시도해 주세요.'); }
+    try { const response = await fetch(`${API_BASE}/feedback`, { method: 'POST', signal: controller.signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!response.ok) throw new Error(); const accepted = await response.json(); if (accepted.status !== 'accepted' || !accepted.feedback_id) throw new Error(); patchMessage(conversation, message.id, { feedback: helpful ? 'helpful' : 'unhelpful', feedbackComment: comment.trim(), feedbackId: accepted.feedback_id, ...(accepted.message_id ? { result: { ...message.result, message_id: accepted.message_id } } : {}) }); setNotice('피드백을 저장했어요. 답변 개선에 참고할게요.'); }
+    catch { patchMessage(conversation, message.id, { feedback: previousFeedback || null }); setNotice('피드백을 저장하지 못했어요. 다시 시도해 주세요.'); }
+    finally { clearTimeout(timeout); feedbackPending.current.delete(message.id); }
   }
   function suggestion(prompt) { if (!storageReady) return; setDraft(prompt); textarea.current?.focus(); }
   return <div className="app-shell">
@@ -168,7 +176,7 @@ function Workspace() {
       <header className="topbar"><div className="topbar-title"><button className="icon-button mobile-menu" aria-label="대화 목록 열기" aria-expanded={sidebar} onClick={() => setSidebar(!sidebar)}><Icon name="menu"/></button><span className="topbar-product">어시스턴트</span><span className="topbar-divider">/</span><span className="conversation-title">{active.title}</span></div><div className="topbar-actions"><button aria-label="질문 가이드 열기" className="topbar-action" disabled={busy || !storageReady} onClick={() => setDrawer({ type: 'guide' })}><Icon name="book" size={18}/><span>질문 가이드</span></button><button aria-label="분석 결과 모아보기" className="topbar-action" onClick={() => setDrawer({ type: 'artifacts' })}><Icon name="layers" size={18}/><span>분석 결과</span>{artifacts.length > 0 && <span className="count">{artifacts.length}</span>}</button></div></header>
       {isPreview && <div className="preview-banner"><span>디자인 미리보기 · 실제 운영 데이터가 아니에요</span><div><select aria-label="미리보기 시나리오" value={previewKey || 'trend'} onChange={e => { window.location.search = `?preview=${e.target.value}`; }}><option value="trend">분석 완료</option><option value="large">긴 데이터 탐색</option><option value="clarification">조건 확인</option><option value="unavailable">데이터 없음</option><option value="error">연결 오류</option></select><a href="/">실제 대화로 이동<Icon name="chevron" size={14}/></a></div></div>}
       <div className="conversation-scroll" ref={scrollRef} onScroll={e => { const el = e.currentTarget; shouldFollow.current = el.scrollHeight - el.scrollTop - el.clientHeight < 100; }}>
-        {!active.messages.length ? <section className="welcome"><div className="welcome-symbol"><Brand/></div><p className="welcome-eyebrow">복잡한 공정 데이터, 명확한 답으로</p><h1>어떤 운영의 답을<br/>찾고 계신가요?</h1><p className="welcome-description">현황부터 원인, 다음 판단에 필요한 근거까지.<br/>궁금한 점을 편하게 물어보세요.</p><div className="suggestion-grid">{examples.map(item => <button key={item.title} onClick={() => suggestion(item.prompt.replace('{fab}', active.context.fab || 'FAB11'))} className="suggestion-card"><span className={`suggestion-icon ${item.icon}`}><Icon name={item.icon} size={22}/></span><strong>{item.title}<Icon name="chevron" size={15}/></strong><small>{item.text}</small></button>)}</div><div className="starter-line"><Icon name="spark" size={16}/><span>처음이라면</span><button onClick={() => suggestion(`${active.context.fab || 'FAB11'} 지금 WIP 몇 개야?`)}>현재 WIP부터 확인하기<Icon name="chevron" size={14}/></button></div></section> : <section className="message-list" aria-label="대화 내용">{active.messages.map((message, i) => message.role === 'user' ? <article key={message.id} className="user-message" aria-label="내 질문"><p>{message.content}</p></article> : <AssistantMessage key={message.id} message={message} busy={busy} canRetry={i === active.messages.length - 1} onRetry={() => send(message.question, message.id)} onInspect={tab => setDrawer({ type: 'inspect', messageId: message.id, tab })} onFeedback={helpful => feedback(message, helpful)} onNotice={setNotice}/>)}</section>}
+        {!active.messages.length ? <section className="welcome"><div className="welcome-symbol"><Brand/></div><p className="welcome-eyebrow">복잡한 공정 데이터, 명확한 답으로</p><h1>어떤 운영의 답을<br/>찾고 계신가요?</h1><p className="welcome-description">현황부터 원인, 다음 판단에 필요한 근거까지.<br/>궁금한 점을 편하게 물어보세요.</p><div className="suggestion-grid">{examples.map(item => <button key={item.title} onClick={() => suggestion(item.prompt.replace('{fab}', active.context.fab || 'FAB11'))} className="suggestion-card"><span className={`suggestion-icon ${item.icon}`}><Icon name={item.icon} size={22}/></span><strong>{item.title}<Icon name="chevron" size={15}/></strong><small>{item.text}</small></button>)}</div><div className="starter-line"><Icon name="spark" size={16}/><span>처음이라면</span><button onClick={() => suggestion(`${active.context.fab || 'FAB11'} 지금 WIP 몇 개야?`)}>현재 WIP부터 확인하기<Icon name="chevron" size={14}/></button></div></section> : <section className="message-list" aria-label="대화 내용">{active.messages.map((message, i) => message.role === 'user' ? <article key={message.id} className="user-message" aria-label="내 질문"><p>{message.content}</p></article> : <AssistantMessage key={message.id} message={message} busy={busy} canRetry={i === active.messages.length - 1} onRetry={() => send(message.question, message.id)} onInspect={tab => setDrawer({ type: 'inspect', messageId: message.id, tab })} onFeedback={(helpful, comment) => feedback(message, helpful, comment)} onNotice={setNotice}/>)}</section>}
       </div>
       <div className="composer-zone"><div className="composer-wrap"><button className="context-trigger" onClick={() => setDrawer({ type: 'context' })} disabled={busy || !storageReady}><Icon name="settings" size={16}/><span>분석 범위</span><strong>{Object.values(active.context).filter(Boolean).join(' · ') || '질문에서 자동으로 확인'}</strong><Icon name="down" size={14}/></button><form className={`composer ${busy ? 'is-busy' : ''}`} onSubmit={e => { e.preventDefault(); send(); }}><textarea ref={textarea} id="question" disabled={!storageReady} rows={2} maxLength={8000} aria-label="FAB에 질문하기" placeholder="FAB에 대해 궁금한 점을 물어보세요" value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); if (!busy) send(); } }}/><div className="composer-bottom"><span><Brand small/>FAB Assistant <span className="composer-dot">·</span> {!storageReady ? '대화를 불러오는 중' : busy ? '분석 중' : '데이터와 지식을 연결해요'}</span>{busy ? <button className="send-button stop-button" type="button" aria-label="응답 수신 중단" onClick={() => abortRef.current?.abort()}><Icon name="stop" size={17}/></button> : <button className="send-button" type="submit" aria-label="질문 보내기" disabled={!storageReady || !draft.trim()}><Icon name="arrow" size={21}/></button>}</div></form><p className="composer-caption">답변의 근거와 데이터 기준을 함께 확인해 주세요.<span>Enter 전송 · Shift + Enter 줄바꿈</span></p></div></div>
     </main>
@@ -180,10 +188,13 @@ function Workspace() {
   </div>;
 }
 function AssistantMessage({ message, busy, canRetry, onRetry, onInspect, onFeedback, onNotice }) {
-  const [view, setView] = useState('chart'); const result = message.result; const rows = rowsFromResult(result, message.events);
+  const [view, setView] = useState('chart');
+  const [comment, setComment] = useState(message.feedbackComment || '');
+  const [showComment, setShowComment] = useState(false);
+  const result = message.result; const rows = rowsFromResult(result, message.events);
   const pending = message.status === 'streaming'; const failed = ['failed', 'cancelled'].includes(message.status);
   const agentCount = new Set((message.events || []).filter(e => e.node !== 'input').map(e => e.node)).size;
-  return <article className="assistant-message" aria-label="FAB Assistant 답변"><div className="assistant-heading"><Brand small/><strong>FAB Assistant</strong>{result && <Chip status={result.status}/>}</div>
+  return <article className="assistant-message" aria-label="FAB Assistant 답변" data-message-id={message.id} data-answer-id={result?.message_id}><div className="assistant-heading"><Brand small/><strong>FAB Assistant</strong>{result && <Chip status={result.status}/>}</div>
     {pending ? <div className="working-state" role="status"><span className="thinking-dots"><i/><i/><i/></span><div><strong>{progressLabel(message.events || [])}</strong><small>답변과 근거를 함께 준비하고 있어요.</small></div></div> : failed ? <div className={`error-state ${message.status === 'cancelled' ? 'cancelled' : ''}`}><Icon name="info"/><div><h3>{message.status === 'cancelled' ? '응답 수신을 중단했어요' : '답변을 가져오지 못했어요'}</h3><p>{message.error || '서버의 분석은 잠시 더 진행될 수 있어요. 필요하면 다시 요청해 주세요.'}</p>{canRetry && <button className="secondary-button" onClick={onRetry} disabled={busy}><Icon name="refresh" size={16}/>다시 시도</button>}</div></div> : result && <>
       <AnswerText text={result.answer || '답변 내용이 반환되지 않았어요. 분석 상세에서 결과를 확인해 주세요.'}/>
       {result.chart && <section className="chart-card"><div className="chart-toolbar"><div className="segmented-control" aria-label="결과 표시 방식"><button aria-pressed={view === 'chart'} className={view === 'chart' ? 'active' : ''} onClick={() => setView('chart')}><Icon name="chart" size={16}/>차트</button><button aria-pressed={view === 'table'} className={view === 'table' ? 'active' : ''} onClick={() => setView('table')}>데이터</button></div>{rows.length > 0 && <button className="icon-button" aria-label="조회 데이터 CSV 저장" title="조회된 데이터를 CSV로 저장해요" onClick={() => downloadRows(rows)}><Icon name="download" size={18}/></button>}</div>{view === 'chart' ? <Chart spec={result.chart}/> : <DataTable rows={rows}/>}<div className="chart-footnote"><span>{rows.length}행 · 서버 반환 데이터{result.query_result?.limit_reached ? ' · 조회 한도 도달' : ''}</span><button onClick={() => onInspect('data')}>데이터 · SQL 보기<Icon name="chevron" size={14}/></button></div></section>}
@@ -193,7 +204,15 @@ function AssistantMessage({ message, busy, canRetry, onRetry, onInspect, onFeedb
       {result.status === 'needs_clarification' && <p className="next-action"><Icon name="chat" size={17}/>아래 입력창에 기준과 기간을 알려주시면 이어서 분석할게요.</p>}
     </>}
     {(message.events?.length > 0 || result) && <div className="answer-details"><button className="trace-trigger" onClick={() => onInspect('trace')}><span className={`trace-icon ${pending ? 'pending' : ''}`}><Icon name={pending ? 'clock' : 'layers'} size={15}/></span><span>{pending ? '실행 과정 확인' : '어떻게 분석했나요?'}<small>{agentCount > 0 ? `${agentCount}개 에이전트` : '분석 상세'}</small></span><Icon name="chevron" size={15}/></button>{result?.evidence?.length > 0 && <button className="evidence-trigger" onClick={() => onInspect('evidence')}><Icon name="book" size={16}/>근거 {result.evidence?.length || 0}<Icon name="chevron" size={14}/></button>}</div>}
-    {result && <div className="answer-actions"><CopyButton text={answerReport(message)} label="답변·근거 복사" onNotice={onNotice}/><div className="feedback-actions"><button className="icon-button" aria-label="도움이 됐어요" aria-pressed={message.feedback === 'helpful'} disabled={!!message.feedback} onClick={() => onFeedback(true)}><Icon name="like" size={16}/></button><button className="icon-button" aria-label="아쉬워요" aria-pressed={message.feedback === 'unhelpful'} disabled={!!message.feedback} onClick={() => onFeedback(false)}><Icon name="like" size={16} style={{ transform: 'rotate(180deg)' }}/></button></div></div>}
+    {result && <div className="answer-actions"><CopyButton text={answerReport(message)} label="답변·근거 복사" onNotice={onNotice}/><div className="feedback-actions"><button className="icon-button" aria-label="도움이 됐어요" aria-pressed={message.feedback === 'helpful'} disabled={message.feedback === 'pending' || message.feedback === 'helpful'} onClick={() => onFeedback(true, comment)}><Icon name="like" size={16}/></button><button className="icon-button" aria-label="아쉬워요" aria-pressed={message.feedback === 'unhelpful'} disabled={message.feedback === 'pending' || message.feedback === 'unhelpful'} onClick={() => { setShowComment(true); onFeedback(false, comment); }}><Icon name="like" size={16} style={{ transform: 'rotate(180deg)' }}/></button></div></div>}
+    {result && ['helpful', 'unhelpful'].includes(message.feedback) && <div className="feedback-comment">
+      <button className="feedback-comment-toggle" onClick={() => setShowComment(!showComment)} aria-expanded={showComment}>평가 의견 {showComment ? '접기' : '남기기'}</button>
+      {showComment && <form onSubmit={e => { e.preventDefault(); onFeedback(message.feedback === 'helpful', comment); }}>
+        <label htmlFor={`feedback-${message.id}`}>어떤 점이 좋았거나 아쉬웠나요? (선택)</label>
+        <textarea id={`feedback-${message.id}`} maxLength={2000} value={comment} onChange={e => setComment(e.target.value)} placeholder="예: 기간과 단위를 함께 설명해 주면 좋겠어요."/>
+        <button className="secondary-button" type="submit">의견 저장</button>
+      </form>}
+    </div>}
   </article>;
 }
 function ResultLimitations({ items }) {

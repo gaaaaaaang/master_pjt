@@ -1,0 +1,139 @@
+{
+  "synthetic_only": true,
+  "production_state_modified": false,
+  "results": [
+    {
+      "case": "current_wip",
+      "few_shot": false,
+      "passed": true,
+      "answer": "2026년 9월 13일 00:00 KST 기준으로 FAB11의 WIP은 123 LOT입니다. 이 결과는 테스트용 합성 데이터에서 관측된 값으로, 실제 FAB11 공장 현황을 반영하지 않습니다. 데이터 상세 내용은 데이터 · SQL 보기에서 확인할 수 있습니다.",
+      "diagnostics": {
+        "feedback_example_ids": [],
+        "execution_mode": "llm_chat_completions"
+      }
+    },
+    {
+      "case": "current_wip",
+      "few_shot": true,
+      "passed": true,
+      "answer": "2026-09-13 00:00:00 KST 기준 FAB11의 WIP은 123 LOT입니다. 이 데이터는 테스트용 합성 데이터이며 실제 공장 기준이 아닙니다.",
+      "diagnostics": {
+        "feedback_example_ids": [
+          "current_wip"
+        ],
+        "execution_mode": "llm_chat_completions"
+      }
+    },
+    {
+      "case": "document_current_rule",
+      "few_shot": false,
+      "passed": false,
+      "answer": "문서 검색은 완료했지만 답변 생성·검토 모델을 사용할 수 없습니다. 제공된 문서 근거의 원문을 확인해 주세요.",
+      "diagnostics": {
+        "feedback_example_ids": [],
+        "execution_mode": "document_grounded"
+      }
+    },
+    {
+      "case": "document_current_rule",
+      "few_shot": true,
+      "passed": true,
+      "answer": "CMP 점검 주기는 7분입니다. [1]\n\n[1] synthetic_current_manual.txt, p.1",
+      "diagnostics": {
+        "feedback_example_ids": [
+          "document_current_rule"
+        ],
+        "execution_mode": "document_grounded"
+      }
+    }
+  ],
+  "usage": {
+    "call_count": 6,
+    "network_call_count": 6,
+    "failed_calls": 1,
+    "skipped_calls": 0,
+    "reported_total_tokens": 5767,
+    "unreported_usage_calls": 1,
+    "calls": [
+      {
+        "kind": "fab_final_answer",
+        "model": "gpt-4.1",
+        "succeeded": true,
+        "input_tokens": 1371,
+        "output_tokens": 75,
+        "total_tokens": 1446,
+        "context_encoding": "plain",
+        "context_original_bytes": 1730,
+        "context_sent_bytes": 1730,
+        "transport_attempted": true,
+        "seconds": 1.45
+      },
+      {
+        "kind": "fab_final_answer",
+        "model": "gpt-4.1",
+        "succeeded": true,
+        "input_tokens": 1549,
+        "output_tokens": 49,
+        "total_tokens": 1598,
+        "context_encoding": "plain",
+        "context_original_bytes": 1891,
+        "context_sent_bytes": 1891,
+        "transport_attempted": true,
+        "seconds": 1.186
+      },
+      {
+        "kind": "fab_grounded_answer",
+        "model": "gpt-4.1",
+        "succeeded": true,
+        "input_tokens": 866,
+        "output_tokens": 36,
+        "total_tokens": 902,
+        "context_encoding": "plain",
+        "context_original_bytes": 400,
+        "context_sent_bytes": 400,
+        "transport_attempted": true,
+        "seconds": 1.959
+      },
+      {
+        "kind": "fab_grounded_review",
+        "model": "gpt-4.1",
+        "succeeded": false,
+        "input_tokens": null,
+        "output_tokens": null,
+        "total_tokens": null,
+        "context_encoding": "plain",
+        "context_original_bytes": 528,
+        "context_sent_bytes": 528,
+        "transport_attempted": true,
+        "error_type": "RuntimeError",
+        "seconds": 14.589
+      },
+      {
+        "kind": "fab_grounded_answer",
+        "model": "gpt-4.1",
+        "succeeded": true,
+        "input_tokens": 1050,
+        "output_tokens": 36,
+        "total_tokens": 1086,
+        "context_encoding": "plain",
+        "context_original_bytes": 598,
+        "context_sent_bytes": 598,
+        "transport_attempted": true,
+        "seconds": 1.881
+      },
+      {
+        "kind": "fab_grounded_review",
+        "model": "gpt-4.1",
+        "succeeded": true,
+        "input_tokens": 639,
+        "output_tokens": 96,
+        "total_tokens": 735,
+        "context_encoding": "plain",
+        "context_original_bytes": 528,
+        "context_sent_bytes": 528,
+        "transport_attempted": true,
+        "seconds": 2.072
+      }
+    ]
+  }
+}

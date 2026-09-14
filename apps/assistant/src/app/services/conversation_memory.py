@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 import re
 from collections import defaultdict, deque
 from dataclasses import dataclass
@@ -86,6 +88,10 @@ class ConversationMemory:
         self._store = AssistantStateStore(store_path) if store_path else None
         self._lock = Lock()
 
+    @property
+    def is_persistent(self) -> bool:
+        return self._store is not None
+
     def prepare_request(self, request: ChatRequest) -> tuple[ChatRequest, list[dict[str, Any]]]:
         conversation_id = request.conversation_id or str(uuid4())
         history = self.get_history(conversation_id)
@@ -167,6 +173,7 @@ class ConversationMemory:
                 },
             }
             assistant_metadata = dict(metadata or {})
+            assistant_metadata.setdefault("message_id", str(uuid4()))
             result_scope = _query_result_scope(query_result, request.fab)
             if result_scope:
                 assistant_metadata["query_result_scope"] = result_scope
@@ -211,6 +218,7 @@ class ConversationMemory:
         helpful: bool,
         comment: str | None,
         trace_id: str | None,
+        message_id: str | None = None,
     ) -> list[dict[str, Any]]:
         feedback = {"helpful": helpful, "comment": comment, "trace_id": trace_id}
         with self._lock:
@@ -220,7 +228,9 @@ class ConversationMemory:
                 raise KeyError(conversation_id)
             for index in range(len(turns) - 1, -1, -1):
                 turn = turns[index]
-                if turn.role != "assistant":
+                if turn.role != "assistant" or (
+                    message_id and turn.metadata.get("message_id") != message_id
+                ):
                     continue
                 prior_feedback = list(turn.metadata.get("user_feedback") or [])
                 metadata = {**turn.metadata, "user_feedback": [*prior_feedback, feedback]}
@@ -233,8 +243,9 @@ class ConversationMemory:
                     self._store.update_latest_assistant_metadata(
                         conversation_id=conversation_id,
                         metadata={"user_feedback": metadata["user_feedback"]},
+                        message_id=turn.metadata.get("message_id"),
                     )
-                return self._serialize(conversation_id)
+                return self._serialize(conversation_id)[:index + 1]
             raise KeyError(conversation_id)
 
     def clear(self) -> None:
@@ -244,9 +255,20 @@ class ConversationMemory:
             if self._store:
                 self._store.clear()
 
+    def refresh(self, conversation_id: str) -> None:
+        """Reload durable turns after a feedback transaction (including older answers)."""
+        with self._lock:
+            self._turns.pop(conversation_id, None)
+            self._loaded.discard(conversation_id)
+            self._ensure_loaded(conversation_id)
+
     def _serialize(self, conversation_id: str) -> list[dict[str, Any]]:
         return [
-            {"role": turn.role, "content": turn.content, "metadata": turn.metadata}
+            {"role": turn.role, "content": turn.content,
+             "metadata": {key: value for key, value in turn.metadata.items()
+                          if key not in {"evidence", "citations", "answer_review", "user_feedback"}}
+             | ({"user_feedback": turn.metadata["user_feedback"][-1:]}
+                if turn.metadata.get("user_feedback") else {})}
             for turn in self._turns.get(conversation_id, [])
         ]
 
@@ -395,7 +417,7 @@ def _should_inherit_metric(content: str) -> bool:
 _settings = get_settings()
 conversation_memory = ConversationMemory(
     store_path=(
-        None
+        Path(tempfile.gettempdir()) / f"fab-ai-assistant-test-{os.getpid()}.sqlite3"
         if _settings.app_env == "test"
         else Path(_settings.assistant_state_store_path)
     )

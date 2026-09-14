@@ -195,9 +195,13 @@ def chat_stream(request: ChatRequest, http_request: Request) -> StreamingRespons
                     "status": final["status"],
                     "sql": final["sql"],
                     "limitations": final["limitations"],
+                    "evidence": final["evidence"],
+                    "citations": final["citations"],
+                    "answer_review": final["answer_review"],
                 },
             )
             final["conversation_history"] = final_history
+            final["message_id"] = final_history[-1]["metadata"]["message_id"]
             yield _sse(
                 "final",
                 _with_stream_telemetry(
@@ -271,7 +275,10 @@ def feedback(payload: FeedbackRequest) -> FeedbackResponse:
     try:
         return feedback_service.record(payload)
     except KeyError as exc:
-        raise HTTPException(status_code=404, detail="conversation_id was not found") from exc
+        detail = "message_id was not found in conversation" if payload.message_id else "conversation_id was not found"
+        raise HTTPException(status_code=404, detail=detail) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 @router.post("/agent-trace")

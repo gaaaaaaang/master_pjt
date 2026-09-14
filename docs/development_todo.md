@@ -226,7 +226,9 @@
    - [x] negative feedback과 comment를 다음 Planner/Reflection/Composer history에 전달한다.
    - [x] SC-001~SC-004 후속 질문 4개 sequence/8개 turn 평가 fixture와 CLI를 추가했다.
    - [x] 시나리오/후속질문 CLI는 `--live`를 명시해야 Azure/DB를 호출하도록 fail-closed 처리했다.
-   - [ ] 운영 환경의 retention, anonymization, verified feedback promotion 정책을 확정한다.
+   - [x] 답변 ID에 연결한 평가/의견/수정과 승인된 few-shot 검색을 구현한다.
+   - [x] 로컬 CLI의 원문 검토·비식별화·승인/철회 및 legacy 오연결 audit 복구를 추가한다.
+   - [ ] 운영 환경의 retention, 개인별 접근 제어와 조직별 검토자 정책을 확정한다.
 6. [ ] SC-003 Impact 계산식/기준값 계약을 확장한다.
    - [x] utilization `%p` 변화의 capacity/lotcomps 1차 민감도와 cycle-time 변화 후 값을 계산한다.
    - [x] 계산 입력, 공식, numeric-column 평균 집계법, source table provenance, 가정/한계를

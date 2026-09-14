@@ -1,0 +1,109 @@
+{
+  "synthetic_only": true,
+  "production_state_modified": false,
+  "results": [
+    {
+      "case": "current_wip",
+      "few_shot": false,
+      "passed": true,
+      "answer": "확인된 데이터 기준 FAB11 WIP는 123 LOT입니다(2026-09-13 00:00 KST 시점). 단, 테스트용 합성 데이터로 실제 공장 현재 WIP를 나타내지는 않습니다.",
+      "diagnostics": {
+        "feedback_example_ids": [],
+        "execution_mode": "llm_chat_completions"
+      },
+      "grounding": {}
+    },
+    {
+      "case": "document_current_rule",
+      "few_shot": false,
+      "passed": true,
+      "answer": "CMP 점검 주기는 7분입니다. [1]\n\n[1] synthetic_current_manual.txt, p.1",
+      "diagnostics": {
+        "feedback_example_ids": [],
+        "execution_mode": "document_grounded"
+      },
+      "grounding": {
+        "status": "supported",
+        "validation": "verified_quotes_and_model_review",
+        "citations": [
+          {
+            "number": 1,
+            "chunk_id": "synthetic_current_rule",
+            "quote": "CMP 점검 주기는 7분입니다.",
+            "source_document": "synthetic_current_manual.txt",
+            "page_number": 1
+          }
+        ],
+        "review": {
+          "complete": true,
+          "coverage": [
+            {
+              "requirement": "CMP 점검 주기",
+              "covered": true,
+              "reason": "출처에 CMP 점검 주기가 7분이라고 명시되어 있습니다."
+            }
+          ],
+          "checks": [
+            {
+              "claim_index": 0,
+              "supported": true,
+              "reason": "인용문이 CMP 점검 주기를 7분으로 직접 명시합니다."
+            }
+          ],
+          "generation_attempts": 1,
+          "validation_errors": []
+        },
+        "version": "source_spans.v8"
+      }
+    }
+  ],
+  "usage": {
+    "call_count": 3,
+    "network_call_count": 3,
+    "failed_calls": 0,
+    "skipped_calls": 0,
+    "reported_total_tokens": 3160,
+    "unreported_usage_calls": 0,
+    "calls": [
+      {
+        "kind": "fab_final_answer",
+        "model": "gpt-5.6-luna",
+        "succeeded": true,
+        "input_tokens": 1368,
+        "output_tokens": 128,
+        "total_tokens": 1496,
+        "context_encoding": "plain",
+        "context_original_bytes": 1730,
+        "context_sent_bytes": 1730,
+        "transport_attempted": true,
+        "seconds": 2.238
+      },
+      {
+        "kind": "fab_grounded_answer",
+        "model": "gpt-5.6-luna",
+        "succeeded": true,
+        "input_tokens": 862,
+        "output_tokens": 45,
+        "total_tokens": 907,
+        "context_encoding": "plain",
+        "context_original_bytes": 400,
+        "context_sent_bytes": 400,
+        "transport_attempted": true,
+        "seconds": 1.377
+      },
+      {
+        "kind": "fab_grounded_review",
+        "model": "gpt-5.6-luna",
+        "succeeded": true,
+        "input_tokens": 635,
+        "output_tokens": 122,
+        "total_tokens": 757,
+        "context_encoding": "plain",
+        "context_original_bytes": 528,
+        "context_sent_bytes": 528,
+        "transport_attempted": true,
+        "seconds": 2.174
+      }
+    ]
+  }
+}

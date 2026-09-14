@@ -416,3 +416,10 @@ figure.chart{overflow:auto;padding-bottom:5px}
 .csv-copy{display:flex;align-items:center;gap:12px;margin-top:7px;flex-wrap:wrap}.csv-copy>span{font-size:10px;color:#8b95a1}
 
 .chart-scale-note { margin: 4px 0 0; color: var(--text-secondary, #64748b); font-size: 12px; }
+
+.feedback-comment{margin-top:8px;color:var(--text-muted,#64748b);font-size:13px}
+.feedback-comment-toggle{border:0;background:transparent;color:inherit;padding:4px 0;cursor:pointer}
+.feedback-comment form{display:grid;gap:10px;margin-top:8px;max-width:560px}
+.feedback-comment textarea{box-sizing:border-box;width:100%;min-height:80px;padding:12px;border:1px solid #dbe2ec;border-radius:10px;font:inherit;resize:vertical}
+.feedback-comment form button{justify-self:end}
+.feedback-actions [aria-pressed=true]{color:#2563eb;background:#eff6ff}

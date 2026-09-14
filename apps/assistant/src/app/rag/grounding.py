@@ -440,8 +440,10 @@ def apply_review(
 
 
 def compose_grounded(
-    question: str, evidence: list[dict[str, Any]], *, client=None
+    question: str, evidence: list[dict[str, Any]], *, client=None,
+    feedback_examples: list[dict[str, str]] | None = None,
 ) -> GroundedAnswer:
+    from app.services.few_shot_service import FEW_SHOT_RULES
     sources = document_sources(evidence)
     if not sources:
         result = render_grounded({"status": "insufficient", "claims": []}, sources)
@@ -461,11 +463,13 @@ def compose_grounded(
     try:
         model = client or AzureAgentClient(temperature=0.0)
         request = {"question": question, "sources": documents}
+        if feedback_examples:
+            request["feedback_examples"] = feedback_examples
         for attempt in range(2):
             generation_attempts += 1
             stage = "generation_api"
             selected = model.complete_json(
-                system_prompt=GROUNDING_PROMPT,
+                system_prompt=GROUNDING_PROMPT + ("\n\n" + FEW_SHOT_RULES if feedback_examples else ""),
                 input_data=request,
                 output_schema=schema,
                 schema_name="fab_grounded_answer",

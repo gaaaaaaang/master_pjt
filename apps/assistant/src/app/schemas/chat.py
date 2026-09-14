@@ -25,6 +25,7 @@ class Evidence(BaseModel):
 
 class ChatResponse(BaseModel):
     conversation_id: str
+    message_id: str | None = None
     status: str
     query_type: str
     answer: str
@@ -58,8 +59,12 @@ class FeedbackRequest(BaseModel):
     helpful: bool
     comment: str | None = Field(default=None, max_length=2000)
     trace_id: str | None = Field(default=None, max_length=128)
+    message_id: str | None = Field(default=None, min_length=1, max_length=128)
+    question: str | None = Field(default=None, min_length=1, max_length=32000)
+    answer: str | None = Field(default=None, min_length=1, max_length=64000)
 
 
 class FeedbackResponse(BaseModel):
     status: str
     feedback_id: str
+    message_id: str | None = None

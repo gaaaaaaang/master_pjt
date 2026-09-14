@@ -21,6 +21,17 @@ class FeedbackService:
         self.store = store
 
     def record(self, request: FeedbackRequest) -> FeedbackResponse:
+        if self.memory.is_persistent:
+            message_id = request.message_id
+            if not message_id and request.question and request.answer:
+                message_id = self.store.resolve_answer(request.conversation_id,
+                                                       question=request.question, answer=request.answer)
+            feedback_id = self.store.record_answer_feedback(
+                conversation_id=request.conversation_id, message_id=message_id,
+                helpful=request.helpful, comment=request.comment, trace_id=request.trace_id,
+            )
+            self.memory.refresh(request.conversation_id)
+            return FeedbackResponse(status="accepted", feedback_id=feedback_id, message_id=message_id)
         if not self.memory.has_conversation(request.conversation_id):
             raise KeyError(request.conversation_id)
         history = self.memory.attach_feedback(
@@ -28,6 +39,7 @@ class FeedbackService:
             helpful=request.helpful,
             comment=request.comment,
             trace_id=request.trace_id,
+            message_id=request.message_id,
         )
         feedback_id = self.store.record_feedback(
             conversation_id=request.conversation_id,

@@ -42,6 +42,9 @@ PYTHONPATH=apps/assistant/src uv run uvicorn app.main:app --reload
 ```
 
 기존 `.env`가 있으면 복사 단계는 생략해 현재 API·DB 설정을 보존합니다.
+대화 에이전트 기본 모델은 `gpt-5.6-luna`이며, 기존 환경은 `.env`의
+`OPENAI_MODEL`을 변경한 뒤 백엔드를 재시작하면 적용됩니다.
+현재 SKAX Luna 배포는 기본 temperature만 허용하므로 Luna 호출에서는 해당 옵션을 생략합니다.
 로컬 DB는 Docker 실행 후 `docker compose up -d postgres`로 기동합니다.
 `/health/ready`는 FAB10~13 데이터의 연결·적재 여부를 확인합니다.
 
@@ -95,3 +98,10 @@ npm run build
 - 대화 기록은 현재 탭의 세션 동안 저장됩니다. 분석 범위는 대화마다 설정할 수 있습니다.
 
 디자인 판단, 검증 내용, 남은 제한은 [프런트엔드 검토 기록](docs/frontend_adv_review.md)을 참고하세요.
+
+## 답변 평가와 few-shot
+
+답변의 좋아요/싫어요와 선택 의견은 서버 답변 ID에 연결해 SQLite에 저장합니다.
+좋은 평가는 검토 후보로 모이며, 로컬 CLI에서 질문·답변을 검토하고 승인한 예시만 유사 질문의
+답변 작성에 사용합니다. 평가 수정/승인 철회도 반영됩니다.
+저장 현황, 후보 검토, 기존 평가 복구, JSONL 내보내기는 [운영 문서](docs/feedback_few_shot.md)를 참고하세요.
